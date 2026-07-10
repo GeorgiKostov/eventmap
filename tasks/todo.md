@@ -21,10 +21,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       to the old SQLite shape so no consumer changed. 95 events imported, map/detail/writes verified live.
 - [x] **Scan model swap** — Gemini Flash-Lite primary → Claude Haiku fallback → CLI last, routed in
       `lib/extract.js`. Gemini key wired (routing + build verified; live poster scan not yet fired).
-- [ ] **George — push the repo.** First push needs GitHub auth: `git push -u origin main`
-      (or `brew install gh && gh auth login`). Never pushed yet (origin/main gone).
-- [ ] **Deploy to Vercel.** Set env: `DATABASE_URL` (pooler, required), `GEMINI_API_KEY`,
-      `NEXT_PUBLIC_BASE_URL` (absolute sitemap/share links).
+- [x] **Pushed to GitHub** (`git@github.com:GeorgiKostov/eventmap.git`, over SSH). main tracks origin.
+- [ ] **Deploy to Vercel** (George — dashboard import; MCP can't set env vars). Env: `DATABASE_URL`
+      (pooler, required — copy from `.env.local`), `GEMINI_API_KEY`, `NEXT_PUBLIC_BASE_URL` (live URL).
 - [ ] **Decide the name** and, once registered, rename "Umkreis" in UI + metadata + llms.txt.
       Live availability (2026-07-10): grok/sidequest .events now taken; okolo/afoot/nabo/outings/ambit
       free at $17.99 on `.events`. Shortlist in `docs/decisions/2026-07-10-naming.md`.
