@@ -5,7 +5,7 @@
       "name": "umkreis",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "cwd": "/Users/georgikostov/Desktop/umkreis",
+      "cwd": "/Users/georgikostov/Repositories/eventmap",
       "port": 3311
     }
   ]

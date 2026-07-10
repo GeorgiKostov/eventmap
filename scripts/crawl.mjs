@@ -3,7 +3,7 @@
 // Usage: npm run crawl          (all sources marked works=1)
 //        npm run crawl -- --url https://...   (single source)
 // Requires Claude API credentials (ANTHROPIC_API_KEY or `ant auth login`).
-import { getDb, upsertEvent, expireFinished } from '../lib/db.js';
+import { upsertEvent, expireFinished, getSourceByUrl, getWorkingSources, markSourceCrawled, closeDb } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { extractFromPage } from '../lib/extract.js';
 
@@ -79,7 +79,7 @@ async function crawlSource(src) {
     };
     const geo = await geocodeEvent(ev);
     if (!geo) continue;
-    upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
+    await upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
     ok++;
   }
   console.log(`  ${ok}/${events.length} events upserted`);
@@ -87,21 +87,17 @@ async function crawlSource(src) {
 }
 
 async function main() {
-  const db = getDb();
   const urlArg = process.argv.indexOf('--url');
-  const sources =
-    urlArg > -1
-      ? db.prepare('SELECT * FROM sources WHERE url=?').all(process.argv[urlArg + 1])
-      : db.prepare('SELECT * FROM sources WHERE works=1').all();
-  console.log(`Crawling ${sources.length} source(s) with model ${process.env.EXTRACT_MODEL || 'claude-haiku-4-5'} …`);
+  const sources = urlArg > -1 ? await getSourceByUrl(process.argv[urlArg + 1]) : await getWorkingSources();
+  console.log(`Crawling ${sources.length} source(s) …`);
   let total = 0;
   for (const src of sources) {
     const { ok } = await crawlSource(src);
     total += ok;
-    db.prepare("UPDATE sources SET last_crawled=datetime('now') WHERE id=?").run(src.id);
+    await markSourceCrawled(src.id);
   }
-  const expired = expireFinished();
+  const expired = await expireFinished();
   console.log(`\nCrawl done: ${total} events upserted, ${expired} expired.`);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => { console.error(e); process.exitCode = 1; }).finally(closeDb);

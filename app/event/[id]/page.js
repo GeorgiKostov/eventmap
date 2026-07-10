@@ -42,7 +42,7 @@ function jsonLd(ev) {
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const ev = getEvent(+id);
+  const ev = await getEvent(+id);
   if (!ev) return { title: 'Event nicht gefunden — Umkreis' };
   const when = ev.starts_at.slice(0, 10);
   return {
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }) {
 
 export default async function EventPage({ params }) {
   const { id } = await params;
-  const ev = getEvent(+id);
+  const ev = await getEvent(+id);
   if (!ev) notFound();
 
   const when = new Intl.DateTimeFormat('de-AT', {

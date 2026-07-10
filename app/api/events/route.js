@@ -5,7 +5,7 @@ import { geocodeEvent } from '../../../lib/geocode.js';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  return NextResponse.json({ events: publishedEvents() });
+  return NextResponse.json({ events: await publishedEvents() });
 }
 
 // Anonymous event creation from the scan confirm screen.
@@ -40,7 +40,7 @@ export async function POST(req) {
   let ends_at = body.ends_at || null;
   if (ends_at && ends_at <= body.starts_at) ends_at = null;
 
-  const res = upsertEvent({
+  const res = await upsertEvent({
     title: String(body.title).slice(0, 200),
     description: body.description ? String(body.description).slice(0, 500) : null,
     starts_at: body.starts_at,

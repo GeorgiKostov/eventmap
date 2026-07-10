@@ -3,7 +3,7 @@
 // Usage: npm run seed
 import fs from 'fs';
 import path from 'path';
-import { getDb, upsertEvent, upsertSource, expireFinished } from '../lib/db.js';
+import { upsertEvent, upsertSource, expireFinished, closeDb } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 
 const MINED_DIR = path.join(process.cwd(), 'data', 'mined');
@@ -47,7 +47,6 @@ function normalizeEvent(raw) {
 }
 
 async function main() {
-  getDb();
   const files = fs.readdirSync(MINED_DIR).filter((f) => f.endsWith('.json'));
   if (!files.length) {
     console.log(`No files in ${MINED_DIR} — nothing to seed.`);
@@ -56,19 +55,19 @@ async function main() {
   let ok = 0, skipped = 0, geoFail = 0, updated = 0;
   for (const file of files) {
     const data = JSON.parse(fs.readFileSync(path.join(MINED_DIR, file), 'utf8'));
-    for (const s of data.source_registry || []) upsertSource(s);
+    for (const s of data.source_registry || []) await upsertSource(s);
     for (const raw of data.events || []) {
       const ev = normalizeEvent(raw);
       if (!ev) { skipped++; continue; }
       const geo = await geocodeEvent(ev);
       if (!geo) { geoFail++; continue; }
-      const res = upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
+      const res = await upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
       res.updated ? updated++ : ok++;
       process.stdout.write(`  ${res.updated ? '↻' : '+'} ${ev.starts_at.slice(0, 10)} ${ev.title} @ ${ev.town} [${geo.geo_precision}]\n`);
     }
   }
-  const expired = expireFinished();
+  const expired = await expireFinished();
   console.log(`\nSeed done: ${ok} inserted, ${updated} updated, ${skipped} invalid, ${geoFail} un-geocodable, ${expired} expired.`);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => { console.error(e); process.exitCode = 1; }).finally(closeDb);

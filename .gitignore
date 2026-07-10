@@ -5,5 +5,4 @@ node_modules/
 data/uploads/*
 !data/uploads/.gitkeep
 .DS_Store
-data/umkreis.db-shm
-data/umkreis.db-wal
+data/umkreis.db*

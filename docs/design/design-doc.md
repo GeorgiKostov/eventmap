@@ -44,8 +44,9 @@ sources the big aggregators miss, and do people come back weekly? Everything els
 
 ## 3. Current status (2026-07-10)
 
-**Working prototype, locally + build-verified, moved to `eventmap` repo (not yet pushed —
-auth pending, see TODO).** What's live:
+**Working prototype on a live Supabase Postgres backend, build-verified, in the `eventmap` repo
+(not yet pushed — GitHub auth pending, see TODO).** Writes now persist (scan/publish are no longer
+ephemeral). What's live:
 
 - Map browser with **92 real events** across Linz + ~15 surrounding municipalities.
 - Google-Maps-style UI: desktop sidebar + map; mobile mini-card → full-screen detail.
@@ -56,13 +57,14 @@ auth pending, see TODO).** What's live:
   needs an API key at runtime.
 - **AI-readiness:** `/event/[id]` SSR pages with schema.org/Event JSON-LD, `sitemap.xml`,
   `public/llms.txt`, and an **MCP server** (`npm run mcp`) exposing search_events/get_event/list_sources.
-- Production `next build` passes; Vercel-hardened (bundled SQLite copied to `/tmp` on serverless).
+- Production `next build` passes. **Backend = Supabase Postgres** (`umkreis` schema; `lib/db.js` on
+  the `postgres` client over the transaction pooler); the old bundled-SQLite/`/tmp` hack is gone.
 
 ## 4. Architecture
 
 ```
 data/mined/*.json  (agent mining runs)   ─┐
-sources table      (npm run crawl)       ─┼─→ SQLite (events, sources, geocache)
+sources table      (npm run crawl)       ─┼─→ Supabase Postgres (umkreis schema: events, sources, geocache)
 poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or start+6h / all-day EOD) < now (Vienna)
                                                    ▼
                     Next.js app — MapLibre + OSM map, filters, detail,
@@ -71,9 +73,11 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 
 **Stack (chosen to be Supabase-portable):**
 - Next.js 15 (app router, plain JS), MapLibre GL + OpenFreeMap tiles (no Google dependency).
-- `better-sqlite3` now; schema mirrors the target Postgres+PostGIS layout for a mechanical port.
+- **Supabase Postgres** via the `postgres` client (transaction pooler), tables in the `umkreis`
+  schema (`lib/db.js`, one file). starts_at/ends_at stay Vienna wall-clock TEXT (timezone rule).
 - Nominatim geocoding (1 req/s, cached in `geocache`, town-centroid fallback).
-- Claude (Haiku) for extraction — posters and crawled pages share one schema (`lib/extract.js`).
+- **Gemini Flash-Lite primary → Claude Haiku fallback** for extraction — posters and crawled pages
+  share one schema; provider routing stays in `lib/extract.js` (no provider hardcoding in feature code).
 
 **Key files:**
 - `lib/db.js` — schema, upsert/dedup, expiry, Vienna-time helpers. **Single file to port to Supabase.**
@@ -123,7 +127,8 @@ flagged) → `POST /api/events` → geocode → live pin.
 see `docs/decisions/2026-07-10-scan-model-choice.md`. Short version: this is a **cheap,
 high-volume vision-OCR + structured-JSON + strong-German** task. **Google Gemini Flash-Lite is the
 price/performance leader** (lowest per-image cost, big free tier, strong multilingual OCR, native
-JSON schema); **Claude Haiku** (what we use now) is the quality/instruction-following leader;
+JSON schema) — **now wired as the primary in `lib/extract.js`**; **Claude Haiku** is the
+quality/instruction-following leader, kept as the fallback;
 **OpenAI mini** is the middle. Recommendation: keep the provider abstraction in `lib/extract.js`,
 run **Gemini Flash-Lite as primary for cost at scale, Claude Haiku as the fallback** for
 low-confidence/hard posters. Do not hardcode a provider in feature code (see AGENTS.md hard rules).
@@ -156,12 +161,12 @@ There is **no dominant open event-exchange protocol in the DACH region** — tha
 ## 10. Deployment
 
 - **GitHub Pages: won't work** (static only; we need a Node server for API/SSR/DB).
-- **Vercel: yes.** Import repo → deploy. Browsing works fully; the bundled seed DB is copied to
-  `/tmp` at cold start. **Writes (scan/publish) are ephemeral on serverless** until the Supabase port.
-- **Production backend = Supabase** (Postgres+PostGIS): mechanical port of `lib/db.js`; then
-  writes persist, `npm run crawl` moves to a Vercel Cron / GitHub Action, uploads → Supabase Storage.
-- Env vars: `ANTHROPIC_API_KEY` (or Gemini key once switched) for scan; `NEXT_PUBLIC_BASE_URL` for
-  absolute sitemap/share links.
+- **Vercel: yes.** Import repo → deploy. **Backend = Supabase Postgres** (done): dedicated project
+  `eventmap`, `umkreis` schema, transaction-pooler connection. Writes persist — no serverless caveat.
+- Env vars: `DATABASE_URL` (Supabase pooler, **required**); `GEMINI_API_KEY` (scan primary) /
+  `ANTHROPIC_API_KEY` (fallback); `NEXT_PUBLIC_BASE_URL` for absolute sitemap/share links.
+- **Still open:** `npm run crawl` → Vercel Cron / GitHub Action; poster uploads → Supabase Storage
+  (currently `/tmp`, ephemeral). PostGIS deferred (radius filter is client-side; lat/lng doubles suffice).
 
 ## 11. Open questions / risks
 

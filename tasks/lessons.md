@@ -2,6 +2,19 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-10 — Supabase connection strings: pooler host, URL-encoded password, `.env.local`
+
+Wiring the app to Supabase hit three avoidable snags in a row: (1) the **direct** host
+`db.<ref>.supabase.co` is IPv6-only and won't resolve in many envs — always use the **transaction
+pooler** (`aws-0-<region>.pooler.supabase.com:6543`, user `postgres.<ref>`, `prepare:false`).
+(2) A DB password with reserved characters **must be percent-encoded** inside `DATABASE_URL`, or
+the driver misparses it and tries the *username* as a hostname (`ENOTFOUND postgres.<ref>`).
+(3) The env file must be **`.env.local`** (leading dot) — `env.local` is silently ignored by Next,
+and plain `node scripts/*.mjs` needs `--env-file=.env.local` (it doesn't auto-load). **Lesson:** when
+a user pastes a Supabase URL, verify host≈pooler, port 6543, user `postgres.<ref>`, and a
+non-placeholder, encoded password before trying to connect. Reconstruct the pooler form from a
+direct string rather than asking for a re-paste.
+
 ## 2026-07-10 — Timezone must be pinned to Europe/Vienna, not the host
 
 Stored `starts_at`/`ends_at` are Vienna wall-clock strings. The first cut compared them against

@@ -66,7 +66,7 @@ server.registerTool(
   async (args) => {
     const center = { lat: args.near_lat ?? 48.3, lng: args.near_lng ?? 14.29 };
     const q = args.query?.toLowerCase();
-    let results = publishedEvents().filter((ev) => {
+    let results = (await publishedEvents()).filter((ev) => {
       const d = ev.starts_at.slice(0, 10);
       const dEnd = (ev.ends_at || ev.starts_at).slice(0, 10);
       if (args.date_from && dEnd < args.date_from) return false;
@@ -101,7 +101,7 @@ server.registerTool(
     inputSchema: { id: z.number() },
   },
   async ({ id }) => {
-    const ev = getEvent(id);
+    const ev = await getEvent(id);
     return {
       content: [{ type: 'text', text: ev ? JSON.stringify(slim(ev), null, 1) : 'Not found' }],
     };
@@ -116,7 +116,7 @@ server.registerTool(
     inputSchema: {},
   },
   async () => ({
-    content: [{ type: 'text', text: JSON.stringify(listSources(), null, 1) }],
+    content: [{ type: 'text', text: JSON.stringify(await listSources(), null, 1) }],
   })
 );
 

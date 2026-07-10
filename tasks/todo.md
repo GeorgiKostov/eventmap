@@ -16,18 +16,22 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Moved to `eventmap` repo; agent scaffold + design doc (this structure) added.
 
 ## Now / next
-- [ ] **George — push the repo.** First push needs GitHub auth (keychain didn't have it in the
-      sandbox): `cd ~/Repositories/eventmap && git push -u origin main` (or `brew install gh && gh auth login`).
-- [ ] **George — deploy to Vercel** (read-only demo works out of the box). Optional env:
-      `ANTHROPIC_API_KEY` (scan), `NEXT_PUBLIC_BASE_URL` (absolute sitemap/share links).
-- [ ] **Decide the name** and, once registered, rename the "Umkreis" branding in UI + metadata +
-      llms.txt. Shortlist in `docs/decisions/2026-07-10-naming.md`.
-- [ ] **Scan model swap (cost):** add a Gemini Flash-Lite path in `lib/extract.js` as primary,
-      Claude Haiku as fallback. Keep the provider abstraction. (`docs/decisions/2026-07-10-scan-model-choice.md`.)
+- [x] **Supabase Postgres port** — `lib/db.js` on the `postgres` client over the transaction pooler;
+      dedicated `umkreis` schema; starts_at/ends_at kept as Vienna-TEXT; booleans/arrays normalized
+      to the old SQLite shape so no consumer changed. 95 events imported, map/detail/writes verified live.
+- [x] **Scan model swap** — Gemini Flash-Lite primary → Claude Haiku fallback → CLI last, routed in
+      `lib/extract.js`. Gemini key wired (routing + build verified; live poster scan not yet fired).
+- [ ] **George — push the repo.** First push needs GitHub auth: `git push -u origin main`
+      (or `brew install gh && gh auth login`). Never pushed yet (origin/main gone).
+- [ ] **Deploy to Vercel.** Set env: `DATABASE_URL` (pooler, required), `GEMINI_API_KEY`,
+      `NEXT_PUBLIC_BASE_URL` (absolute sitemap/share links).
+- [ ] **Decide the name** and, once registered, rename "Umkreis" in UI + metadata + llms.txt.
+      Live availability (2026-07-10): grok/sidequest .events now taken; okolo/afoot/nabo/outings/ambit
+      free at $17.99 on `.events`. Shortlist in `docs/decisions/2026-07-10-naming.md`.
 
-## Production backend (the real unlock — do before the site is "live for writes")
-- [ ] Port `lib/db.js` to Supabase Postgres + PostGIS (lat/lng → geography(point), categories → text[],
-      keep content_hash unique). One-file port by design.
+## Production backend (mostly done)
+- [x] Supabase Postgres port (see above). PostGIS deferred — radius filter is client-side; lat/lng
+      doubles suffice. Adding a generated `geography(point)` + GIST index is a one-line future migration.
 - [ ] Move `npm run crawl` to a Vercel Cron / GitHub Action (every 2–3 days).
 - [ ] Poster uploads → Supabase Storage (currently `/tmp` on serverless, ephemeral).
 

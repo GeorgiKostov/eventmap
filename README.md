@@ -8,14 +8,20 @@ Working title; no accounts, no tracking.
 
 ```bash
 npm install
-npm run dev        # → http://localhost:3311
+cp .env.example .env.local   # then fill DATABASE_URL (+ GEMINI_API_KEY for scan)
+npm run dev                  # → http://localhost:3311
 ```
 
-The database (`data/umkreis.db`, SQLite) ships pre-seeded with real events from
-linztermine.at, ~14 Gemeinde websites, familienkarte.at and erlebe.enns.at.
+The database is **Supabase Postgres** (our tables live in the `umkreis` schema). Set
+`DATABASE_URL` to the project's **transaction-pooler** connection string. First-time
+setup: `npm run seed:sql -- db/schema.sql` creates the tables; then seed events with
+`npm run seed` (re-imports `data/mined/*.json` → geocode → upsert).
 
-**Poster scan** needs Claude credentials: copy `.env.example` → `.env.local` and set
-`ANTHROPIC_API_KEY` (or have Claude Code installed — it falls back to `claude -p`).
+Real events come from linztermine.at, ~14 Gemeinde websites, familienkarte.at and erlebe.enns.at.
+
+**Poster scan** uses Gemini Flash-Lite (primary) → Claude Haiku (fallback): set
+`GEMINI_API_KEY` and/or `ANTHROPIC_API_KEY` in `.env.local` (without either, it falls back
+to the local `claude` CLI if installed).
 
 ## Commands
 
@@ -23,14 +29,15 @@ linztermine.at, ~14 Gemeinde websites, familienkarte.at and erlebe.enns.at.
 |---|---|
 | `npm run dev` | Start the app on port 3311 |
 | `npm run seed` | Re-import `data/mined/*.json` (validate → geocode → upsert → expire) |
-| `npm run crawl` | Recrawl all registered sources (fetch → Claude extraction → geocode → upsert). Run every few days. Needs API key. |
+| `npm run seed:sql -- <file>` | Run a `.sql` file against the DB (e.g. `db/schema.sql` for first-time setup) |
+| `npm run crawl` | Recrawl all registered sources (fetch → AI extraction → geocode → upsert). Run every few days. Needs an extraction key. |
 
 ## How it works
 
 ```
 data/mined/*.json  (agent mining runs)   ─┐
-sources table      (npm run crawl)       ─┼─→ SQLite (events, sources, geocache)
-poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or start+6h) < now
+sources table      (npm run crawl)       ─┼─→ Supabase Postgres (umkreis schema: events, sources, geocache)
+poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or start+6h) < now (Vienna)
                                                    ▼
                                     Next.js app — MapLibre + OSM map,
                                     filters (date/radius/category/gratis/outdoor),
@@ -40,8 +47,8 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 - **Map:** MapLibre GL + OpenFreeMap tiles (no Google dependency, no API key).
 - **Geocoding:** Nominatim (1 req/s, cached in `geocache` table) with town-centroid fallback;
   pins with dashed border = town-level precision only.
-- **Extraction:** Claude Haiku 4.5 (`lib/extract.js`) — poster images and crawled pages share
-  the same schema. Structured outputs guarantee valid JSON.
+- **Extraction:** Gemini Flash-Lite primary → Claude Haiku fallback (`lib/extract.js`) — poster
+  images and crawled pages share one schema; provider routing stays inside this one file.
 - **Expiration:** events disappear from the map once over (`ends_at`, or start + 6h if no end).
 - **Dedup:** normalized title + day + town (`content_hash`), so recrawls update instead of duplicate.
 - **Legal:** we index facts (title/date/place) with linkback to the official source and write our
@@ -53,31 +60,26 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 needs a Node server (API routes, SSR event pages, sitemap). Use **Vercel** (it runs
 Next.js natively).
 
-### Live demo on Vercel (read-only, ~5 min)
+### Backend: Supabase Postgres (live)
 
-Import the GitHub repo at [vercel.com/new](https://vercel.com/new). Framework = Next.js,
-defaults are fine. The seeded SQLite DB ships in the bundle and is copied to `/tmp` at
-cold start (see `resolveDbPath()` in `lib/db.js`), so **browsing works fully** — map,
-filters, detail, `/event/[id]` pages with JSON-LD, sitemap.
+`lib/db.js` talks to Supabase over the **transaction pooler** (serverless-safe) via the
+`postgres` client. Our tables live in a dedicated `umkreis` schema, pinned by `search_path`
+— so the whole thing dumps/restores into a standalone project cleanly. `starts_at`/`ends_at`
+stay TEXT Vienna wall-clock strings (never `timestamptz` — see the timezone rule). Writes
+(scan/publish) **persist** — no more ephemeral serverless limitation.
 
-Optional env vars (Project → Settings → Environment Variables):
-- `ANTHROPIC_API_KEY` — enables the poster-scan feature.
-- `NEXT_PUBLIC_BASE_URL` — your deployed URL, so sitemap/share links are absolute.
+First-time DB setup: `npm run seed:sql -- db/schema.sql`, then `npm run seed`.
 
-Demo limitation: on serverless the filesystem is ephemeral, so **newly scanned/published
-events don't persist** across cold starts. That's the cue to do the real backend ⬇︎
+### Deploy on Vercel
 
-### Production backend (Supabase)
+Import the GitHub repo at [vercel.com/new](https://vercel.com/new) (Framework = Next.js).
+Set env vars (Project → Settings → Environment Variables):
+- `DATABASE_URL` — Supabase transaction-pooler connection string (**required**).
+- `GEMINI_API_KEY` — poster-scan extraction (primary). `ANTHROPIC_API_KEY` optional fallback.
+- `NEXT_PUBLIC_BASE_URL` — your live URL, so sitemap/share links are absolute.
 
-The schema mirrors Supabase's Postgres layout on purpose, so this is a mechanical port:
-
-1. Create a Supabase project; port `lib/db.js` tables to Postgres + PostGIS
-   (`lat/lng` → `geography(point)`, `categories` TEXT → `text[]`, keep `content_hash` unique).
-2. Swap `better-sqlite3` calls for `@supabase/supabase-js` in `lib/db.js` (single file).
-3. Move `npm run crawl` to a Vercel Cron / GitHub Action every 2–3 days.
-4. Poster uploads → Supabase Storage instead of `data/uploads/`.
-
-After this, publishing/scan persist and the site is fully production-ready.
+Still open: move `npm run crawl` to a Vercel Cron / GitHub Action (every 2–3 days), and
+poster uploads → Supabase Storage (currently `/tmp` on serverless, ephemeral).
 
 ## Data sources & recrawl notes
 
