@@ -148,6 +148,20 @@ Every record links back to them (traffic + goodwill). Selling structured/fresh e
 companies becomes viable only *after* we own regional density — which loops back to the Linz test.
 There is **no dominant open event-exchange protocol in the DACH region** — that gap is the opening.
 
+**The middle layer — trade distribution for supply** (`docs/decisions/2026-07-11-middle-layer-strategy.md`):
+the sharpened framing is that we sit *between* events and everyone searching for them, and we **pay for
+supply with distribution**. We give organizers the SEO + AI discoverability they can't build themselves
+(JSON-LD, sitemap, llms.txt, MCP) plus referral traffic; in exchange they let us index and enrich their
+events. The consideration is a capability we have on day one, not audience size we don't — which is how
+we offer real value before we're big. The `source_url` linkback we already owe (facts-only hard rule) *is*
+the payment. Two guardrails are load-bearing: (1) the traffic is **back-loaded** — its value to suppliers
+depends on us owning demand density first, so this does not replace the Linz test, it depends on it; and
+(2) **doing the distribution job too well makes us skippable** (Google/AI answer straight from `source_url`),
+so the middle layer is only defensible bolted onto an *owned, retained family audience* + aggregation/curation
+the bare source can't replicate — never as pure pass-through pipes. The barter bites hardest on the
+**commercial/semi-commercial** long tail (venues, festivals, paid workshops) who want reach; civic
+micro-events we simply crawl. Nearest build expression is a **"claim your event"** flow — post-validation.
+
 ## 9. UI model
 
 - **Desktop:** fixed left sidebar (list / filters / detail) + map fills the rest. Selecting an
@@ -180,5 +194,9 @@ There is **no dominant open event-exchange protocol in the DACH region** — tha
    Watch that the scan flow isn't altruism-only.
 5. We are the supply engine for the first 6–12 months (walking Linz photographing posters). Budget
    for that emotionally.
+6. **Self-disintermediation.** The middle-layer/AI-readiness strategy (§8) is double-edged: perfect
+   JSON-LD lets Google and AI assistants answer straight from the `source_url` and skip us entirely.
+   The plumbing is not the moat — aggregation + family lens + retained audience is. Watch that we don't
+   optimize ourselves out of the loop we're trying to own.
 
 See `tasks/todo.md` for the actionable queue and `docs/decisions/` for locked calls.

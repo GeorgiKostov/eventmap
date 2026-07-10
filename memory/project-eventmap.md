@@ -29,6 +29,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - Data ethics/law: facts + linkback only, never copy prose/images; never fabricate; Vienna-time everywhere.
 - Strategy: families-first, one region at a time; B2B2C "publish once, found everywhere" (Google + AI/MCP);
   crawl is the bootstrap, RiS-Kommunal/GEM2GO write-integration is the graduation.
+- Middle layer = **trade distribution for supply** (`docs/decisions/2026-07-11-middle-layer-strategy.md`):
+  give organizers SEO/AI discoverability they can't build (JSON-LD/MCP) + referral traffic, get their events.
+  Two guardrails: value is back-loaded on owning Linz demand first; and perfect JSON-LD risks
+  self-disintermediation (Google/AI answer from source_url, skip us) → moat is aggregation+family lens+
+  retained audience, not the plumbing. Mechanism: "claim your event" (post-validation).
 
 ## Open decisions
 - Final name (+ register, then rebrand UI/metadata/llms.txt).

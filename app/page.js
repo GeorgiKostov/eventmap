@@ -763,7 +763,7 @@ export default function Home() {
                 <button className="langbtn" onClick={switchLang}>{lang === 'de' ? 'EN' : 'DE'}</button>
               </div>
             </div>
-            <div className="chiprow" style={{ padding: '0 18px 10px' }}>{dateChips}</div>
+            <div className="chiprow" style={{ padding: '0 18px 10px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>{dateChips}</div>
             <div className="chiprow" style={{ padding: '0 18px 12px' }}>
               <button className={`chip ${showFilters ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
                 ⚙︎ {t.filters} {badge > 0 && <span className="badge">{badge}</span>}

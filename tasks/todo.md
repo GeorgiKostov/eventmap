@@ -45,3 +45,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] More extraction fields: ticket links, prices, organizer, recurring schedules, opening hours.
 - [ ] New source types: Gemeinde PDF year-calendars, parish newsletters, oeticket/Eventbrite.
 - [ ] RiS-Kommunal / GEM2GO write-API/MCP integration (publish-once → no crawl, no double entry).
+- [ ] **"Claim your event" flow** — the single-organizer version of the distribution-for-supply barter
+      (`docs/decisions/2026-07-11-middle-layer-strategy.md`): claim → light dashboard (enrich price/ticket
+      link/updates) → embeddable widget + "Found on Google & AI via Umkreis" badge + referral stats.
+- [ ] One-page **organizer pitch** for the commercial/semi-commercial segment (venues, festivals, paid
+      workshops) — trade our SEO/AI distribution for their event feed. Not for civic micro-events (crawled).
