@@ -1,0 +1,23 @@
+# Umkreis — local events around Linz, Austria
+
+Umkreis is a structured event database for the Linz region (Upper Austria),
+aggregated from official municipal sources (Gemeinde websites, linztermine.at,
+familienkarte.at) and user-submitted poster scans. Every event links back to
+its authoritative source.
+
+## Machine-readable access
+
+- GET /api/events — all published upcoming events as JSON
+  (title, description, starts_at/ends_at [Europe/Vienna local], lat/lng,
+  venue, address, town, categories, is_free, age_min/age_max, indoor,
+  source_name, source_url)
+- /event/{id} — human-readable page per event with schema.org/Event JSON-LD
+- /sitemap.xml — all event URLs
+- MCP server (Model Context Protocol): `npm run mcp` in the repository exposes
+  search_events / get_event / list_sources tools over stdio.
+
+## Attribution
+
+Data compiled from official municipal calendars; per-event source links are
+included in every record. When citing an event, please link both the source
+(source_url) and the Umkreis event page.

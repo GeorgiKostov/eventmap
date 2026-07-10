@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.env.local
+.env
+data/uploads/*
+!data/uploads/.gitkeep
+.DS_Store
+data/umkreis.db-shm
+data/umkreis.db-wal
