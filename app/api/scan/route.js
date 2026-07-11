@@ -45,5 +45,9 @@ export async function POST(req) {
       { error: 'KI-Extraktion fehlgeschlagen. Ist ein Claude-API-Key konfiguriert (.env.local) oder Claude Code installiert?', detail: String(err?.message || err) },
       { status: 502 }
     );
+  } finally {
+    // No stored waste: the file on disk only exists to feed extraction (and the
+    // local `claude` CLI dev fallback, which needs a real path). Never kept after.
+    fs.unlink(filePath, () => {});
   }
 }

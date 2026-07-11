@@ -53,6 +53,9 @@ a { color: inherit; }
 }
 @media (max-width: 899px) {
   .desktoponly { display: none !important; }
+  /* Pinch-to-zoom is native on mobile (Google Maps hides its zoom buttons there
+     too); freeing the top-right corner avoids it colliding with the actions menu. */
+  .maplibregl-ctrl-top-right { display: none !important; }
 }
 
 /* ================= sidebar ================= */
@@ -206,6 +209,11 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   background: color-mix(in srgb, var(--good) 8%, transparent);
   padding: 2px 7px; border-radius: 99px;
 }
+.row .tag.closed {
+  color: var(--muted);
+  border-color: var(--line);
+  background: var(--panel2);
+}
 .empty { padding: 30px 20px; text-align: center; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
 .empty button { color: var(--accent); font-weight: 700; margin-top: 6px; }
 
@@ -222,18 +230,25 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .pin2:hover { transform: scale(1.12); z-index: 5; }
 .pin2.town-precision { border-style: dashed; }
+/* places: evergreen locations get a plain circle vs the event teardrop — subtle,
+   consistent distinction that still reads as "same family of pin". */
+.pin2.pin-place { border-radius: 50%; }
 .pin2.selected {
   transform: scale(1.3);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--cc) 30%, transparent), 0 4px 14px rgba(23, 32, 28, 0.4);
   z-index: 6;
 }
 .me-marker { width: 16px; height: 16px; border-radius: 50%; background: #3d7dc9; border: 3px solid #fff; box-shadow: 0 0 0 5px rgba(61, 125, 201, 0.22); }
+.me-marker.hidden { display: none; }
+/* "search anywhere" temporary marker at the picked location */
+.search-marker { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); }
 
 /* ================= mobile top bar ================= */
 .m-topbar {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 15;
-  display: flex; align-items: center; justify-content: space-between;
+  position: absolute; top: 0; left: 0; z-index: 15;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
   padding: 12px 12px 0; pointer-events: none;
+  max-width: calc(100% - 64px); /* leave room for the top-right actions menu */
 }
 .m-topbar > * { pointer-events: auto; }
 .m-brand {
@@ -244,6 +259,74 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .m-brand .dot { color: var(--accent); }
 .m-brand small { font-family: var(--font-body); font-weight: 600; font-size: 9px; color: var(--muted); letter-spacing: 0.09em; text-transform: uppercase; }
+
+/* ================= top-right actions menu ================= */
+.menubtn {
+  position: absolute; top: 12px; right: 12px; z-index: 16;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--line); color: var(--ink);
+  display: grid; place-items: center; font-size: 19px; font-weight: 700; line-height: 1;
+  box-shadow: var(--shadow-md);
+}
+.menubtn:hover { border-color: var(--muted); }
+@media (min-width: 900px) { .menubtn { top: 16px; right: 60px; } }
+.menu-scrim { position: fixed; inset: 0; z-index: 16; background: transparent; }
+.menudrop {
+  position: absolute; top: 58px; right: 12px; z-index: 17;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: var(--shadow-lg); padding: 6px; min-width: 200px;
+}
+@media (min-width: 900px) { .menudrop { top: 62px; right: 60px; } }
+.menuitem {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 10px 12px; border-radius: 10px; font-size: 13.5px; font-weight: 650; text-align: left;
+}
+.menuitem:hover { background: var(--panel2); }
+.menuitem .ic { width: 18px; text-align: center; flex: 0 0 auto; }
+
+/* ================= locality pill + expanding search ================= */
+.locsearch { position: relative; }
+.locsearch-row { display: flex; align-items: center; gap: 8px; }
+.loc-chip {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 700;
+  color: var(--muted); background: var(--panel2); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 12px; white-space: nowrap;
+}
+.searchwrap {
+  display: flex; align-items: center; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 999px; overflow: hidden;
+  transition: width 0.22s ease, flex 0.22s ease;
+}
+.searchtoggle { width: 34px; height: 34px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 999px; font-size: 14px; }
+.searchinput { border: none; background: none; outline: none; font-size: 13.5px; font-weight: 600; color: var(--ink); padding: 0 4px 0 12px; width: 100%; min-width: 0; }
+.locsearch.floaty .loc-chip, .locsearch.floaty .searchwrap { box-shadow: var(--shadow-md); }
+.locsearch.floaty .searchwrap { width: 34px; }
+.locsearch.floaty .searchwrap.open { width: 230px; }
+.sidehead .locsearch { margin: 0 0 14px; }
+.sidehead .searchwrap.open { flex: 1 1 auto; }
+.searchcenter-chip {
+  margin-top: 7px; display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent);
+  border-radius: 999px; padding: 6px 11px 6px 12px; font-size: 12px; font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+.searchcenter-chip .x { font-size: 11px; opacity: 0.85; }
+.locsearch.floaty .searchcenter-chip { box-shadow: var(--shadow-md); }
+.search-results {
+  margin-top: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: var(--shadow-lg); overflow: hidden; max-width: 280px;
+}
+.search-section + .search-section { border-top: 1px solid var(--line); }
+.search-sechead {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--muted); padding: 9px 13px 4px;
+}
+.search-row { display: block; width: 100%; text-align: left; padding: 9px 13px; font-size: 12.5px; font-weight: 650; border-bottom: 1px solid var(--line); }
+.search-row:last-child { border-bottom: none; }
+.search-row:hover { background: var(--panel2); }
+.search-row span { display: block; font-size: 11px; font-weight: 500; color: var(--muted); margin-top: 1px; }
+.search-row.loc { color: var(--accent); }
+.search-loading, .search-empty { padding: 9px 13px 12px; font-size: 12px; color: var(--muted); }
 
 /* ================= mobile bottom bar & sheet ================= */
 .m-bottombar {
@@ -324,6 +407,17 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .dbody { flex: 1 1 auto; padding: 18px 20px 24px; overflow-y: auto; }
 .dbody h2 { margin: 0 0 4px; font-family: var(--font-display); font-size: 22px; line-height: 1.2; letter-spacing: -0.01em; }
 .dwhen { color: var(--accent); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; margin-bottom: 12px; }
+.dwhen.place-open.open { color: var(--good); }
+.dwhen.place-open.closed { color: var(--warn); }
+.dwhen.place-open.always { color: var(--good); }
+.hourswk { margin: -6px 0 12px; font-size: 12.5px; }
+.hourswk summary { color: var(--muted); font-weight: 650; cursor: pointer; list-style: none; }
+.hourswk summary::-webkit-details-marker { display: none; }
+.hourswk summary::before { content: '▸ '; }
+.hourswk[open] summary::before { content: '▾ '; }
+.hourslist { padding: 8px 2px 0; display: flex; flex-direction: column; gap: 4px; }
+.hourrow { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); }
+.hourrow span:first-child { font-weight: 650; color: var(--ink); }
 .dmeta { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; font-size: 13.5px; }
 .dmeta > div { display: flex; gap: 10px; align-items: baseline; }
 .dmeta .k { flex: 0 0 16px; text-align: center; color: var(--muted); }
@@ -351,7 +445,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .abtn:hover { border-color: #cfcfc6; }
 .abtn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-/* ================= FAB ================= */
+/* ================= FAB (reserved for real actions — none currently use it) ================= */
 .fab {
   position: absolute; right: 14px; bottom: calc(70px + env(safe-area-inset-bottom)); z-index: 14;
   width: 54px; height: 54px; border-radius: 18px;
@@ -362,7 +456,30 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .fab:active { transform: scale(0.94); }
 .fab.hidden { opacity: 0; pointer-events: none; }
-@media (min-width: 900px) { .fab { bottom: 18px; right: 18px; } }
+.fab.lifted { bottom: calc(160px + env(safe-area-inset-bottom)); } /* clears the mini-card */
+@media (min-width: 900px) {
+  .fab { bottom: 18px; right: 18px; }
+  .fab.lifted { bottom: 108px; }
+}
+
+/* ================= locate-me control (standard map control, not an action FAB) ================= */
+.locate-btn {
+  position: absolute; right: 14px; bottom: calc(70px + env(safe-area-inset-bottom)); z-index: 14;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--panel); border: 1px solid var(--line); color: #5f6b68;
+  display: grid; place-items: center;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.15s, opacity 0.2s, color 0.15s, border-color 0.15s;
+}
+.locate-btn:hover { border-color: #cfcfc6; }
+.locate-btn:active { transform: scale(0.94); }
+.locate-btn.hidden { opacity: 0; pointer-events: none; }
+.locate-btn.lifted { bottom: calc(160px + env(safe-area-inset-bottom)); } /* clears the mini-card */
+.locate-btn.active { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+@media (min-width: 900px) {
+  .locate-btn { bottom: 18px; right: 18px; }
+  .locate-btn.lifted { bottom: 108px; }
+}
 
 /* ================= capture / scan ================= */
 .capture {
@@ -427,6 +544,43 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   background: color-mix(in srgb, var(--warn) 10%, var(--panel));
   border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line));
   border-radius: 12px; padding: 10px 13px; font-size: 12.5px; line-height: 1.5;
+}
+
+/* ================= add-a-place: location + opening hours ================= */
+.locseg { margin: -2px 0 0; }
+.hoursform { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.hoursformrow { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.hoursformrow span:first-child { width: 24px; font-weight: 700; color: var(--muted); }
+.hoursformrow input[type="time"] {
+  flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 5px 7px;
+  font-size: 12.5px; font-family: inherit; color: var(--ink); background: var(--panel);
+}
+.seasonalinput {
+  width: 100%; margin-top: 10px; border: 1px solid var(--line); border-radius: 10px;
+  padding: 9px 11px; font-size: 13px; font-family: inherit; color: var(--ink); background: var(--panel);
+}
+.posset { font-size: 12.5px; font-weight: 650; color: var(--good); margin-top: 8px; }
+.refinehint { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 0; }
+
+/* ================= pin-drop picker (drag map under a fixed center pin) ================= */
+.pinpicker { position: relative; height: 260px; flex-shrink: 0; border-radius: 16px; overflow: hidden; background: var(--panel2); }
+/* maplibre-gl injects its own .maplibregl-map class (position:relative) onto
+   the container we pass it; beat that with a two-class selector, not source order. */
+.pinpicker .pinpicker-map { position: absolute; inset: 0; }
+.pinpicker-crosshair {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -92%);
+  font-size: 34px; pointer-events: none; z-index: 2;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+}
+.pinpicker-hint {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 2;
+  background: rgba(20, 26, 24, 0.72); color: #fff; font-size: 11.5px; font-weight: 600;
+  padding: 6px 12px; border-radius: 99px; white-space: nowrap; max-width: 88%;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.pinpicker-confirm {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 2;
+  flex: 0 0 auto; width: auto; padding: 10px 18px;
 }
 
 /* ================= toast / loading ================= */

@@ -13,6 +13,10 @@ function isoVienna(local) {
 }
 
 function jsonLd(ev) {
+  // Places (kind='place') are evergreen locations, not schema.org Events —
+  // they have no starts_at/ends_at. Skip Event JSON-LD for them (a dedicated
+  // Place/LocalBusiness schema is a later decision, not needed for the prototype).
+  if (ev.kind === 'place') return null;
   return {
     '@context': 'https://schema.org',
     '@type': 'Event',
@@ -44,10 +48,10 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const ev = await getEvent(+id);
   if (!ev) return { title: 'Event nicht gefunden — Umkreis' };
-  const when = ev.starts_at.slice(0, 10);
+  const when = ev.starts_at ? ev.starts_at.slice(0, 10) : null;
   return {
-    title: `${ev.title} — ${when} · Umkreis`,
-    description: ev.description || `${ev.title} in ${ev.town || 'Linz'} am ${when}.`,
+    title: when ? `${ev.title} — ${when} · Umkreis` : `${ev.title} · Umkreis`,
+    description: ev.description || `${ev.title} in ${ev.town || 'Linz'}${when ? ` am ${when}.` : '.'}`,
     openGraph: {
       title: ev.title,
       description: ev.description || undefined,
@@ -62,21 +66,26 @@ export default async function EventPage({ params }) {
   const ev = await getEvent(+id);
   if (!ev) notFound();
 
-  const when = new Intl.DateTimeFormat('de-AT', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-  }).format(new Date(ev.starts_at.slice(0, 10) + 'T12:00'));
+  const ld = jsonLd(ev);
+  const when = ev.starts_at
+    ? new Intl.DateTimeFormat('de-AT', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      }).format(new Date(ev.starts_at.slice(0, 10) + 'T12:00'))
+    : null;
 
   return (
     <main style={{ maxWidth: 640, margin: '0 auto', padding: '40px 20px', fontFamily: 'var(--font-body)' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(ev)) }} />
+      {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />}
       <p style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18 }}>
         <Link href="/" style={{ textDecoration: 'none' }}>Umkreis<span style={{ color: 'var(--accent)' }}>.</span></Link>
       </p>
       <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 30, lineHeight: 1.2, margin: '18px 0 6px' }}>{ev.title}</h1>
-      <p style={{ color: 'var(--accent)', fontWeight: 700, margin: '0 0 16px' }}>
-        {when}
-        {ev.all_day ? ' · ganztägig' : ` · ${ev.starts_at.slice(11, 16)} Uhr`}
-      </p>
+      {when && (
+        <p style={{ color: 'var(--accent)', fontWeight: 700, margin: '0 0 16px' }}>
+          {when}
+          {ev.all_day ? ' · ganztägig' : ` · ${ev.starts_at.slice(11, 16)} Uhr`}
+        </p>
+      )}
       <p style={{ fontSize: 15, margin: '0 0 6px' }}>
         📍 {[ev.venue, ev.address, ev.town].filter(Boolean).join(', ')}
       </p>

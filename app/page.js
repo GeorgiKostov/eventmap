@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { CATS, CatIcon, catIconSvg } from '../lib/icons.js';
+import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
 import { STRINGS, detectLang } from '../lib/i18n.js';
+import { TOWNS, townCentroid } from '../lib/towns.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
@@ -63,6 +64,35 @@ function fmtWhenShort(ev, lang, t) {
   return ev.all_day ? `${d} · ${t.allDay}` : `${d} · ${ev.starts_at.slice(11, 16)}`;
 }
 
+/* ---------------- places: opening hours (pinned to Europe/Vienna) ---------------- */
+const DOW_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+function viennaDowKey() {
+  return new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Vienna', weekday: 'short' }).format(new Date()).toLowerCase().slice(0, 3);
+}
+function viennaNowHM() {
+  return new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Vienna', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date());
+}
+// null opening_hours = always open (design doc rule). Otherwise {mon:[["09:00","18:00"]],...}.
+function openStatus(oh) {
+  if (!oh) return { always: true, open: true, ranges: [] };
+  const ranges = oh[viennaDowKey()] || [];
+  const now = viennaNowHM();
+  return { always: false, open: ranges.some(([s, e]) => s <= now && now <= e), ranges };
+}
+function placeStatusLabel(ev, t) {
+  const st = openStatus(ev.opening_hours);
+  if (st.always) return t.alwaysOpen;
+  return st.open ? t.openNow : t.closedNow;
+}
+function buildOpeningHours(hours) {
+  const out = {};
+  for (const k of DOW_ORDER) {
+    const r = hours?.[k];
+    if (r && r[0] && r[1]) out[k] = [[r[0], r[1]]];
+  }
+  return out;
+}
+
 /* ---------------- misc helpers ---------------- */
 function distKm(a, b) {
   const R = 6371, dLa = ((b.lat - a.lat) * Math.PI) / 180, dLo = ((b.lng - a.lng) * Math.PI) / 180;
@@ -110,12 +140,13 @@ function makeIcs(ev) {
 async function downscale(file, maxEdge = 1600) {
   const bmp = await createImageBitmap(file);
   const scale = Math.min(1, maxEdge / Math.max(bmp.width, bmp.height));
-  if (scale === 1 && file.size < 3.5 * 1024 * 1024) return file;
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(bmp.width * scale);
   canvas.height = Math.round(bmp.height * scale);
   canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
-  return new Promise((res) => canvas.toBlob((b) => res(b), 'image/jpeg', 0.85));
+  // Always re-encode (not just when resizing) so uploads stay small even for
+  // already-≤1600px source images (e.g. large uncompressed PNG screenshots).
+  return new Promise((res) => canvas.toBlob((b) => res(b), 'image/jpeg', 0.8));
 }
 
 /* ---------------- date range picker ---------------- */
@@ -176,6 +207,40 @@ function DateRangePicker({ lang, t, from, to, onChange, onDone }) {
   );
 }
 
+/* ---------------- pin-drop location picker ---------------- */
+// "Drag the map under a fixed center pin" (Google-Maps drop-pin pattern) —
+// shared by the add-a-place map mode and the event-confirm precision refine step.
+function PinDropPicker({ center, t, onConfirm }) {
+  const ref = useRef(null);
+  const mapR = useRef(null);
+  const [pos, setPos] = useState(center);
+  useEffect(() => {
+    const map = new maplibregl.Map({
+      container: ref.current,
+      style: MAP_STYLE,
+      center: [center.lng, center.lat],
+      zoom: 16,
+      attributionControl: false,
+    });
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.on('moveend', () => {
+      const c = map.getCenter();
+      setPos({ lat: c.lat, lng: c.lng });
+    });
+    mapR.current = map;
+    return () => { map.remove(); mapR.current = null; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <div className="pinpicker">
+      <div className="pinpicker-map" ref={ref} />
+      <span className="pinpicker-crosshair" aria-hidden>📍</span>
+      <span className="pinpicker-hint">{t.dragMapHint}</span>
+      <button type="button" className="abtn primary pinpicker-confirm" onClick={() => onConfirm(pos)}>{t.confirmPosition}</button>
+    </div>
+  );
+}
+
 /* ==================================================================== */
 export default function Home() {
   const mapRef = useRef(null);
@@ -203,8 +268,107 @@ export default function Home() {
 
   const [events, setEvents] = useState(null);
   const [me, setMe] = useState(HOME);
+  const [located, setLocated] = useState(false); // true once we have a real (not fallback) position
+  const [locating, setLocating] = useState(false); // true while a locate-me geolocation fetch is in flight
+  const meMarker = useRef(null);
+  const searchMarker = useRef(null);
+  const [localityLabel, setLocalityLabel] = useState(null);
+
+  // "search anywhere" reference point — set when the user picks a location (town/
+  // address) from the search dropdown. Distance labels + the radius filter recompute
+  // around it instead of `me`; null restores the user's own position as reference.
+  const [searchCenter, setSearchCenter] = useState(null); // {lat,lng,label} | null
+  const refPoint = searchCenter || me;
+
+  // top-right actions menu + search
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [manualEntry, setManualEntry] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [orteMatches, setOrteMatches] = useState([]); // instant local town matches
+  const [geoResult, setGeoResult] = useState(null); // remote forward-geocode result {lat,lng,label} | null
+  const [geoLoading, setGeoLoading] = useState(false);
+  const geoDebounce = useRef(null);
+  const geoReqId = useRef(0);
+  function closeSearch() {
+    setSearchOpen(false);
+    setSearchQuery('');
+    setOrteMatches([]);
+    setGeoResult(null);
+    setGeoLoading(false);
+    clearTimeout(geoDebounce.current);
+  }
+
+  // distinct town centroids: the static list (lib/towns.js) + any town names
+  // present in loaded events/places that aren't in it (resolved via the same
+  // fuzzy townCentroid lookup, falling back to the average position of that
+  // town's rows if even that misses).
+  const townCenters = useMemo(() => {
+    const m = new Map(Object.entries(TOWNS));
+    if (events) {
+      for (const ev of events) {
+        if (!ev.town || m.has(ev.town)) continue;
+        let c = townCentroid(ev.town);
+        if (!c) {
+          const rows = events.filter((e) => e.town === ev.town);
+          c = { lat: rows.reduce((s, e) => s + e.lat, 0) / rows.length, lng: rows.reduce((s, e) => s + e.lng, 0) / rows.length };
+        }
+        m.set(ev.town, c);
+      }
+    }
+    return m;
+  }, [events]);
+
+  async function runForwardGeocode(q) {
+    const reqId = ++geoReqId.current;
+    setGeoLoading(true);
+    try {
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (reqId === geoReqId.current) setGeoResult(data.result || null);
+    } catch {
+      if (reqId === geoReqId.current) setGeoResult(null);
+    } finally {
+      if (reqId === geoReqId.current) setGeoLoading(false);
+    }
+  }
+
+  // instant client-side town match as the user types; falls back to a debounced
+  // (600ms, ≥3 chars) forward-geocode via the Nominatim-backed API when nothing
+  // local matches.
+  useEffect(() => {
+    const q = searchQuery.trim();
+    clearTimeout(geoDebounce.current);
+    if (q.length < 2) { setOrteMatches([]); setGeoResult(null); setGeoLoading(false); return; }
+    const ql = q.toLowerCase();
+    const local = [...townCenters.entries()]
+      .filter(([name]) => name.toLowerCase().includes(ql))
+      .slice(0, 5)
+      .map(([label, c]) => ({ label, lat: c.lat, lng: c.lng }));
+    setOrteMatches(local);
+    setGeoResult(null);
+    if (local.length === 0 && q.length >= 3) {
+      geoDebounce.current = setTimeout(() => runForwardGeocode(q), 600);
+    } else {
+      setGeoLoading(false);
+    }
+    return () => clearTimeout(geoDebounce.current);
+  }, [searchQuery, townCenters]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // selecting a location result: fly there, drop a temporary marker, and make
+  // it the reference point for distances/radius.
+  function selectLocation(loc) {
+    closeSearch();
+    setSearchCenter({ lat: loc.lat, lng: loc.lng, label: loc.label });
+    mapObj.current?.flyTo({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current.getZoom(), 12), duration: 800 });
+  }
+  function clearSearchCenter() {
+    setSearchCenter(null);
+    mapObj.current?.flyTo({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current.getZoom(), 12), duration: 700 });
+  }
 
   // filters
+  const [kindFilter, setKindFilter] = useState('all'); // all | event | place
   const [whenMode, setWhenMode] = useState('all'); // all | today | tomorrow | weekend | next7 | range
   const [range, setRange] = useState({ from: null, to: null });
   const [dpOpen, setDpOpen] = useState(false);
@@ -232,6 +396,8 @@ export default function Home() {
   const [scanErr, setScanErr] = useState('');
   const [draft, setDraft] = useState(null);
   const [photoPath, setPhotoPath] = useState(null);
+  const [locMode, setLocMode] = useState('address'); // address | map — add-a-place location method
+  const [refine, setRefine] = useState(null); // pending low-precision publish awaiting pin refine
 
   function showToast(msg) {
     setToast(msg);
@@ -250,16 +416,44 @@ export default function Home() {
     navigator.geolocation?.getCurrentPosition(
       (p) => {
         const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-        if (distKm(loc, HOME) < 80) setMe(loc);
+        if (distKm(loc, HOME) < 80) { setMe(loc); setLocated(true); }
       },
       () => {},
       { timeout: 4000 }
     );
   }, []);
 
+  // reverse-geocode the current position for the top-left locality pill
+  useEffect(() => {
+    if (!located) { setLocalityLabel(null); return; }
+    let cancelled = false;
+    fetch(`/api/geocode?lat=${me.lat}&lng=${me.lng}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setLocalityLabel(d.label || null); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [located, me.lat, me.lng]);
+
+  function locateMe() {
+    if (!navigator.geolocation) { showToast(t.locateDenied); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
+        setMe(loc);
+        setLocated(true);
+        setSearchCenter(null); // restore own location as the reference point
+        setLocating(false);
+        mapObj.current?.flyTo({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current.getZoom(), 13), duration: 800 });
+      },
+      () => { setLocating(false); showToast(t.locateDenied); },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }
+
   /* ---------------- map ---------------- */
   const geoRef = useRef({ me: HOME, radius: 20 });
-  geoRef.current = { me, radius };
+  geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
 
   useEffect(() => {
@@ -277,10 +471,10 @@ export default function Home() {
       map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius', paint: { 'fill-color': '#C93A5B', 'fill-opacity': 0.035 } });
       map.addLayer({ id: 'radius-line', type: 'line', source: 'radius', paint: { 'line-color': '#C93A5B', 'line-opacity': 0.5, 'line-width': 1.5, 'line-dasharray': [3, 3] } });
     });
-    map.on('click', () => selectRef.current(null, { fly: false }));
+    map.on('click', () => { selectRef.current(null, { fly: false }); setMenuOpen(false); });
     const meEl = document.createElement('div');
-    meEl.className = 'me-marker';
-    new maplibregl.Marker({ element: meEl }).setLngLat([HOME.lng, HOME.lat]).addTo(map);
+    meEl.className = 'me-marker hidden';
+    meMarker.current = new maplibregl.Marker({ element: meEl }).setLngLat([HOME.lng, HOME.lat]).addTo(map);
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
     if (typeof window !== 'undefined') window.__umkreisMap = map;
     mapObj.current = map;
@@ -292,9 +486,31 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    meMarker.current?.setLngLat([me.lng, me.lat]);
+  }, [me]);
+
+  // radius circle recomputes around the search center when one is set, the
+  // user's own position otherwise (task: also drives the PLACES distance filter).
+  useEffect(() => {
     const src = mapObj.current?.getSource('radius');
-    if (src) src.setData(circleGeoJSON(me, radius));
-  }, [me, radius]);
+    if (src) src.setData(circleGeoJSON(refPoint, radius));
+  }, [refPoint.lat, refPoint.lng, radius]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    meMarker.current?.getElement().classList.toggle('hidden', !located);
+  }, [located]);
+
+  // temporary marker at the search-anywhere reference point.
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map) return;
+    if (searchMarker.current) { searchMarker.current.remove(); searchMarker.current = null; }
+    if (searchCenter) {
+      const el = document.createElement('div');
+      el.className = 'search-marker';
+      searchMarker.current = new maplibregl.Marker({ element: el }).setLngLat([searchCenter.lng, searchCenter.lat]).addTo(map);
+    }
+  }, [searchCenter]);
 
   function selectEvent(ev, { fly = true } = {}) {
     setSelected(ev);
@@ -329,17 +545,18 @@ export default function Home() {
     for (const ev of events) {
       const cat = primaryCat(ev);
       const color = CATS[cat].color;
+      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' town-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '');
       const existing = markers.current.get(ev.id);
       if (existing) {
         existing.ev = ev;
         existing.el.style.setProperty('--cc', color);
         existing.el.innerHTML = catIconSvg(cat, 15);
-        existing.el.className = 'pin2' + (ev.geo_precision === 'town' ? ' town-precision' : '');
+        existing.el.className = pinClass;
         existing.marker.setLngLat([ev.lng, ev.lat]);
         continue;
       }
       const el = document.createElement('div');
-      el.className = 'pin2' + (ev.geo_precision === 'town' ? ' town-precision' : '');
+      el.className = pinClass;
       el.style.setProperty('--cc', color);
       el.innerHTML = catIconSvg(cat, 15);
       el.addEventListener('click', (e) => {
@@ -364,19 +581,36 @@ export default function Home() {
     }
   }, [whenMode, range]);
 
-  const filtered = useMemo(() => {
+  // Common filters (radius, category, free, kids, indoor/outdoor, search) apply to
+  // both kinds. Date chips and time-of-day only make sense for events — places are
+  // evergreen and must never be hidden by them (design doc rule).
+  const commonFiltered = useMemo(() => {
     if (!events) return [];
-    return events
+    return events.filter((ev) => {
+      if (distKm(refPoint, ev) > radius) return false;
+      if (cats.length && !ev.categories.some((c) => cats.includes(c))) return false;
+      if (freeOnly && ev.is_free !== 1) return false;
+      if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
+      if (inOut === 'in' && ev.indoor !== 1) return false;
+      if (inOut === 'out' && ev.indoor === 1) return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.trim().toLowerCase();
+        const catLabels = (ev.categories || []).map((c) => t.cats[c] || c).join(' ');
+        const hay = `${ev.title} ${ev.venue || ''} ${ev.town || ''} ${catLabels}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [events, radius, cats, freeOnly, kidsOnly, inOut, refPoint, searchQuery, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filteredEvents = useMemo(() => {
+    if (kindFilter === 'place') return [];
+    return commonFiltered
+      .filter((ev) => ev.kind !== 'place')
       .filter((ev) => {
         const d = ev.starts_at.slice(0, 10);
         const dEnd = (ev.ends_at || ev.starts_at).slice(0, 10);
         if (dEnd < dFrom || d > dTo) return false;
-        if (distKm(me, ev) > radius) return false;
-        if (cats.length && !ev.categories.some((c) => cats.includes(c))) return false;
-        if (freeOnly && ev.is_free !== 1) return false;
-        if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
-        if (inOut === 'in' && ev.indoor !== 1) return false;
-        if (inOut === 'out' && ev.indoor === 1) return false;
         if (tod.length && !ev.all_day) {
           const h = +ev.starts_at.slice(11, 13);
           const bucket = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
@@ -385,7 +619,16 @@ export default function Home() {
         return true;
       })
       .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-  }, [events, dFrom, dTo, radius, cats, freeOnly, kidsOnly, inOut, tod, me]);
+  }, [commonFiltered, kindFilter, dFrom, dTo, tod]);
+
+  const filteredPlaces = useMemo(() => {
+    if (kindFilter === 'event') return [];
+    return commonFiltered
+      .filter((ev) => ev.kind === 'place')
+      .sort((a, b) => distKm(refPoint, a) - distKm(refPoint, b));
+  }, [commonFiltered, kindFilter, refPoint]);
+
+  const filtered = useMemo(() => [...filteredEvents, ...filteredPlaces], [filteredEvents, filteredPlaces]);
 
   useEffect(() => {
     const visible = new Set(filtered.map((e) => e.id));
@@ -402,7 +645,29 @@ export default function Home() {
 
   /* ---------------- scan flow ---------------- */
   function openCapture() {
-    setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null);
+    setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setManualEntry(false);
+    setLocMode('address'); setRefine(null);
+  }
+  // "Add event manually" reuses the exact same confirm-screen UI as the scan flow,
+  // just pre-seeded with empty fields and skipping the photo/extraction steps.
+  function openManualAdd() {
+    setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
+    setLocMode('address'); setRefine(null);
+    setDraft({
+      kind: 'event', title: '', date_start: todayStr(), time_start: '', venue: '', address: '', town: 'Linz',
+      categories: [], is_free: false, description: '', confidence: {},
+    });
+  }
+  // "Add a place" reuses the same confirm-screen UI, minus date/time, plus
+  // opening hours + a location step that also accepts the map pin-drop.
+  function openManualPlace() {
+    setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
+    setLocMode('address'); setRefine(null);
+    setDraft({
+      kind: 'place', title: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
+      categories: [], is_free: false, description: '', confidence: {},
+      always_open: true, hours: {}, seasonal: '',
+    });
   }
   async function handleFile(file) {
     if (!file) return;
@@ -445,36 +710,166 @@ export default function Home() {
       setScanState('pick');
     }
   }
+  async function finishPublish() {
+    setCapture(false);
+    setManualEntry(false);
+    setRefine(null);
+    await loadEvents();
+    showToast(t.toastLive);
+    setWhenMode('all');
+  }
   async function publish() {
-    if (!draft.title || !draft.date_start) { setScanErr(t.requiredErr); return; }
+    const isPlace = draft.kind === 'place';
+    if (!draft.title || (!isPlace && !draft.date_start)) {
+      setScanErr(isPlace ? t.requiredErrPlace : t.requiredErr);
+      return;
+    }
     setScanState('publishing');
-    const body = {
-      title: draft.title,
-      description: draft.description || null,
-      starts_at: `${draft.date_start}T${/^\d{2}:\d{2}$/.test(draft.time_start) ? draft.time_start : '09:00'}`,
-      all_day: !/^\d{2}:\d{2}$/.test(draft.time_start),
-      venue: draft.venue || null,
-      address: draft.address || null,
-      town: draft.town || 'Linz',
-      categories: draft.categories.length ? draft.categories : ['family'],
-      is_free: draft.is_free,
-      photo_path: photoPath,
-    };
+    const body = isPlace
+      ? {
+          kind: 'place',
+          title: draft.title,
+          description: draft.description || null,
+          venue: draft.venue || null,
+          address: locMode === 'address' ? draft.address || null : null,
+          town: draft.town || 'Linz',
+          categories: draft.categories.length ? draft.categories : ['playground'],
+          is_free: draft.is_free,
+          opening_hours: draft.always_open ? null : buildOpeningHours(draft.hours),
+          seasonal: draft.seasonal || null,
+          ...(locMode === 'map' && draft.lat != null ? { lat: draft.lat, lng: draft.lng, geo_precision: 'address' } : {}),
+        }
+      : {
+          kind: 'event',
+          title: draft.title,
+          description: draft.description || null,
+          starts_at: `${draft.date_start}T${/^\d{2}:\d{2}$/.test(draft.time_start) ? draft.time_start : '09:00'}`,
+          all_day: !/^\d{2}:\d{2}$/.test(draft.time_start),
+          venue: draft.venue || null,
+          address: draft.address || null,
+          town: draft.town || 'Linz',
+          categories: draft.categories.length ? draft.categories : ['family'],
+          is_free: draft.is_free,
+          photo_path: photoPath,
+        };
     try {
       const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Save failed');
-      setCapture(false);
-      await loadEvents();
-      showToast(t.toastLive);
-      setWhenMode('all');
+      if (data.geo_precision === 'town' && data.lat != null) {
+        // Low-precision geocode — offer the same pin-drop picker to refine it.
+        // A re-POST with explicit lat/lng + the same content (same title/day/
+        // town → same content_hash) updates this row's position in place.
+        setRefine({ body, lat: data.lat, lng: data.lng });
+        setScanState('refine');
+        return;
+      }
+      await finishPublish();
     } catch (e) {
       setScanErr(String(e.message || e));
       setScanState('confirm');
     }
   }
+  async function confirmRefine(pos) {
+    setScanState('publishing');
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...refine.body, lat: pos.lat, lng: pos.lng, geo_precision: 'address' }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Save failed');
+      await finishPublish();
+    } catch (e) {
+      setScanErr(String(e.message || e));
+      setScanState('refine');
+    }
+  }
 
   /* ---------------- shared subviews ---------------- */
+  // Top-left locality label + expanding search. `compact` = floating pill over
+  // the map (mobile); non-compact = a normal row inside the desktop sidebar.
+  function locSearchBar(compact) {
+    const showOrte = orteMatches.length > 0 || geoLoading || geoResult;
+    return (
+      <div className={`locsearch ${compact ? 'floaty' : ''}`}>
+        <div className="locsearch-row">
+          {!searchOpen && <span className="loc-chip">📍 {localityLabel || t.brandTag}</span>}
+          <div className={`searchwrap ${searchOpen ? 'open' : ''}`}>
+            {searchOpen && (
+              <input
+                autoFocus
+                className="searchinput"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') closeSearch();
+                  if (e.key === 'Enter') {
+                    const q = searchQuery.trim();
+                    if (q.length >= 3 && orteMatches.length === 0) {
+                      clearTimeout(geoDebounce.current);
+                      runForwardGeocode(q);
+                    }
+                  }
+                }}
+                placeholder={t.searchPlaceholder}
+              />
+            )}
+            <button className="searchtoggle" onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))} aria-label={t.search}>
+              {searchOpen ? '✕' : '🔍'}
+            </button>
+          </div>
+        </div>
+        {searchCenter && !searchOpen && (
+          <button className="searchcenter-chip" onClick={clearSearchCenter}>
+            {t.searchCenterChip.replace('{ort}', searchCenter.label)} <span className="x">✕</span>
+          </button>
+        )}
+        {searchOpen && searchQuery.trim() && (
+          <div className="search-results">
+            {showOrte && (
+              <div className="search-section">
+                <div className="search-sechead">{t.searchSectionLocations}</div>
+                {orteMatches.map((loc) => (
+                  <button key={loc.label} className="search-row loc" onClick={() => selectLocation(loc)}>
+                    📍 {loc.label}
+                  </button>
+                ))}
+                {orteMatches.length === 0 && geoLoading && <div className="search-loading">{t.searching}</div>}
+                {orteMatches.length === 0 && !geoLoading && geoResult && (
+                  <button className="search-row loc" onClick={() => selectLocation(geoResult)}>
+                    📍 {geoResult.label}
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="search-section">
+              <div className="search-sechead">{t.searchSectionEvents}</div>
+              {filtered.slice(0, 6).map((ev) => (
+                <button key={ev.id} className="search-row" onClick={() => { closeSearch(); selectEvent(ev); }}>
+                  {ev.title}
+                  <span>{ev.town || ev.venue}</span>
+                </button>
+              ))}
+              {filtered.length === 0 && <div className="search-empty">{t.emptyTitle}</div>}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const kindToggle = (
+    <>
+      {[['all', t.kindAll], ['event', t.kindEvents], ['place', t.kindPlaces]].map(([k, label]) => (
+        <button key={k} className={`chip ${kindFilter === k ? 'on' : ''}`} onClick={() => setKindFilter(k)}>
+          {label}
+        </button>
+      ))}
+    </>
+  );
+
   const dateChips = (
     <>
       {[['today', t.today], ['tomorrow', t.tomorrow], ['weekend', t.weekend], ['next7', t.next7]].map(([k, label]) => (
@@ -500,7 +895,7 @@ export default function Home() {
       <div className="fgroup">
         <h4>{t.categories}</h4>
         <div className="catgrid">
-          {Object.keys(CATS).map((key) => (
+          {(kindFilter === 'event' ? EVENT_CATS : kindFilter === 'place' ? PLACE_CATS : [...EVENT_CATS, ...PLACE_CATS]).map((key) => (
             <button
               key={key}
               className={`cat ${cats.includes(key) ? 'on' : ''}`}
@@ -548,7 +943,7 @@ export default function Home() {
 
   function eventList(onPick) {
     let lastDay = null;
-    if (filtered.length === 0) {
+    if (filteredEvents.length === 0 && filteredPlaces.length === 0) {
       return (
         <div className="empty">
           {t.emptyTitle}
@@ -561,7 +956,7 @@ export default function Home() {
     }
     return (
       <div className="list">
-        {filtered.map((ev) => {
+        {filteredEvents.map((ev) => {
           const d = ev.starts_at.slice(0, 10);
           const head = d !== lastDay ? <div className="dayhead">{fmtDayLong(d, lang, t)}</div> : null;
           lastDay = d;
@@ -574,7 +969,7 @@ export default function Home() {
                 <span className="tx">
                   <span className="t">{ev.title}</span>
                   <span className="m">
-                    {ev.all_day ? t.allDay : ev.starts_at.slice(11, 16)} · {ev.town || ev.venue} · {distKm(me, ev).toFixed(1).replace('.', ',')} km
+                    {ev.all_day ? t.allDay : ev.starts_at.slice(11, 16)} · {ev.town || ev.venue} · {distKm(refPoint, ev).toFixed(1).replace('.', ',')} km
                   </span>
                 </span>
                 {ev.is_free === 1 && <span className="tag">{t.freeTag}</span>}
@@ -582,12 +977,61 @@ export default function Home() {
             </div>
           );
         })}
+        {filteredPlaces.length > 0 && (
+          <>
+            {filteredEvents.length > 0 && <div className="dayhead">{t.kindPlaces}</div>}
+            {filteredPlaces.map((pl) => {
+              const cat = primaryCat(pl);
+              const st = openStatus(pl.opening_hours);
+              return (
+                <button key={pl.id} className={`row ${selected?.id === pl.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(pl)}>
+                  <span className="thumb"><CatIcon cat={cat} size={17} /></span>
+                  <span className="tx">
+                    <span className="t">{pl.title}</span>
+                    <span className="m">
+                      {t.cats[cat]} · {pl.town || pl.venue} · {distKm(refPoint, pl).toFixed(1).replace('.', ',')} km
+                    </span>
+                  </span>
+                  {!st.always && <span className={`tag ${st.open ? '' : 'closed'}`}>{st.open ? t.openNow : t.closedNow}</span>}
+                </button>
+              );
+            })}
+          </>
+        )}
       </div>
+    );
+  }
+
+  function placeHoursBlock(ev) {
+    const st = openStatus(ev.opening_hours);
+    if (st.always) return <div className="dwhen place-open always">{t.alwaysOpen}</div>;
+    const today = st.ranges.map(([s, e]) => `${s}–${e}`).join(', ') || t.closedDay;
+    return (
+      <>
+        <div className={`dwhen place-open ${st.open ? 'open' : 'closed'}`}>
+          {st.open ? t.openNow : t.closedNow} · {today}
+        </div>
+        <details className="hourswk">
+          <summary>{t.openingHours}</summary>
+          <div className="hourslist">
+            {DOW_ORDER.map((k, i) => {
+              const ranges = ev.opening_hours?.[k] || [];
+              return (
+                <div key={k} className="hourrow">
+                  <span>{t.weekdaysLong[i]}</span>
+                  <span>{ranges.length ? ranges.map(([s, e]) => `${s}–${e}`).join(', ') : t.closedDay}</span>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      </>
     );
   }
 
   function eventDetail(ev, { onBack, onClose }) {
     const cat = primaryCat(ev);
+    const place = ev.kind === 'place';
     return (
       <>
         <div className="dhero" style={{ '--cc': CATS[cat].color }}>
@@ -597,7 +1041,7 @@ export default function Home() {
         </div>
         <div className="dbody">
           <h2>{ev.title}</h2>
-          <div className="dwhen">{fmtWhen(ev, lang, t)}</div>
+          {place ? placeHoursBlock(ev) : <div className="dwhen">{fmtWhen(ev, lang, t)}</div>}
           <div className="dtags">
             {(ev.categories || []).filter((c) => CATS[c]).map((c) => (
               <span key={c} className="dtag" style={{ '--cc': CATS[c].color }}>
@@ -610,14 +1054,17 @@ export default function Home() {
           </div>
           <div className="dmeta">
             <div><span className="k">📍</span><span>{[ev.venue, ev.address, ev.town].filter(Boolean).join(', ') || '—'}</span></div>
-            <div><span className="k">🚗</span><span className="mutedt">{distKm(me, ev).toFixed(1).replace('.', ',')} km {t.away}</span></div>
-            {ev.age_min != null && (
+            <div><span className="k">🚗</span><span className="mutedt">{distKm(refPoint, ev).toFixed(1).replace('.', ',')} km {t.away}</span></div>
+            {!place && ev.age_min != null && (
               <div><span className="k">👨‍👩‍👧</span><span className="mutedt">{t.ageRec.replace('{min}', ev.age_min).replace('{max}', ev.age_max ?? '99')}</span></div>
+            )}
+            {place && ev.seasonal && (
+              <div><span className="k">📅</span><span className="mutedt">{ev.seasonal}</span></div>
             )}
           </div>
           {ev.description && <p className="ddesc">{ev.description}</p>}
           <div className="prov">
-            <span>{ev.src_kind === 'user_photo' ? '📷' : '🌐'}</span>
+            <span>{ev.src_kind === 'user_photo' ? '📷' : ev.src_kind === 'manual' ? '✍️' : '🌐'}</span>
             <span>
               {t.source}:{' '}
               {ev.source_url ? (
@@ -630,7 +1077,7 @@ export default function Home() {
           </div>
           <div className="dactions">
             <a className="abtn" href={`https://www.google.com/maps/dir/?api=1&destination=${ev.lat},${ev.lng}`} target="_blank" rel="noreferrer">{t.route}</a>
-            <button className="abtn" onClick={() => makeIcs(ev)}>＋ {t.calendar}</button>
+            {!place && <button className="abtn" onClick={() => makeIcs(ev)}>＋ {t.calendar}</button>}
             <button
               className="abtn primary"
               onClick={() => {
@@ -650,13 +1097,15 @@ export default function Home() {
   const conf = draft?.confidence;
   const confChip = (v) => (v == null ? null : <span className={`conf ${v >= 0.6 ? 'hi' : 'lo'}`}>{Math.round(v * 100)} %</span>);
 
+  const isPlaceDraft = draft?.kind === 'place';
   const captureView = (
     <section className={`capture ${capture ? 'show' : ''}`}>
       <div className="caphead">
         <h3>
           {scanState === 'pick' && t.scanTitle}
           {scanState === 'scanning' && t.scanReading}
-          {scanState === 'confirm' && t.scanConfirm}
+          {scanState === 'confirm' && (isPlaceDraft ? t.addPlaceTitle : manualEntry ? t.addManual : t.scanConfirm)}
+          {scanState === 'refine' && t.adjustPosition}
           {scanState === 'publishing' && t.scanPublishing}
         </h3>
         <button onClick={() => setCapture(false)}>{t.cancel}</button>
@@ -681,6 +1130,15 @@ export default function Home() {
             <div className="scanstatus">{t.scanExtracting}</div>
           </>
         )}
+        {scanState === 'refine' && refine && (
+          <>
+            <p className="refinehint">📍 {t.posApprox}</p>
+            <PinDropPicker center={{ lat: refine.lat, lng: refine.lng }} t={t} onConfirm={confirmRefine} />
+            <button className="pubbtn" style={{ background: 'var(--panel2)', color: 'var(--muted)', boxShadow: 'none' }} onClick={finishPublish}>
+              {t.cancel}
+            </button>
+          </>
+        )}
         {(scanState === 'confirm' || scanState === 'publishing') && draft && (
           <>
             {scanImg && <div className="preview" style={{ maxHeight: 120 }}><img src={scanImg} alt="" style={{ maxHeight: 120 }} /></div>}
@@ -688,34 +1146,67 @@ export default function Home() {
               <div className="lab">{t.fTitle} {confChip(conf?.title)}</div>
               <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
             </div>
-            <div className="xrow">
-              <div className={`xfield ${conf?.datetime < 0.6 ? 'check' : ''}`}>
-                <div className="lab">{t.fDate} {confChip(conf?.datetime)}</div>
-                <input type="date" value={draft.date_start} onChange={(e) => setDraft({ ...draft, date_start: e.target.value })} />
+            {!isPlaceDraft && (
+              <div className="xrow">
+                <div className={`xfield ${conf?.datetime < 0.6 ? 'check' : ''}`}>
+                  <div className="lab">{t.fDate} {confChip(conf?.datetime)}</div>
+                  <input type="date" value={draft.date_start} onChange={(e) => setDraft({ ...draft, date_start: e.target.value })} />
+                </div>
+                <div className="xfield">
+                  <div className="lab">{t.fTime}</div>
+                  <input type="time" value={draft.time_start} onChange={(e) => setDraft({ ...draft, time_start: e.target.value })} />
+                </div>
               </div>
-              <div className="xfield">
-                <div className="lab">{t.fTime}</div>
-                <input type="time" value={draft.time_start} onChange={(e) => setDraft({ ...draft, time_start: e.target.value })} />
-              </div>
-            </div>
+            )}
             <div className={`xfield ${conf?.location < 0.6 ? 'check' : ''}`}>
               <div className="lab">{t.fVenue} {confChip(conf?.location)}</div>
               <input value={draft.venue} onChange={(e) => setDraft({ ...draft, venue: e.target.value })} />
             </div>
-            <div className="xrow">
-              <div className="xfield">
-                <div className="lab">{t.fAddress}</div>
-                <input value={draft.address} onChange={(e) => setDraft({ ...draft, address: e.target.value })} />
+            {isPlaceDraft ? (
+              <>
+                <div className="seg locseg">
+                  <button className={locMode === 'address' ? 'on' : ''} onClick={() => setLocMode('address')}>{t.locByAddress}</button>
+                  <button className={locMode === 'map' ? 'on' : ''} onClick={() => setLocMode('map')}>{t.locByMap}</button>
+                </div>
+                <div className="xrow">
+                  {locMode === 'address' && (
+                    <div className="xfield">
+                      <div className="lab">{t.fAddress}</div>
+                      <input value={draft.address} onChange={(e) => setDraft({ ...draft, address: e.target.value })} />
+                    </div>
+                  )}
+                  <div className="xfield">
+                    <div className="lab">{t.fTown}</div>
+                    <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
+                  </div>
+                </div>
+                {locMode === 'map' && (
+                  <>
+                    <PinDropPicker
+                      center={draft.lat != null ? { lat: draft.lat, lng: draft.lng } : me}
+                      t={t}
+                      onConfirm={(pos) => setDraft((d) => ({ ...d, lat: pos.lat, lng: pos.lng }))}
+                    />
+                    {draft.lat != null && <div className="posset">📍 {t.positionSet}</div>}
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="xrow">
+                <div className="xfield">
+                  <div className="lab">{t.fAddress}</div>
+                  <input value={draft.address} onChange={(e) => setDraft({ ...draft, address: e.target.value })} />
+                </div>
+                <div className="xfield">
+                  <div className="lab">{t.fTown}</div>
+                  <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
+                </div>
               </div>
-              <div className="xfield">
-                <div className="lab">{t.fTown}</div>
-                <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
-              </div>
-            </div>
+            )}
             <div className="xfield">
               <div className="lab">{t.categories}</div>
               <div className="catgrid">
-                {Object.keys(CATS).map((key) => (
+                {(isPlaceDraft ? PLACE_CATS : EVENT_CATS).map((key) => (
                   <button
                     key={key}
                     className={`cat ${draft.categories.includes(key) ? 'on' : ''}`}
@@ -736,6 +1227,40 @@ export default function Home() {
               <div className="lab">{t.fDesc}</div>
               <textarea value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} rows={2} />
             </div>
+            {isPlaceDraft && (
+              <div className="xfield">
+                <div className="lab">{t.openingHours}</div>
+                <button className={`toggle ${draft.always_open ? 'on' : ''}`} onClick={() => setDraft({ ...draft, always_open: !draft.always_open })}>
+                  {t.alwaysOpen} <span className="knob" />
+                </button>
+                {!draft.always_open && (
+                  <div className="hoursform">
+                    {DOW_ORDER.map((k, i) => (
+                      <div key={k} className="hoursformrow">
+                        <span>{t.weekdaysLong[i].slice(0, 2)}</span>
+                        <input
+                          type="time"
+                          value={draft.hours[k]?.[0] || ''}
+                          onChange={(e) => setDraft((d) => ({ ...d, hours: { ...d.hours, [k]: [e.target.value, d.hours[k]?.[1] || ''] } }))}
+                        />
+                        <span>–</span>
+                        <input
+                          type="time"
+                          value={draft.hours[k]?.[1] || ''}
+                          onChange={(e) => setDraft((d) => ({ ...d, hours: { ...d.hours, [k]: [d.hours[k]?.[0] || '', e.target.value] } }))}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <input
+                  className="seasonalinput"
+                  value={draft.seasonal}
+                  placeholder={t.fSeasonalPlaceholder}
+                  onChange={(e) => setDraft({ ...draft, seasonal: e.target.value })}
+                />
+              </div>
+            )}
             <button className={`toggle ${draft.is_free ? 'on' : ''}`} onClick={() => setDraft({ ...draft, is_free: !draft.is_free })}>
               {t.freeEntry} <span className="knob" />
             </button>
@@ -762,7 +1287,9 @@ export default function Home() {
                 <span className="brand">Umkreis<span className="dot">.</span> <small>{t.brandTag}</small></span>
                 <button className="langbtn" onClick={switchLang}>{lang === 'de' ? 'EN' : 'DE'}</button>
               </div>
+              {locSearchBar(false)}
             </div>
+            <div className="chiprow" style={{ padding: '0 18px 6px' }}>{kindToggle}</div>
             <div className="chiprow" style={{ padding: '0 18px 10px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>{dateChips}</div>
             <div className="chiprow" style={{ padding: '0 18px 12px' }}>
               <button className={`chip ${showFilters ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
@@ -786,12 +1313,36 @@ export default function Home() {
         {/* mobile top bar */}
         <div className="m-topbar mobileonly">
           <span className="m-brand">Umkreis<span className="dot">.</span> <small>{t.brandTag}</small></span>
-          <button className="langbtn" style={{ boxShadow: 'var(--shadow-md)' }} onClick={switchLang}>{lang === 'de' ? 'EN' : 'DE'}</button>
+          {locSearchBar(true)}
         </div>
+
+        {/* top-right actions menu (scan / add manually / language on mobile) */}
+        <button className="menubtn" onClick={() => setMenuOpen((o) => !o)} aria-label={t.menu}>⋮</button>
+        {menuOpen && (
+          <>
+            <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
+            <div className="menudrop">
+              <button className="menuitem" onClick={() => { setMenuOpen(false); openCapture(); }}>
+                <span className="ic">📷</span>{t.scanTitle}
+              </button>
+              <button className="menuitem" onClick={() => { setMenuOpen(false); openManualAdd(); }}>
+                <span className="ic">➕</span>{t.addManual}
+              </button>
+              <button className="menuitem" onClick={() => { setMenuOpen(false); openManualPlace(); }}>
+                <span className="ic">📍</span>{t.addPlace}
+              </button>
+              <button className="menuitem mobileonly" onClick={() => { switchLang(); setMenuOpen(false); }}>
+                <span className="ic">🌐</span>{lang === 'de' ? 'English' : 'Deutsch'}
+              </button>
+              {/* Future: Account / Login entry goes here — add one more <button className="menuitem"> */}
+            </div>
+          </>
+        )}
 
         {/* mobile bottom chip bar */}
         {sheet === 'closed' && !selected && (
           <div className="m-bottombar mobileonly">
+            <div className="chiprow" style={{ paddingBottom: 4 }}>{kindToggle}</div>
             <div className="chiprow">
               {dateChips}
               <button className="chip" onClick={() => { setSheetContent('filters'); setSheet('half'); }}>
@@ -814,6 +1365,7 @@ export default function Home() {
           <div className="m-sheetbody">
             {sheetContent === 'filters' ? (
               <>
+                <div className="chiprow">{kindToggle}</div>
                 <div className="chiprow">{dateChips}</div>
                 {filterPanel}
               </>
@@ -829,8 +1381,8 @@ export default function Home() {
             <span className="thumb"><CatIcon cat={primaryCat(selected)} size={19} /></span>
             <span className="tx">
               <span className="t">{selected.title}</span>
-              <span className="w">{fmtWhenShort(selected, lang, t)}</span>
-              <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(me, selected).toFixed(1).replace('.', ',')} km</span>
+              <span className="w">{selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}</span>
+              <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
             </span>
             <button className="morebtn" onClick={(e) => { e.stopPropagation(); setDetailFull(true); }}>{t.learnMore}</button>
             <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label="close">✕</button>
@@ -842,7 +1394,19 @@ export default function Home() {
           <div className="detail-full">{eventDetail(selected, { onBack: () => setDetailFull(false), onClose: () => selectEvent(null, { fly: false }) })}</div>
         )}
 
-        <button className={`fab ${capture ? 'hidden' : ''}`} onClick={openCapture} aria-label={t.scanTitle}>📷</button>
+        <button
+          className={`locate-btn ${capture ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
+          onClick={locateMe}
+          aria-label={t.locateMe}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <line x1="2" y1="12" x2="5" y2="12" />
+            <line x1="19" y1="12" x2="22" y2="12" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+            <line x1="12" y1="19" x2="12" y2="22" />
+            <circle cx="12" cy="12" r="7" />
+          </svg>
+        </button>
       </div>
 
       {/* date range picker modal */}

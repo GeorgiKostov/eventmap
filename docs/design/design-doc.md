@@ -92,16 +92,24 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 
 ## 5. Data model (SQLite → Postgres-portable)
 
-`events` (core): id, title, description, starts_at, ends_at, all_day, lat, lng, geo_precision
-(venue|address|town), venue, address, town, categories (JSON array), is_free, age_min, age_max,
-indoor, emoji, photo_path, status (published|expired|rejected), src_kind (crawl|feed|user_photo|manual),
+`events` (core): id, **kind** (event|place, default event), title, description, starts_at, ends_at,
+all_day, lat, lng, geo_precision (venue|address|town), venue, address, town, categories (JSON array),
+is_free, age_min, age_max, indoor, emoji, photo_path, **opening_hours** (JSON, places only —
+`{mon:[["09:00","18:00"]],…}`, null = always open), **seasonal** (text, places only, e.g.
+"Mai–September"), status (published|expired|rejected), src_kind (crawl|feed|user_photo|manual),
 source_name, source_url, content_hash (dedup), created_at, updated_at.
+
+A `place` is an evergreen location (playground, pool, park, trail, indoor play) — no starts_at/
+ends_at, never expires, dedup by normalized-title + town (no day component). Category set for
+places: playground, pool, park, trail, indoor_play — distinct icons/colors from the 8 event
+categories; distinct (circle vs teardrop) map pin, same color/dashed-border precision convention.
 
 `sources`: name, url, kind, town, works, notes, last_crawled.
 `geocache`: query → lat/lng/label/hit.
 
-**Rules baked in:** events expire once over (Europe/Vienna-pinned); dedup by
-normalized-title + day + town; facts-only with source linkback (never copy source prose/images).
+**Rules baked in:** events expire once over (Europe/Vienna-pinned) — places never do; dedup by
+normalized-title + day + town for events; facts-only with source linkback (never copy source
+prose/images).
 
 ## 6. Data sources (18 registered; ~92 events)
 
@@ -173,6 +181,22 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
 - Clean **light theme**, teardrop pins in category colors with white SVG icons; same icons on
   chips, list rows, detail tags. Category set: family, festival, market, music, culture, food,
   sport, workshop.
+- **Places (kind='place'):** top-level **Events | Orte | Alle** toggle chip (default Alle) next to
+  the date chips — filters both the list and the map pins. Date chips and time-of-day filters never
+  hide places; radius/category/free/kids/indoor-outdoor filters apply to both kinds. Places render
+  as a **circle pin** (vs the event teardrop) in their own category color, same white-icon/dashed-
+  precision-border convention. List view groups events by day as usual, then places in an unheaded-
+  by-date "Orte"/"Places" section sorted by distance. Detail view swaps the date row for an
+  opening-hours block — "Jetzt geöffnet/geschlossen" (or "Immer geöffnet" if no hours set) with an
+  expandable full-week table — and drops the calendar-export action (places have no date).
+- **Add-a-place** (top-right menu, third entry): same confirm-screen shell as add-event/scan, minus
+  date/time, plus opening-hours (per-day time inputs or an "always open" toggle) and a seasonal note.
+  Location is set either by typing an address (server-side geocode, as events do) or by an
+  **Address | Auf Karte setzen** tab that switches to a **pin-drop map** — drag the map under a
+  fixed center pin, Google-Maps style, then "Position bestätigen". The same pin-drop component
+  reactively appears after publishing any event/place whose geocode resolved to only town-level
+  precision, letting the user drag-refine the pin (re-submits with explicit lat/lng, which updates
+  the just-created row via its existing content-hash match rather than creating a duplicate).
 
 ## 10. Deployment
 

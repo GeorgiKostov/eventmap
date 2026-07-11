@@ -25,11 +25,13 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Zu viele Einträge — bitte später wieder.' }, { status: 429 });
   }
   const body = await req.json();
-  if (!body.title || !body.starts_at) {
-    return NextResponse.json({ error: 'Titel und Datum sind Pflicht.' }, { status: 400 });
+  const kind = body.kind === 'place' ? 'place' : 'event';
+  // Places are evergreen (no date); events still require starts_at.
+  if (!body.title || (kind === 'event' && !body.starts_at)) {
+    return NextResponse.json({ error: kind === 'place' ? 'Titel ist Pflicht.' : 'Titel und Datum sind Pflicht.' }, { status: 400 });
   }
 
-  let lat = body.lat, lng = body.lng, geo_precision = 'venue';
+  let lat = body.lat, lng = body.lng, geo_precision = body.geo_precision || 'venue';
   if (typeof lat !== 'number' || typeof lng !== 'number') {
     const geo = await geocodeEvent(body);
     if (!geo) return NextResponse.json({ error: 'Ort nicht gefunden — bitte Pin setzen.' }, { status: 422 });
@@ -38,12 +40,13 @@ export async function POST(req) {
   }
 
   let ends_at = body.ends_at || null;
-  if (ends_at && ends_at <= body.starts_at) ends_at = null;
+  if (ends_at && body.starts_at && ends_at <= body.starts_at) ends_at = null;
 
   const res = await upsertEvent({
+    kind,
     title: String(body.title).slice(0, 200),
     description: body.description ? String(body.description).slice(0, 500) : null,
-    starts_at: body.starts_at,
+    starts_at: kind === 'event' ? body.starts_at : null,
     ends_at,
     all_day: body.all_day ? 1 : 0,
     lat, lng, geo_precision,
@@ -57,9 +60,11 @@ export async function POST(req) {
     indoor: body.indoor ?? null,
     emoji: body.emoji || '📌',
     photo_path: body.photo_path || null,
-    src_kind: 'user_photo',
-    source_name: 'Foto-Upload',
+    opening_hours: kind === 'place' ? (body.opening_hours ?? null) : null,
+    seasonal: kind === 'place' ? (body.seasonal || null) : null,
+    src_kind: kind === 'place' ? 'manual' : 'user_photo',
+    source_name: kind === 'place' ? 'Manuell hinzugefügt' : 'Foto-Upload',
     source_url: null,
   });
-  return NextResponse.json({ ok: true, id: res.id, updated: res.updated });
+  return NextResponse.json({ ok: true, id: res.id, updated: res.updated, lat, lng, geo_precision });
 }

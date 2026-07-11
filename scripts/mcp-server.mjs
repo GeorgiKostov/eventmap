@@ -66,7 +66,9 @@ server.registerTool(
   async (args) => {
     const center = { lat: args.near_lat ?? 48.3, lng: args.near_lng ?? 14.29 };
     const q = args.query?.toLowerCase();
-    let results = (await publishedEvents()).filter((ev) => {
+    // This tool is scoped to dated events; places (kind='place', no starts_at)
+    // are a separate evergreen content type — not exposed here yet.
+    let results = (await publishedEvents()).filter((ev) => ev.kind !== 'place').filter((ev) => {
       const d = ev.starts_at.slice(0, 10);
       const dEnd = (ev.ends_at || ev.starts_at).slice(0, 10);
       if (args.date_from && dEnd < args.date_from) return false;
