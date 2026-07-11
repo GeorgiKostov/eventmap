@@ -38,6 +38,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] Run the **four-weekend Linz coverage/retention test**: measure % of good events the big
       aggregators miss, and weekly return rate. This gates everything downstream.
 - [ ] Email Familienkarte / Land OÖ for a feed/partnership (cheapest legal data path + first B2B contact).
+- [ ] Verify the competitive landscape (`docs/research/competitive-landscape.md` §7): confirm LocalPosters,
+      Familienkarte, Rausgegangen/AllEvents OÖ coverage, and scan for any 2024–26 AI-native / DACH poster-
+      scan entrant (the LLM-extraction wedge is recent enough a fresh competitor is plausible).
 - [ ] Decide: is "family-friendly" a filter or the default lens?
 
 ## Backlog (post-validation, not now)

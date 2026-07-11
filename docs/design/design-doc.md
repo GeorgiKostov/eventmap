@@ -25,6 +25,8 @@ Two audiences, in order:
 
 Event discovery is a startup graveyard (IRL, YPlan, Sosh, Google Schemer all died). They died
 on **retention** (low frequency) and **supply completeness** (chicken-and-egg), not features.
+Full catalog of who tried, who died, who survived, and the DACH/scan-a-poster direct analogs:
+`docs/research/competitive-landscape.md`.
 
 Our wedge is the part everyone else skipped: **the events that aren't properly online** —
 kindergarten posters, Feuerwehrfeste, municipal PDFs, parish newsletters, small-town Gemeinde

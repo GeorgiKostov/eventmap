@@ -6,3 +6,4 @@ data/uploads/*
 !data/uploads/.gitkeep
 .DS_Store
 data/umkreis.db*
+env.local
