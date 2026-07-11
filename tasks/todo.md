@@ -15,6 +15,18 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Code review pass (12 findings) + fixes; Vercel-hardening (bundled DB → /tmp); `next build` green.
 - [x] Moved to `eventmap` repo; agent scaffold + design doc (this structure) added.
 
+## Shipped (v3 — places, controls, crawl waterfall, OÖ scale-out, 2026-07-11)
+- [x] Places content type (kind=event|place, opening hours, circle pins, Events|Orte|Alle, add-place
+      with address or drag-pin); 3 verified Linz places seeded.
+- [x] Controls relayout: locate-me map control, top-right actions menu (+login slot), locality pill,
+      expanding search; search-anywhere (location results re-anchor radius/distance, Around-X chip).
+- [x] Scan UX: JPEG re-encode always, upload deleted right after extraction.
+- [x] Icon taxonomy: unclear glyphs replaced, 5 place icons added.
+- [x] Crawl waterfall: robots.txt+UA, page-hash skip, JSON-LD→iCal→RSS before LLM, feed_kind tracking.
+- [x] OÖ source expansion: 95 new sources (GEM2GO 64), full crawl → ~1.8k events / 100 sources / 133 towns.
+- [x] Pipeline bugs fixed: Gemini exact-keys, town-fallback geocoding, negative-geocache purge (lesson).
+- [x] Grok/xAI provider wired (EXTRACT_PROVIDER=grok) for the Austria backfill; run-book in briefs/.
+
 ## Now / next
 - [x] **Supabase Postgres port** — `lib/db.js` on the `postgres` client over the transaction pooler;
       dedicated `umkreis` schema; starts_at/ends_at kept as Vienna-TEXT; booleans/arrays normalized

@@ -2,6 +2,16 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-11 — Negative caches outlive the rule that produced them
+
+Geocode sanity bounds were widened (Linz box → OÖ → Austria), but the geocache had stored `hit=false`
+rows for towns rejected under the OLD bounds — so Bad Ischl extracted 25 events and published 0,
+silently, while everything looked green. **Lesson:** whenever a validation rule feeding a cache
+changes (bounds, filters, schemas), purge the cache's *negative* entries in the same change — misses
+are cheap to recompute and poisonous to keep. A warning comment now sits on `inRegion()` itself.
+Related repeat-offender: `npm run crawl` without `--env-file=.env.local` still fails at runtime
+(lesson from 2026-07-10 — it bit again; always launch scripts with the env file).
+
 ## 2026-07-10 — Supabase connection strings: pooler host, URL-encoded password, `.env.local`
 
 Wiring the app to Supabase hit three avoidable snags in a row: (1) the **direct** host
