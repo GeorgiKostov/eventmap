@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork } from '@phosphor-icons/react';
 import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
 import { STRINGS, detectLang } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
@@ -72,15 +73,17 @@ function viennaDowKey() {
 function viennaNowHM() {
   return new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Vienna', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date());
 }
-// null opening_hours = always open (design doc rule). Otherwise {mon:[["09:00","18:00"]],...}.
+// {always:true} opening_hours = always open. null = unknown (render no status). Otherwise {mon:[["09:00","18:00"]],...}.
 function openStatus(oh) {
-  if (!oh) return { always: true, open: true, ranges: [] };
+  if (!oh) return { always: false, unknown: true, open: false, ranges: [] };
+  if (oh.always) return { always: true, unknown: false, open: true, ranges: [] };
   const ranges = oh[viennaDowKey()] || [];
   const now = viennaNowHM();
-  return { always: false, open: ranges.some(([s, e]) => s <= now && now <= e), ranges };
+  return { always: false, unknown: false, open: ranges.some(([s, e]) => s <= now && now <= e), ranges };
 }
 function placeStatusLabel(ev, t) {
   const st = openStatus(ev.opening_hours);
+  if (st.unknown) return '';
   if (st.always) return t.alwaysOpen;
   return st.open ? t.openNow : t.closedNow;
 }
@@ -110,6 +113,23 @@ function circleGeoJSON(center, km) {
 }
 function primaryCat(ev) {
   return (ev.categories || []).find((c) => CATS[c]) || 'family';
+}
+// Venue matching: identical venue name in the same town (case-insensitive) OR
+// within ~30m. Used both to collapse event pins per venue and to list "more at
+// this venue". Two guards against runaway merges:
+// - the name branch requires the same town, or generic venue names ("Online",
+//   "Ortsplatz") would fuse unrelated events across the whole region;
+// - the ≤30m proximity branch only applies when BOTH events have better-than-town
+//   geo_precision — town-fallback events all share the identical town centroid,
+//   so proximity would merge every town-precision event in a town into one pin.
+function normVenue(s) {
+  return (s || '').trim().toLowerCase();
+}
+function sameVenue(a, b) {
+  const va = normVenue(a.venue), vb = normVenue(b.venue);
+  if (va && va === vb && normVenue(a.town) === normVenue(b.town)) return true;
+  if (a.geo_precision === 'town' || b.geo_precision === 'town') return false;
+  return distKm(a, b) <= 0.03; // 30m
 }
 function makeIcs(ev) {
   const dt = (iso) => iso.replace(/[-:]/g, '');
@@ -396,8 +416,41 @@ export default function Home() {
   const [scanErr, setScanErr] = useState('');
   const [draft, setDraft] = useState(null);
   const [photoPath, setPhotoPath] = useState(null);
-  const [locMode, setLocMode] = useState('address'); // address | map — add-a-place location method
+  const [locMode, setLocMode] = useState('address'); // address | map — location method (event + place forms)
   const [refine, setRefine] = useState(null); // pending low-precision publish awaiting pin refine
+
+  // address autocomplete (task 4b): debounced GET /api/geocode?suggest=1&q=… while
+  // typing in the address field of either form; a parallel agent owns the endpoint.
+  const [addrSuggestions, setAddrSuggestions] = useState([]);
+  const [addrSuggestOpen, setAddrSuggestOpen] = useState(false);
+  const addrDebounce = useRef(null);
+  const addrReqId = useRef(0);
+  async function fetchAddressSuggestions(q) {
+    const reqId = ++addrReqId.current;
+    try {
+      const res = await fetch(`/api/geocode?suggest=1&q=${encodeURIComponent(q)}`);
+      if (!res.ok) { if (reqId === addrReqId.current) setAddrSuggestions([]); return; }
+      const data = await res.json();
+      if (reqId === addrReqId.current) setAddrSuggestions(Array.isArray(data.results) ? data.results : []);
+    } catch {
+      if (reqId === addrReqId.current) setAddrSuggestions([]);
+    }
+  }
+  function onAddressChange(v) {
+    // typing invalidates any previously picked/dropped coordinates — the address
+    // text and lat/lng must stay in sync, publish() prefers lat/lng when present.
+    setDraft((d) => ({ ...d, address: v, lat: null, lng: null }));
+    setAddrSuggestOpen(true);
+    clearTimeout(addrDebounce.current);
+    const q = v.trim();
+    if (q.length < 3) { setAddrSuggestions([]); return; }
+    addrDebounce.current = setTimeout(() => fetchAddressSuggestions(q), 300);
+  }
+  function pickAddressSuggestion(s) {
+    setDraft((d) => ({ ...d, address: s.label, lat: s.lat, lng: s.lng }));
+    setAddrSuggestions([]);
+    setAddrSuggestOpen(false);
+  }
 
   function showToast(msg) {
     setToast(msg);
@@ -463,7 +516,11 @@ export default function Home() {
       style: MAP_STYLE,
       center: [HOME.lng, HOME.lat],
       zoom: 10.6,
-      attributionControl: { compact: true },
+      // OSM-mined place *data* requires its own ODbL credit beyond the tile attribution.
+      attributionControl: {
+        compact: true,
+        customAttribution: '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">Place data © OpenStreetMap contributors (ODbL)</a>',
+      },
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('load', () => {
@@ -531,26 +588,64 @@ export default function Home() {
   }
   selectRef.current = selectEvent;
 
+  // Venue grouping (task 3): events sharing a venue (identical name OR ≤30m apart)
+  // collapse into a single map pin with a count badge. Places keep one pin each —
+  // they're distinct evergreen locations, not clustered. `events` here are already
+  // "upcoming": publishedEvents() (lib/db.js) excludes expired rows server-side, so
+  // no extra Vienna-time filtering is needed on the client for this feature.
+  const venueGroups = useMemo(() => {
+    const byId = new Map(); // event id -> group {members:[...]}
+    if (!events) return byId;
+    const groups = [];
+    for (const ev of events) {
+      if (ev.kind === 'place') continue;
+      const g = groups.find((grp) => sameVenue(grp.members[0], ev));
+      if (g) g.members.push(ev);
+      else groups.push({ members: [ev] });
+    }
+    for (const g of groups) for (const m of g.members) byId.set(m.id, g);
+    return byId;
+  }, [events]);
+
+  // One map-pin representative per venue group (soonest-starting event) + one per
+  // place. Carries _venueCount/_venueIds so the badge + visibility sync see the
+  // whole group, not just the representative.
+  const markerItems = useMemo(() => {
+    if (!events) return [];
+    const seen = new Set();
+    const reps = [];
+    for (const ev of events) {
+      if (ev.kind === 'place') { reps.push(ev); continue; }
+      const g = venueGroups.get(ev.id);
+      if (seen.has(g)) continue;
+      seen.add(g);
+      const sorted = [...g.members].sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+      reps.push({ ...sorted[0], _venueCount: g.members.length, _venueIds: g.members.map((m) => m.id) });
+    }
+    return reps;
+  }, [events, venueGroups]);
+
   // markers — full sync
   useEffect(() => {
     const map = mapObj.current;
     if (!map || !events) return;
-    const ids = new Set(events.map((e) => e.id));
+    const ids = new Set(markerItems.map((e) => e.id));
     for (const [id, rec] of markers.current) {
       if (!ids.has(id)) {
         rec.marker.remove();
         markers.current.delete(id);
       }
     }
-    for (const ev of events) {
+    for (const ev of markerItems) {
       const cat = primaryCat(ev);
       const color = CATS[cat].color;
       const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' town-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '');
+      const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
       const existing = markers.current.get(ev.id);
       if (existing) {
         existing.ev = ev;
         existing.el.style.setProperty('--cc', color);
-        existing.el.innerHTML = catIconSvg(cat, 15);
+        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
         existing.el.className = pinClass;
         existing.marker.setLngLat([ev.lng, ev.lat]);
         continue;
@@ -558,7 +653,7 @@ export default function Home() {
       const el = document.createElement('div');
       el.className = pinClass;
       el.style.setProperty('--cc', color);
-      el.innerHTML = catIconSvg(cat, 15);
+      el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         selectRef.current(markers.current.get(ev.id)?.ev || ev);
@@ -566,7 +661,7 @@ export default function Home() {
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([ev.lng, ev.lat]).addTo(map);
       markers.current.set(ev.id, { marker, el, ev });
     }
-  }, [events]);
+  }, [markerItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------------- filtering ---------------- */
   const [dFrom, dTo] = useMemo(() => {
@@ -633,7 +728,9 @@ export default function Home() {
   useEffect(() => {
     const visible = new Set(filtered.map((e) => e.id));
     for (const { el, ev } of markers.current.values()) {
-      el.style.display = visible.has(ev.id) ? '' : 'none';
+      // a grouped marker stays visible if any event in its venue group matches the filters
+      const ids = ev._venueIds || [ev.id];
+      el.style.display = ids.some((id) => visible.has(id)) ? '' : 'none';
     }
     if (selected && !visible.has(selected.id)) selectEvent(null, { fly: false });
   }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -646,15 +743,15 @@ export default function Home() {
   /* ---------------- scan flow ---------------- */
   function openCapture() {
     setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setManualEntry(false);
-    setLocMode('address'); setRefine(null);
+    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false);
   }
   // "Add event manually" reuses the exact same confirm-screen UI as the scan flow,
   // just pre-seeded with empty fields and skipping the photo/extraction steps.
   function openManualAdd() {
     setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
-    setLocMode('address'); setRefine(null);
+    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false);
     setDraft({
-      kind: 'event', title: '', date_start: todayStr(), time_start: '', venue: '', address: '', town: 'Linz',
+      kind: 'event', title: '', date_start: todayStr(), time_start: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
       categories: [], is_free: false, description: '', confidence: {},
     });
   }
@@ -662,7 +759,7 @@ export default function Home() {
   // opening hours + a location step that also accepts the map pin-drop.
   function openManualPlace() {
     setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
-    setLocMode('address'); setRefine(null);
+    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false);
     setDraft({
       kind: 'place', title: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
       categories: [], is_free: false, description: '', confidence: {},
@@ -699,6 +796,7 @@ export default function Home() {
         venue: x.venue || '',
         address: x.address || '',
         town: x.town || 'Linz',
+        lat: null, lng: null,
         categories: (x.categories || []).filter((c) => CATS[c]),
         is_free: x.is_free === true,
         description: x.description || '',
@@ -725,19 +823,22 @@ export default function Home() {
       return;
     }
     setScanState('publishing');
+    // Known coordinates (from the map pin-drop or a picked address suggestion) are
+    // trusted over server-side geocoding whenever we have them, for either kind.
+    const coordsPatch = draft.lat != null ? { lat: draft.lat, lng: draft.lng, geo_precision: 'address' } : {};
     const body = isPlace
       ? {
           kind: 'place',
           title: draft.title,
           description: draft.description || null,
           venue: draft.venue || null,
-          address: locMode === 'address' ? draft.address || null : null,
+          address: draft.address || null,
           town: draft.town || 'Linz',
           categories: draft.categories.length ? draft.categories : ['playground'],
           is_free: draft.is_free,
-          opening_hours: draft.always_open ? null : buildOpeningHours(draft.hours),
+          opening_hours: draft.always_open ? { always: true } : buildOpeningHours(draft.hours),
           seasonal: draft.seasonal || null,
-          ...(locMode === 'map' && draft.lat != null ? { lat: draft.lat, lng: draft.lng, geo_precision: 'address' } : {}),
+          ...coordsPatch,
         }
       : {
           kind: 'event',
@@ -751,6 +852,7 @@ export default function Home() {
           categories: draft.categories.length ? draft.categories : ['family'],
           is_free: draft.is_free,
           photo_path: photoPath,
+          ...coordsPatch,
         };
     try {
       const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -795,12 +897,12 @@ export default function Home() {
     return (
       <div className={`locsearch ${compact ? 'floaty' : ''}`}>
         <div className="locsearch-row">
-          {!searchOpen && <span className="loc-chip">📍 {localityLabel || t.brandTag}</span>}
-          <div className={`searchwrap ${searchOpen ? 'open' : ''}`}>
-            {searchOpen && (
+          <div className={`searchpill ${searchOpen ? 'open' : ''}`}>
+            <span className="searchpill-icon" aria-hidden="true"><MagnifyingGlass size={18} weight="bold" /></span>
+            {searchOpen ? (
               <input
                 autoFocus
-                className="searchinput"
+                className="searchpill-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -815,11 +917,40 @@ export default function Home() {
                 }}
                 placeholder={t.searchPlaceholder}
               />
+            ) : (
+              <button type="button" className="searchpill-label" onClick={() => setSearchOpen(true)}>
+                {localityLabel ? `📍 ${localityLabel}` : t.searchPlaceholder}
+              </button>
             )}
-            <button className="searchtoggle" onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))} aria-label={t.search}>
-              {searchOpen ? '✕' : '🔍'}
-            </button>
+            {searchOpen && (
+              <button type="button" className="searchpill-clear" onClick={closeSearch} aria-label={t.close}>
+                <X size={16} weight="bold" />
+              </button>
+            )}
           </div>
+          <button className="account-btn" onClick={() => setMenuOpen((o) => !o)} aria-label={t.menu}>
+            <UserCircle size={27} weight="regular" />
+          </button>
+          {menuOpen && (
+            <>
+              <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
+              <div className="menudrop">
+                <button className="menuitem" onClick={() => { setMenuOpen(false); openCapture(); }}>
+                  <span className="ic">📷</span>{t.scanTitle}
+                </button>
+                <button className="menuitem" onClick={() => { setMenuOpen(false); openManualAdd(); }}>
+                  <span className="ic">➕</span>{t.addManual}
+                </button>
+                <button className="menuitem" onClick={() => { setMenuOpen(false); openManualPlace(); }}>
+                  <span className="ic">📍</span>{t.addPlace}
+                </button>
+                <button className="menuitem" onClick={() => { switchLang(); setMenuOpen(false); }}>
+                  <span className="ic">🌐</span>{lang === 'de' ? 'English' : 'Deutsch'}
+                </button>
+                {/* Future: Account / Login entry goes here — add one more <button className="menuitem"> */}
+              </div>
+            </>
+          )}
         </div>
         {searchCenter && !searchOpen && (
           <button className="searchcenter-chip" onClick={clearSearchCenter}>
@@ -992,7 +1123,7 @@ export default function Home() {
                       {t.cats[cat]} · {pl.town || pl.venue} · {distKm(refPoint, pl).toFixed(1).replace('.', ',')} km
                     </span>
                   </span>
-                  {!st.always && <span className={`tag ${st.open ? '' : 'closed'}`}>{st.open ? t.openNow : t.closedNow}</span>}
+                  {!st.always && !st.unknown && <span className={`tag ${st.open ? '' : 'closed'}`}>{st.open ? t.openNow : t.closedNow}</span>}
                 </button>
               );
             })}
@@ -1004,6 +1135,7 @@ export default function Home() {
 
   function placeHoursBlock(ev) {
     const st = openStatus(ev.opening_hours);
+    if (st.unknown) return null;
     if (st.always) return <div className="dwhen place-open always">{t.alwaysOpen}</div>;
     const today = st.ranges.map(([s, e]) => `${s}–${e}`).join(', ') || t.closedDay;
     return (
@@ -1029,15 +1161,31 @@ export default function Home() {
     );
   }
 
+  // Tapping a "more at this venue" row switches the open detail to that event
+  // without collapsing the mobile full-screen sheet back to the mini-card.
+  function switchToVenueEvent(item) {
+    selectEvent(item);
+    setDetailFull(true);
+  }
+
   function eventDetail(ev, { onBack, onClose }) {
     const cat = primaryCat(ev);
     const place = ev.kind === 'place';
+    // Task 3: "more at this venue" — for an event, its venue-group siblings; for a
+    // place, other upcoming events at/near it (same venue-matching rule).
+    const venueSiblings = place
+      ? (events || [])
+          .filter((e) => e.kind !== 'place' && e.id !== ev.id && sameVenue(e, ev))
+          .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+      : (venueGroups.get(ev.id)?.members || [])
+          .filter((e) => e.id !== ev.id)
+          .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
     return (
       <>
         <div className="dhero" style={{ '--cc': CATS[cat].color }}>
           <span className="heroicon"><CatIcon cat={cat} size={44} strokeWidth={1.6} /></span>
-          {onBack && <button className="backbtn" onClick={onBack} aria-label={t.backToList}>←</button>}
-          {onClose && <button className="closebtn" onClick={onClose} aria-label="close">✕</button>}
+          {onBack && <button className="backbtn" onClick={onBack} aria-label={t.backToList}><ArrowLeft size={18} weight="bold" /></button>}
+          {onClose && <button className="closebtn" onClick={onClose} aria-label={t.close}><X size={18} weight="bold" /></button>}
         </div>
         <div className="dbody">
           <h2>{ev.title}</h2>
@@ -1075,20 +1223,49 @@ export default function Home() {
               {ev.geo_precision === 'town' && <> · {t.posApprox}</>}
             </span>
           </div>
-          <div className="dactions">
-            <a className="abtn" href={`https://www.google.com/maps/dir/?api=1&destination=${ev.lat},${ev.lng}`} target="_blank" rel="noreferrer">{t.route}</a>
-            {!place && <button className="abtn" onClick={() => makeIcs(ev)}>＋ {t.calendar}</button>}
+          <div className="dactions2">
+            <a className="daction" href={`https://www.google.com/maps/dir/?api=1&destination=${ev.lat},${ev.lng}`} target="_blank" rel="noreferrer">
+              <span className="daction-ic"><NavigationArrow size={19} weight="fill" /></span>
+              <span className="daction-lab">{t.route}</span>
+            </a>
+            {!place && (
+              <button className="daction" onClick={() => makeIcs(ev)}>
+                <span className="daction-ic"><CalendarPlus size={19} weight="bold" /></span>
+                <span className="daction-lab">{t.calendar}</span>
+              </button>
+            )}
             <button
-              className="abtn primary"
+              className="daction"
               onClick={() => {
                 const url = `${location.origin}/event/${ev.id}`;
                 if (navigator.share) navigator.share({ title: ev.title, url }).catch(() => {});
                 else navigator.clipboard.writeText(url).then(() => showToast(t.copied));
               }}
             >
-              {t.share}
+              <span className="daction-ic"><ShareNetwork size={19} weight="bold" /></span>
+              <span className="daction-lab">{t.share}</span>
             </button>
+            {/* Future: favorite/star action slot goes here */}
           </div>
+          {venueSiblings.length > 0 && (
+            <div className="dvenue">
+              <h4>{t.moreAtVenue}</h4>
+              <div className="dvenue-list">
+                {venueSiblings.map((s) => {
+                  const sCat = primaryCat(s);
+                  return (
+                    <button key={s.id} className="dvenue-row" style={{ '--cc': CATS[sCat].color }} onClick={() => switchToVenueEvent(s)}>
+                      <span className="thumb"><CatIcon cat={sCat} size={15} /></span>
+                      <span className="tx">
+                        <span className="t">{s.title}</span>
+                        <span className="m">{fmtWhenShort(s, lang, t)}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </>
     );
@@ -1162,46 +1339,57 @@ export default function Home() {
               <div className="lab">{t.fVenue} {confChip(conf?.location)}</div>
               <input value={draft.venue} onChange={(e) => setDraft({ ...draft, venue: e.target.value })} />
             </div>
-            {isPlaceDraft ? (
-              <>
-                <div className="seg locseg">
-                  <button className={locMode === 'address' ? 'on' : ''} onClick={() => setLocMode('address')}>{t.locByAddress}</button>
-                  <button className={locMode === 'map' ? 'on' : ''} onClick={() => setLocMode('map')}>{t.locByMap}</button>
-                </div>
-                <div className="xrow">
-                  {locMode === 'address' && (
-                    <div className="xfield">
-                      <div className="lab">{t.fAddress}</div>
-                      <input value={draft.address} onChange={(e) => setDraft({ ...draft, address: e.target.value })} />
+            {/* task 4a: "choose on map" now shared by both the add-place and add-event
+                forms — same address/map toggle + pin-drop picker either way. */}
+            <div className="seg locseg">
+              <button className={locMode === 'address' ? 'on' : ''} onClick={() => setLocMode('address')}>{t.locByAddress}</button>
+              <button className={locMode === 'map' ? 'on' : ''} onClick={() => setLocMode('map')}>{t.locByMap}</button>
+            </div>
+            <div className="xrow">
+              {locMode === 'address' && (
+                <div className="xfield addr-field">
+                  <div className="lab">{t.fAddress}</div>
+                  <input
+                    value={draft.address}
+                    onChange={(e) => onAddressChange(e.target.value)}
+                    onFocus={() => setAddrSuggestOpen(true)}
+                    onBlur={() => setTimeout(() => setAddrSuggestOpen(false), 150)}
+                    autoComplete="off"
+                  />
+                  {/* task 4b: address autocomplete — GET /api/geocode?suggest=1&q=…,
+                      debounced 300ms / ≥3 chars; gracefully shows nothing on a
+                      non-200 or empty response (see onAddressChange/fetchAddressSuggestions). */}
+                  {addrSuggestOpen && addrSuggestions.length > 0 && (
+                    <div className="addr-suggest" role="listbox" aria-label={t.fAddressSuggest}>
+                      {addrSuggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          className="addr-suggest-row"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => pickAddressSuggestion(s)}
+                        >
+                          {s.label}
+                        </button>
+                      ))}
                     </div>
                   )}
-                  <div className="xfield">
-                    <div className="lab">{t.fTown}</div>
-                    <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
-                  </div>
                 </div>
-                {locMode === 'map' && (
-                  <>
-                    <PinDropPicker
-                      center={draft.lat != null ? { lat: draft.lat, lng: draft.lng } : me}
-                      t={t}
-                      onConfirm={(pos) => setDraft((d) => ({ ...d, lat: pos.lat, lng: pos.lng }))}
-                    />
-                    {draft.lat != null && <div className="posset">📍 {t.positionSet}</div>}
-                  </>
-                )}
-              </>
-            ) : (
-              <div className="xrow">
-                <div className="xfield">
-                  <div className="lab">{t.fAddress}</div>
-                  <input value={draft.address} onChange={(e) => setDraft({ ...draft, address: e.target.value })} />
-                </div>
-                <div className="xfield">
-                  <div className="lab">{t.fTown}</div>
-                  <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
-                </div>
+              )}
+              <div className="xfield">
+                <div className="lab">{t.fTown}</div>
+                <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
               </div>
+            </div>
+            {locMode === 'map' && (
+              <>
+                <PinDropPicker
+                  center={draft.lat != null ? { lat: draft.lat, lng: draft.lng } : me}
+                  t={t}
+                  onConfirm={(pos) => setDraft((d) => ({ ...d, lat: pos.lat, lng: pos.lng }))}
+                />
+                {draft.lat != null && <div className="posset">📍 {t.positionSet}</div>}
+              </>
             )}
             <div className="xfield">
               <div className="lab">{t.categories}</div>
@@ -1283,10 +1471,6 @@ export default function Home() {
         ) : (
           <>
             <div className="sidehead">
-              <div className="brandrow">
-                <span className="brand">Umkreis<span className="dot">.</span> <small>{t.brandTag}</small></span>
-                <button className="langbtn" onClick={switchLang}>{lang === 'de' ? 'EN' : 'DE'}</button>
-              </div>
               {locSearchBar(false)}
             </div>
             <div className="chiprow" style={{ padding: '0 18px 6px' }}>{kindToggle}</div>
@@ -1310,34 +1494,10 @@ export default function Home() {
         <div id="map" ref={mapRef} />
         {!events && <div className="loading">Umkreis<span className="dot">.</span></div>}
 
-        {/* mobile top bar */}
+        {/* mobile top bar — Google-Maps-style search pill + account circle (menu content lives in locSearchBar) */}
         <div className="m-topbar mobileonly">
-          <span className="m-brand">Umkreis<span className="dot">.</span> <small>{t.brandTag}</small></span>
           {locSearchBar(true)}
         </div>
-
-        {/* top-right actions menu (scan / add manually / language on mobile) */}
-        <button className="menubtn" onClick={() => setMenuOpen((o) => !o)} aria-label={t.menu}>⋮</button>
-        {menuOpen && (
-          <>
-            <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
-            <div className="menudrop">
-              <button className="menuitem" onClick={() => { setMenuOpen(false); openCapture(); }}>
-                <span className="ic">📷</span>{t.scanTitle}
-              </button>
-              <button className="menuitem" onClick={() => { setMenuOpen(false); openManualAdd(); }}>
-                <span className="ic">➕</span>{t.addManual}
-              </button>
-              <button className="menuitem" onClick={() => { setMenuOpen(false); openManualPlace(); }}>
-                <span className="ic">📍</span>{t.addPlace}
-              </button>
-              <button className="menuitem mobileonly" onClick={() => { switchLang(); setMenuOpen(false); }}>
-                <span className="ic">🌐</span>{lang === 'de' ? 'English' : 'Deutsch'}
-              </button>
-              {/* Future: Account / Login entry goes here — add one more <button className="menuitem"> */}
-            </div>
-          </>
-        )}
 
         {/* mobile bottom chip bar */}
         {sheet === 'closed' && !selected && (
@@ -1360,7 +1520,7 @@ export default function Home() {
           <button className="grabber" onClick={() => setSheet(sheet === 'full' ? 'half' : 'full')} aria-label="resize"><i /></button>
           <div className="m-sheethead">
             <b>{sheetContent === 'filters' ? t.filters : `${filtered.length} ${t.events}`}</b>
-            <button className="m-close" onClick={() => setSheet('closed')}>✕</button>
+            <button className="m-close" onClick={() => setSheet('closed')} aria-label={t.close}><X size={14} weight="bold" /></button>
           </div>
           <div className="m-sheetbody">
             {sheetContent === 'filters' ? (
@@ -1385,7 +1545,7 @@ export default function Home() {
               <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
             </span>
             <button className="morebtn" onClick={(e) => { e.stopPropagation(); setDetailFull(true); }}>{t.learnMore}</button>
-            <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label="close">✕</button>
+            <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label={t.close}><X size={14} weight="bold" /></button>
           </div>
         )}
 

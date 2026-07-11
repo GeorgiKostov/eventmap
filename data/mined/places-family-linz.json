@@ -1,0 +1,2157 @@
+{
+  "_meta": {
+    "generated": "2026-07-11",
+    "generator": "Overpass API query (overpass-api.de) + Nominatim/Overpass is_in reverse-geocode for town names + web search cross-check for official websites and simple weekly opening hours",
+    "attribution": "Map data © OpenStreetMap contributors, available under the Open Database License (ODbL) 1.0 — https://www.openstreetmap.org/copyright / https://opendatacommons.org/licenses/odbl/",
+    "search_area": "~25km radius around Linz center (48.3069, 14.2858)",
+    "count": 57,
+    "notes": [
+      "Facts (name/address/hours/website) only — no source prose copied; descriptions are one-line factual summaries written for this dataset.",
+      "categories[] uses the CURRENT PLACE_CATS taxonomy (playground|pool|park|trail|indoor_play) as a best-effort mapping so pins render sensibly today; the true finer-grained type is preserved in _osm_category (museum|science_center|zoo|attraction|climbing|indoor_play|pool|playground|cafe_playground) for when PLACE_CATS is extended — see report.",
+      "_osm_type/_osm_id/_wheelchair are provenance-only fields, not part of the events table; scripts/seed-places.mjs drops them before insert.",
+      "opening_hours is only populated for simple, confidently-parsed single weekly patterns; complex/seasonal or date-exception rules were left null with a human-written `seasonal` note instead.",
+      "town is null nowhere in this file, but was left unset upstream (dropped) for OSM hits whose municipality could not be confidently resolved (e.g. bare 'Freibad'/'Hallenbad' nodes, 'Kumplgut', 'TGW Activity Garden' [access=private], 'Kleine Farm' Steyregg) — excluded rather than guessed."
+    ]
+  },
+  "places": [
+    {
+      "kind": "place",
+      "title": "Ars Electronica Center",
+      "description": "Interaktives Museum der Zukunftstechnologien mit Deep Space 8K, Robotik- und KI-Ausstellungen.",
+      "venue": null,
+      "address": "Ars-Electronica-Straße 1",
+      "town": "Linz",
+      "lat": 48.3099536,
+      "lng": 14.2847439,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://ars.electronica.art/center/de/",
+      "_osm_category": "science_center",
+      "_osm_type": "way",
+      "_osm_id": 31340724,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Lentos Kunstmuseum Linz",
+      "description": "Museum für moderne und zeitgenössische Kunst an der Donau, mit Kinder- und Familienprogramm.",
+      "venue": null,
+      "address": "Ernst-Koref-Promenade 1",
+      "town": "Linz",
+      "lat": 48.3085449,
+      "lng": 14.2887956,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.lentos.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 13959723,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Schlossmuseum Linz",
+      "description": "Landesmuseum im Linzer Schloss mit Natur-, Kultur- und Technikausstellungen zu Oberösterreich.",
+      "venue": null,
+      "address": "Schlossberg 1",
+      "town": "Linz",
+      "lat": 48.3053351,
+      "lng": 14.282825,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.ooekultur.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 35900994,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "Nordico Stadtmuseum Linz",
+      "description": "Stadtmuseum von Linz mit Stadtgeschichte, Kunst- und archäologischer Sammlung.",
+      "venue": null,
+      "address": "Dametzstraße 23",
+      "town": "Linz",
+      "lat": 48.3041075,
+      "lng": 14.2914753,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.nordico.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 72338398,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Francisco Carolinum",
+      "description": "Landesgalerie für Fotografie und Medienkunst mit wechselnden Ausstellungen.",
+      "venue": null,
+      "address": "Museumstraße 14",
+      "town": "Linz",
+      "lat": 48.3058582,
+      "lng": 14.293761,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.ooekultur.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 13964980,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "voestalpine Stahlwelt",
+      "description": "Interaktive Erlebniswelt zur Stahlerzeugung mit Werksrundfahrt, für Familien konzipiert.",
+      "venue": null,
+      "address": "voestalpine-Straße 4",
+      "town": "Linz",
+      "lat": 48.2769131,
+      "lng": 14.3199824,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.voestalpine.com/stahlwelt",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 124369783,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "PANEUM – Wunderkammer des Brotes",
+      "description": "Erlebnismuseum rund um die Kulturgeschichte des Brots, mit Audioguide-Führung.",
+      "venue": null,
+      "address": "Kornspitzstraße 1",
+      "town": "Asten",
+      "lat": 48.2158122,
+      "lng": 14.4091096,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "16:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "16:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "16:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "16:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "16:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.paneum.at/de/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 130895638,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Pöstlingbergbahn Museum",
+      "description": "Kleines Museum zur Geschichte der Pöstlingbergbahn, nahe der Bergstation.",
+      "venue": null,
+      "address": "Landgutstraße 19",
+      "town": "Linz",
+      "lat": 48.3109611,
+      "lng": 14.276509,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Nur März–Oktober, Sa/So/Feiertag geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.linzag.at/portal/de/privatkunden/freizeit/poestlingbergbahn",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 84505356,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Museum Lauriacum",
+      "description": "Römisches Stadtmuseum im ehemaligen Rathaus von Enns mit Funden aus dem antiken Lauriacum.",
+      "venue": null,
+      "address": "Hauptplatz 19",
+      "town": "Enns",
+      "lat": 48.2139223,
+      "lng": 14.4797366,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://enns-museen.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 297580153,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freilichtmuseum Sumerauerhof",
+      "description": "Vierkanthof-Freilichtmuseum mit Naturerlebnispfad, Spielplatz und kleinem Streichelzoo.",
+      "venue": null,
+      "address": "Samesleiten 15",
+      "town": "St. Florian",
+      "lat": 48.2080456,
+      "lng": 14.4077098,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "April–Oktober, Do–So und Feiertage",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.ooekultur.at/location-detail/sumerauerhof",
+      "_osm_category": "museum",
+      "_osm_type": "relation",
+      "_osm_id": 1703223,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Bauerntechnikmuseum Gallhuberhof",
+      "description": "Museum für historische Landtechnik auf einem Vierkanthof.",
+      "venue": null,
+      "address": "Thannstraße 22",
+      "town": "Dietach",
+      "lat": 48.1128631,
+      "lng": 14.402208,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Nur sonntags 13:00–17:00 geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.bauerntechnikmuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "relation",
+      "_osm_id": 1772973,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Linzer Tiergarten",
+      "description": "Städtischer Zoo am Froschberg mit rund 90 Tierarten, Streichelgehege inklusive.",
+      "venue": null,
+      "address": "Windflachweg 1",
+      "town": "Linz",
+      "lat": 48.3104685,
+      "lng": 14.2622798,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.zoo-linz.at/",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 50659425,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Tiergarten & Reiterhof Walding",
+      "description": "Privater Tiergarten mit exotischen und seltenen Nutztierrassen sowie Ponyreiten.",
+      "venue": null,
+      "address": null,
+      "town": "Walding",
+      "lat": 48.3513438,
+      "lng": 14.1357992,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.tiergartenwalding.com/",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 30478366,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Streichelzoo Diakoniewerk Linzerberg",
+      "description": "Streichelzoo einer Sozialeinrichtung mit Pferden, Ponys, Ziegen und Schafen zum Füttern.",
+      "venue": null,
+      "address": "Linzerberg 9-17",
+      "town": "Engerwitzdorf",
+      "lat": 48.3460247,
+      "lng": 14.4068356,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.diakonie.at/unsere-angebote-und-einrichtungen/streichelzoo-linzerberg",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 989149713,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Linzer Grottenbahn",
+      "description": "Historische Märchenbahn im Berg des Pöstlingbergs, Fahrt durch nachgebaute Märchenszenen.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.3241874,
+      "lng": 14.2564392,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "März–November eingeschränkt, Jun–Aug täglich 10:00–18:00",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.linzag.at/portal/de/privatkunden/freizeit/grottenbahn_2",
+      "_osm_category": "attraction",
+      "_osm_type": "node",
+      "_osm_id": 308669304,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Pöstlingbergkirche",
+      "description": "Wallfahrtsbasilika auf dem Pöstlingberg mit Aussicht über Linz, Endstation der Pöstlingbergbahn.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.3240154,
+      "lng": 14.2582943,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.dioezese-linz.at/poestlingbergbasilika",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 90522176,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Rodlpark",
+      "description": "Freizeitgelände an der Rodl mit Spielplatz, Motorikpark, Beachvolleyball und Liegewiese.",
+      "venue": null,
+      "address": null,
+      "town": "Ottensheim",
+      "lat": 48.3299796,
+      "lng": 14.1689928,
+      "geo_precision": "venue",
+      "categories": [
+        "park"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.ottensheim.ooe.gv.at/LEBEN_WOHNEN/Freizeitangebote/Rodlgelaende",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 232155938,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Taga Luba – Abenteuerland Hörsching",
+      "description": "Indoor-Erlebnispark mit Rutschen, Trampolinen und Klettermöglichkeiten für Kinder.",
+      "venue": null,
+      "address": "Poststraße 4a",
+      "town": "Hörsching",
+      "lat": 48.2319205,
+      "lng": 14.2182523,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "wed": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.tagaluba.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 323805690,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Hochseilgarten Kletterpark Goldberg",
+      "description": "Hochseilgarten mit mehreren Parcours unterschiedlicher Schwierigkeit im Wald.",
+      "venue": null,
+      "address": "Weichstettenstraße 119",
+      "town": "Schiedlberg",
+      "lat": 48.1114352,
+      "lng": 14.3235352,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://kletterpark-goldberg.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 111486550,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Hochseil-Klettergarten Kirchschlag",
+      "description": "Waldhochseilgarten mit Kletterparcours für verschiedene Altersgruppen.",
+      "venue": null,
+      "address": null,
+      "town": "Kirchschlag bei Linz",
+      "lat": 48.4153706,
+      "lng": 14.2716968,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.ralfundwalter.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "node",
+      "_osm_id": 718391141,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kronstorfer Maislabyrinth",
+      "description": "Saisonales Maislabyrinth mit Rätselstationen, jeden Sommer neu angelegt.",
+      "venue": null,
+      "address": null,
+      "town": "Kronstorf",
+      "lat": 48.1346648,
+      "lng": 14.4639403,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Nur Juli–September",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kronstorfer-maislabyrinth.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "node",
+      "_osm_id": 8938548989,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Atlantis Kinderland",
+      "description": "Bewachter Indoor-Kinderspielbereich im Einkaufszentrum PlusCity.",
+      "venue": null,
+      "address": "Plus-Kauf-Straße 7",
+      "town": "Pasching",
+      "lat": 48.2433436,
+      "lng": 14.2350148,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:30",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:30",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:30",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:30",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:30",
+            "21:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.pluscity.at/entertainment/atlantis-kinderland",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 4609255053,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "JUMP DOME Linz",
+      "description": "Trampolinhalle mit Sprung-, Dodgeball- und Kletterbereichen.",
+      "venue": null,
+      "address": "Im Bäckerfeld 1",
+      "town": "Leonding",
+      "lat": 48.250753,
+      "lng": 14.2484816,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.jumpdome.at/linz/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "way",
+      "_osm_id": 986054829,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Lollipark",
+      "description": "Indoor-Spielplatz mit Rutschen, Klettergerüst und Kleinkindbereich.",
+      "venue": null,
+      "address": null,
+      "town": "Pasching",
+      "lat": 48.2456111,
+      "lng": 14.2350157,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "http://www.lollipark.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 13343234896,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "WildKidz",
+      "description": "Indoor-Spielhalle für Kinder mit Klettergerüsten und Rutschen.",
+      "venue": null,
+      "address": null,
+      "town": "Asten",
+      "lat": 48.2176959,
+      "lng": 14.4242376,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/node/11466404254",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 11466404254,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "VR Arena",
+      "description": "Virtual-Reality-Erlebniswelt mit mehreren Spielstationen, geeignet für ältere Kinder.",
+      "venue": null,
+      "address": null,
+      "town": "Pucking",
+      "lat": 48.1947273,
+      "lng": 14.2122325,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://vr-arena.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 13773676569,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kletterhalle Linz Auwiesen",
+      "description": "Kletterhalle mit Toprope- und Vorstiegsrouten für alle Levels.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.244736,
+      "lng": 14.301591,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kletterhallelinz.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 420544210,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kraxlhalle Bad Leonfelden",
+      "description": "Regionale Kletterhalle im Mühlviertel mit Boulder- und Seilbereich.",
+      "venue": null,
+      "address": "Hagauer Straße 25",
+      "town": "Bad Leonfelden",
+      "lat": 48.5197176,
+      "lng": 14.3051418,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://kraxlhalle.at",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 9656803530,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kletterhalle Gramastetten",
+      "description": "Vereinskletterhalle des Alpenvereins mit festen Öffnungszeiten.",
+      "venue": null,
+      "address": "Genger Straße 31",
+      "town": "Gramastetten",
+      "lat": 48.3893134,
+      "lng": 14.2014489,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "wed": [
+          [
+            "18:00",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "15:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.alpenverein.at/tk-linz-urfahr-west/kletterhalle/",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 10939226827,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "der steinbock Linz",
+      "description": "Boulderhalle in Linz mit Trainingsbereich für Kinder und Erwachsene.",
+      "venue": null,
+      "address": "Kapuzinerstraße 84f",
+      "town": "Linz",
+      "lat": 48.2988593,
+      "lng": 14.2747728,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "23:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "23:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "23:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "23:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "23:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.dersteinbock-linz.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 67505184,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kletterzentrum AM TURM",
+      "description": "Große Kletterhalle des Alpenvereins Linz mit Innen- und Außenwänden bis 15 m Höhe.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.3292673,
+      "lng": 14.3236669,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.klettern-amturm.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 330677997,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "boulderbar Linz",
+      "description": "Bouldercenter-Kette mit Trainingsflächen für alle Niveaus.",
+      "venue": null,
+      "address": "Dr. Hermann-Thurner-Straße 1",
+      "town": "Leonding",
+      "lat": 48.247179,
+      "lng": 14.2326434,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://boulderbar.net/standorte/linz/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 1265516462,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Lagune Pregarten",
+      "description": "Freibad mit Erlebnisbecken und Liegewiese in Pregarten.",
+      "venue": null,
+      "address": null,
+      "town": "Pregarten",
+      "lat": 48.3494055,
+      "lng": 14.531291,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/node/827803425",
+      "_osm_category": "pool",
+      "_osm_type": "node",
+      "_osm_id": 827803425,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Bad Mühllacken Waldbad",
+      "description": "Waldbad im Pesenbachtal mit Spielplatz am Eingang, Alternative zu den Feldkirchner Badeseen.",
+      "venue": null,
+      "address": null,
+      "town": "Feldkirchen an der Donau",
+      "lat": 48.3655425,
+      "lng": 14.0624008,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.feldkirchen-donau.at/",
+      "_osm_category": "pool",
+      "_osm_type": "node",
+      "_osm_id": 907294200,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Neuhofen",
+      "description": "Gemeindefreibad mit Sport- und Kinderbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Neuhofen an der Krems",
+      "lat": 48.1321103,
+      "lng": 14.2321255,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/node/2247391038",
+      "_osm_category": "pool",
+      "_osm_type": "node",
+      "_osm_id": 2247391038,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Erlebnisbad Eferding",
+      "description": "Freibad mit Rutschen und Erlebnisbecken für Familien.",
+      "venue": null,
+      "address": null,
+      "town": "Eferding",
+      "lat": 48.3083757,
+      "lng": 14.0266173,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/node/6128158364",
+      "_osm_category": "pool",
+      "_osm_type": "node",
+      "_osm_id": 6128158364,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibadanlage Aquarella",
+      "description": "Freibad mit 25-m-Becken, Fun-Pool, zwei Rutschen und Sprungturm.",
+      "venue": null,
+      "address": "In der Au 19",
+      "town": "St. Georgen an der Gusen",
+      "lat": 48.2781404,
+      "lng": 14.446879,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.st-georgen-gusen.at/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 18382370,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Gallneukirchen",
+      "description": "Gemeindefreibad mit Liegewiese und Kinderbereich.",
+      "venue": null,
+      "address": null,
+      "town": "Gallneukirchen",
+      "lat": 48.3586767,
+      "lng": 14.4073813,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/19785055",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 19785055,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Hummelhofbad",
+      "description": "Freibad im Linzer Süden mit Sport- und Familienbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.2769385,
+      "lng": 14.2911062,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.linzag.at/portal/de/privatkunden/freizeit/schwimmen",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 23603975,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Waldbad Pasching",
+      "description": "Naturnahes Freibad mit Liegewiese am Waldrand.",
+      "venue": null,
+      "address": null,
+      "town": "Pasching",
+      "lat": 48.2360563,
+      "lng": 14.2266409,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/27652708",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 27652708,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Erlebnisbad Ansfelden",
+      "description": "Freibad mit Erlebnisbecken, Rutsche und Kinderbereich.",
+      "venue": null,
+      "address": null,
+      "town": "Ansfelden",
+      "lat": 48.209041,
+      "lng": 14.2586188,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/27779734",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 27779734,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Schörgenhubbad",
+      "description": "Freibad im Linzer Stadtteil Schörgenhub mit Familienbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.2499366,
+      "lng": 14.3005774,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.linzag.at/portal/de/privatkunden/freizeit/schwimmen",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 29985239,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Biesenfeldbad",
+      "description": "Freibad im Linzer Stadtteil Biesenfeld.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.3335768,
+      "lng": 14.3024084,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "tue": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ]
+      },
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.linzag.at/portal/de/privatkunden/freizeit/schwimmen",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 68752639,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Reichenau",
+      "description": "Beheiztes Freibad mit Kinderplantschbecken, Spielplatz und Beachvolleyballplätzen.",
+      "venue": null,
+      "address": "Zeiler Straße",
+      "town": "Reichenau im Mühlkreis",
+      "lat": 48.4596446,
+      "lng": 14.350953,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.reichenau-ooe.at/Freizeit_und_Tourismus/Freibad_Reichenau",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 79130454,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Bad Leonfelden",
+      "description": "Freibad im Kurort Bad Leonfelden.",
+      "venue": null,
+      "address": null,
+      "town": "Bad Leonfelden",
+      "lat": 48.5173306,
+      "lng": 14.2876725,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – je nach Saison geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/96584064",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 96584064,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad St. Florian",
+      "description": "Gemeindefreibad nahe dem Augustiner-Chorherrenstift.",
+      "venue": null,
+      "address": null,
+      "town": "St. Florian",
+      "lat": 48.2017766,
+      "lng": 14.3762321,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/123326718",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 123326718,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Mauthausen",
+      "description": "Gemeindefreibad an der Donau.",
+      "venue": null,
+      "address": null,
+      "town": "Mauthausen",
+      "lat": 48.2457163,
+      "lng": 14.50633,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/140406959",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 140406959,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Enns",
+      "description": "Freibad der ältesten Stadt Österreichs, mit Kinderbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Enns",
+      "lat": 48.2126645,
+      "lng": 14.4734499,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/158008520",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 158008520,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad St. Valentin",
+      "description": "Gemeindefreibad mit Sportbecken und Liegewiese.",
+      "venue": null,
+      "address": null,
+      "town": "St. Valentin",
+      "lat": 48.1723232,
+      "lng": 14.5210003,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://sanktvalentin.at/index.php/themen/freizeit/freibad",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 160488956,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Badezentrum Traun",
+      "description": "Ganzjährig geöffnetes Bad mit Innen- und Außenbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Traun",
+      "lat": 48.2143653,
+      "lng": 14.2210136,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/340191614",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 340191614,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kürnbergbad",
+      "description": "Freibad am Rand des Kürnberger Walds.",
+      "venue": null,
+      "address": null,
+      "town": "Leonding",
+      "lat": 48.267086,
+      "lng": 14.2518364,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.leonding.at/freizeit/erlebnis/freibad/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 1353798819,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kinderbad Wimhölzelstraße",
+      "description": "Kostenloses Kinderfreibad der Stadt Linz mit flachem Planschbecken.",
+      "venue": null,
+      "address": "Wimhölzelstraße 41",
+      "town": "Linz",
+      "lat": 48.2963723,
+      "lng": 14.3167096,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": "Nur bei Schönwetter, Badesaison",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.linzag.at/portal/de/privatkunden/freizeit/schwimmen/kinderfreibaeder",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 110537573,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kinderbad Weigunystraße",
+      "description": "Kostenloses Kinderfreibad der Stadt Linz.",
+      "venue": null,
+      "address": "Weigunystraße",
+      "town": "Linz",
+      "lat": 48.3236266,
+      "lng": 14.281144,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.linzag.at/portal/de/privatkunden/freizeit/schwimmen/kinderfreibaeder",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 111500682,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Badebiotop Neußerling",
+      "description": "Naturbadeteich mit Kinderbecken, Beachvolleyball und Liegewiese, kein Bademeister.",
+      "venue": null,
+      "address": null,
+      "town": "Herzogsdorf",
+      "lat": 48.4277577,
+      "lng": 14.1637139,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.herzogsdorf.ooe.gv.at/",
+      "_osm_category": "pool",
+      "_osm_type": "node",
+      "_osm_id": 5429758286,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Wasserspielplatz Solar City",
+      "description": "Wasserspielplatz im Öko-Stadtteil Solar City, für Kinder von 6–18 Jahren ausgelegt.",
+      "venue": null,
+      "address": null,
+      "town": "Linz",
+      "lat": 48.2605434,
+      "lng": 14.3620759,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": true,
+      "age_min": 6,
+      "age_max": 18,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/109778130",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 109778130,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Racker Acker Spielplatz",
+      "description": "2024/2025 neu gebauter, über 1000 m² großer Spielplatz.",
+      "venue": null,
+      "address": null,
+      "town": "Reichenau im Mühlkreis",
+      "lat": 48.4573635,
+      "lng": 14.3420378,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/1435012822",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 1435012822,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Café Mitte",
+      "description": "Café mit Rutsche/Spielbereich für Kinder, Wickeltisch und Eis im Angebot.",
+      "venue": null,
+      "address": "Faller Straße 28",
+      "town": "Wilhering",
+      "lat": 48.3154638,
+      "lng": 14.162534,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "08:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://guide.oberoesterreich.at/oesterreich-gastronomie/detail/430010620/cafe-mitte.html",
+      "_osm_category": "cafe_playground",
+      "_osm_type": "node",
+      "_osm_id": 13979637058,
+      "_wheelchair": null
+    }
+  ]
+}

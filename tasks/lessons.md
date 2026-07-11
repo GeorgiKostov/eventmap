@@ -2,6 +2,17 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-11 — Sentinel values are not data; re-audit consumers when a new data class arrives
+
+Two same-day instances of one class: (1) venue grouping by "coords within 30m" merged 50 unrelated
+events because town-centroid *fallback* coords are identical, not near; (2) "null opening_hours =
+always open" was fine for hand-added parks but labeled 54 newly mined museums/pools "Immer geöffnet".
+**Lesson:** fallback/sentinel encodings (centroid coords, null-as-default, generic venue names like
+"Online") silently break when a new data source class lands. When adding a data class, grep every
+consumer of the fields it populates and ask "does this code assume precision/meaning the new data
+doesn't have?" Related: generic institutional names (Gemeindeamt, Pfarrzentrum…) match across all of
+Austria — never accept a POI geocode without a distance bound to the expected town.
+
 ## 2026-07-11 — Negative caches outlive the rule that produced them
 
 Geocode sanity bounds were widened (Linz box → OÖ → Austria), but the geocache had stored `hit=false`

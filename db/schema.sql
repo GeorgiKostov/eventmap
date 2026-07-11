@@ -37,7 +37,7 @@ create table if not exists events (
   indoor        boolean,
   emoji         text,
   photo_path    text,
-  opening_hours jsonb,             -- places only: {mon:[["09:00","18:00"]],...} | null = always open
+  opening_hours jsonb,             -- places only: {mon:[["09:00","18:00"]],...} | {"always":true} | null = unknown
   seasonal      text,              -- places only: free-text note, e.g. "Mai–September"
   status        text not null default 'published',
   src_kind      text not null default 'crawl',

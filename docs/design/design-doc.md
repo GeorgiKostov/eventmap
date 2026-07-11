@@ -95,7 +95,7 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 `events` (core): id, **kind** (event|place, default event), title, description, starts_at, ends_at,
 all_day, lat, lng, geo_precision (venue|address|town), venue, address, town, categories (JSON array),
 is_free, age_min, age_max, indoor, emoji, photo_path, **opening_hours** (JSON, places only —
-`{mon:[["09:00","18:00"]],…}`, null = always open), **seasonal** (text, places only, e.g.
+`{mon:[["09:00","18:00"]],…}`, `{"always":true}` = always open, null = unknown/not shown), **seasonal** (text, places only, e.g.
 "Mai–September"), status (published|expired|rejected), src_kind (crawl|feed|user_photo|manual),
 source_name, source_url, content_hash (dedup), created_at, updated_at.
 

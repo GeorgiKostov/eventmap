@@ -27,7 +27,28 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Pipeline bugs fixed: Gemini exact-keys, town-fallback geocoding, negative-geocache purge (lesson).
 - [x] Grok/xAI provider wired (EXTRACT_PROVIDER=grok) for the Austria backfill; run-book in briefs/.
 
+## Shipped (v4 — Google-Maps shell, venue grouping, geocode quality, family places, 2026-07-11)
+- [x] Google-Maps top layout: brand text removed from map UI, pill search bar + account circle
+      (opens actions menu); Phosphor icons for back/X + directions/calendar/share action row.
+- [x] Venue grouping: one pin + count badge per venue (name+town match, or ≤30m only when both
+      coords are venue/address precision — town centroids excluded); "More at this venue" section
+      in event/place detail with tap-to-switch.
+- [x] Add-event + add-place: choose-on-map for both; address autocomplete via
+      `/api/geocode?suggest=1` (Photon — Nominatim policy forbids autocomplete).
+- [x] POI-name-first geocoding waterfall (name-match + 15km-of-town + OSM-class bounds) +
+      negative-geocache purge; fixes the Musikpavillon-in-the-river / Posthof class.
+- [x] 57 family places seeded (Overpass/OSM, curated, ODbL attribution in map credits): museums,
+      zoos, climbing halls, pools, indoor play, destination playgrounds. 3 new place categories
+      (museum/zoo/climbing) with icons + DE/EN labels.
+- [x] opening_hours semantics fixed: `{"always":true}` = always open, null = unknown (renders
+      nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
+
 ## Now / next
+- [ ] **Regeocode repair run**: `node --env-file=.env.local scripts/regeocode.mjs` (dry-run) once
+      Nominatim rate-limit has cooled (first dry-run was pre-fix and had bad long-distance matches —
+      discard it); sanity-check no multi-km cross-region jumps, then `--write`.
+- [ ] Geocode wart: network errors during Nominatim lookups are cached as negative hits
+      (pre-existing in `tryQuery`) — stop caching on catch, or 429 storms poison the cache.
 - [x] **Supabase Postgres port** — `lib/db.js` on the `postgres` client over the transaction pooler;
       dedicated `umkreis` schema; starts_at/ends_at kept as Vienna-TEXT; booleans/arrays normalized
       to the old SQLite shape so no consumer changed. 95 events imported, map/detail/writes verified live.
@@ -48,6 +69,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       (1) page-change hash → skip unchanged, (2) JSON-LD/iCal/RSS ingestion before LLM,
       (3) robots.txt + rate limit + identifying UA. RiS/GEM2GO deterministic parsers after the
       OÖ probe shows dominant patterns; extra fact fields (ticket URL, price, organizer, RRULE) with it.
+- [ ] **GEM2GO parser + source rating + host-concurrency** (agent dispatched 2026-07-11,
+      briefs/gem2go-parser-and-source-rating-brief.md): deterministic GEM2GO extraction (no LLM →
+      $0/cron-able, covers 64/97 OÖ + hundreds nationally), `tier` rating so dead/empty sources stop
+      getting rescanned, parallelize across hosts (per-host ≥1s intact). The real cost lever, not Grok.
 - [ ] Poster uploads → Supabase Storage (currently `/tmp` on serverless, ephemeral).
 
 ## Validation (the actual go/no-go — design-doc §11)
@@ -65,6 +90,17 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 
 ## Backlog (post-validation, not now)
 - [ ] Retention loop: saved favorites + reminders + private/invite events.
+- [ ] **Social layer on event/place detail** (George 2026-07-11): favorite star (save to list),
+      "interested" like (count visible to organizers), comment section below detail. Detail action
+      row already reserves space for the star. Target model: Facebook Events × Google Maps interfaces
+      + Airbnb-smooth filters/dates UI.
+- [ ] **User accounts**: sign-up, own submitted events (form or poster scan), favorites/saved list,
+      gamification points for contributing/engaging (add, like, comment).
+- [ ] **Anti-spam/scam filters** for user-contributed events (basic heuristics + review queue)
+      — prerequisite for opening submissions.
+- [ ] **Business tier**: paid event highlighting (special pin visuals, ranked-first placement).
+- [ ] **Newsletter**: "nice family events in your area this weekend" digest by location; advertiser
+      slots (sponsored top placement) as the monetization hook.
 - [ ] More extraction fields: ticket links, prices, organizer, recurring schedules, opening hours.
 - [ ] New source types: Gemeinde PDF year-calendars, parish newsletters, oeticket/Eventbrite.
 - [ ] RiS-Kommunal / GEM2GO write-API/MCP integration (publish-once → no crawl, no double entry).
