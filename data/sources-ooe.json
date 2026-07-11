@@ -1,0 +1,3926 @@
+[
+  {
+    "name": "Linz",
+    "district": "Linz-Stadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Allhaming",
+    "district": "Linz-Land",
+    "website": "https://www.allhaming.at/BUeRGERSERVICE/AKTUELLES/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.allhaming.at/."
+  },
+  {
+    "name": "Ansfelden",
+    "district": "Linz-Land",
+    "website": "https://www.ansfelden.at/veranstaltungskalender",
+    "cms": null,
+    "works": true,
+    "probed": true,
+    "notes": "TYPO3 month grid. Direct fetch has TLS chain issue; readable via reader proxy. Mostly recurring Otelo community meetups."
+  },
+  {
+    "name": "Asten",
+    "district": "Linz-Land",
+    "website": "https://www.asten.ooe.gv.at/Unser_Asten/Das_tut_sich/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "RiS-Kommunal. Paginated rasterList with title/date/time/venue/address/organizer. index.php?id=8 returns 403 to non-browsers."
+  },
+  {
+    "name": "Eggendorf im Traunkreis",
+    "district": "Linz-Land",
+    "website": "https://www.eggendorf.at/Unser_Eggendorf/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Enns",
+    "district": "Linz-Land",
+    "website": "https://erlebe.enns.at/sitemap-events.xml",
+    "cms": "other",
+    "works": true,
+    "probed": true,
+    "notes": "Calendar is a React SPA (snooop); /events and /veranstaltungen render empty and API needs auth. BUT /sitemap-events.xml lists all event URLs and each detail page embeds server-rendered JSON (title, address, startDate, openingHours). Crawl via sitemap."
+  },
+  {
+    "name": "Hargelsberg",
+    "district": "Linz-Land",
+    "website": "https://www.hargelsberg.ooe.gv.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "GEM2GO list with title/date/time range/location; some recurring weekly entries."
+  },
+  {
+    "name": "Hofkirchen im Traunkreis",
+    "district": "Linz-Land",
+    "website": "https://www.hofkirchen.at/system/web/veranstaltung.aspx?bdatum=31.01.2019&amp;gnr_search=2341&amp;loop=1&amp;menuonr=224689085&amp;typ=0&amp;useronr=0&amp;vdatum=01.01.2019",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.hofkirchen.at/."
+  },
+  {
+    "name": "Hörsching",
+    "district": "Linz-Land",
+    "website": "https://www.hoersching.at/UNSER_HOeRSCHING/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "GEM2GO WEB, precise time ranges; includes neighboring towns, filter by venue."
+  },
+  {
+    "name": "Kematen an der Krems",
+    "district": "Linz-Land",
+    "website": "https://www.kematen.at/UNSER_KEMATEN/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.kematen.at/."
+  },
+  {
+    "name": "Kirchberg-Thening",
+    "district": "Linz-Land",
+    "website": "https://www.kirchberg-thening.at/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.kirchberg-thening.at/."
+  },
+  {
+    "name": "Kronstorf",
+    "district": "Linz-Land",
+    "website": "https://www.kronstorf.at/de/UNSER_KRONSTORF/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Leonding",
+    "district": "Linz-Land",
+    "website": "https://www.leonding.at/veranstaltungen",
+    "cms": "other",
+    "works": true,
+    "probed": true,
+    "notes": "Custom CMS. List page gives date, time, venue, short blurb; no RSS found."
+  },
+  {
+    "name": "Neuhofen an der Krems",
+    "district": "Linz-Land",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Niederneukirchen",
+    "district": "Linz-Land",
+    "website": "https://www.niederneukirchen.ooe.gv.at/Kultur_Freizeit/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "GEM2GO/RiS list, paginated (~6 pages), DD.MM.YYYY dates, times often blank."
+  },
+  {
+    "name": "Oftering",
+    "district": "Linz-Land",
+    "website": "https://www.oftering.at/In_Oftering/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.oftering.at/."
+  },
+  {
+    "name": "Pasching",
+    "district": "Linz-Land",
+    "website": "https://www.pasching.at/SERVICE/AKTUELLES_ANSPRECHPARTNER/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.pasching.at/."
+  },
+  {
+    "name": "Piberbach",
+    "district": "Linz-Land",
+    "website": "https://www.piberbach.ooe.gv.at/Unsere_Gemeinde/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.piberbach.ooe.gv.at/."
+  },
+  {
+    "name": "Pucking",
+    "district": "Linz-Land",
+    "website": "https://www.pucking.at/BUeRGERSERVICE/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "RiS-Kommunal. Use the Aktuelles subpage, not /Veranstaltungskalender. Events also in GEM2GO app + newsletter."
+  },
+  {
+    "name": "St. Florian",
+    "district": "Linz-Land",
+    "website": "https://www.st-florian.at/events",
+    "cms": "other",
+    "works": false,
+    "probed": true,
+    "notes": "JS-only SPA, unfetchable statically. Fallback: tips.at Bezirksrundschau Linz-Land covers St. Florian events."
+  },
+  {
+    "name": "St. Marien",
+    "district": "Linz-Land",
+    "website": "https://www.st-marien.at/veranstaltungen.html",
+    "cms": "other",
+    "works": true,
+    "probed": true,
+    "notes": "Lowercase /veranstaltungen.html works; capitalized path 404s. Old ooe.gv.at domain has cert errors."
+  },
+  {
+    "name": "Traun",
+    "district": "Linz-Land",
+    "website": "https://www.traun.at/system/web/veranstaltung.aspx",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "RiS-Kommunal. Friendly URL /Veranstaltungskalender is a JS shell — use the raw aspx listing, full data there."
+  },
+  {
+    "name": "Wilhering",
+    "district": "Linz-Land",
+    "website": "https://www.wilhering.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "GEM2GO WEB platform. Chronological list with date/time/venue/organizer, detail pages; recurring club entries mixed in."
+  },
+  {
+    "name": "Alberndorf in der Riedmark",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.alberndorf.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.alberndorf.at/."
+  },
+  {
+    "name": "Altenberg bei Linz",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.altenberg.at/system/web/veranstaltung.aspx?detailonr=226977940&amp;menuonr=225799635&amp;noseo=1",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.altenberg.at/."
+  },
+  {
+    "name": "Bad Leonfelden",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.bad-leonfelden.ooe.gv.at/Kultur_Tourismus/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.bad-leonfelden.ooe.gv.at/."
+  },
+  {
+    "name": "Eidenberg",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.eidenberg.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://www.eidenberg.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Engerwitzdorf",
+    "district": "Urfahr-Umgebung",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Feldkirchen an der Donau",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.feldkirchen.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://www.feldkirchen.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Gallneukirchen",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.gallneukirchen.at/Foerderung_junger_Teilnehmer_innen_bei_Kultur-_und_Bildungsveranstaltungen",
+    "cms": "gem2go",
+    "works": false,
+    "probed": true,
+    "notes": "Corrected+verified 2026-07-11: URL resolves but no future-dated content found (likely wrong page or empty calendar). Original admin-Termine URL was also wrong. Needs manual recheck."
+  },
+  {
+    "name": "Goldwörth",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.goldwoerth.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Gramastetten",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.gramastetten.at/news/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://www.gramastetten.at/news/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Haibach im Mühlkreis",
+    "district": "Urfahr-Umgebung",
+    "website": "https://reichenau-haibach-ottenschlag.gem2go.page/system/web/veranstaltung.aspx?menuonr=227322706",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.ottenschlag.at/."
+  },
+  {
+    "name": "Hellmonsödt",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.hellmonsoedt.ooe.gv.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Herzogsdorf",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.herzogsdorf.ooe.gv.at/Buergerservice/Veranstaltungen/Veranstaltungskalender",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.herzogsdorf.ooe.gv.at/."
+  },
+  {
+    "name": "Kirchschlag bei Linz",
+    "district": "Urfahr-Umgebung",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Lichtenberg",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.lichtenberg.ooe.gv.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Oberneukirchen",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.oberneukirchen.at/404/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Corrected+verified 2026-07-11: URL resolves but no future-dated content found (likely wrong page or empty calendar). Original admin-Termine URL was also wrong. Needs manual recheck."
+  },
+  {
+    "name": "Ottenschlag im Mühlkreis",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.ottenschlag.at/",
+    "cms": "gem2go",
+    "works": false,
+    "probed": true,
+    "notes": null
+  },
+  {
+    "name": "Ottensheim",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.ottensheim.ooe.gv.at/KULTUR_SPORT/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "RiS-Kommunal. Paginated list; some generic webinar cross-postings to filter."
+  },
+  {
+    "name": "Puchenau",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.puchenau.at/Leben_in_Puchenau/Veranstaltungen",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "GEM2GO WEB. Recurring weekly items (Bauernmarkt etc.) dominate; dedupe needed."
+  },
+  {
+    "name": "Reichenau im Mühlkreis",
+    "district": "Urfahr-Umgebung",
+    "website": "https://reichenau.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://reichenau.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Reichenthal",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.reichenthal.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.reichenthal.at/."
+  },
+  {
+    "name": "Sankt Gotthard im Mühlkreis",
+    "district": "Urfahr-Umgebung",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Schenkenfelden",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.schenkenfelden.at/Buergerservice/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Sonnberg im Mühlkreis",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.sonnberg.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://www.sonnberg.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Steyregg",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.steyregg.at/system/web/veranstaltung.aspx?menuonr=225708523",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Classic RiS-Kommunal aspx calendar with categories and clear date/time/venue/organizer."
+  },
+  {
+    "name": "Vorderweißenbach",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.vorderweissenbach.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.vorderweissenbach.at/."
+  },
+  {
+    "name": "Walding",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.walding.at/MEIN_WALDING/Sportpark_Walding/Termine_und_Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Zwettl an der Rodl",
+    "district": "Urfahr-Umgebung",
+    "website": "https://www.zwettl.gv.at/Leben_in_der_Gemeinde/Freizeit_Vereine/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.zwettl.gv.at/."
+  },
+  {
+    "name": "Aichkirchen",
+    "district": "Wels-Land",
+    "website": "https://www.aichkirchen.at/Ortsleben/Freizeit/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Bachmanning",
+    "district": "Wels-Land",
+    "website": "https://www.bachmanning.at/Ortsleben/Freizeit/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Bad Wimsbach-Neydharting",
+    "district": "Wels-Land",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Buchkirchen",
+    "district": "Wels-Land",
+    "website": "https://www.buchkirchen.at/Buergerservice/Aktuell/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Eberstalzell",
+    "district": "Wels-Land",
+    "website": "https://www.eberstalzell.at/Leben_in_Eberstalzell/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.eberstalzell.at/."
+  },
+  {
+    "name": "Edt bei Lambach",
+    "district": "Wels-Land",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Fischlham",
+    "district": "Wels-Land",
+    "website": "https://www.fischlham.at/Unsere_Gemeinde/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Gunskirchen",
+    "district": "Wels-Land",
+    "website": "https://www.gunskirchen.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://www.gunskirchen.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Holzhausen",
+    "district": "Wels-Land",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Krenglbach",
+    "district": "Wels-Land",
+    "website": "https://www.krenglbach.at/gemeinde-krenglbach/veranstaltungen/",
+    "cms": null,
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.krenglbach.at/."
+  },
+  {
+    "name": "Lambach",
+    "district": "Wels-Land",
+    "website": "https://www.lambach.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://www.lambach.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Marchtrenk",
+    "district": "Wels-Land",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Neukirchen bei Lambach",
+    "district": "Wels-Land",
+    "website": "https://www.neukirchen.at/veranstaltungen",
+    "cms": null,
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.neukirchen.at/."
+  },
+  {
+    "name": "Offenhausen",
+    "district": "Wels-Land",
+    "website": "https://www.offenhausen.at/Unsere_Gemeinde/Veranstaltungen",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Pennewang",
+    "district": "Wels-Land",
+    "website": "https://www.pennewang.at/Buergerservice/Veranstaltungen",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.pennewang.at/."
+  },
+  {
+    "name": "Pichl bei Wels",
+    "district": "Wels-Land",
+    "website": "https://www.schladming-dachstein.at/de/events/veranstaltungskalender",
+    "cms": null,
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.schladming-dachstein.at/de/schladming-dachstein-entdecken/erlebniszentren/schladming."
+  },
+  {
+    "name": "Sattledt",
+    "district": "Wels-Land",
+    "website": "https://www.sattledt.at/Unser_Sattledt/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Schleißheim",
+    "district": "Wels-Land",
+    "website": "https://www.schleissheim.at/Buergerservice/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Sipbachzell",
+    "district": "Wels-Land",
+    "website": "https://www.sipbachzell.at/UnsereGemeinde/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.sipbachzell.at/."
+  },
+  {
+    "name": "Stadl-Paura",
+    "district": "Wels-Land",
+    "website": "https://www.stadl-paura.at/BUeRGERSERVICE/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.stadl-paura.at/."
+  },
+  {
+    "name": "Steinerkirchen an der Traun",
+    "district": "Wels-Land",
+    "website": "https://www.steinerkirchen.at/Unsere_Gemeinde/Rund_um_Steinerkirchen/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.steinerkirchen.at/."
+  },
+  {
+    "name": "Steinhaus",
+    "district": "Wels-Land",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Thalheim bei Wels",
+    "district": "Wels-Land",
+    "website": "https://www.thalheim.at/LEBEN_IN_THALHEIM/Gesundheit_und_Soziales/Gesunde_Gemeinde/Gesunde_News_und_Veranstaltungen",
+    "cms": "ris",
+    "works": false,
+    "probed": true,
+    "notes": "Corrected+verified 2026-07-11: URL resolves but no future-dated content found (likely wrong page or empty calendar). Original admin-Termine URL was also wrong. Needs manual recheck."
+  },
+  {
+    "name": "Weißkirchen an der Traun",
+    "district": "Wels-Land",
+    "website": "https://www.weisskirchen.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Adlwang",
+    "district": "Steyr-Land",
+    "website": "https://www.adlwang.at/Unser_Adlwang/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.adlwang.at/."
+  },
+  {
+    "name": "Aschach an der Steyr",
+    "district": "Steyr-Land",
+    "website": "https://www.aschach.at/Freizeit_Vereine/Freizeit/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Bad Hall",
+    "district": "Steyr-Land",
+    "website": "https://www.bad-hall.ooe.gv.at/Stadtleben/Leben_in_Bad_Hall/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.bad-hall.ooe.gv.at/."
+  },
+  {
+    "name": "Dietach",
+    "district": "Steyr-Land",
+    "website": "https://www.dietach.at/UNSER_DIETACH/Veranstaltungen",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.dietach.at/."
+  },
+  {
+    "name": "Gaflenz",
+    "district": "Steyr-Land",
+    "website": "https://www.gaflenz.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.gaflenz.at/."
+  },
+  {
+    "name": "Garsten",
+    "district": "Steyr-Land",
+    "website": "https://www.garsten.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.garsten.at/."
+  },
+  {
+    "name": "Großraming",
+    "district": "Steyr-Land",
+    "website": "https://www.grossraming.at/BUeRGERSERVICE/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Laussa",
+    "district": "Steyr-Land",
+    "website": "https://www.laussa.at/Unsere_Gemeinde/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Losenstein",
+    "district": "Steyr-Land",
+    "website": "https://www.losenstein.at/UNSER_LOSENSTEIN/Veranstaltungen",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Maria Neustift",
+    "district": "Steyr-Land",
+    "website": "https://www.maria-neustift.at/Dorfleben/Gesundheit_und_Soziales/Gesunde_Gemeinde/Veranstaltungen_Gesunde_Gemeinde",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.maria-neustift.at/."
+  },
+  {
+    "name": "Pfarrkirchen bei Bad Hall",
+    "district": "Steyr-Land",
+    "website": "https://www.pfarrkirchen.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Reichraming",
+    "district": "Steyr-Land",
+    "website": "https://www.reichraming.at/UNSER_ORT/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Rohr im Kremstal",
+    "district": "Steyr-Land",
+    "website": "https://www.rohr.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://www.rohr.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "St. Ulrich bei Steyr",
+    "district": "Steyr-Land",
+    "website": "https://www.st-ulrich.at/Aktuelle_Veranstaltungen_Gesunde_Gemeinde",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Schiedlberg",
+    "district": "Steyr-Land",
+    "website": "https://www.schiedlberg.ooe.gv.at/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.schiedlberg.ooe.gv.at/."
+  },
+  {
+    "name": "Sierning",
+    "district": "Steyr-Land",
+    "website": "https://www.sierning.at/Buerger_Service/Veranstaltungen/Veranstaltungskalender",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.sierning.at/."
+  },
+  {
+    "name": "Ternberg",
+    "district": "Steyr-Land",
+    "website": "https://www.ternberg.at/Unser_Ternberg/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Waldneukirchen",
+    "district": "Steyr-Land",
+    "website": "https://www.waldneukirchen.at/UNSER_ORT/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.waldneukirchen.at/."
+  },
+  {
+    "name": "Weyer",
+    "district": "Steyr-Land",
+    "website": null,
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "no responding candidate homepage found"
+  },
+  {
+    "name": "Wolfern",
+    "district": "Steyr-Land",
+    "website": "https://www.wolfern.at/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.wolfern.at/."
+  },
+  {
+    "name": "Altheim",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Aspach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Auerbach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Braunau am Inn",
+    "district": "Braunau",
+    "website": "https://www.braunau.at/system/web/veranstaltung.aspx?typ=0&gnr_search=14&vdatum=01.07.2026&bdatum=31.07.2026&loop=1&useronr=0&menuonr=219705865",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.braunau.at/."
+  },
+  {
+    "name": "Burgkirchen",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Eggelsberg",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Feldkirchen bei Mattighofen",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Franking",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Geretsberg",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gilgenberg am Weilhart",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Haigermoos",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Handenberg",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Helpfau-Uttendorf",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hochburg-Ach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Höhnhart",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Jeging",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kirchberg bei Mattighofen",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lengau",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lochen am See",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Maria Schmolln",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mattighofen",
+    "district": "Braunau",
+    "website": "https://www.mattighofen.at/Tourismus_Kultur_Sport/Veranstaltungen/Veranstaltungskalender",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Mauerkirchen",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mining",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Moosbach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Moosdorf",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Munderfing",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neukirchen an der Enknach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ostermiething",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Palting",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Perwang am Grabensee",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pfaffstätt",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pischelsdorf am Engelbach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Polling im Innkreis",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Roßbach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Georgen am Fillmannsbach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Johann am Walde",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Pantaleon",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Peter am Hart",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Radegund",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Veit im Innkreis",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schalchen",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schwand im Innkreis",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Tarsdorf",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Treubach",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Überackern",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Weng im Innkreis",
+    "district": "Braunau",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Alkoven",
+    "district": "Eferding",
+    "website": "https://www.alkoven.at/Meine_Gemeinde/Freizeit_Tourismus/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Aschach an der Donau",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Eferding",
+    "district": "Eferding",
+    "website": "https://www.eferding.at/Unsere_Stadt/Kultur/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Fraham",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Haibach ob der Donau",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hartkirchen",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hinzenbach",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Prambachkirchen",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pupping",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Scharten",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Marienkirchen an der Polsenz",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Stroheim",
+    "district": "Eferding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Bad Zell",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Freistadt",
+    "district": "Freistadt",
+    "website": "https://www.freistadt.at/de/Buergerservice/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.freistadt.at/de."
+  },
+  {
+    "name": "Grünbach",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gutau",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hagenberg im Mühlkreis",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hirschbach im Mühlkreis",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kaltenberg",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kefermarkt",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Königswiesen",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lasberg",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Leopoldschlag",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Liebenau",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neumarkt im Mühlkreis",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pierbach",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pregarten",
+    "district": "Freistadt",
+    "website": "https://pregarten.at/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage responds (https://pregarten.at/) but no findable events-calendar URL via common path probes."
+  },
+  {
+    "name": "Rainbach im Mühlkreis",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Sandl",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Leonhard bei Freistadt",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Oswald bei Freistadt",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schönau im Mühlkreis",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Tragwein",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Unterweißenbach",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Unterweitersdorf",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Waldburg",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Wartberg ob der Aist",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Weitersfelden",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Windhaag bei Freistadt",
+    "district": "Freistadt",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Altmünster",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Bad Goisern am Hallstättersee",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Bad Ischl",
+    "district": "Gmunden",
+    "website": "https://www.bad-ischl.ooe.gv.at/Kultur_Freizeit/Kultur/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Ebensee am Traunsee",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gmunden",
+    "district": "Gmunden",
+    "website": "https://www.gmunden.at/sport/sportveranstaltungen/",
+    "cms": null,
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.gmunden.at/."
+  },
+  {
+    "name": "Gosau",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Grünau im Almtal",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gschwandt",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hallstatt",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kirchham",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Laakirchen",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Obertraun",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ohlsdorf",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pinsdorf",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Roitham am Traunfall",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Konrad",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Wolfgang im Salzkammergut",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Scharnstein",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Traunkirchen",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Vorchdorf",
+    "district": "Gmunden",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Aistersheim",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Bad Schallerbach",
+    "district": "Grieskirchen",
+    "website": "https://www.bad-schallerbach.at/system/web/veranstaltung.aspx",
+    "cms": "ris",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.bad-schallerbach.at/."
+  },
+  {
+    "name": "Eschenau im Hausruckkreis",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gallspach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gaspoltshofen",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Geboltskirchen",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Grieskirchen",
+    "district": "Grieskirchen",
+    "website": "https://www.grieskirchen.at/Wirtschaft_Tourismus/Freizeit_Kultur/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Haag am Hausruck",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Heiligenberg",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hofkirchen an der Trattnach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kallham",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kematen am Innbach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Meggenhofen",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Michaelnbach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Natternbach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neukirchen am Walde",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neumarkt im Hausruckkreis",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Peuerbach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pollham",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pötting",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pram",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Rottenbach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Agatha",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Georgen bei Grieskirchen",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Thomas",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schlüßlberg",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Steegen",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Taufkirchen an der Trattnach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Tollet",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Waizenkirchen",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Wallern an der Trattnach",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Weibern",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Wendling",
+    "district": "Grieskirchen",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Edlbach",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Grünburg",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hinterstoder",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Inzersdorf im Kremstal",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kirchdorf an der Krems",
+    "district": "Kirchdorf",
+    "website": "https://www.kirchdorf.at/Kultur-_und_Veranstaltungszentren_1",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.kirchdorf.at/."
+  },
+  {
+    "name": "Klaus an der Pyhrnbahn",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kremsmünster",
+    "district": "Kirchdorf",
+    "website": "https://www.kremsmuenster.at/Foerderrichtlinien_der_Marktgemeinde_Kremsmuenster_fuer_Vereine_und_Veranstaltungen_ab_1_1_2026_",
+    "cms": "ris",
+    "works": false,
+    "probed": true,
+    "notes": "Title-check 2026-07-11 flagged this as non-calendar (title: \"Kremsmünster, Oberösterreich - Startseite - Kultur.Freizeit.Vereine - Förderrichtlinien\"). Downgraded; needs manual recheck for the real Veranstaltungen URL."
+  },
+  {
+    "name": "Micheldorf in Oberösterreich",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Molln",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Nußbach",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Oberschlierbach",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pettenbach",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ried im Traunkreis",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Rosenau am Hengstpaß",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Roßleithen",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Pankraz",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schlierbach",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Spital am Pyhrn",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Steinbach am Ziehberg",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Steinbach an der Steyr",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Vorderstoder",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Wartberg an der Krems",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Windischgarsten",
+    "district": "Kirchdorf",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Allerheiligen im Mühlkreis",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Arbing",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Bad Kreuzen",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Baumgartenberg",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Dimbach",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Grein",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Katsdorf",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Klam",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Langenstein",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Luftenberg an der Donau",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mauthausen",
+    "district": "Perg",
+    "website": "https://www.mauthausen.at/VEREINE_FREIZEIT/Donausaal/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Mitterkirchen im Machland",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Münzbach",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Naarn im Machlande",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pabneukirchen",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Perg",
+    "district": "Perg",
+    "website": "https://www.perg.at/veranstaltung-eintragen/",
+    "cms": null,
+    "works": false,
+    "probed": true,
+    "notes": "Corrected+verified 2026-07-11: URL resolves but no future-dated content found (likely wrong page or empty calendar). Original admin-Termine URL was also wrong. Needs manual recheck."
+  },
+  {
+    "name": "Rechberg",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ried in der Riedmark",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Saxen",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schwertberg",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Georgen am Walde",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Georgen an der Gusen",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Nikola an der Donau",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Thomas am Blasenstein",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Waldhausen im Strudengau",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Windhaag bei Perg",
+    "district": "Perg",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Andrichsfurt",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Antiesenhofen",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Aurolzmünster",
+    "district": "Ried",
+    "website": "https://www.aurolzmuenster.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.aurolzmuenster.at/."
+  },
+  {
+    "name": "Eberschwang",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Eitzing",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Geiersberg",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Geinberg",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gurten",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hohenzell",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kirchdorf am Inn",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kirchheim im Innkreis",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lambrechten",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lohnsburg am Kobernaußerwald",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mehrnbach",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mettmach",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mörschwang",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mühlheim am Inn",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neuhofen im Innkreis",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Obernberg am Inn",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ort im Innkreis",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pattigham",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Peterskirchen",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pramet",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Reichersberg",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ried im Innkreis",
+    "district": "Ried",
+    "website": "https://www.ried.at/veranstaltungskalender",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.ried.at/."
+  },
+  {
+    "name": "St. Georgen bei Obernberg am Inn",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Marienkirchen am Hausruck",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Martin im Innkreis",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schildorn",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Senftenbach",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Taiskirchen im Innkreis",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Tumeltsham",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Utzenaich",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Waldzell",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Weilbach",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Wippenham",
+    "district": "Ried",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Aigen-Schlägl",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Altenfelden",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Arnreit",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Atzesberg",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Auberg",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Haslach an der Mühl",
+    "district": "Rohrbach",
+    "website": "https://www.haslach.ooe.gv.at/Buergerservice/Aktuelles/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.haslach.ooe.gv.at/."
+  },
+  {
+    "name": "Helfenberg",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hofkirchen im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Hörbich",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Julbach",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kirchberg ob der Donau",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Klaffer am Hochficht",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kleinzell im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kollerschlag",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lembach im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lichtenau im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Nebelberg",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neufelden",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neustift im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Niederkappel",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Niederwaldkirchen",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Oberkappel",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Oepping",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Peilstein im Mühlviertel",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pfarrkirchen im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Putzleinsdorf",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Rohrbach-Berg",
+    "district": "Rohrbach",
+    "website": "https://www.rohrbach-berg.at/Voller_Leben/Kultur/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.rohrbach-berg.at/."
+  },
+  {
+    "name": "Sankt Johann am Wimberg",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Sankt Martin im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Sankt Oswald bei Haslach",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Sankt Peter am Wimberg",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Stefan-Afiesl",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Sankt Ulrich im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Sankt Veit im Mühlkreis",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Sarleinsbach",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schwarzenberg am Böhmerwald",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ulrichsberg",
+    "district": "Rohrbach",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Altschwendt",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Andorf",
+    "district": "Schärding",
+    "website": "https://www.andorf.at/Andorfer_Vielfalt/Sport_Freizeit/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Brunnenthal",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Diersbach",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Dorf an der Pram",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Eggerding",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Engelhartszell",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Enzenkirchen",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Esternberg",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Freinberg",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Kopfing im Innkreis",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mayrhof",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Münzkirchen",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Raab",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Rainbach im Innkreis",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Riedau",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Aegidi",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Florian am Inn",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Marienkirchen bei Schärding",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Roman",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Willibald",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schardenberg",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schärding",
+    "district": "Schärding",
+    "website": "https://www.schaerding.at/schaerding-entdecken/events-und-veranstaltungen/tagungen-und-seminare/",
+    "cms": null,
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.schaerding.at/."
+  },
+  {
+    "name": "Sigharting",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Suben",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Taufkirchen an der Pram",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Vichtenstein",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Waldkirchen am Wesen",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Wernstein am Inn",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Zell an der Pram",
+    "district": "Schärding",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ampflwang im Hausruckwald",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Attersee am Attersee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Attnang-Puchheim",
+    "district": "Vöcklabruck",
+    "website": "https://www.attnang-puchheim.at/veranstaltungsmeldung-2/",
+    "cms": null,
+    "works": true,
+    "probed": true,
+    "notes": "Auto-probed 2026-07-11. Homepage: https://www.attnang-puchheim.at/."
+  },
+  {
+    "name": "Atzbach",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Aurach am Hongar",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Berg im Attergau",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Desselbrunn",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Fornach",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Frankenburg am Hausruck",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Frankenmarkt",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Gampern",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Innerschwand am Mondsee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Lenzing an der Ager",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Manning",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Mondsee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Neukirchen an der Vöckla",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Niederthalheim",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Nußdorf am Attersee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Oberhofen am Irrsee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Oberndorf bei Schwanenstadt",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Oberwang",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ottnang am Hausruck",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pfaffing",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pilsbach",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pitzenberg",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pöndorf",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Puchkirchen am Trattberg",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Pühret",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Redleiten",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Redlham",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Regau",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Rüstorf",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Rutzenham",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Georgen im Attergau",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "St. Lorenz",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schlatt",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schörfling am Attersee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Schwanenstadt",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Seewalchen am Attersee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Steinbach am Attersee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Straß im Attergau",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Tiefgraben",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Timelkam",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Ungenach",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Unterach am Attersee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Vöcklabruck",
+    "district": "Vöcklabruck",
+    "website": "https://www.voecklabruck.at/Kultur_Freizeit/Veranstaltungen",
+    "cms": "gem2go",
+    "works": true,
+    "probed": true,
+    "notes": "Corrected 2026-07-11: original probe matched an administrative Termine page (waste/council dates), not an events calendar. Re-scanned homepage for a strict Veranstaltungen link."
+  },
+  {
+    "name": "Vöcklamarkt",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Weißenkirchen im Attergau",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Weyregg am Attersee",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Wolfsegg am Hausruck",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Zell am Moos",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  },
+  {
+    "name": "Zell am Pettenfirst",
+    "district": "Vöcklabruck",
+    "website": null,
+    "cms": null,
+    "works": null,
+    "probed": false,
+    "notes": null
+  }
+]

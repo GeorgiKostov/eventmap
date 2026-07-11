@@ -32,6 +32,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Supabase Postgres port (see above). PostGIS deferred — radius filter is client-side; lat/lng
       doubles suffice. Adding a generated `geography(point)` + GIST index is a one-line future migration.
 - [ ] Move `npm run crawl` to a Vercel Cron / GitHub Action (every 2–3 days).
+- [ ] Crawl-cost waterfall, cheap wins (docs/decisions/2026-07-11-crawl-scaling-and-legal.md):
+      (1) page-change hash → skip unchanged, (2) JSON-LD/iCal/RSS ingestion before LLM,
+      (3) robots.txt + rate limit + identifying UA. RiS/GEM2GO deterministic parsers after the
+      OÖ probe shows dominant patterns; extra fact fields (ticket URL, price, organizer, RRULE) with it.
 - [ ] Poster uploads → Supabase Storage (currently `/tmp` on serverless, ephemeral).
 
 ## Validation (the actual go/no-go — design-doc §11)
@@ -42,6 +46,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       Familienkarte, Rausgegangen/AllEvents OÖ coverage, and scan for any 2024–26 AI-native / DACH poster-
       scan entrant (the LLM-extraction wedge is recent enough a fresh competitor is plausible).
 - [ ] Decide: is "family-friendly" a filter or the default lens?
+
+- [ ] **Austria backfill Phase 2** (briefs/austria-backfill-brief.md): after waterfall merge + Phase-1
+      probe lands — `EXTRACT_PROVIDER=grok` batch crawl (needs `XAI_API_KEY` from console.x.ai — George;
+      falls back to Gemini ~$6–15 one-time if no key). Provider already wired in lib/extract.js.
 
 ## Backlog (post-validation, not now)
 - [ ] Retention loop: saved favorites + reminders + private/invite events.
