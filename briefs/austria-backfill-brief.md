@@ -11,11 +11,12 @@ feeds) at near-zero cost. Demand focus stays Linz/OÖ — this is supply-side on
 2. Geocode sanity bounds widened OÖ → Austria (lat 46.3–49.1, lng 9.4–17.3), and **negative
    geocache entries purged immediately after** (lesson: cached misses outlive bounds changes —
    the Bad Ischl bug).
-3. `XAI_API_KEY` from console.x.ai in `.env.local` (a Grok chat subscription is NOT API access;
-   only a real API key activates the provider). Provider wired: `EXTRACT_PROVIDER=grok` routes
-   `lib/extract.js` text extraction through grok-4-fast (Gemini → Claude fallbacks intact).
-   Without a key, run the same plan on Gemini — it's ~$6–15 one-time for all of Austria naive,
-   less with structured-first.
+3. **Extraction tokens: the local Grok CLI (`~/.grok/bin/grok`) — George's call, 2026-07-11.**
+   `EXTRACT_PROVIDER=grok` routes text extraction through the CLI in fenced headless mode
+   (single turn, no tools, tmpdir cwd) on subscription tokens: $0 API cost, verified live
+   (Ottensheim 9/9). Trade-off: ~30–60s/page vs ~2s on Gemini — batch runtime is hours, cost is
+   zero; run overnight in district batches. Fallbacks stay wired: xAI API (only if XAI_API_KEY
+   set) → Gemini (~$6–15 one-time for Austria naive) → Claude.
 
 ## Phase 1 — Probe & register (agents, subscription tokens, no LLM extraction)
 - Municipality lists per Bundesland from Wikipedia (~2,093 total; OÖ's 436 already done).
