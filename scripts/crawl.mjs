@@ -758,6 +758,10 @@ async function crawlSource(src, { force } = {}) {
         src_kind: 'crawl',
         source_name: src.name,
         source_url: raw.source_url || src.url,
+        // Inherit the source's country so geocodeEvent uses the right Nominatim
+        // countrycodes/suffix (BG addresses must not be geocoded as AT) and the
+        // event is tagged for its country. Sources default to 'AT'.
+        country: src.country || 'AT',
       };
       const geo = await geocodeEvent(ev);
       if (!geo) continue;

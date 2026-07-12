@@ -60,7 +60,11 @@ async function main() {
   let ok = 0, skipped = 0, geoFail = 0, updated = 0;
   for (const file of files) {
     const data = JSON.parse(fs.readFileSync(path.join(MINED_DIR, file), 'utf8'));
-    for (const s of data.source_registry || []) await upsertSource(s);
+    // Source-registry rows rarely carry a country; inherit it from the file's
+    // events so seeding a BG file never re-tags its sources back to 'AT' (which
+    // would break the recrawl geocode — sources default to 'AT' in upsertSource).
+    const fileCountry = (data.events || []).find((e) => e.country)?.country || 'AT';
+    for (const s of data.source_registry || []) await upsertSource({ ...s, country: s.country || fileCountry });
     for (const raw of data.events || []) {
       const ev = normalizeEvent(raw);
       if (!ev) { skipped++; continue; }
