@@ -159,6 +159,24 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       getting rescanned, parallelize across hosts (per-host ≥1s intact). The real cost lever, not Grok.
 - [ ] Poster uploads → Supabase Storage (currently `/tmp` on serverless, ephemeral).
 
+## Growth & go-to-market (strategy: docs/strategy/growth-and-social.md, 2026-07-13)
+- [ ] **Newsletter unsubscribe/consent gaps — remaining** (double opt-in + unsubscribe shipped
+      790eaa7; these are the leftovers): (a) decide grandfather-vs-drop for existing pre-migration
+      subscribers (all now confirmed_at=NULL); (b) record a proof-of-consent (timestamp + consent-text
+      version + IP-hash at signup); (c) add RFC-8058 List-Unsubscribe + List-Unsubscribe-Post headers to
+      the actual newsletter sends when the send pipeline is built; (d) confirm-token expiry/rotation
+      policy; (e) offer preference-management/unsubscribe from the confirm landing page.
+- [ ] **Design + build the `okolo.linz` IG/FB weekly-posting flow** (design in
+      docs/strategy/growth-and-social.md §2): weekend-picks selection query → `next/og` card template(s)
+      at 1080×1350 (reuse app/opengraph-image.js) + cover card → card/batch endpoint
+      (`/api/social/weekend-card`) → a "generate this week's carousel" script (PNGs + caption). Manual
+      posting first; Graph API automation only after the motion is proven. Facts+linkback: our own card
+      art + descriptions, never source posters/prose; link to our map.
+- [ ] **Verify FB/WhatsApp groups to seed into** (method + candidates in
+      docs/strategy/growth-and-social.md §3): live pass — join Linz/OÖ parent + community FB groups,
+      read each group's promo rules, gauge activity; identify Bulgarian-in-Austria groups; plan the
+      kindergarten/playground QR→WhatsApp route. Output a short vetted list + per-group engagement note.
+
 ## Validation (the actual go/no-go — design-doc §11)
 - [ ] Run the **four-weekend Linz coverage/retention test**: measure % of good events the big
       aggregators miss, and weekly return rate. This gates everything downstream.
