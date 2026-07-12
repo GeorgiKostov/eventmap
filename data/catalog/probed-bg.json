@@ -3,6 +3,24 @@
   "built_at": "2026-07-12",
   "proposed": [
     {
+      "name": "Община Велинград",
+      "url": "https://velingrad.bg/main/wp-content/uploads/2026/06/%D0%92%D0%9F%D0%9A-26-%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82-end.pdf",
+      "town": "Велинград",
+      "region": "Пазарджик",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 61,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 61 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Община Стара Загора",
       "url": "https://www.starazagora.bg/bg/novini",
       "town": "Стара Загора",
@@ -18,6 +36,42 @@
       "events_seen": 37,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 37 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Поморие",
+      "url": "https://www.pomorie.bg/lyatna-programa-pomorie-2026",
+      "town": "Поморие",
+      "region": "Бургас",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 36,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 36 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Народно читалище „Отец Паисий 1896“ град Созопол",
+      "url": "https://www.chitalishte-sz.eu/886/%D0%BA%D1%83%D0%BB%D1%82%D1%83%D1%80%D0%B5%D0%BD-%D0%BA%D0%B0%D0%BB%D0%B5%D0%BD%D0%B4%D0%B0%D1%80-%D1%81%D0%BE%D0%B7%D0%BE%D0%BF%D0%BE%D0%BB-2026",
+      "town": "Созопол",
+      "region": "Бургас",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 30,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 30 events seen; fp=custom",
       "probed_at": "2026-07-12"
     },
     {
@@ -39,10 +93,46 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Държавен културен институт „Културен център „Двореца“ Балчик",
+      "url": "https://dvoreca.com/bg/kulturen-kalendar.html",
+      "town": "Балчик",
+      "region": "Добрич",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 20,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 20 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Община Русе",
       "url": "https://obshtinaruse.bg/kulturen-afish",
       "town": "Русе",
       "region": "Русе",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 19,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 19 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Казанлък - Календар на събитията",
+      "url": "https://events.kazanlak.bg/event.php",
+      "town": "Казанлък",
+      "region": "Стара Загора",
       "country": "BG",
       "cms": "custom",
       "structured_data": {
@@ -75,6 +165,42 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Община Кюстендил",
+      "url": "https://www.kyustendil.bg",
+      "town": "Кюстендил",
+      "region": "Кюстендил",
+      "country": "BG",
+      "cms": "unknown",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 16,
+      "reachable": false,
+      "notes": "discovered via Grok crawl 2026-07-12; 16 events seen; probe 403",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Празници на изкуствата Аполония",
+      "url": "https://apollonia.bg/programa",
+      "town": "Созопол",
+      "region": "Бургас",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 14,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 14 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Община град Добрич",
       "url": "https://dobrich.bg/bg/novini",
       "town": "Добрич",
@@ -93,6 +219,24 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Лятно Кино Поморие",
+      "url": "https://www.kino-pomorie.com/programa.html",
+      "town": "Поморие",
+      "region": "Бургас",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 10,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 10 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Visit Ruse",
       "url": "https://visitruse.bg/events",
       "town": "Русе",
@@ -108,6 +252,24 @@
       "events_seen": 10,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 10 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/01/24771/-/%D0%B2%D0%B5%D1%81%D0%B5%D0%BB%D0%B0-%D0%B2%D0%B0%D0%BA%D0%B0%D0%BD%D1%86%D0%B8%D1%8F-%D0%B1%D0%B5%D0%B7%D0%BF%D0%BB%D0%B0%D1%82%D0%BD%D0%B8-%D0%BB%D0%B5%D1%82%D0%BD%D0%B8-%D0%B7%D0%B0%D0%BD%D0%B8%D0%BC%D0%B0%D0%BD%D0%B8%D1%8F-%D0%BD%D0%B0-%D0%BE%D1%82%D0%BA%D1%80%D0%B8%D1%82%D0%BE-%D0%B7%D0%B0-%D0%B4%D0%B5%D1%86%D0%B0-%D0%BD%D0%B0%D0%B4-5-%D0%B3%D0%BE%D0%B4%D0%B8%D0%BD%D0%B8",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 10,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 10 events seen; fp=jevents-ical",
       "probed_at": "2026-07-12"
     },
     {
@@ -165,6 +327,24 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Узана Поляна Фест - Община Габрово",
+      "url": "https://uzanafest.gabrovo.bg/aktivnosti",
+      "town": "Габрово",
+      "region": "Габрово",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 9,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 9 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Държавна опера Пловдив",
       "url": "https://operaplovdiv.bg/bg/site/program",
       "town": "Пловдив",
@@ -186,6 +366,24 @@
       "name": "Програма на Експозиционен център Флора Бургас",
       "url": "https://www.letenteatar.com/bg/index/static/41",
       "town": "Бургас",
+      "region": "Бургас",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 8,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 8 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Несебър",
+      "url": "https://nesebar.bg/july2026.pdf",
+      "town": "Несебър",
       "region": "Бургас",
       "country": "BG",
       "cms": "custom",
@@ -252,6 +450,42 @@
       "events_seen": 7,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 7 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Драматичен театър „Рачо Стоянов“ – Габрово",
+      "url": "https://dramagabrovo.com/sabitiya",
+      "town": "Габрово",
+      "region": "Габрово",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 7,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 7 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Регионален исторически музей – Габрово",
+      "url": "https://h-museum-gabrovo.bg",
+      "town": "Габрово",
+      "region": "Габрово",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 6,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 6 events seen; fp=rss",
       "probed_at": "2026-07-12"
     },
     {
@@ -399,6 +633,24 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Община Хасково",
+      "url": "https://www.haskovo.bg/bg/novini",
+      "town": "Хасково",
+      "region": "Хасково",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 5,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 5 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Държавен куклен театър – Русе",
       "url": "https://puppetruse.com/%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0",
       "town": "Русе",
@@ -414,6 +666,78 @@
       "events_seen": 5,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 5 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/05/24687/-/swan-lake",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 5,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 5 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "sozopol.org",
+      "url": "https://sozopol.org/%D1%81%D1%8A%D0%B1%D0%B8%D1%82%D0%B8%D1%8F-%D0%B2-%D1%81%D0%BE%D0%B7%D0%BE%D0%BF%D0%BE%D0%BB-2026-15365.html",
+      "town": "Созопол",
+      "region": "Бургас",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 5,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 5 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Балчик",
+      "url": "https://www.balchik.bg/bg/sabitiya-prez-2026-godina",
+      "town": "Балчик",
+      "region": "Добрич",
+      "country": "BG",
+      "cms": "unknown",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 4,
+      "reachable": false,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; probe 404",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Университетска ботаническа градина - Балчик",
+      "url": "https://www.ubg-bg.com/KALENDAR-SABITIA.html",
+      "town": "Балчик",
+      "region": "Добрич",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 4,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; fp=custom",
       "probed_at": "2026-07-12"
     },
     {
@@ -471,6 +795,78 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Музей „Етър“",
+      "url": "https://etar.bg/sabitien-kalendar-2026",
+      "town": "Габрово",
+      "region": "Габрово",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 4,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Пазарджик",
+      "url": "https://pazardzhik.bg/bg/kulturen-afish-arhiv",
+      "town": "Пазарджик",
+      "region": "Пазарджик",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 4,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "ДКТ „Константин Величков“ Пазарджик",
+      "url": "https://www.kupibileti.bg/dktpazardjik/bg",
+      "town": "Пазарджик",
+      "region": "Пазарджик",
+      "country": "BG",
+      "cms": "unknown",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 4,
+      "reachable": false,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; probe 403",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Сандански",
+      "url": "https://sandanski.bg/wp-content/uploads/2016/04/%D0%9A%D1%83%D0%BB%D1%82%D1%83%D1%80%D0%B5%D0%BD-%D0%BA%D0%B0%D0%BB%D0%B5%D0%BD%D0%B4%D0%B0%D1%80-2026-%D0%B1%D0%B5%D0%B7-%D0%B1%D1%8E%D0%B4%D0%B6%D0%B5%D1%82.pdf",
+      "town": "Сандански",
+      "region": "Благоевград",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 4,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "ММФ „Варненско лято“",
       "url": "https://varnasummerfest.org/%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0",
       "town": "Варна",
@@ -507,6 +903,42 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Visit Gabrovo - Община Габрово",
+      "url": "https://visit.gabrovo.bg/sabitia",
+      "town": "Габрово",
+      "region": "Габрово",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 3,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 3 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Eventim.bg",
+      "url": "https://www.eventim.bg/eventseries/%D0%BF%D0%B8%D1%80%D0%B8%D0%BD-%D1%84%D0%BE%D0%BB%D0%BA-%D1%81%D0%B0%D0%BD%D0%B4%D0%B0%D0%BD%D1%81%D0%BA%D0%B8-2026-4198334",
+      "town": "Сандански",
+      "region": "Благоевград",
+      "country": "BG",
+      "cms": "unknown",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 3,
+      "reachable": false,
+      "notes": "discovered via Grok crawl 2026-07-12; 3 events seen; probe timeout",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Община Смолян",
       "url": "https://www.smolyan.bg/media/content_files/file/2026/02-26/%D0%9A%D0%A3%D0%9B%D0%A2%D0%A3%D0%A0%D0%95%D0%9D%20%D0%9A%D0%90%D0%9B%D0%95%D0%9D%D0%94%D0%90%D0%A0%202026.pdf",
       "town": "Левочево",
@@ -527,7 +959,25 @@
     {
       "name": "Софийска опера и балет",
       "url": "https://www.operasofia.bg/repertoire/1009",
-      "town": "София",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 3,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 3 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component",
+      "town": "Столична",
       "region": "София-град",
       "country": "BG",
       "cms": "custom",
@@ -558,6 +1008,24 @@
       "events_seen": 3,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 3 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Bansko Jazz Festival",
+      "url": "https://banskojazzfest.bg/programa-2026",
+      "town": "Банско",
+      "region": "Благоевград",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=rss",
       "probed_at": "2026-07-12"
     },
     {
@@ -615,10 +1083,262 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Община Кюстендил",
+      "url": "https://pirinsko.com/bogata-kulturna-programa-ochakva-jitelite-i-gostite-na-kiustendil-prez-iuli-185108",
+      "town": "Кюстендил",
+      "region": "Кюстендил",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Пазарджик",
+      "url": "https://pzdnes.com/2026/07/10/zapovyadajte-na-otkrivaneto-na-naczionalnata-izlozhba-keramika",
+      "town": "Пазарджик",
+      "region": "Пазарджик",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Поморие",
+      "url": "https://www.pomorie.bg/riben-fest-vpomoriev-myasto-na-koeto-si-davat-sreshta-ribni-yastiya-no-i-tsenna-hrana-za-dushata",
+      "town": "Поморие",
+      "region": "Бургас",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Държавен куклен театър – Русе",
       "url": "https://puppetruse.com/%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0-%D1%8E%D0%BB%D0%B8-2026-%D1%84%D0%B8%D0%BD%D0%B0%D0%BB-%D1%81%D0%B5%D0%B7%D0%BE%D0%BD",
       "town": "Русе",
       "region": "Русе",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Софийска опера и балет",
+      "url": "https://www.operasofia.bg/repertoire/1052",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Софийска опера и балет",
+      "url": "https://www.operasofia.bg/repertoire/997",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Софийска опера и балет",
+      "url": "https://www.operasofia.bg/repertoire/999",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/04/29/24259/-/%D0%BB%D0%B8%D0%BA%D0%B0-%D1%8F%D0%BD%D0%BA%D0%BE-%D0%BF%D1%8A%D1%82%D1%83%D0%B2%D0%B0%D0%BD%D0%B5-%D0%BA%D1%8A%D0%BC-%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B0",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/06/18/24751/-/%D0%B8%D0%B2%D0%B0%D0%BD-%D1%85%D1%80%D0%B8%D1%81%D1%82%D0%BE%D0%B2-1900%E2%80%931987",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/06/02/24511/-/%D0%B8%D0%B7%D0%BB%D0%BE%D0%B6%D0%B1%D0%B0-%E2%80%9E%D0%B0%D1%82%D0%B0%D0%BD%D0%B0%D1%81-%D0%BF%D0%B0%D1%86%D0%B5%D0%B2-%D0%BF%D0%BE%D1%80%D1%82%D1%80%D0%B5%D1%82%D0%B8-%D0%B8-%D0%B0%D0%B2%D1%82%D0%BE%D0%BF%D0%BE%D1%80%D1%82%D1%80%D0%B5%D1%82%D0%B8%E2%80%9C",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/05/24/24484/-/57-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%D0%BD%D0%B0%D1%80%D0%BE%D0%B4%D0%B5%D0%BD-%D0%BC%D1%83%D0%B7%D0%B8%D0%BA%D0%B0%D0%BB%D0%B5%D0%BD-%D1%84%D0%B5%D1%81%D1%82%D0%B8%D0%B2%D0%B0%D0%BB",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/14/24843/-/%D0%B3%D0%B0%D0%BB%D0%B5%D1%80%D0%B8%D1%8F-%D0%B2%D0%B0%D1%81%D0%BA%D0%B0-%D0%B5%D0%BC%D0%B0%D0%BD%D1%83%D0%B8%D0%BB%D0%BE%D0%B2%D0%B0-%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0-%D0%BC%D1%8F%D1%81%D1%82%D0%BE-%D0%B7%D0%B0-%D1%81%D1%80%D0%B5%D1%89%D0%B8-%D0%BF%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D1%8F-%D1%81%D0%BB%D0%B5%D0%B4-%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B0-%E2%80%93-%D1%81%D0%B0%D0%BC%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D1%82%D0%B5%D0%BB%D0%BD%D0%B0-%D0%B8%D0%B7%D0%BB%D0%BE%D0%B6%D0%B1%D0%B0-%D0%BD%D0%B0-%D0%B9%D0%BE%D0%B0%D0%BD%D0%B0-%D1%82%D1%83%D0%B6%D0%B0%D1%80%D0%BE%D0%B2%D0%B0",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/10/24667/-/%D1%81%D0%B5%D0%BB%D1%81%D0%BA%D0%B0-%D1%87%D0%B5%D1%81%D1%82,-%D0%BF%D0%B0%D0%BB%D1%8F%D1%87%D0%B8",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://www.visitsofia.bg/bg/component",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Община Созопол",
+      "url": "https://sozopol.bg/bg/news",
+      "town": "Созопол",
+      "region": "Бургас",
       "country": "BG",
       "cms": "custom",
       "structured_data": {
