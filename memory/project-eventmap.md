@@ -32,8 +32,10 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   collects listing pages (≥2 events, dated-afish permalinks collapsed, JSON-LD/iCal/RSS
   fingerprinted) → `data/catalog/probed-bg.json` (36 sources) → `register-probed.mjs` (now
   country-aware, accepts BG medium) → 26 new sources over 11 oblasts → `getSourcesForCrawl` picks
-  them up so `npm run crawl` refreshes BG. **Seeded + registered to Supabase (2026-07-12):** 302 BG
-  published events (155 venue / 30 address / 117 town-centroid geo), 31 vetted sources works=true
+  them up so `npm run crawl` refreshes BG. **Seeded + registered to Supabase (2026-07-12):** 329 BG
+  published events (Sofia deepened 23→50 off the visitsofia.bg / Столична община jevents calendar,
+  which holds ~176 entries — LLM pulls a slice; no iCal export (403); dedicated jevents parser is the
+  real fix, see todo). ~31 vetted sources works=true
   (65 single-event permalinks deactivated but on record), all country=BG. Fixed a latent bug: the
   AT/BG pipeline had made geocode.js/seed.mjs country-aware but NEVER crawl.mjs — recrawl geocoded
   BG addresses as AT. crawl.mjs now inherits src.country onto events (geocode + tag); seed.mjs no
