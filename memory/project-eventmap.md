@@ -10,6 +10,14 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
 ## Where things stand (2026-07-11 late — UI v4)
+- **2026-07-12 Bulgaria crawl tooling:** `/crawl-bg` command (`.claude/commands/`) drives Grok Build
+  on the **SuperGrok OAuth entitlement** ($0 API) as an agentic BG event miner; `skills/crawl-doctrine.md`
+  is the enforced standard for ALL crawls (never-fabricate, facts+linkback, Cyrillic-verbatim,
+  seed-compatible `{source_registry,events}` shape, source-extracted lat/lng honored by `seed.mjs`,
+  spot-check validation). NOT the storykept `/grok` `/hermes` (those are code-review, repo-hardcoded).
+  First runs produced **20 unique validated real events** (Sofia, Varna, Ruse, Blagoevgrad, Stara
+  Zagora, Chepelare) in `data/mined/events-bg-*.json`, spot-checked on live pages — **not yet seeded**
+  to Supabase (remote write, awaiting George's go). Plovdiv/Burgas/Smolyan yielded nothing in-window.
 - **2026-07-12 localization:** English/German/Bulgarian now cover the map UI, legal pages,
   standalone event pages, metadata, and user-facing API errors. First-visit language uses Vercel's
   approximate IP-country header (BG→BG, AT/DE→DE, all other/unknown→EN); the three-option picker
