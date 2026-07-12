@@ -34,6 +34,10 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  // Draw edge-to-edge so the map fills the screen; every fixed/floating element
+  // then pads itself with env(safe-area-inset-*) so nothing lands under the
+  // notch, status bar, or home indicator (esp. the installed iOS PWA).
+  viewportFit: 'cover',
   themeColor: '#C93A5B',
 };
 
