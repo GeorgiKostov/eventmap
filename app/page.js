@@ -1373,9 +1373,6 @@ export default function Home() {
             <>
               <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
               <div className="menudrop">
-                <button className="menuitem" onClick={() => { setMenuOpen(false); openCapture(); }}>
-                  <span className="ic">➕</span>{t.addToMap}
-                </button>
                 <button className="menuitem" onClick={() => { setMenuOpen(false); setNl({ open: true, email: '', busy: false, done: false, err: '' }); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>
