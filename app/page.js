@@ -1612,17 +1612,15 @@ export default function Home() {
       <div className="mapwrap">
         <div id="map" ref={mapRef} />
         {!events && (
-          <div className="loading" role="status" aria-label="Okolo lädt Events in deinem Umkreis">
-            <div className="okolo-radar" aria-hidden="true">
-              <span className="okolo-wave" />
-              <span className="okolo-wave" />
-              <span className="okolo-wave" />
-              <span className="okolo-blip b1" />
-              <span className="okolo-blip b2" />
-              <span className="okolo-blip b3" />
-              <span className="okolo-pin" />
-            </div>
-            <div className="okolo-word">okolo<i>.</i></div>
+          <div className="loading" role="status" aria-label="okolo lädt Events in deinem Umkreis">
+            <svg className="okolo-mark" viewBox="0 0 380 120" aria-hidden="true">
+              <circle cx="52" cy="70" r="30" fill="none" stroke="currentColor" strokeWidth="11" />
+              <path d="M104 22 V100 M104 71 L141 42 M104 71 L141 100" fill="none" stroke="currentColor" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="188" cy="70" r="30" fill="none" stroke="currentColor" strokeWidth="11" />
+              <path className="okolo-pinpath" transform="translate(213.6 18.6) scale(3.7)" fillRule="evenodd" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
+              <circle cx="328" cy="70" r="30" fill="none" stroke="currentColor" strokeWidth="11" />
+            </svg>
+            <div className="okolo-loadbar" aria-hidden="true" />
           </div>
         )}
 

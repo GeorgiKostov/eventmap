@@ -680,49 +680,20 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   background: var(--bg);
 }
 
-/* ---- Okolo radar loader: rings ripple out from a center pin, event blips light up around it ---- */
-.okolo-radar { position: relative; width: 132px; height: 132px; }
-.okolo-radar > span { position: absolute; }
+/* ---- okolo loader: the wordmark (map-pin l) over an indeterminate loading bar ---- */
+.okolo-mark { height: 62px; width: auto; color: var(--ink); animation: okolo-in 0.5s ease both; }
+.okolo-mark .okolo-pinpath { fill: var(--accent); }
 
-.okolo-pin {
-  inset: 0; margin: auto; width: 16px; height: 16px; border-radius: 50%;
-  background: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft);
-  animation: okolo-pin 2.4s ease-in-out infinite;
+.okolo-loadbar {
+  position: relative; width: 150px; height: 6px; border-radius: 99px; overflow: hidden;
+  background: color-mix(in srgb, var(--muted) 22%, transparent);
 }
-@keyframes okolo-pin { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
-
-.okolo-wave {
-  inset: 0; margin: auto; width: 24px; height: 24px; border-radius: 50%;
-  border: 2px solid var(--accent); opacity: 0;
-  animation: okolo-wave 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+.okolo-loadbar::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 42%; border-radius: 99px;
+  background: var(--accent); animation: okolo-slide 1.25s cubic-bezier(0.5, 0, 0.4, 1) infinite;
 }
-.okolo-wave:nth-child(2) { animation-delay: 0.8s; }
-.okolo-wave:nth-child(3) { animation-delay: 1.6s; }
-@keyframes okolo-wave {
-  0% { transform: scale(0.5); opacity: 0.55; }
-  70% { opacity: 0; }
-  100% { transform: scale(5.2); opacity: 0; }
-}
-
-.okolo-blip {
-  width: 10px; height: 10px; border-radius: 50%; background: var(--ink);
-  opacity: 0; animation: okolo-blip 2.4s ease-in-out infinite;
-}
-.okolo-blip.b1 { top: 22px; left: 96px; animation-delay: 0.35s; }
-.okolo-blip.b2 { top: 92px; left: 26px; animation-delay: 1.05s; }
-.okolo-blip.b3 { top: 58px; left: 108px; animation-delay: 1.7s; }
-@keyframes okolo-blip {
-  0%, 100% { opacity: 0; transform: scale(0.4); }
-  40%, 68% { opacity: 1; transform: scale(1); }
-}
-
-.okolo-word {
-  font-family: var(--font-display); font-size: 26px; font-weight: 800;
-  letter-spacing: 0.01em; color: var(--ink);
-  animation: okolo-word 0.6s ease 0.2s both;
-}
-.okolo-word i { color: var(--accent); font-style: normal; }
-@keyframes okolo-word { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes okolo-slide { 0% { left: -42%; width: 42%; } 50% { width: 62%; } 100% { left: 100%; width: 42%; } }
+@keyframes okolo-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
