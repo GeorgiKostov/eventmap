@@ -404,7 +404,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .m-topbar > * { pointer-events: auto; }
 
-/* ================= google-maps-style search pill + account menu ================= */
+/* ================= google-maps-style search pill + menu ================= */
 .locsearch { position: relative; }
 .locsearch-row { position: relative; display: flex; align-items: center; gap: 8px; }
 .searchpill {
@@ -420,13 +420,13 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .searchpill-input { flex: 1 1 auto; min-width: 0; border: none; background: none; outline: none; font-size: 13.5px; font-weight: 600; color: var(--ink); }
 .searchpill-clear { flex: 0 0 auto; color: var(--muted); display: grid; place-items: center; }
 .searchpill-clear:hover { color: var(--ink); }
-.account-btn {
+.menu-btn {
   flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%;
   background: var(--panel); border: 1px solid var(--line); color: var(--ink);
   display: grid; place-items: center; box-shadow: var(--shadow-sm);
 }
-.account-btn:hover { border-color: var(--muted); }
-.locsearch.floaty .searchpill, .locsearch.floaty .account-btn { box-shadow: var(--shadow-md); }
+.menu-btn:hover { border-color: var(--muted); }
+.locsearch.floaty .searchpill, .locsearch.floaty .menu-btn { box-shadow: var(--shadow-md); }
 .sidehead .locsearch { margin: 0 0 14px; }
 .menu-scrim { position: fixed; inset: 0; z-index: 16; background: transparent; }
 .menudrop {
