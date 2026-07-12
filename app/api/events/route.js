@@ -33,7 +33,14 @@ export async function POST(req) {
   // 150/day across everyone (a flood of "valid" entries is itself abuse).
   const rl = await limit(req, 'submit', { perHour: 5, perDay: 15, globalPerDay: 150 });
   if (rl) {
-    return NextResponse.json({ error: messages.limited }, { status: 429 });
+    return NextResponse.json({
+      error: messages.limited,
+      code: 'RATE_LIMITED',
+      rateLimit: {
+        action: 'publish', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 5, perDay: 15,
+      },
+    }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
   const raw = await req.json();
   // Honeypot: a hidden "website" field humans never see. Bots that fill it get

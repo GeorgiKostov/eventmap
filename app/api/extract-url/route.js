@@ -215,7 +215,14 @@ export async function POST(req) {
   const rl = await limit(req, 'scan', { perHour: 4, perDay: 10, globalPerDay: 100 });
   if (rl) {
     const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
-    return NextResponse.json({ error: msg }, { status: 429 });
+    return NextResponse.json({
+      error: msg,
+      code: 'RATE_LIMITED',
+      rateLimit: {
+        action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 4, perDay: 10,
+      },
+    }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
 
   let url;

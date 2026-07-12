@@ -215,6 +215,50 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .ad-benefits span { flex: 0 0 18px; color: var(--accent); font-size: 15px; font-weight: 800; text-align: center; }
 .ad-disclosure { margin: 0 0 16px; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
 .ad-contact { display: block; text-decoration: none; }
+
+/* ================= contribution limit dialog ================= */
+.limit-scrim {
+  position: fixed; inset: 0; z-index: 90; padding: 20px;
+  background: rgba(20, 26, 24, 0.5); display: grid; place-items: center;
+}
+.limit-modal {
+  position: relative; width: 100%; max-width: 420px; max-height: calc(100dvh - 40px); overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 22px;
+  box-shadow: var(--shadow-lg); padding: 26px 24px 22px; text-align: left;
+}
+.limit-close {
+  position: absolute; top: 12px; right: 12px; width: 32px; height: 32px;
+  border-radius: 99px; color: var(--muted); display: grid; place-items: center;
+}
+.limit-close:hover { background: var(--panel2); color: var(--ink); }
+.limit-icon {
+  width: 46px; height: 46px; border-radius: 14px; margin-bottom: 13px;
+  display: grid; place-items: center; font-size: 23px;
+  background: var(--accent-soft); color: var(--accent);
+}
+.limit-modal h3 { margin: 0 36px 7px 0; font-size: 20px; line-height: 1.25; font-weight: 780; }
+.limit-lead { margin: 0 0 19px; color: var(--ink); font-size: 14px; line-height: 1.55; }
+.limit-section { padding: 14px 0; border-top: 1px solid var(--line); }
+.limit-section h4 {
+  margin: 0 0 6px; color: var(--ink); font-size: 11px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.limit-section p, .limit-privacy, .limit-contact { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
+.limit-list { margin: 0; padding-left: 19px; color: var(--ink); font-size: 12.5px; line-height: 1.65; }
+.limit-privacy { padding-top: 14px; border-top: 1px solid var(--line); }
+.limit-contact { margin-top: 13px; }
+.limit-contact a { color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.limit-dismiss {
+  width: 100%; margin-top: 18px; padding: 12px 16px; border-radius: 13px;
+  background: var(--accent); color: var(--accent-ink); font-size: 14px; font-weight: 750;
+}
+@media (max-width: 480px) {
+  .limit-scrim { padding: 0; place-items: end stretch; }
+  .limit-modal {
+    max-width: none; max-height: calc(100dvh - 44px); border-radius: 24px 24px 0 0;
+    padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+}
 .dp-anchor { position: relative; }
 .dp-float { position: absolute; top: 42px; left: 0; z-index: 50; }
 

@@ -531,6 +531,7 @@ export default function Home() {
   const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
   const [nl, setNl] = useState({ open: false, email: '', busy: false, done: false, err: '' });
   const [advertiseOpen, setAdvertiseOpen] = useState(false);
+  const [limitNotice, setLimitNotice] = useState(null);
   const [toast, setToast] = useState('');
   const toastT = useRef(null);
 
@@ -555,6 +556,14 @@ export default function Home() {
   const [addrSuggestOpen, setAddrSuggestOpen] = useState(false);
   const addrDebounce = useRef(null);
   const addrReqId = useRef(0);
+
+  useEffect(() => {
+    if (!limitNotice) return;
+    const onKeyDown = (e) => { if (e.key === 'Escape') setLimitNotice(null); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [limitNotice]);
+
   async function fetchAddressSuggestions(q) {
     const reqId = ++addrReqId.current;
     try {
@@ -1120,6 +1129,18 @@ export default function Home() {
       return { ...d, kind: 'event', date_start: d.date_start || todayStr(), time_start: d.time_start || '' };
     });
   }
+  function handleContributionLimit(res, data, action, restoreState) {
+    if (res.status !== 429) return false;
+    const defaults = action === 'ai_intake'
+      ? { action, scope: 'network', window: 'hour', max: 4, perHour: 4, perDay: 10 }
+      : { action, scope: 'network', window: 'hour', max: 5, perHour: 5, perDay: 15 };
+    const notice = { ...defaults, ...(data?.rateLimit || {}) };
+    setLimitNotice(notice);
+    setScanErr('');
+    setScanState(restoreState);
+    track('contribution_rate_limited', { action: notice.action, scope: notice.scope, window: notice.window });
+    return true;
+  }
   async function handleFile(file) {
     if (!file) return;
     setScanErr('');
@@ -1139,6 +1160,7 @@ export default function Home() {
     try {
       const res = await fetch('/api/scan', { method: 'POST', headers: { 'X-Okolo-Lang': lang }, body: fd });
       const data = await res.json();
+      if (handleContributionLimit(res, data, 'ai_intake', 'pick')) return;
       if (!res.ok) throw new Error(data.error || t.extractionFailed);
       const x = data.extraction;
       if (!x.is_event) setScanErr(t.noEventDetected);
@@ -1177,6 +1199,7 @@ export default function Home() {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify({ url }),
       });
       const data = await res.json();
+      if (handleContributionLimit(res, data, 'ai_intake', 'pick')) return;
       if (!res.ok) { setScanErr(data.error || t.extractionFailed); setScanState('pick'); return; }
       const x = data.extraction;
       const place = x.kind === 'place';
@@ -1287,6 +1310,7 @@ export default function Home() {
     try {
       const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify(body) });
       const data = await res.json();
+      if (handleContributionLimit(res, data, 'publish', 'confirm')) return;
       if (!res.ok) throw new Error(data.error || t.saveFailed);
       if (data.merged) {
         // This event was already on the map (crawled elsewhere, or scanned
@@ -1320,6 +1344,7 @@ export default function Home() {
         body: JSON.stringify({ ...refine.body, lat: pos.lat, lng: pos.lng, geo_precision: 'address' }),
       });
       const data = await res.json();
+      if (handleContributionLimit(res, data, 'publish', 'refine')) return;
       if (!res.ok) throw new Error(data.error || t.saveFailed);
       await finishPublish();
     } catch (e) {
@@ -2019,6 +2044,19 @@ export default function Home() {
   );
 
   /* ---------------- render ---------------- */
+  const limitCopy = limitNotice ? (() => {
+    const action = limitNotice.action === 'ai_intake' ? t.limitAiAction : t.limitPublishAction;
+    const reached = limitNotice.scope === 'service'
+      ? t.limitUnavailable
+      : limitNotice.window === 'day' ? t.limitReachedDay : t.limitReachedHour;
+    return {
+      action,
+      reached: limitNotice.max == null ? reached : reached.replace('{count}', limitNotice.max),
+      retry: limitNotice.window === 'hour' ? t.limitRetryHour : t.limitRetryDay,
+      why: limitNotice.action === 'ai_intake' ? t.limitWhyAi : t.limitWhyPublish,
+    };
+  })() : null;
+
   return (
     <div className="shell">
       {/* ===== desktop sidebar ===== */}
@@ -2235,6 +2273,34 @@ export default function Home() {
             <p className="ad-disclosure">{t.adDisclosure}</p>
             <a className="nl-submit ad-contact" href={`mailto:hello@okolo.events?subject=${encodeURIComponent(t.adEmailSubject)}`}>{t.adContact}</a>
             <p className="nl-fine">{t.adPartnerships}</p>
+          </div>
+        </div>
+      )}
+
+      {limitNotice && limitCopy && (
+        <div className="limit-scrim" onClick={() => setLimitNotice(null)}>
+          <div className="limit-modal" role="dialog" aria-modal="true" aria-labelledby="limit-title" onClick={(e) => e.stopPropagation()}>
+            <button className="limit-close" onClick={() => setLimitNotice(null)} aria-label={t.close}><X size={17} weight="bold" /></button>
+            <div className="limit-icon" aria-hidden="true">⏳</div>
+            <h3 id="limit-title">{t.limitTitle}</h3>
+            <p className="limit-lead">{limitCopy.reached} {limitCopy.retry}</p>
+
+            <section className="limit-section">
+              <h4>{t.limitWhyTitle}</h4>
+              <p>{limitCopy.why}</p>
+            </section>
+
+            <section className="limit-section">
+              <h4>{t.limitAllowanceTitle.replace('{action}', limitCopy.action)}</h4>
+              <ul className="limit-list">
+                <li>{t.limitHourly.replace('{count}', limitNotice.perHour)}</li>
+                <li>{t.limitDaily.replace('{count}', limitNotice.perDay)}</li>
+              </ul>
+            </section>
+
+            <p className="limit-privacy">{t.limitPrivacy}</p>
+            <p className="limit-contact">{t.limitContact} <a href="mailto:hello@okolo.events?subject=Okolo%20contribution%20limit">{t.limitEmail}: hello@okolo.events</a></p>
+            <button className="limit-dismiss" autoFocus onClick={() => setLimitNotice(null)}>{t.limitDismiss}</button>
           </div>
         </div>
       )}
