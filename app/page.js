@@ -292,7 +292,6 @@ export default function Home() {
   const [locating, setLocating] = useState(false); // true while a locate-me geolocation fetch is in flight
   const meMarker = useRef(null);
   const searchMarker = useRef(null);
-  const [localityLabel, setLocalityLabel] = useState(null);
 
   // "search anywhere" reference point — set when the user picks a location (town/
   // address) from the search dropdown. Distance labels + the radius filter recompute
@@ -478,31 +477,30 @@ export default function Home() {
     );
   }, []);
 
-  // reverse-geocode the current position for the top-left locality pill
-  useEffect(() => {
-    if (!located) { setLocalityLabel(null); return; }
-    let cancelled = false;
-    fetch(`/api/geocode?lat=${me.lat}&lng=${me.lng}`)
-      .then((r) => r.json())
-      .then((d) => { if (!cancelled) setLocalityLabel(d.label || null); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [located, me.lat, me.lng]);
-
   function locateMe() {
-    if (!navigator.geolocation) { showToast(t.locateDenied); return; }
+    if (!navigator.geolocation) { showToast(t.locateUnavailable); return; }
+    // respond instantly: fly to the last known position while the fresh fix loads
+    const hadFix = located;
+    if (hadFix) {
+      setSearchCenter(null); // restore own location as the reference point
+      mapObj.current?.flyTo({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current.getZoom(), 13), duration: 800 });
+    }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (p) => {
         const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
         setMe(loc);
         setLocated(true);
-        setSearchCenter(null); // restore own location as the reference point
+        setSearchCenter(null);
         setLocating(false);
         mapObj.current?.flyTo({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current.getZoom(), 13), duration: 800 });
       },
-      () => { setLocating(false); showToast(t.locateDenied); },
-      { enableHighAccuracy: true, timeout: 8000 }
+      (err) => {
+        setLocating(false);
+        // already showing the last known position — a fresh-fix failure isn't worth a scary toast
+        if (!hadFix) showToast(err.code === 1 ? t.locateDenied : t.locateUnavailable);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
     );
   }
 
@@ -932,7 +930,7 @@ export default function Home() {
               />
             ) : (
               <button type="button" className="searchpill-label" onClick={() => setSearchOpen(true)}>
-                {localityLabel ? `📍 ${localityLabel}` : t.searchPlaceholder}
+                {t.searchPlaceholder}
               </button>
             )}
             {searchOpen && (
@@ -1569,7 +1567,7 @@ export default function Home() {
         )}
 
         <button
-          className={`locate-btn ${capture ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
+          className={`locate-btn ${capture ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
           onClick={locateMe}
           aria-label={t.locateMe}
         >

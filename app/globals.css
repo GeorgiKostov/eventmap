@@ -483,6 +483,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .locate-btn.hidden { opacity: 0; pointer-events: none; }
 .locate-btn.lifted { bottom: calc(160px + env(safe-area-inset-bottom)); } /* clears the mini-card */
 .locate-btn.active { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.locate-btn.locating svg { animation: locate-pulse 0.9s ease-in-out infinite; }
+@keyframes locate-pulse { 50% { opacity: 0.25; } }
 @media (min-width: 900px) {
   .locate-btn { bottom: 18px; right: 18px; }
   .locate-btn.lifted { bottom: 108px; }
