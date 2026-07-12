@@ -11,9 +11,17 @@ create table if not exists sources (
   notes         text,
   last_crawled  timestamptz,
   cms           text,               -- ris | gem2go | other | unknown | null (not yet classified)
+  region        text,               -- Bundesland, e.g. 'Oberösterreich' | 'Salzburg' | 'Wien' ...
   discovered_at timestamptz default now(),
   page_hash     text,               -- sha256 of stripped page text; unchanged → skip extraction
-  feed_kind     text                -- jsonld | ical | rss | llm | null (which route won last crawl)
+  feed_kind     text,               -- jsonld | ical | rss | gem2go | llm | null (which route won last crawl)
+  -- content-rating / tiering (scripts/crawl.mjs) — see tier threshold comment there
+  crawl_count   int default 0,      -- total crawl attempts (incl. hash-unchanged skips)
+  events_last   int,                -- events found on the most recent extraction round
+  events_sum    int default 0,      -- running total, incremented only when extraction ran
+  zero_streak   int default 0,      -- consecutive extraction rounds / fetch failures with 0 events
+  last_changed  timestamptz,        -- last time page_hash actually differed from the stored one
+  tier          text                -- active | slow | dormant | dead | null (not yet rated)
 );
 
 create table if not exists events (

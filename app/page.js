@@ -10,6 +10,7 @@ import { TOWNS, townCentroid } from '../lib/towns.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
+const DETAIL_MARKER_ZOOM = 12.5;
 
 /* ---------------- date helpers (pinned to Europe/Vienna) ---------------- */
 function todayStr(offset = 0) {
@@ -113,6 +114,9 @@ function circleGeoJSON(center, km) {
 }
 function primaryCat(ev) {
   return (ev.categories || []).find((c) => CATS[c]) || 'family';
+}
+function isCommunitySubmitted(ev) {
+  return ev.src_kind === 'user_photo' || ev.src_kind === 'manual';
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
 // within ~30m. Used both to collapse event pins per venue and to list "more at
@@ -388,7 +392,7 @@ export default function Home() {
 
   // filters
   const [kindFilter, setKindFilter] = useState('all'); // all | event | place
-  const [whenMode, setWhenMode] = useState('all'); // all | today | tomorrow | weekend | next7 | range
+  const [whenMode, setWhenMode] = useState('weekend'); // all | today | tomorrow | weekend | next7 | range
   const [range, setRange] = useState({ from: null, to: null });
   const [dpOpen, setDpOpen] = useState(false);
   const [dpDraft, setDpDraft] = useState({ from: null, to: null });
@@ -509,6 +513,11 @@ export default function Home() {
   geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
 
+  function syncMarkerZoomVisibility(map) {
+    const showDetailMarkers = map.getZoom() >= DETAIL_MARKER_ZOOM;
+    for (const { el } of markers.current.values()) el.style.visibility = showDetailMarkers ? '' : 'hidden';
+  }
+
   useEffect(() => {
     if (mapObj.current || !mapRef.current) return;
     const map = new maplibregl.Map({
@@ -528,6 +537,7 @@ export default function Home() {
       map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius', paint: { 'fill-color': '#C93A5B', 'fill-opacity': 0.035 } });
       map.addLayer({ id: 'radius-line', type: 'line', source: 'radius', paint: { 'line-color': '#C93A5B', 'line-opacity': 0.5, 'line-width': 1.5, 'line-dasharray': [3, 3] } });
     });
+    map.on('zoom', () => syncMarkerZoomVisibility(map));
     map.on('click', () => { selectRef.current(null, { fly: false }); setMenuOpen(false); });
     const meEl = document.createElement('div');
     meEl.className = 'me-marker hidden';
@@ -639,29 +649,47 @@ export default function Home() {
     for (const ev of markerItems) {
       const cat = primaryCat(ev);
       const color = CATS[cat].color;
-      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' town-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '');
+      const community = isCommunitySubmitted(ev);
+      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '');
       const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
+      const sourceBadgeHtml = community ? '<span class="pin-source-badge" aria-hidden="true">+</span>' : '';
+      const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
+      if (community) ariaBits.push(t.legendCommunity);
+      if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
+      if (ev._venueCount > 1) ariaBits.push(t.markerVenueCount.replace('{count}', ev._venueCount));
+      const ariaLabel = ariaBits.join(', ');
       const existing = markers.current.get(ev.id);
       if (existing) {
         existing.ev = ev;
         existing.el.style.setProperty('--cc', color);
-        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
+        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml + sourceBadgeHtml;
         existing.el.className = pinClass;
+        existing.el.setAttribute('aria-label', ariaLabel);
+        existing.el.style.visibility = map.getZoom() >= DETAIL_MARKER_ZOOM ? '' : 'hidden';
         existing.marker.setLngLat([ev.lng, ev.lat]);
         continue;
       }
       const el = document.createElement('div');
       el.className = pinClass;
       el.style.setProperty('--cc', color);
-      el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
+      el.innerHTML = catIconSvg(cat, 15) + badgeHtml + sourceBadgeHtml;
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', ariaLabel);
+      el.tabIndex = 0;
+      el.style.visibility = map.getZoom() >= DETAIL_MARKER_ZOOM ? '' : 'hidden';
       el.addEventListener('click', (e) => {
         e.stopPropagation();
+        selectRef.current(markers.current.get(ev.id)?.ev || ev);
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
         selectRef.current(markers.current.get(ev.id)?.ev || ev);
       });
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([ev.lng, ev.lat]).addTo(map);
       markers.current.set(ev.id, { marker, el, ev });
     }
-  }, [markerItems]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [markerItems, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------------- filtering ---------------- */
   const [dFrom, dTo] = useMemo(() => {
@@ -687,7 +715,7 @@ export default function Home() {
       if (freeOnly && ev.is_free !== 1) return false;
       if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
       if (inOut === 'in' && ev.indoor !== 1) return false;
-      if (inOut === 'out' && ev.indoor === 1) return false;
+      if (inOut === 'out' && ev.indoor !== 0) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.trim().toLowerCase();
         const catLabels = (ev.categories || []).map((c) => t.cats[c] || c).join(' ');
@@ -725,6 +753,72 @@ export default function Home() {
 
   const filtered = useMemo(() => [...filteredEvents, ...filteredPlaces], [filteredEvents, filteredPlaces]);
 
+  // Regional zoom uses MapLibre's native spatial clustering so hundreds of
+  // results remain scannable. At neighborhood zoom the richer DOM markers take
+  // over (category icon/color, event/place shape, provenance, precision, venue count).
+  const clusterData = useMemo(() => {
+    const visible = new Set(filtered.map((e) => e.id));
+    const features = markerItems
+      .filter((ev) => (ev._venueIds || [ev.id]).some((id) => visible.has(id)))
+      .map((ev) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [ev.lng, ev.lat] },
+        properties: { color: CATS[primaryCat(ev)].color },
+      }));
+    return { type: 'FeatureCollection', features };
+  }, [filtered, markerItems]);
+
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map) return;
+    const install = () => {
+      const existing = map.getSource('result-clusters');
+      if (existing) {
+        existing.setData(clusterData);
+        return;
+      }
+      map.addSource('result-clusters', {
+        type: 'geojson', data: clusterData, cluster: true, clusterMaxZoom: 12, clusterRadius: 48,
+      });
+      map.addLayer({
+        id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: DETAIL_MARKER_ZOOM,
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': '#26332f', 'circle-opacity': 0.93,
+          'circle-radius': ['step', ['get', 'point_count'], 17, 25, 21, 100, 26],
+          'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff',
+        },
+      });
+      map.addLayer({
+        id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: DETAIL_MARKER_ZOOM,
+        filter: ['has', 'point_count'],
+        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 11, 'text-font': ['Noto Sans Bold'] },
+        paint: { 'text-color': '#ffffff' },
+      });
+      map.addLayer({
+        id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: DETAIL_MARKER_ZOOM,
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': 0.94,
+          'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff',
+        },
+      });
+      const zoomToFeature = (e) => {
+        const feature = e.features?.[0];
+        if (!feature) return;
+        map.easeTo({ center: feature.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
+      };
+      map.on('click', 'result-cluster-bubbles', zoomToFeature);
+      map.on('click', 'result-overview-points', zoomToFeature);
+      for (const layer of ['result-cluster-bubbles', 'result-overview-points']) {
+        map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
+      }
+    };
+    if (map.isStyleLoaded()) install();
+    else map.once('load', install);
+  }, [clusterData]);
+
   useEffect(() => {
     const visible = new Set(filtered.map((e) => e.id));
     for (const { el, ev } of markers.current.values()) {
@@ -735,7 +829,8 @@ export default function Home() {
     if (selected && !visible.has(selected.id)) selectEvent(null, { fly: false });
   }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const badge = (radius !== 20 ? 1 : 0) + cats.length + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (inOut !== 'any' ? 1 : 0) + tod.length;
+  const advancedFilterCount = (radius !== 20 ? 1 : 0) + cats.length + (inOut === 'out' ? 1 : 0) + tod.length;
+  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (inOut === 'in' ? 1 : 0);
   function resetFilters() {
     setRadius(20); setCats([]); setFreeOnly(false); setKidsOnly(false); setInOut('any'); setTod([]);
   }
@@ -1028,27 +1123,19 @@ export default function Home() {
     </>
   );
 
+  const quickFilters = (
+    <>
+      <button className={`chip ${kidsOnly ? 'on' : ''}`} onClick={() => setKidsOnly(!kidsOnly)}>{t.forKids}</button>
+      <button className={`chip ${inOut === 'in' ? 'on' : ''}`} onClick={() => setInOut(inOut === 'in' ? 'any' : 'in')}>{t.indoor}</button>
+      <button className={`chip ${freeOnly ? 'on' : ''}`} onClick={() => setFreeOnly(!freeOnly)}>{t.freeOnly}</button>
+    </>
+  );
+
   const filterPanel = (
     <div className="filters">
       <div className="fgroup">
         <h4>{t.radius} <output>{radius} km</output></h4>
         <input type="range" min="3" max="40" step="1" value={radius} onChange={(e) => setRadius(+e.target.value)} aria-label={t.radius} />
-      </div>
-      <div className="fgroup">
-        <h4>{t.categories}</h4>
-        <div className="catgrid">
-          {(kindFilter === 'event' ? EVENT_CATS : kindFilter === 'place' ? PLACE_CATS : [...EVENT_CATS, ...PLACE_CATS]).map((key) => (
-            <button
-              key={key}
-              className={`cat ${cats.includes(key) ? 'on' : ''}`}
-              style={{ '--cc': CATS[key].color }}
-              onClick={() => setCats(cats.includes(key) ? cats.filter((x) => x !== key) : [...cats, key])}
-            >
-              <CatIcon cat={key} size={13} />
-              {t.cats[key]}
-            </button>
-          ))}
-        </div>
       </div>
       <div className="fgroup">
         <h4>{t.place}</h4>
@@ -1069,17 +1156,22 @@ export default function Home() {
         </div>
       </div>
       <div className="fgroup">
-        <h4>{t.options}</h4>
-        <div className="togglerow">
-          <button className={`toggle ${freeOnly ? 'on' : ''}`} onClick={() => setFreeOnly(!freeOnly)}>
-            {t.freeOnly} <span className="knob" />
-          </button>
-          <button className={`toggle ${kidsOnly ? 'on' : ''}`} onClick={() => setKidsOnly(!kidsOnly)}>
-            {t.forKids} <span className="knob" />
-          </button>
+        <h4>{t.categories}</h4>
+        <div className="catgrid">
+          {(kindFilter === 'event' ? EVENT_CATS : kindFilter === 'place' ? PLACE_CATS : [...EVENT_CATS, ...PLACE_CATS]).map((key) => (
+            <button
+              key={key}
+              className={`cat ${cats.includes(key) ? 'on' : ''}`}
+              style={{ '--cc': CATS[key].color }}
+              onClick={() => setCats(cats.includes(key) ? cats.filter((x) => x !== key) : [...cats, key])}
+            >
+              <CatIcon cat={key} size={13} />
+              {t.cats[key]}
+            </button>
+          ))}
         </div>
       </div>
-      {badge > 0 && <button className="resetbtn" onClick={resetFilters}>{t.reset}</button>}
+      {activeFilterCount > 0 && <button className="resetbtn" onClick={resetFilters}>{t.reset}</button>}
     </div>
   );
 
@@ -1100,13 +1192,15 @@ export default function Home() {
       <div className="list">
         {filteredEvents.map((ev) => {
           const d = ev.starts_at.slice(0, 10);
-          const head = d !== lastDay ? <div className="dayhead">{fmtDayLong(d, lang, t)}</div> : null;
-          lastDay = d;
+          const groupDay = d < dFrom ? 'ongoing' : d;
+          const head = groupDay !== lastDay ? <div className="dayhead">{groupDay === 'ongoing' ? t.ongoing : fmtDayLong(d, lang, t)}</div> : null;
+          lastDay = groupDay;
           const cat = primaryCat(ev);
+          const community = isCommunitySubmitted(ev);
           return (
             <div key={ev.id}>
               {head}
-              <button className={`row ${selected?.id === ev.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(ev)}>
+              <button className={`row ${whenMode === 'range' ? 'range-match' : ''} ${selected?.id === ev.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(ev)}>
                 <span className="thumb"><CatIcon cat={cat} size={17} /></span>
                 <span className="tx">
                   <span className="t">{ev.title}</span>
@@ -1114,7 +1208,10 @@ export default function Home() {
                     {ev.all_day ? t.allDay : ev.starts_at.slice(11, 16)} · {ev.town || ev.venue} · {distKm(refPoint, ev).toFixed(1).replace('.', ',')} km
                   </span>
                 </span>
-                {ev.is_free === 1 && <span className="tag">{t.freeTag}</span>}
+                {(community || ev.is_free === 1) && <span className="rowbadges">
+                  {community && <span className="source-tag community">{t.communitySource}</span>}
+                  {ev.is_free === 1 && <span className="tag">{t.freeTag}</span>}
+                </span>}
               </button>
             </div>
           );
@@ -1125,6 +1222,7 @@ export default function Home() {
             {filteredPlaces.map((pl) => {
               const cat = primaryCat(pl);
               const st = openStatus(pl.opening_hours);
+              const community = isCommunitySubmitted(pl);
               return (
                 <button key={pl.id} className={`row ${selected?.id === pl.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(pl)}>
                   <span className="thumb"><CatIcon cat={cat} size={17} /></span>
@@ -1134,7 +1232,10 @@ export default function Home() {
                       {t.cats[cat]} · {pl.town || pl.venue} · {distKm(refPoint, pl).toFixed(1).replace('.', ',')} km
                     </span>
                   </span>
-                  {!st.always && !st.unknown && <span className={`tag ${st.open ? '' : 'closed'}`}>{st.open ? t.openNow : t.closedNow}</span>}
+                  {(community || (!st.always && !st.unknown)) && <span className="rowbadges">
+                    {community && <span className="source-tag community">{t.communitySource}</span>}
+                    {!st.always && !st.unknown && <span className={`tag ${st.open ? '' : 'closed'}`}>{st.open ? t.openNow : t.closedNow}</span>}
+                  </span>}
                 </button>
               );
             })}
@@ -1229,7 +1330,7 @@ export default function Home() {
               {ev.source_url ? (
                 <a href={ev.source_url} target="_blank" rel="noreferrer">{ev.source_name || ev.source_url}</a>
               ) : (
-                <b>{ev.source_name || 'Upload'}</b>
+                <b>{ev.source_name || t.uploadSource}</b>
               )}
               {ev.geo_precision === 'town' && <> · {t.posApprox}</>}
             </span>
@@ -1488,8 +1589,9 @@ export default function Home() {
             <div className="chiprow" style={{ padding: '0 18px 6px' }}>{kindToggle}</div>
             <div className="chiprow" style={{ padding: '0 18px 10px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>{dateChips}</div>
             <div className="chiprow" style={{ padding: '0 18px 12px' }}>
-              <button className={`chip ${showFilters ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
-                ⚙︎ {t.filters} {badge > 0 && <span className="badge">{badge}</span>}
+              {quickFilters}
+              <button className={`chip ${showFilters || advancedFilterCount > 0 ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
+                ⚙︎ {t.filters} {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
               </button>
               <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>{filtered.length} {t.events}</span>
             </div>
@@ -1511,14 +1613,27 @@ export default function Home() {
           {locSearchBar(true)}
         </div>
 
+        <details className="map-legend">
+          <summary>{t.legend}</summary>
+          <div className="map-legend-body">
+            <span><i className="legend-pin event" />{t.legendEvent}</span>
+            <span><i className="legend-pin place" />{t.legendPlace}</span>
+            <span><i className="legend-pin event community" />{t.legendCommunity}</span>
+            <span><i className="legend-pin event approximate" />{t.legendApprox}</span>
+            <span><i className="legend-pin event count" />{t.moreAtVenue}</span>
+            <span><i className="legend-cluster">12</i>{t.legendCluster}</span>
+          </div>
+        </details>
+
         {/* mobile bottom chip bar */}
         {sheet === 'closed' && !selected && (
           <div className="m-bottombar mobileonly">
             <div className="chiprow" style={{ paddingBottom: 4 }}>{kindToggle}</div>
+            <div className="chiprow" style={{ paddingBottom: 4 }}>{dateChips}</div>
             <div className="chiprow">
-              {dateChips}
-              <button className="chip" onClick={() => { setSheetContent('filters'); setSheet('half'); }}>
-                ⚙︎ {badge > 0 && <span className="badge">{badge}</span>}
+              {quickFilters}
+              <button className={`chip ${advancedFilterCount > 0 ? 'on' : ''}`} aria-label={t.filters} onClick={() => { setSheetContent('filters'); setSheet('half'); }}>
+                ⚙︎ {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
               </button>
               <button className="chip" onClick={() => { setSheetContent('list'); setSheet('full'); }}>
                 ☰ {filtered.length}
@@ -1539,6 +1654,7 @@ export default function Home() {
               <>
                 <div className="chiprow">{kindToggle}</div>
                 <div className="chiprow">{dateChips}</div>
+                <div className="chiprow">{quickFilters}</div>
                 {filterPanel}
               </>
             ) : (

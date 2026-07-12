@@ -186,6 +186,16 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
 - Clean **light theme**, teardrop pins in category colors with white SVG icons; same icons on
   chips, list rows, detail tags. Category set: family, festival, market, music, culture, food,
   sport, workshop.
+- **Filter hierarchy:** result kind → date shortcuts/range (weekend is the default family lens) → persistent family constraints
+  (kids, indoor, free) → advanced distance, setting, time, and category controls. A selected
+  calendar range uses a connected accent fill in the picker and a quiet accent rail on matching
+  event rows; overlapping events that began before the range are grouped as ongoing. Places remain
+  date-neutral.
+- **Map density + marker grammar:** regional zooms use neutral, count-labelled geographic clusters;
+  neighborhood zooms reveal the full markers. Category owns fill color/icon, kind owns shape
+  (teardrop event vs circle place), user submissions get a small neutral `+` badge, town-level
+  positions get a dashed outer halo, and same-venue groups retain a compact count badge. A compact
+  collapsible legend explains these signals.
 - **Places (kind='place'):** top-level **Events | Orte | Alle** toggle chip (default Alle) next to
   the date chips — filters both the list and the map pins. Date chips and time-of-day filters never
   hide places; radius/category/free/kids/indoor-outdoor filters apply to both kinds. Places render

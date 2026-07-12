@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Umkreis UI review — Option B</title>
+  <style>
+    :root {
+      --bg:#f2f2ee; --panel:#fff; --panel2:#f6f6f3; --ink:#212b28; --muted:#6d7876;
+      --line:#e4e4dd; --accent:#c93a5b; --accent-soft:#fbeef1; --good:#287548;
+      --shadow-sm:0 1px 3px rgba(23,32,28,.08),0 1px 2px rgba(23,32,28,.06);
+      --shadow-md:0 7px 24px rgba(23,32,28,.15); --sidebar:416px;
+      --family:#c93a5b; --festival:#c76520; --market:#4f7d40; --music:#7153b9;
+      --culture:#39729b; --food:#956c00; --sport:#247f72; --workshop:#98528f;
+      --playground:#837900; --pool:#087d94; --park:#3c813f; --museum:#4e5ba6;
+    }
+    *{box-sizing:border-box} html,body{height:100%;margin:0} body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+    button{font:inherit;color:inherit;cursor:pointer} button:focus-visible{outline:3px solid rgba(201,58,91,.35);outline-offset:2px}
+    .shell{height:100%;display:flex}.sidebar{width:var(--sidebar);flex:0 0 var(--sidebar);background:var(--panel);z-index:10;box-shadow:var(--shadow-sm);display:flex;flex-direction:column}
+    .head{padding:17px 18px 9px;border-bottom:1px solid var(--line)}
+    .brandrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.brandlock{display:flex;align-items:center;gap:10px}.brandmark{width:36px;height:36px;border-radius:11px;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:var(--shadow-sm)}.brandmark svg{width:19px;height:19px}.brand{font-family:"Avenir Next","Trebuchet MS",system-ui;font-weight:800;font-size:20px;line-height:1;letter-spacing:-.03em}.brand span{display:block;font-family:system-ui;font-size:10px;color:var(--muted);letter-spacing:.02em;margin-top:4px;font-weight:600}
+    .round{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center}
+    .search{height:43px;border:1px solid var(--line);border-radius:999px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:9px;padding:0 13px;color:var(--muted);font-size:13px}.search svg{width:17px}.search b{color:var(--ink);font-weight:600}
+    .quick{padding:12px 18px 11px;border-bottom:1px solid var(--line)}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 7px}
+    .chips{display:flex;gap:7px;overflow:auto;scrollbar-width:none}.chip{white-space:nowrap;border-radius:999px;border:1px solid var(--line);background:#fff;padding:7px 11px;font-size:12px;font-weight:700;box-shadow:var(--shadow-sm)}.chip.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+    .kind{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:3px;margin-top:10px}.kind button{border:0;background:none;flex:1;padding:6px;border-radius:8px;font-size:12px;font-weight:700;color:var(--muted)}.kind button.on{background:#fff;color:var(--ink);box-shadow:var(--shadow-sm)}
+    .body{overflow:auto;padding:0 18px 22px}.primary{padding:13px 0;border-bottom:1px solid var(--line)}.filterline{display:flex;align-items:center;gap:7px}.filterline .chip{box-shadow:none}.filterline .more{margin-left:auto;background:none;border:0;color:var(--accent);font-size:12px;font-weight:750}
+    .radius{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:12px;font-weight:700}.radius input{flex:1;accent-color:var(--accent)}.radius output{font-variant-numeric:tabular-nums;min-width:38px;text-align:right}
+    .section{padding:14px 0 8px}.sectionhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}.sectionhead b{font-size:13px}.sectionhead span{font-size:11px;color:var(--muted)}
+    .cats{display:flex;flex-wrap:wrap;gap:6px}.cat{--cc:var(--family);border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 9px 6px 7px;display:flex;gap:6px;align-items:center;font-size:11.5px;font-weight:650}.cat svg{width:14px;height:14px;color:var(--cc)}.cat.on{border-color:var(--cc);background:color-mix(in srgb,var(--cc) 9%,white)}
+    .secondary{border-top:1px solid var(--line);padding:12px 0}.secondary summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;font-size:12px;font-weight:750}.secondary summary::after{content:'⌄';color:var(--muted)}
+    .dayhead{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:14px 0 5px;display:flex;justify-content:space-between;align-items:center}.rangeflag{font-size:9px;letter-spacing:0;text-transform:none;color:var(--accent);background:var(--accent-soft);border:1px solid #edbdc8;border-radius:999px;padding:2px 7px}.row{border:0;background:#fff;width:100%;display:flex;gap:11px;align-items:center;padding:8px 4px;border-radius:13px;text-align:left}.row:hover{background:var(--panel2)}.row.inrange{background:linear-gradient(90deg,var(--accent-soft),#fff 78%);box-shadow:inset 3px 0 var(--accent);padding-left:9px}
+    .thumb{--cc:var(--family);width:39px;height:39px;border-radius:12px;background:var(--cc);color:#fff;display:grid;place-items:center;flex:none}.thumb.place{border-radius:50%}.thumb svg{width:19px;height:19px}.rowcopy{min-width:0;flex:1}.rowcopy b,.rowcopy span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rowcopy b{font-size:13px;margin-bottom:2px}.rowcopy span{font-size:11px;color:var(--muted)}.source{width:17px;height:17px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--muted)}.source.community{color:var(--accent);border-color:#e7aabc;background:var(--accent-soft)}.source svg{width:10px;height:10px}
+    .map{position:relative;min-width:0;flex:1;overflow:hidden;background:#e9ede7}.water{position:absolute;inset:0;width:100%;height:100%}.parkshape{position:absolute;width:260px;height:180px;border-radius:47% 53% 36% 64%;background:#dcebd8;left:41%;top:8%;transform:rotate(-9deg)}
+    .street{position:absolute;height:8px;background:#fff;border:1px solid #dedfd8;border-radius:9px;box-shadow:0 0 0 1px rgba(255,255,255,.45)}.street.big{height:13px}.s1{width:110%;left:-7%;top:51%;transform:rotate(-8deg)}.s2{width:83%;left:20%;top:31%;transform:rotate(31deg)}.s3{width:74%;left:5%;top:73%;transform:rotate(18deg)}.s4{width:70%;left:49%;top:67%;transform:rotate(-48deg)}.s5{width:45%;left:24%;top:15%;transform:rotate(77deg)}.s6{width:40%;left:58%;top:18%;transform:rotate(3deg)}
+    .roadlabel{position:absolute;font-size:10px;color:#8b918d;letter-spacing:.03em}.rl1{top:46%;left:44%;transform:rotate(-8deg)}.rl2{top:67%;left:19%;transform:rotate(18deg)}.district{position:absolute;color:#738078;font-size:12px;font-weight:750;letter-spacing:.14em;text-transform:uppercase}.d1{left:18%;top:25%}.d2{right:17%;bottom:24%}
+    .toptools{position:absolute;z-index:4;top:14px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:flex-start}.notice{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px;box-shadow:var(--shadow-sm);font-size:11px;color:var(--muted)}.notice b{display:block;color:var(--ink);font-size:12px;margin-bottom:1px}.toolstack{display:grid;gap:8px}.tool{width:38px;height:38px;background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow-sm);display:grid;place-items:center;font-size:17px}
+    .marker{--cc:var(--family);position:absolute;width:36px;height:36px;z-index:3;filter:drop-shadow(0 3px 3px rgba(23,32,28,.28));color:#fff;transition:.15s transform,.15s opacity}.marker:hover{transform:scale(1.15);z-index:8}.marker.event .core{width:34px;height:34px;border-radius:50% 50% 50% 5px;background:var(--cc);border:2px solid #fff;display:grid;place-items:center}.marker.place .core{width:34px;height:34px;border-radius:50%;background:var(--cc);border:2px solid #fff;display:grid;place-items:center}.marker svg{width:17px;height:17px}.marker.approx::before{content:'';position:absolute;inset:-5px;border:2px dashed #34403b;border-radius:50%;opacity:.85}.marker.approx .core{border-style:solid}.marker .badge{position:absolute;right:-7px;top:-7px;width:17px;height:17px;border-radius:50%;background:#fff;color:var(--accent);border:1.5px solid var(--accent);display:grid;place-items:center;z-index:2;filter:none}.marker .badge svg{width:9px;height:9px}.marker .count{position:absolute;right:-8px;top:-8px;min-width:19px;height:19px;padding:0 4px;border-radius:10px;background:var(--ink);color:#fff;border:2px solid #fff;font-size:9px;font-weight:850;display:grid;place-items:center;filter:none}
+    .m1{left:23%;top:37%}.m2{left:42%;top:52%}.m3{left:55%;top:29%}.m4{left:69%;top:46%}.m5{left:35%;top:69%}.m6{left:79%;top:65%}.m7{left:61%;top:71%}.m8{left:83%;top:26%}.hiddenmark{opacity:.12;pointer-events:none}
+    .cluster{position:absolute;left:49%;top:40%;z-index:5;width:48px;height:48px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:var(--shadow-md);display:grid;place-items:center;font-weight:850;font-size:14px}.cluster::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:3px solid transparent;border-top-color:var(--family);border-right-color:var(--market);border-bottom-color:var(--music);transform:rotate(18deg)}.cluster small{display:block;font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .legend{position:absolute;z-index:7;right:18px;bottom:18px;width:302px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-md);overflow:hidden}.legendhead{padding:12px 14px 9px;display:flex;justify-content:space-between;align-items:center}.legendhead b{font-size:13px}.legendhead button{border:0;background:var(--panel2);width:25px;height:25px;border-radius:50%;font-weight:800}.legendbody{padding:0 14px 13px}.grammar{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px}.key{display:flex;align-items:center;gap:8px;padding:7px;background:var(--panel2);border-radius:10px;font-size:10.5px;font-weight:700}.mini{--cc:var(--culture);width:23px;height:23px;background:var(--cc);color:white;display:grid;place-items:center;border:2px solid white;box-shadow:0 1px 3px #999;flex:none}.mini.drop{border-radius:50% 50% 50% 3px}.mini.circle{border-radius:50%}.mini.dashed{background:white;border:2px dashed var(--ink);box-shadow:none;color:var(--ink);border-radius:50%;font-size:12px}.mini.person{background:white;color:var(--accent);border-color:var(--accent);border-radius:50%;box-shadow:none}.mini svg{width:11px;height:11px}.legendnote{font-size:9.5px;color:var(--muted);line-height:1.35;margin:-3px 1px 10px}.legendcats{border-top:1px solid var(--line);padding-top:9px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px 4px}.lcat{text-align:center;font-size:9px;color:var(--muted)}.dot{width:22px;height:22px;border-radius:8px;margin:0 auto 3px;color:#fff;display:grid;place-items:center}.dot svg{width:12px;height:12px}
+    .prototype{position:absolute;left:16px;bottom:16px;background:rgba(33,43,40,.9);color:#fff;border-radius:10px;padding:8px 11px;font-size:10px;z-index:6}.prototype b{color:#ffb6c7}
+    @media(max-width:920px){.sidebar{width:370px;flex-basis:370px}.legend{width:274px}.toptools .notice{display:none}}@media(max-width:720px){body{overflow:auto}.shell{min-height:920px}.sidebar{position:absolute;left:12px;right:12px;bottom:12px;width:auto;height:48%;border-radius:18px;z-index:20}.map{position:absolute;inset:0}.legend{right:12px;top:74px;bottom:auto}.prototype{display:none}}
+  </style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-family" viewBox="0 0 24 24"><circle cx="9" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M17 4a3 3 0 0 1 0 6M18 14a4 4 0 0 1 3 4v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-market" viewBox="0 0 24 24"><path d="M6 3h12l3 4H3l3-4Zm-2 4v13h16V7M8 11a4 4 0 0 0 8 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l11-2v12M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm11-2a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-culture" viewBox="0 0 24 24"><path d="M3 21h18M5 18V9m4 9V9m6 9V9m4 9V9M3 8l9-5 9 5H3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sport" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8 14-2 8 6-3 6 3-2-8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-park" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 15v7" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-pool" viewBox="0 0 24 24"><path d="M2 9c3 3 5-2 8 0s5 3 8 0 4 0 4 0M2 16c3 3 5-2 8 0s5 3 8 0 4 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5 21a7 7 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-festival" viewBox="0 0 24 24"><path d="M12 4 3 20h18L12 4Zm0 8 4 8m-4-8-4 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+</svg>
+<main class="shell">
+  <aside class="sidebar">
+    <header class="head">
+      <div class="brandrow"><div class="brandlock"><div class="brandmark"><svg><use href="#i-culture"/></svg></div><div class="brand">Umkreis<span>Linz &amp; surroundings</span></div></div><button class="round" aria-label="Menu">•••</button></div>
+      <div class="search"><svg><use href="#i-search"/></svg><b>Search around Linz</b></div>
+    </header>
+    <section class="quick">
+      <p class="eyebrow">When</p>
+      <div class="chips" id="dateChips"><button class="chip">Today</button><button class="chip">Tomorrow</button><button class="chip on">Weekend</button><button class="chip">7 days</button><button class="chip">▣ Dates</button></div>
+      <div class="kind" role="group" aria-label="Result kind"><button class="on" data-kind="all">All</button><button data-kind="event">Events</button><button data-kind="place">Places</button></div>
+    </section>
+    <div class="body">
+      <section class="primary">
+        <p class="eyebrow">Essentials</p>
+        <div class="filterline"><button class="chip on">For kids</button><button class="chip">Free</button><button class="chip">Outdoor</button><button class="more">More filters</button></div>
+        <label class="radius">Distance <input type="range" min="3" max="40" value="20"><output>20 km</output></label>
+      </section>
+      <section class="section">
+        <div class="sectionhead"><b>What sounds good?</b><span>Choose any</span></div>
+        <div class="cats">
+          <button class="cat on" style="--cc:var(--family)"><svg><use href="#i-family"/></svg>Family</button>
+          <button class="cat" style="--cc:var(--festival)"><svg><use href="#i-festival"/></svg>Festivals</button>
+          <button class="cat" style="--cc:var(--market)"><svg><use href="#i-market"/></svg>Markets</button>
+          <button class="cat" style="--cc:var(--music)"><svg><use href="#i-music"/></svg>Music</button>
+          <button class="cat" style="--cc:var(--culture)"><svg><use href="#i-culture"/></svg>Culture</button>
+          <button class="cat" style="--cc:var(--sport)"><svg><use href="#i-sport"/></svg>Sport</button>
+        </div>
+      </section>
+      <details class="secondary"><summary>Time, setting & source <span>Secondary</span></summary></details>
+      <div class="dayhead">Saturday · 3 nearby <span class="rangeflag">In selected dates</span></div>
+      <button class="row inrange"><span class="thumb" style="--cc:var(--family)"><svg><use href="#i-family"/></svg></span><span class="rowcopy"><b>Family afternoon at the park</b><span>14:00 · Volksgarten · 1.2 km</span></span><span class="source" title="From an official source"><svg><use href="#i-culture"/></svg></span></button>
+      <button class="row"><span class="thumb" style="--cc:var(--market)"><svg><use href="#i-market"/></svg></span><span class="rowcopy"><b>Weekly farmers’ market</b><span>08:00 · Hauptplatz · 2.1 km</span></span><span class="source" title="From an official source"><svg><use href="#i-culture"/></svg></span></button>
+      <button class="row"><span class="thumb" style="--cc:var(--music)"><svg><use href="#i-music"/></svg></span><span class="rowcopy"><b>Children’s summer concert</b><span>17:30 · Musikpavillon · 3.4 km</span></span><span class="source community" title="Community submitted"><svg><use href="#i-person"/></svg></span></button>
+      <div class="dayhead">Places nearby</div>
+      <button class="row"><span class="thumb place" style="--cc:var(--park)"><svg><use href="#i-park"/></svg></span><span class="rowcopy"><b>Donaupark</b><span>Open now · 1.7 km</span></span></button>
+    </div>
+  </aside>
+  <section class="map" aria-label="Prototype event map">
+    <div class="parkshape"></div>
+    <svg class="water" preserveAspectRatio="none" viewBox="0 0 1000 800"><path d="M-80 720C150 555 250 655 430 525S745 335 1080 240" fill="none" stroke="#c7dfea" stroke-width="76"/><path d="M-80 720C150 555 250 655 430 525S745 335 1080 240" fill="none" stroke="#b9d8e6" stroke-width="2"/></svg>
+    <i class="street big s1"></i><i class="street s2"></i><i class="street s3"></i><i class="street big s4"></i><i class="street s5"></i><i class="street s6"></i>
+    <span class="roadlabel rl1">Landstraße</span><span class="roadlabel rl2">Wiener Straße</span><span class="district d1">Altstadt</span><span class="district d2">Urfahr</span>
+    <div class="toptools"><div class="notice"><b>23 things to do this weekend</b>Icons + shapes work even without color</div><div class="toolstack"><button class="tool" aria-label="Locate me">◎</button><button class="tool" aria-label="Zoom in">＋</button><button class="tool" aria-label="Zoom out">−</button></div></div>
+    <div class="marker event m1" data-kind="event" style="--cc:var(--family)"><span class="core"><svg><use href="#i-family"/></svg></span></div>
+    <div class="marker event m2" data-kind="event" style="--cc:var(--market)"><span class="core"><svg><use href="#i-market"/></svg></span><span class="count">3</span></div>
+    <div class="marker event m3 approx" data-kind="event" style="--cc:var(--festival)"><span class="core"><svg><use href="#i-festival"/></svg></span></div>
+    <div class="marker event m4" data-kind="event" style="--cc:var(--music)"><span class="core"><svg><use href="#i-music"/></svg></span><span class="badge" title="Community submitted"><svg><use href="#i-person"/></svg></span></div>
+    <div class="marker place m5" data-kind="place" style="--cc:var(--park)"><span class="core"><svg><use href="#i-park"/></svg></span></div>
+    <div class="marker place m6 approx" data-kind="place" style="--cc:var(--pool)"><span class="core"><svg><use href="#i-pool"/></svg></span></div>
+    <div class="marker place m7" data-kind="place" style="--cc:var(--culture)"><span class="core"><svg><use href="#i-culture"/></svg></span><span class="badge"><svg><use href="#i-person"/></svg></span></div>
+    <div class="marker event m8" data-kind="event" style="--cc:var(--sport)"><span class="core"><svg><use href="#i-sport"/></svg></span></div>
+    <div class="cluster" aria-label="12 mixed results">12<small>results</small></div>
+    <aside class="legend" id="legend">
+      <div class="legendhead"><b>How to read the map</b><button id="legendToggle" aria-label="Collapse legend">−</button></div>
+      <div class="legendbody">
+        <div class="grammar">
+          <div class="key"><span class="mini drop"><svg><use href="#i-culture"/></svg></span>Event · dated</div>
+          <div class="key"><span class="mini circle"><svg><use href="#i-culture"/></svg></span>Place · anytime</div>
+          <div class="key"><span class="mini person"><svg><use href="#i-person"/></svg></span>Community added</div>
+          <div class="key"><span class="mini dashed">≈</span>Approx. position</div>
+        </div>
+        <p class="legendnote">No source badge = imported from the linked original source. Dashed halo means town-level position—open the item for the named venue.</p>
+        <div class="legendcats">
+          <div class="lcat"><span class="dot" style="background:var(--family)"><svg><use href="#i-family"/></svg></span>Family</div>
+          <div class="lcat"><span class="dot" style="background:var(--festival)"><svg><use href="#i-festival"/></svg></span>Festival</div>
+          <div class="lcat"><span class="dot" style="background:var(--market)"><svg><use href="#i-market"/></svg></span>Market</div>
+          <div class="lcat"><span class="dot" style="background:var(--music)"><svg><use href="#i-music"/></svg></span>Music</div>
+          <div class="lcat"><span class="dot" style="background:var(--culture)"><svg><use href="#i-culture"/></svg></span>Culture</div>
+          <div class="lcat"><span class="dot" style="background:var(--sport)"><svg><use href="#i-sport"/></svg></span>Sport</div>
+          <div class="lcat"><span class="dot" style="background:var(--park)"><svg><use href="#i-park"/></svg></span>Park</div>
+          <div class="lcat"><span class="dot" style="background:var(--pool)"><svg><use href="#i-pool"/></svg></span>Pool</div>
+        </div>
+      </div>
+    </aside>
+    <div class="prototype"><b>OPTION B</b> · Shape-first marker grammar</div>
+  </section>
+</main>
+<script>
+  document.querySelectorAll('.chip,.cat').forEach(btn=>btn.addEventListener('click',()=>btn.classList.toggle('on')));
+  document.querySelector('.radius input').addEventListener('input',e=>document.querySelector('.radius output').textContent=e.target.value+' km');
+  document.querySelectorAll('.kind button').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.kind button').forEach(x=>x.classList.remove('on')); btn.classList.add('on');
+    const kind=btn.dataset.kind; document.querySelectorAll('.marker').forEach(m=>m.classList.toggle('hiddenmark',kind!=='all'&&m.dataset.kind!==kind));
+  }));
+  document.getElementById('legendToggle').addEventListener('click',e=>{
+    const body=document.querySelector('.legendbody'), hidden=body.style.display==='none'; body.style.display=hidden?'block':'none'; e.currentTarget.textContent=hidden?'−':'+';
+  });
+</script>
+</body>
+</html>

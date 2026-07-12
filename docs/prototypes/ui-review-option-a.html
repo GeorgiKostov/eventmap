@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Umkreis UI review — option A</title>
+  <style>
+    :root {
+      --bg:#f2f2ee; --panel:#fff; --panel2:#f6f6f3; --ink:#212b28; --muted:#6d7876;
+      --line:#e4e4dd; --accent:#c93a5b; --accent-soft:#fbeef1; --good:#2e7d4f;
+      --shadow-sm:0 1px 3px rgba(23,32,28,.08),0 1px 2px rgba(23,32,28,.06);
+      --shadow-md:0 5px 20px rgba(23,32,28,.14); --sidebar:416px;
+      --family:#c93a5b; --festival:#d97a2e; --market:#5b8c4a; --music:#7a5cc7;
+      --culture:#3f7ca8; --food:#b8860b; --sport:#2e9c8c; --workshop:#a85ca0;
+    }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+    button,input{font:inherit;color:inherit} button{cursor:pointer} button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+    .reviewbar{height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px;background:#222c29;color:#fff}
+    .reviewbar strong{font-size:14px}.reviewbar small{color:#cbd3d0}.view-toggle{display:flex;gap:4px;background:#35413d;padding:3px;border-radius:10px}
+    .view-toggle button{border:0;border-radius:8px;background:transparent;color:#dce2df;padding:6px 12px;font-weight:650}.view-toggle button.on{background:#fff;color:var(--ink)}
+    .stage{min-height:750px;padding:18px}.app{max-width:1320px;height:760px;margin:auto;display:flex;overflow:hidden;background:var(--panel);border:1px solid #d9dad4;border-radius:18px;box-shadow:0 16px 48px rgba(23,32,28,.16)}
+    .sidebar{width:var(--sidebar);flex:none;display:flex;flex-direction:column;background:var(--panel);border-right:1px solid var(--line);z-index:3}
+    .sidehead{padding:14px 18px 8px}.brand{display:flex;align-items:center;gap:9px;margin-bottom:11px}.brandmark{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:var(--accent);color:#fff;font-size:17px}.brand strong,.brand small{display:block}.brand strong{font-size:17px;letter-spacing:-.02em}.brand small{font-size:10.5px;color:var(--muted)}.search{height:44px;border:1px solid var(--line);border-radius:24px;display:flex;align-items:center;gap:9px;padding:0 14px;box-shadow:var(--shadow-sm)}
+    .search input{border:0;outline:0;min-width:0;flex:1;font-weight:600;background:transparent}.proposal{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--accent)}
+    .kind{display:flex;margin:4px 18px 8px;padding:3px;background:var(--panel2);border:1px solid var(--line);border-radius:12px}.kind button{flex:1;border:0;background:transparent;padding:7px 4px;border-radius:9px;font-size:12.5px;font-weight:650;color:var(--muted)}.kind button.on{background:var(--panel);color:var(--ink);box-shadow:var(--shadow-sm)}
+    .quick{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding:3px 18px 9px}.quick::-webkit-scrollbar{display:none}
+    .chip{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:650;box-shadow:var(--shadow-sm);white-space:nowrap}.chip.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}.chip .count{display:inline-grid;place-items:center;min-width:17px;height:17px;margin-left:3px;padding:0 4px;background:var(--accent);color:#fff;border-radius:9px;font-size:10px}
+    .datebar{display:flex;gap:7px;padding:2px 18px 10px;flex-wrap:wrap}.datebar .chip{box-shadow:none}
+    .calendar-wrap{position:relative}.calendar{position:absolute;top:41px;left:0;width:298px;padding:13px;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 40px rgba(23,32,28,.2);z-index:9;display:none}.calendar.open{display:block}
+    .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.cal-head button{width:30px;height:30px;border:0;background:transparent;border-radius:50%;font-size:18px}.cal-head b{text-transform:capitalize}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0}.cal-grid span,.cal-grid button{height:35px;display:grid;place-items:center;border:0;background:transparent;font-size:12.5px}.cal-grid .wd{height:25px;color:var(--muted);font-size:9.5px;font-weight:800;text-transform:uppercase}.cal-grid .old{color:#bbb}.cal-grid .range{background:var(--accent-soft);border-radius:0;color:var(--accent);font-weight:650}.cal-grid .edge{background:var(--accent);color:#fff;border-radius:50%;font-weight:800}.cal-grid .today{box-shadow:inset 0 0 0 1.5px var(--line);border-radius:50%}
+    .cal-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);margin-top:9px;padding-top:10px;font-size:11.5px;color:var(--muted)}.done{border:0;background:var(--accent);color:#fff;padding:7px 13px;border-radius:9px;font-weight:700}
+    .advanced{display:none;border-top:1px solid var(--line);padding:2px 18px 14px}.advanced.open{display:block}.group{margin-top:14px}.group-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;font-weight:800;color:var(--muted)}
+    .seg{display:flex;background:var(--panel2);border:1px solid var(--line);padding:3px;border-radius:11px}.seg button{flex:1;border:0;background:transparent;padding:7px 4px;border-radius:8px;font-size:12px;color:var(--muted);font-weight:650}.seg button.on{background:var(--panel);color:var(--ink);box-shadow:var(--shadow-sm)}
+    .cats{display:flex;gap:6px;flex-wrap:wrap}.cat{border:1px solid var(--line);background:var(--panel);padding:6px 9px;border-radius:999px;font-size:12px;font-weight:650}.cat.on{border-color:var(--cc);background:color-mix(in srgb,var(--cc) 10%,#fff)}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cc);margin-right:5px}
+    .range-line{display:flex;align-items:center;gap:10px}.range-line input{flex:1;accent-color:var(--accent)}.reset{margin-top:14px;border:0;background:transparent;color:var(--muted);font-weight:650;text-decoration:underline}
+    .results{border-top:1px solid var(--line);padding:10px 12px 20px;overflow:auto;flex:1}.result-head{display:flex;align-items:center;justify-content:space-between;padding:1px 8px 7px;color:var(--muted);font-size:11.5px}.result-head b{color:var(--ink);font-size:13px}
+    .event-row{width:100%;display:flex;align-items:center;gap:11px;padding:9px 7px;border:0;border-left:3px solid transparent;background:transparent;text-align:left;border-radius:13px}.event-row:hover{background:var(--panel2)}.event-row.in-range{border-left-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),transparent 78%)}.thumb{width:39px;height:39px;display:grid;place-items:center;flex:none;border-radius:12px;background:var(--cc);color:#fff;font-size:17px}.event-row .text{min-width:0;flex:1}.event-row strong,.event-row span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.event-row strong{font-size:13.5px}.event-row span{font-size:11.5px;color:var(--muted)}.source-badge{font-size:9.5px!important;color:var(--good)!important;border:1px solid #a7cdb7;border-radius:8px;padding:2px 5px}.source-badge.community{color:#7754a4!important;border-color:#c9b6e3}.range-badge{font-size:9.5px!important;color:var(--accent)!important;font-weight:750}
+    .map{position:relative;flex:1;overflow:hidden;background:#e8ece7}.land{position:absolute;inset:0;background:linear-gradient(122deg,transparent 46%,#dce9d9 46% 60%,transparent 60%),linear-gradient(25deg,#edf0ea 0 42%,#e7ebe5 42%)}
+    .river{position:absolute;width:130%;height:110px;left:-10%;top:42%;background:#c5e2ec;transform:rotate(-7deg);border:10px solid rgba(255,255,255,.32)}.road{position:absolute;height:13px;background:#fff;border:1px solid #daddd8;border-radius:20px}.r1{width:95%;left:3%;top:26%;transform:rotate(14deg)}.r2{width:80%;left:18%;top:68%;transform:rotate(-22deg)}.r3{width:64%;left:30%;top:48%;transform:rotate(53deg)}
+    .town{position:absolute;color:#717b77;font-weight:700;font-size:12px;text-shadow:0 1px #fff}.t1{left:46%;top:42%;font-size:15px;color:#515c58}.t2{right:13%;top:18%}.t3{right:8%;bottom:16%}.t4{left:15%;bottom:17%}
+    .pin{position:absolute;width:34px;height:34px;border:2px solid #fff;background:var(--cc);color:#fff;display:grid;place-items:center;box-shadow:0 3px 8px rgba(23,32,28,.35);font-size:15px}.pin.event{border-radius:50% 50% 50% 4px}.pin.place{border-radius:50%}.pin.approx{border-style:dashed;border-width:3px}.pin.user:after{content:"+";position:absolute;right:-5px;top:-6px;width:15px;height:15px;display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#7453a6;color:#fff;font-size:10px;font-weight:900}.p1{left:43%;top:35%}.p2{left:56%;top:52%}.p3{left:67%;top:28%}.p4{left:29%;top:58%}.p5{right:16%;bottom:24%}.p6{left:48%;bottom:15%}
+    .map-tools{position:absolute;top:15px;right:15px;display:flex;flex-direction:column;gap:8px}.map-tools button{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:var(--panel);box-shadow:var(--shadow-md);font-size:17px}
+    .legend{position:absolute;right:15px;bottom:15px;width:248px;padding:12px 13px;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-md)}.legend h3{font-size:12px;margin:0 0 8px}.legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:10.5px;color:var(--muted)}.legend-row{display:flex;align-items:center;gap:7px}.mini-pin{width:18px;height:18px;background:var(--family);border:2px solid #fff;box-shadow:0 1px 3px #778;display:inline-block;flex:none}.mini-pin.event{border-radius:50% 50% 50% 3px}.mini-pin.place{border-radius:50%}.mini-pin.approx{border-style:dashed;background:#3f7ca8}.mini-pin.user{border-radius:50% 50% 50% 3px;position:relative}.mini-pin.user:after{content:"+";position:absolute;right:-6px;top:-7px;width:11px;height:11px;border:1px solid #fff;border-radius:50%;background:#7453a6;color:#fff;font-size:8px;text-align:center;line-height:11px}
+    .annotation{position:absolute;left:16px;bottom:16px;width:280px;padding:12px 14px;background:#222c29;color:#fff;border-radius:14px;box-shadow:var(--shadow-md)}.annotation b{font-size:12px}.annotation p{margin:5px 0 0;color:#d4ddda;font-size:11px;line-height:1.45}.annotation em{color:#ffb7c7;font-style:normal;font-weight:700}
+    .mobile-bar,.mobile-sheet{display:none}
+    .app.mobile{max-width:390px;height:780px;position:relative;border-radius:30px}.app.mobile .sidebar{display:none}.app.mobile .map{width:100%}.app.mobile .legend{top:75px;bottom:auto;right:10px;width:205px}.app.mobile .annotation{display:none}.app.mobile .map-tools{top:272px;right:12px}.app.mobile .mobile-bar{display:block;position:absolute;left:0;right:0;bottom:0;z-index:8;padding:24px 8px 12px;background:linear-gradient(transparent,rgba(242,242,238,.96) 35%)}.app.mobile .mobile-bar .quick{padding:4px 0;overflow-x:auto}.mobile-sheet{position:absolute;left:0;right:0;bottom:0;z-index:11;background:var(--panel);border-radius:20px 20px 0 0;box-shadow:0 -8px 28px rgba(23,32,28,.2);max-height:64%;overflow:auto}.app.mobile .mobile-sheet.open{display:block}.sheet-head{position:sticky;top:0;background:#fff;padding:10px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.sheet-head:before{content:"";position:absolute;width:36px;height:4px;left:calc(50% - 18px);top:5px;background:var(--line);border-radius:4px}.sheet-head button{border:0;background:var(--panel2);border-radius:50%;width:28px;height:28px}.sheet-body{padding:5px 15px 20px}.sheet-body .advanced{display:block;padding:0;border:0}
+    @media(max-width:700px){.reviewbar small{display:none}.stage{padding:8px}.app:not(.desktop){max-width:390px}.view-toggle button{padding:6px 8px}}
+  </style>
+</head>
+<body>
+  <header class="reviewbar">
+    <div><strong>Option A · constraints first</strong> <small>Review prototype — proposed hierarchy, not final copy</small></div>
+    <div class="view-toggle" aria-label="Preview size"><button id="desktopBtn" class="on">Desktop</button><button id="mobileBtn">Mobile</button></div>
+  </header>
+  <main class="stage">
+    <section class="app" id="app">
+      <aside class="sidebar">
+        <div class="sidehead">
+          <div class="brand"><i class="brandmark">⌖</i><span><strong>Umkreis</strong><small>Linz &amp; surroundings</small></span></div>
+          <div class="proposal">PROPOSED FILTER HIERARCHY</div>
+          <label class="search"><span aria-hidden="true">⌕</span><input value="Linz and surroundings" aria-label="Search area"><span>◎</span></label>
+        </div>
+        <div class="kind" role="group" aria-label="Result type">
+          <button class="on">All</button><button>Events</button><button>Places</button>
+        </div>
+        <div class="datebar" aria-label="Date shortcuts">
+          <button class="chip">Today</button><button class="chip on">Weekend</button><button class="chip">7 days</button>
+          <div class="calendar-wrap">
+            <button class="chip" id="dateBtn">▣ Dates</button>
+            <div class="calendar" id="calendar" aria-label="Date range proposal">
+              <div class="cal-head"><button aria-label="Previous month">‹</button><b>July 2026</b><button aria-label="Next month">›</button></div>
+              <div class="cal-grid">
+                <span class="wd">Mo</span><span class="wd">Tu</span><span class="wd">We</span><span class="wd">Th</span><span class="wd">Fr</span><span class="wd">Sa</span><span class="wd">Su</span>
+                <span class="old">29</span><span class="old">30</span><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button>
+                <button>6</button><button>7</button><button>8</button><button>9</button><button class="today">10</button><button class="edge">11</button><button class="range">12</button>
+                <button class="range">13</button><button class="range">14</button><button class="range">15</button><button class="range">16</button><button class="range">17</button><button class="edge">18</button><button>19</button>
+                <button>20</button><button>21</button><button>22</button><button>23</button><button>24</button><button>25</button><button>26</button>
+                <button>27</button><button>28</button><button>29</button><button>30</button><button>31</button>
+              </div>
+              <div class="cal-foot"><span><b>11–18 Jul</b> · 8 days</span><button class="done" id="doneBtn">Apply</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="quick" aria-label="Common constraints">
+          <button class="chip on toggle-chip">Kids</button><button class="chip toggle-chip">Indoor</button><button class="chip toggle-chip">Free</button>
+          <button class="chip" id="filterBtn">☷ Filters <span class="count">1</span></button>
+        </div>
+        <div class="advanced" id="advanced">
+          <div class="group"><div class="group-head"><span>Distance</span><output id="distanceOut">20 km</output></div><div class="range-line"><span>3</span><input id="distance" type="range" min="3" max="40" value="20"><span>40</span></div></div>
+          <div class="group"><div class="group-head"><span>Age fit</span><span>Secondary</span></div><div class="seg"><button class="on">Any</button><button>0–3</button><button>4–6</button><button>7–10</button><button>11+</button></div></div>
+          <div class="group"><div class="group-head"><span>Setting</span></div><div class="seg"><button class="on">Any</button><button>Indoor</button><button>Outdoor</button></div></div>
+          <div class="group"><div class="group-head"><span>Time</span></div><div class="seg"><button class="on">Any</button><button>Morning</button><button>Afternoon</button><button>Evening</button></div></div>
+          <div class="group"><div class="group-head"><span>Categories</span><span>Scan, don't read</span></div><div class="cats"><button class="cat on" style="--cc:var(--family)"><i class="dot"></i>Family</button><button class="cat" style="--cc:var(--festival)"><i class="dot"></i>Festival</button><button class="cat" style="--cc:var(--market)"><i class="dot"></i>Market</button><button class="cat" style="--cc:var(--music)"><i class="dot"></i>Music</button><button class="cat" style="--cc:var(--culture)"><i class="dot"></i>Culture</button><button class="cat" style="--cc:var(--sport)"><i class="dot"></i>Sport</button></div></div>
+          <button class="reset">Reset secondary filters</button>
+        </div>
+        <div class="results">
+          <div class="result-head"><b>24 nearby</b><span>Event dates only · places stay visible</span></div>
+          <button class="event-row in-range"><i class="thumb" style="--cc:var(--family)">♧</i><span class="text"><strong>Family afternoon at Pöstlingberg</strong><span>Sat 14:00 · 3.2 km</span><span class="range-badge">Within selected dates</span></span><span class="source-badge">official</span></button>
+          <button class="event-row in-range"><i class="thumb" style="--cc:var(--festival)">△</i><span class="text"><strong>Summer festival Urfahr</strong><span>Sat 16:00 · 4.7 km</span><span class="range-badge">Within selected dates</span></span><span class="source-badge community">community</span></button>
+          <button class="event-row"><i class="thumb" style="--cc:#4b9b4e;border-radius:50%">♧</i><span class="text"><strong>Donaupark playground</strong><span>Place · 1.8 km · open</span></span></button>
+        </div>
+      </aside>
+      <div class="map">
+        <div class="land"></div><div class="river"></div><i class="road r1"></i><i class="road r2"></i><i class="road r3"></i>
+        <span class="town t1">Linz</span><span class="town t2">Steyregg</span><span class="town t3">Asten</span><span class="town t4">Leonding</span>
+        <button class="pin event p1" style="--cc:var(--family)" aria-label="Family event">♧</button>
+        <button class="pin place p2" style="--cc:#4b9b4e" aria-label="Park place">♧</button>
+        <button class="pin event user p3" style="--cc:var(--festival)" aria-label="Community submitted festival">△</button>
+        <button class="pin event approx p4" style="--cc:var(--culture)" aria-label="Approximate location culture event">⌂</button>
+        <button class="pin place approx p5" style="--cc:#0ea5c4" aria-label="Approximate pool location">≈</button>
+        <button class="pin event p6" style="--cc:var(--music)" aria-label="Music event">♫</button>
+        <div class="map-tools"><button aria-label="Locate me">◎</button><button aria-label="Map options">⋯</button></div>
+        <aside class="legend">
+          <h3>How to read the map</h3>
+          <div class="legend-grid">
+            <div class="legend-row"><i class="mini-pin event"></i><span>Event · teardrop</span></div>
+            <div class="legend-row"><i class="mini-pin place"></i><span>Place · circle</span></div>
+            <div class="legend-row"><i class="mini-pin user"></i><span>Community · + badge</span></div>
+            <div class="legend-row"><i class="mini-pin approx"></i><span>Approximate · dashed</span></div>
+          </div>
+        </aside>
+        <aside class="annotation"><b>Why this order</b><p><em>When → audience → weather → cost</em> matches the parent's fastest weekend decision. The selected calendar span is colored continuously and matching event rows get a quiet accent rail. Shape communicates object type; border/badge communicates trust metadata, so category color keeps one job.</p></aside>
+        <div class="mobile-bar">
+          <div class="quick"><button class="chip on">Weekend</button><button class="chip on">Kids</button><button class="chip">Indoor</button><button class="chip" id="mobileFilterBtn">☷ Filters <span class="count">1</span></button></div>
+          <div class="quick"><button class="chip on">All</button><button class="chip">Events</button><button class="chip">Places</button><button class="chip">☰ 24</button></div>
+        </div>
+        <section class="mobile-sheet" id="mobileSheet">
+          <div class="sheet-head"><b>Filters</b><button id="sheetClose" aria-label="Close filters">×</button></div>
+          <div class="sheet-body">
+            <div class="group"><div class="group-head"><span>Quick constraints stay above map</span></div><div class="quick" style="padding:0"><button class="chip on">Kids</button><button class="chip">Indoor</button><button class="chip">Free</button></div></div>
+            <div class="advanced open">
+              <div class="group"><div class="group-head"><span>Distance</span><output>20 km</output></div><input type="range" min="3" max="40" value="20" style="width:100%;accent-color:var(--accent)"></div>
+              <div class="group"><div class="group-head"><span>Age fit</span></div><div class="seg"><button class="on">Any</button><button>0–3</button><button>4–6</button><button>7–10</button></div></div>
+              <div class="group"><div class="group-head"><span>Setting</span></div><div class="seg"><button class="on">Any</button><button>Indoor</button><button>Outdoor</button></div></div>
+              <div class="group"><div class="group-head"><span>Time</span></div><div class="seg"><button class="on">Any</button><button>AM</button><button>PM</button><button>Evening</button></div></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script>
+    const app=document.getElementById('app');
+    const desktopBtn=document.getElementById('desktopBtn');
+    const mobileBtn=document.getElementById('mobileBtn');
+    desktopBtn.addEventListener('click',()=>{app.classList.remove('mobile');desktopBtn.classList.add('on');mobileBtn.classList.remove('on')});
+    mobileBtn.addEventListener('click',()=>{app.classList.add('mobile');mobileBtn.classList.add('on');desktopBtn.classList.remove('on')});
+    document.getElementById('filterBtn').addEventListener('click',()=>document.getElementById('advanced').classList.toggle('open'));
+    document.getElementById('dateBtn').addEventListener('click',()=>document.getElementById('calendar').classList.toggle('open'));
+    document.getElementById('doneBtn').addEventListener('click',()=>{document.getElementById('calendar').classList.remove('open');document.getElementById('dateBtn').textContent='▣ 11–18 Jul';document.getElementById('dateBtn').classList.add('on')});
+    document.getElementById('distance').addEventListener('input',e=>document.getElementById('distanceOut').textContent=e.target.value+' km');
+    document.querySelectorAll('.toggle-chip').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('on')));
+    document.querySelectorAll('.kind,.seg').forEach(group=>group.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{group.querySelectorAll('button').forEach(x=>x.classList.remove('on'));button.classList.add('on')})));
+    document.querySelectorAll('.cat').forEach(button=>button.addEventListener('click',()=>button.classList.toggle('on')));
+    document.getElementById('mobileFilterBtn').addEventListener('click',()=>document.getElementById('mobileSheet').classList.add('open'));
+    document.getElementById('sheetClose').addEventListener('click',()=>document.getElementById('mobileSheet').classList.remove('open'));
+  </script>
+</body>
+</html>

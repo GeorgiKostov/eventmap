@@ -1,0 +1,5138 @@
+{
+  "_meta": {
+    "generated": "2026-07-12",
+    "generator": "Overpass API (overpass-api.de / kumi mirror) one combined query per city + web cross-check of marquee venues for official websites/addresses; town from addr:city or reverse-resolved",
+    "attribution": "Map data © OpenStreetMap contributors, available under the Open Database License (ODbL) 1.0 — https://www.openstreetmap.org/copyright / https://opendatacommons.org/licenses/odbl/",
+    "search_area": "~20km radius around Wien, Graz, Salzburg, Innsbruck, Klagenfurt, St. Pölten, Bregenz/Dornbirn, Eisenstadt, Wels, Steyr",
+    "count": 136,
+    "cities": [
+      "Wien",
+      "Graz",
+      "Salzburg",
+      "Innsbruck",
+      "Klagenfurt",
+      "St. Pölten"
+    ],
+    "notes": [
+      "Facts (name/address/hours/website) only — no source prose copied; descriptions are one-line factual summaries written for this dataset, null where the venue is not personally verifiable.",
+      "categories[] uses the PLACE_CATS taxonomy (playground|pool|park|trail|indoor_play|museum|zoo|climbing); finer-grained type preserved in _osm_category.",
+      "_osm_type/_osm_id/_wheelchair are provenance-only fields; scripts/seed-places.mjs drops them before insert.",
+      "opening_hours only for simple, confidently-parsed weekly patterns from OSM tags; complex/seasonal rules => null + human `seasonal` note.",
+      "Deduped against places-family-linz.json by normalized title+town (relevant for Wels/Steyr edges).",
+      "Entries whose municipality could not be confidently resolved were dropped rather than guessed."
+    ]
+  },
+  "places": [
+    {
+      "kind": "place",
+      "title": "ZOOM Kindermuseum",
+      "description": "Mitmach-Museum für Kinder im MuseumsQuartier mit Ozean-Bereich für die Kleinsten.",
+      "venue": null,
+      "address": "Museumsplatz 1",
+      "town": "Wien",
+      "lat": 48.2020802,
+      "lng": 16.3595804,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kindermuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 3517177085,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Technisches Museum Wien",
+      "description": "Großes Technikmuseum mit Mini-Bereich und Mitmachstationen für Kinder.",
+      "venue": null,
+      "address": "Mariahilfer Straße 212",
+      "town": "Wien",
+      "lat": 48.1908954,
+      "lng": 16.317945,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.technischesmuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 387303730,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Naturhistorisches Museum Wien",
+      "description": "Naturkundemuseum mit Dinosauriersaal, Digitalem Planetarium und Kinderprogramm.",
+      "venue": null,
+      "address": "Burgring 7",
+      "town": "Wien",
+      "lat": 48.2052686,
+      "lng": 16.3597531,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.nhm-wien.ac.at/",
+      "_osm_category": "museum",
+      "_osm_type": "relation",
+      "_osm_id": 11187,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Haus der Musik",
+      "description": "Interaktives Klangmuseum über mehrere Etagen, mit virtueller Orchester-Dirigierstation.",
+      "venue": null,
+      "address": "Seilerstätte 30",
+      "town": "Wien",
+      "lat": 48.203792,
+      "lng": 16.3731547,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.hausdermusik.com/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 10138397168,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Madame Tussauds Wien",
+      "description": "Wachsfigurenkabinett im Prater.",
+      "venue": null,
+      "address": "Riesenradplatz 5",
+      "town": "Wien",
+      "lat": 48.2174368,
+      "lng": 16.3964846,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.madametussauds.com/wien/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 5717928543,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Museum der Illusionen Wien",
+      "description": "Museum mit optischen Täuschungen und interaktiven Illusionen.",
+      "venue": null,
+      "address": "Wallnerstraße 4",
+      "town": "Wien",
+      "lat": 48.2096524,
+      "lng": 16.3669271,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://museumderillusionen.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 5111578474,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "Time Travel Vienna",
+      "description": "Erlebnisausstellung zur Wiener Geschichte mit 5D-Kino und Animatronik.",
+      "venue": null,
+      "address": "Habsburgergasse 10a",
+      "town": "Wien",
+      "lat": 48.2082448,
+      "lng": 16.3682446,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.timetravel-vienna.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 8929017719,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "SchokoMuseum",
+      "description": "Schokolademuseum der Confiserie Heindl mit Einblick in die Produktion.",
+      "venue": null,
+      "address": "Willendorfer Gasse 2-8",
+      "town": "Wien",
+      "lat": 48.1511401,
+      "lng": 16.332612,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.schokomuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 1157106113,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "Verkehrsmuseum Remise",
+      "description": "Museum der Wiener Linien mit historischen Straßenbahnen und U-Bahn-Fahrzeugen.",
+      "venue": null,
+      "address": "Ludwig-Koeßler-Platz",
+      "town": "Wien",
+      "lat": 48.1966004,
+      "lng": 16.4082923,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.remise.wien/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 2312934835,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "VISTA Science Experience Center",
+      "description": "Science Center mit interaktiven Stationen zu Naturwissenschaft und Technik.",
+      "venue": null,
+      "address": null,
+      "town": "Klosterneuburg",
+      "lat": 48.3095938,
+      "lng": 16.258476,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.vistascience.at/",
+      "_osm_category": "science_center",
+      "_osm_type": "way",
+      "_osm_id": 1443192067,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kindermuseum Schloss Schönbrunn",
+      "description": "Kindermuseum im Schloss Schönbrunn rund um das höfische Leben, mit Verkleidebereich.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.1853494,
+      "lng": 16.311561,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kaiserkinder.at/kindermuseum.html",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 3447435748,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Königreich der Eisenbahnen",
+      "description": "Große Modelleisenbahn-Erlebniswelt im Prater mit Miniaturlandschaften Österreichs.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2141361,
+      "lng": 16.4033234,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.koenigreich-der-eisenbahnen.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 460886018,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Tiergarten Schönbrunn",
+      "description": "Ältester Zoo der Welt im Schlosspark Schönbrunn, mit Pandas, Aquarien- und Regenwaldhaus.",
+      "venue": null,
+      "address": "Maxingstraße 13/B",
+      "town": "Wien",
+      "lat": 48.1817282,
+      "lng": 16.30439,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Täglich ab 09:00, Schließzeit je nach Saison 16:30–18:30",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.zoovienna.at/",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 8079437,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Haus des Meeres",
+      "description": "Aqua-Terra-Zoo im Flakturm mit Haibecken, Tropenhaus und Dachterrasse.",
+      "venue": null,
+      "address": "Fritz-Grünbaum-Platz 1",
+      "town": "Wien",
+      "lat": 48.1975784,
+      "lng": 16.352958,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.haus-des-meeres.at/",
+      "_osm_category": "zoo",
+      "_osm_type": "node",
+      "_osm_id": 11509599873,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Schmetterlinghaus",
+      "description": "Tropenhaus mit frei fliegenden Schmetterlingen im Burggarten.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2054592,
+      "lng": 16.3664449,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Täglich, kürzere Öffnungszeiten November–März",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "http://www.schmetterlinghaus.at",
+      "_osm_category": "zoo",
+      "_osm_type": "node",
+      "_osm_id": 394053170,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Zoo Hirschstetten",
+      "description": "Kostenloser kleiner Zoo in den Blumengärten Hirschstetten.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2403419,
+      "lng": 16.4746757,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Di–So geöffnet, im Winter eingeschränkt",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wien.gv.at/umwelt/parks/blumengaerten-hirschstetten/zoologischer-garten/index.html",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 370543261,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kinderbauernhof Landgut Wien Cobenzl",
+      "description": "Kinderbauernhof am Cobenzl mit Streichelstall und Fütterungsprogramm.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2650396,
+      "lng": 16.3205922,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Winterhalbjahr nur Wochenende/Feiertag",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.landgutcobenzl.at/",
+      "_osm_category": "zoo",
+      "_osm_type": "relation",
+      "_osm_id": 13921053,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Streichelzoo Pötzleinsdorfer Schlosspark",
+      "description": "Kostenloses Streichelgehege mit Ziegen und Schafen im Schlosspark.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2413796,
+      "lng": 16.3082968,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/29568865",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 29568865,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Wüstenhaus Schönbrunn",
+      "description": "Wüsten-Erlebnishaus des Tiergartens Schönbrunn mit Kakteen und Wüstentieren.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.1847011,
+      "lng": 16.301755,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Di–So geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.zoovienna.at/anlagen/wuestenhaus/",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 1064897847,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Wurstelprater",
+      "description": "Traditioneller Vergnügungspark mit Riesenrad, Fahrgeschäften und Spielbereichen; Eintritt frei, Fahrten kostenpflichtig.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2156338,
+      "lng": 16.399785,
+      "geo_precision": "venue",
+      "categories": [
+        "park"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Hauptsaison ca. März–Oktober, im Winter eingeschränkt",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://prater.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 97974754,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Böhmischer Prater",
+      "description": "Kleiner nostalgischer Vergnügungspark am Laaer Berg mit historischen Fahrgeschäften.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.166555,
+      "lng": 16.3997915,
+      "geo_precision": "venue",
+      "categories": [
+        "park"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/244253844",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 244253844,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Fossilienwelt Weinviertel",
+      "description": "Fossilien-Erlebnispark mit größtem fossilen Austernriff und Aussichtsturm.",
+      "venue": null,
+      "address": "Austernplatz 1",
+      "town": "Stetten",
+      "lat": 48.3673271,
+      "lng": 16.3601298,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Ca. März–November geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.fossilienwelt.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 114517130,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Strandbad Gänsehäufel",
+      "description": "Großes Strandbad auf einer Insel in der Alten Donau mit Kinderbereich und Wellenbad.",
+      "venue": null,
+      "address": "Moissigasse 21",
+      "town": "Wien",
+      "lat": 48.2294949,
+      "lng": 16.4305276,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wien.gv.at/freizeit/baeder/uebersicht/sommerbaeder/gaensehaeufel.html",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 27057812,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Amalienbad",
+      "description": "Historisches Jugendstil-Hallenbad mit Kinderbecken in Favoriten.",
+      "venue": null,
+      "address": "Reumannplatz 23",
+      "town": "Wien",
+      "lat": 48.1742348,
+      "lng": 16.3791283,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wien.gv.at/freizeit/baeder/uebersicht/hallenbaeder/amalienbad.html",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 30410182,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Stadionbad",
+      "description": "Größtes Sommerbad Wiens im Prater mit Rutschen und Kinderbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2034745,
+      "lng": 16.4222147,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wienersportstaetten.at/home/stadionbad",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 24223329,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kongressbad",
+      "description": "Denkmalgeschütztes Sommerbad in Ottakring mit Rutsche und Kinderbecken.",
+      "venue": null,
+      "address": "Julius-Meinl-Gasse 7a",
+      "town": "Wien",
+      "lat": 48.221719,
+      "lng": 16.3111391,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wien.gv.at/freizeit/baeder/uebersicht/sommerbaeder/kongressbad.html",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 13709239,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Familienbad Augarten",
+      "description": "Kostenloses Kinderfreibad der Stadt Wien im Augarten.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2281954,
+      "lng": 16.3753745,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Nur Badesaison (ca. Mai–Mitte September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wien.gv.at/freizeit/baeder/uebersicht/familienbaeder/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 361414993,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Schafbergbad",
+      "description": "Sommerbad am Schafberg mit Aussicht über Wien und Kinderbereich.",
+      "venue": null,
+      "address": "Josef-Redl-Gasse 2",
+      "town": "Wien",
+      "lat": 48.2377578,
+      "lng": 16.3008441,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wien.gv.at/freizeit/baeder/uebersicht/sommerbaeder/schafbergbad.html",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 24287687,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Kletterhalle Wien",
+      "description": "Große Kletter- und Boulderhalle in der Donaustadt mit Kinderkursen.",
+      "venue": null,
+      "address": "Erzherzog-Karl-Straße 108",
+      "town": "Wien",
+      "lat": 48.2297748,
+      "lng": 16.4505812,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "23:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kletterhallewien.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 305129849,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Edelweiss-Center",
+      "description": "Kletterzentrum des Alpenvereins Edelweiss in der Innenstadt.",
+      "venue": null,
+      "address": "Walfischgasse 12",
+      "town": "Wien",
+      "lat": 48.2028647,
+      "lng": 16.3727855,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "07:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "07:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.edelweiss-center.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 183923604,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Boulderbar Hannovergasse",
+      "description": "Boulderhalle der boulderbar-Kette in der Brigittenau.",
+      "venue": null,
+      "address": "Hannovergasse 21",
+      "town": "Wien",
+      "lat": 48.231481,
+      "lng": 16.367864,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://boulderbar.net/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 187290459,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "Blockfabrik",
+      "description": "Boulderhalle in Margareten mit Kinderbereich.",
+      "venue": null,
+      "address": "Schloßgasse 10-12",
+      "town": "Wien",
+      "lat": 48.1905998,
+      "lng": 16.3603242,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://blockfabrik.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 292355043,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Family Fun",
+      "description": "Indoor-Freizeitpark in der Donaustadt mit Rutschen, Klettergerüsten und Gokarts.",
+      "venue": null,
+      "address": "Breitenleer Straße 77",
+      "town": "Wien",
+      "lat": 48.252562,
+      "lng": 16.4624462,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://familyfun.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "way",
+      "_osm_id": 136587437,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Monki Park",
+      "description": "Indoor-Spielplatz in der Millennium City.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2402254,
+      "lng": 16.3854949,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "13:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "13:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "13:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.monkipark.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 12675635094,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Flip Lab Millennium City",
+      "description": "Trampolin- und Ninja-Parcours-Halle in der Millennium City.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2401411,
+      "lng": 16.3854354,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://fliplab.at/wien-millennium-city/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 13175364101,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Fun4Kids",
+      "description": "Indoor-Spielplatz in Favoriten mit Kleinkindbereich.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.1451586,
+      "lng": 16.3809284,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "http://fun4kids.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "way",
+      "_osm_id": 314174115,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Playworld-Wien",
+      "description": "Großer Indoor-Spielplatz an der Triester Straße in Vösendorf.",
+      "venue": null,
+      "address": "Triester Straße 34",
+      "town": "Vösendorf",
+      "lat": 48.1089012,
+      "lng": 16.3148188,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.playworld-wien.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "way",
+      "_osm_id": 173678852,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "Wasserspielplatz Donauinsel",
+      "description": "Großer kostenloser Wasserspielplatz auf der Donauinsel.",
+      "venue": null,
+      "address": null,
+      "town": "Wien",
+      "lat": 48.2251074,
+      "lng": 16.4135983,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "In Betrieb ca. Mai–September",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/35768556",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 35768556,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kinderfreunde Robinson-Spielplatz",
+      "description": "Betreuter Abenteuerspielplatz der Kinderfreunde in Döbling.",
+      "venue": null,
+      "address": "Greinergasse 7",
+      "town": "Wien",
+      "lat": 48.2565021,
+      "lng": 16.3642791,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "wed": [
+          [
+            "14:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "14:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "14:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://wien.kinderfreunde.at/Bundeslaender/Wien/Unser-Angebot/Kinderfreunde-aktiv-Freizeit-Spiel-Spass/Robinson-Spielplatz",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 723834480,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kindermuseum FRida & freD",
+      "description": "Grazer Kindermuseum im Augarten mit wechselnden Mitmach-Ausstellungen.",
+      "venue": null,
+      "address": "Friedrichgasse 34",
+      "town": "Graz",
+      "lat": 47.0631619,
+      "lng": 15.4362392,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://fridaundfred.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 87311939,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "CoSA – Center of Science Activities",
+      "description": "Science Center des Universalmuseums Joanneum mit interaktiven Stationen, ab ca. 12 Jahren konzipiert.",
+      "venue": null,
+      "address": "Joanneumsviertel 1",
+      "town": "Graz",
+      "lat": 47.0686234,
+      "lng": 15.4381633,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.museum-joanneum.at/cosa-graz",
+      "_osm_category": "science_center",
+      "_osm_type": "node",
+      "_osm_id": 9105410502,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Kunsthaus Graz",
+      "description": "Museum für Gegenwartskunst im markanten \"Friendly Alien\"-Gebäude an der Mur.",
+      "venue": null,
+      "address": "Lendkai 1",
+      "town": "Graz",
+      "lat": 47.0712985,
+      "lng": 15.434015,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.museum-joanneum.at/de/kunsthaus/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 86174340,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "GrazMuseum",
+      "description": "Stadtmuseum von Graz mit Ausstellungen zur Stadtgeschichte.",
+      "venue": null,
+      "address": "Sackstraße 18",
+      "town": "Graz",
+      "lat": 47.0726561,
+      "lng": 15.4365183,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.grazmuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 1029617830,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Landeszeughaus",
+      "description": "Historische Waffenkammer mit rund 32.000 Objekten, Teil des Universalmuseums Joanneum.",
+      "venue": null,
+      "address": "Herrengasse 16",
+      "town": "Graz",
+      "lat": 47.0698025,
+      "lng": 15.4398828,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Winterhalbjahr nur mit Führung",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.museum-joanneum.at/landeszeughaus",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 999516246,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Naturkundemuseum Joanneum",
+      "description": "Naturkundemuseum im Joanneumsviertel mit Tier-, Pflanzen- und Gesteinssammlungen.",
+      "venue": null,
+      "address": null,
+      "town": "Graz",
+      "lat": 47.0684989,
+      "lng": 15.4383162,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.museum-joanneum.at/naturkundemuseum",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 13273215559,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Österreichisches Freilichtmuseum Stübing",
+      "description": "Großes Freilichtmuseum mit historischen Bauernhäusern aus ganz Österreich.",
+      "venue": null,
+      "address": null,
+      "town": "Stübing",
+      "lat": 47.1581632,
+      "lng": 15.315344,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Ca. Ende März–Oktober geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.freilichtmuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 184786686,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "ToyToyToy Spielzeugmuseum Graz",
+      "description": "Kleines Spielzeug- und Puppenmuseum in der Grazer Innenstadt.",
+      "venue": null,
+      "address": "Hartiggasse 4",
+      "town": "Graz",
+      "lat": 47.0736523,
+      "lng": 15.4415105,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:30",
+            "12:30"
+          ]
+        ],
+        "wed": [
+          [
+            "09:30",
+            "12:30"
+          ]
+        ],
+        "fri": [
+          [
+            "09:30",
+            "12:30"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://puppenmuseumgraz.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 3634139112,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Schloss Eggenberg",
+      "description": "Barockes Schloss mit weitläufigem Park und frei laufenden Pfauen, UNESCO-Welterbe.",
+      "venue": null,
+      "address": "Eggenberger Allee 90",
+      "town": "Graz",
+      "lat": 47.0739293,
+      "lng": 15.3913658,
+      "geo_precision": "venue",
+      "categories": [
+        "museum",
+        "park"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Park ganzjährig, Prunkräume nur mit Führung (Saison)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.museum-joanneum.at/schloss-eggenberg-prunkraeume-und-gaerten",
+      "_osm_category": "attraction",
+      "_osm_type": "relation",
+      "_osm_id": 1226855,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Grazer Märchenbahn",
+      "description": "Märchenbahn-Fahrt durch die Stollen des Grazer Schlossbergs.",
+      "venue": null,
+      "address": "Schloßbergplatz",
+      "town": "Graz",
+      "lat": 47.0736687,
+      "lng": 15.4373468,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "17:30"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "17:30"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "17:30"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "17:30"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "17:30"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "17:30"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "17:30"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.grazermaerchenbahn.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "node",
+      "_osm_id": 446861548,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Schlossbergrutsche",
+      "description": "Rund 64 m hohe Rutsche im Inneren des Grazer Schlossbergs.",
+      "venue": null,
+      "address": null,
+      "town": "Graz",
+      "lat": 47.0738812,
+      "lng": 15.4376637,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.schlossbergrutsche.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "node",
+      "_osm_id": 7817299385,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Uhrturm am Schlossberg",
+      "description": "Wahrzeichen von Graz auf dem Schlossberg, mit Aussicht über die Stadt.",
+      "venue": null,
+      "address": "Schloßberg 3",
+      "town": "Graz",
+      "lat": 47.0735369,
+      "lng": 15.4377297,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/190122615",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 190122615,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Lurgrotte Semriach",
+      "description": "Größte wasserdurchströmte Tropfsteinhöhle Österreichs mit Führungen.",
+      "venue": null,
+      "address": "Lurgrottenstraße 1",
+      "town": "Semriach",
+      "lat": 47.2267676,
+      "lng": 15.3808302,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Führungen ca. April–Oktober, im Winter eingeschränkt",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://lurgrotte.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 94947721,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kesselfallklamm",
+      "description": "Klammwanderung mit Steigen und Brücken bei Semriach, beliebte Familientour.",
+      "venue": null,
+      "address": null,
+      "town": "Semriach",
+      "lat": 47.2062065,
+      "lng": 15.3993411,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/165492298",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 165492298,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Hexenexpress Sommerrodelbahn",
+      "description": "Sommerrodelbahn auf dem Schöckl, dem Grazer Hausberg.",
+      "venue": null,
+      "address": null,
+      "town": "Sankt Radegund bei Graz",
+      "lat": 47.1976387,
+      "lng": 15.4681522,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Nur Sommersaison, wetterabhängig",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/526760936",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 526760936,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Murinsel",
+      "description": "Begehbare künstliche Insel in der Mur mit Café und Amphitheater.",
+      "venue": null,
+      "address": "Mariahilferplatz 1",
+      "town": "Graz",
+      "lat": 47.0731576,
+      "lng": 15.4345847,
+      "geo_precision": "venue",
+      "categories": [
+        "park"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "http://www.murinselgraz.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 23786584,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Auster Sport- und Freibad",
+      "description": "Sport- und Familienbad der Holding Graz in Eggenberg mit Innen- und Außenbereich.",
+      "venue": null,
+      "address": "Janzgasse 21",
+      "town": "Graz",
+      "lat": 47.0722535,
+      "lng": 15.3997098,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "08:00",
+            "20:00"
+          ]
+        ],
+        "tue": [
+          [
+            "08:00",
+            "20:00"
+          ]
+        ],
+        "wed": [
+          [
+            "08:00",
+            "20:00"
+          ]
+        ],
+        "thu": [
+          [
+            "08:00",
+            "20:00"
+          ]
+        ],
+        "fri": [
+          [
+            "08:00",
+            "20:00"
+          ]
+        ],
+        "sat": [
+          [
+            "08:00",
+            "20:00"
+          ]
+        ],
+        "sun": [
+          [
+            "08:00",
+            "20:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.holding-graz.at/auster.html",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 40793033,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Bad zur Sonne",
+      "description": "Innerstädtisches Bad mit Becken auf mehreren Ebenen.",
+      "venue": null,
+      "address": "Feuerbachgasse 11-13",
+      "town": "Graz",
+      "lat": 47.0693414,
+      "lng": 15.4321458,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "07:00",
+            "21:30"
+          ]
+        ],
+        "tue": [
+          [
+            "07:00",
+            "21:30"
+          ]
+        ],
+        "wed": [
+          [
+            "07:00",
+            "21:30"
+          ]
+        ],
+        "thu": [
+          [
+            "07:00",
+            "21:30"
+          ]
+        ],
+        "fri": [
+          [
+            "07:00",
+            "21:30"
+          ]
+        ],
+        "sat": [
+          [
+            "07:00",
+            "21:30"
+          ]
+        ],
+        "sun": [
+          [
+            "07:00",
+            "21:30"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.holding-graz.at/badzursonne.html",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 107671821,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Augartenbad",
+      "description": "Sommerbad im Grazer Augarten.",
+      "venue": null,
+      "address": "Schönaugürtel 1",
+      "town": "Graz",
+      "lat": 47.0588576,
+      "lng": 15.4358652,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/69995106",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 69995106,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Margaretenbad",
+      "description": "Traditionsreiches Sommerbad in Geidorf.",
+      "venue": null,
+      "address": "Grillparzerstraße 10",
+      "town": "Graz",
+      "lat": 47.0808432,
+      "lng": 15.4436773,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/4882491",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 4882491,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Straßganger Bad",
+      "description": "Familien-Sommerbad im Grazer Westen mit großer Liegewiese.",
+      "venue": null,
+      "address": null,
+      "town": "Graz",
+      "lat": 47.0252982,
+      "lng": 15.3957232,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/24878180",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 24878180,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Newton Boulderhalle",
+      "description": "Boulderhalle nahe dem Grazer Zentrum.",
+      "venue": null,
+      "address": "Ägydigasse 18",
+      "town": "Graz",
+      "lat": 47.0652274,
+      "lng": 15.4303891,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "07:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "07:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "07:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "07:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "07:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:30",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:30",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.newton-graz.com/",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 7815440496,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "WOOP! Graz",
+      "description": "Indoor-Freizeitpark mit Trampolinen und Action-Bereichen im Grazer Süden.",
+      "venue": null,
+      "address": "Weblinger Gürtel 25",
+      "town": "Graz",
+      "lat": 47.0341773,
+      "lng": 15.4147673,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://graz.woop.fun/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 7157649254,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Abenteuerspielplatz Afritschgarten",
+      "description": "Betreuter Abenteuerspielplatz des Vereins Fratz Graz im Volksgarten-Umfeld.",
+      "venue": null,
+      "address": "Gabelsbergerstraße 22",
+      "town": "Graz",
+      "lat": 47.0770547,
+      "lng": 15.4262632,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Betreute Öffnungszeiten nachmittags, saisonabhängig",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.fratz-graz.at/abenteuerspielplatz",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 109612982,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Motorikpark St. Peter",
+      "description": "Öffentlicher Motorikpark mit Geschicklichkeits- und Bewegungsstationen.",
+      "venue": null,
+      "address": null,
+      "town": "Graz",
+      "lat": 47.0535965,
+      "lng": 15.4643626,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/975792879",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 975792879,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Haus der Natur",
+      "description": "Naturkundemuseum mit Science Center, Aquarium und Reptilienzoo — Salzburgs Familienklassiker.",
+      "venue": null,
+      "address": "Museumsplatz 5",
+      "town": "Salzburg",
+      "lat": 47.8017967,
+      "lng": 13.0393171,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.hausdernatur.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 751019784,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Spielzeug Museum Salzburg",
+      "description": "Spielzeugmuseum des Salzburg Museums mit Spielbereichen und Murmelbahnen.",
+      "venue": null,
+      "address": null,
+      "town": "Salzburg",
+      "lat": 47.7996438,
+      "lng": 13.0399208,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.spielzeugmuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 429286016,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "Salzburg Museum",
+      "description": "Landesmuseum in der Neuen Residenz am Mozartplatz.",
+      "venue": null,
+      "address": null,
+      "town": "Salzburg",
+      "lat": 47.7984495,
+      "lng": 13.0474919,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.salzburgmuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 64204701,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Salzburger Freilichtmuseum",
+      "description": "Freilichtmuseum in Großgmain mit historischen Höfen, Museumsbahn und großem Spielplatz.",
+      "venue": null,
+      "address": null,
+      "town": "Großgmain",
+      "lat": 47.7499091,
+      "lng": 12.9526714,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Ca. Ende März–Anfang November, Montag teils geschlossen",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.freilichtmuseum.com/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 113285364,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Mozarts Geburtshaus",
+      "description": "Museum im Geburtshaus von Wolfgang Amadeus Mozart in der Getreidegasse.",
+      "venue": null,
+      "address": "Getreidegasse 9",
+      "town": "Salzburg",
+      "lat": 47.7999325,
+      "lng": 13.0435551,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://mozarteum.at/museen/mozarts-geburtshaus/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 64132876,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Welt der Marionetten",
+      "description": "Ausstellung historischer Marionetten in den Kavernen unter der Festung.",
+      "venue": null,
+      "address": null,
+      "town": "Salzburg",
+      "lat": 47.7951597,
+      "lng": 13.047253,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.salzburghighlights.at/de/sightseeing-salzburg/welt-der-marionetten/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 11116588888,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "fahr(T)raum Mattsee",
+      "description": "Ferdinand-Porsche-Erlebniswelt mit Oldtimern, Fahrsimulatoren und Modellbahn.",
+      "venue": null,
+      "address": "Passauer Straße 30",
+      "town": "Mattsee",
+      "lat": 47.9736666,
+      "lng": 13.1022086,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.fahrtraum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 2631100542,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "title": "Festung Hohensalzburg",
+      "description": "Mittelalterliche Festung über der Stadt mit Museen, erreichbar per Festungsbahn.",
+      "venue": null,
+      "address": "Mönchsberg 34",
+      "town": "Salzburg",
+      "lat": 47.7952134,
+      "lng": 13.0478741,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Täglich, kürzere Öffnungszeiten Oktober–April",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.salzburg-burgen.at/de/hohensalzburg-castle/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 58379993,
+      "_wheelchair": false
+    },
+    {
+      "kind": "place",
+      "title": "Hangar-7",
+      "description": "Red-Bull-Ausstellung mit Flugzeugen, Rennwagen und Formel-1-Boliden, Eintritt frei.",
+      "venue": null,
+      "address": "Wilhelm-Spazier-Straße 7A",
+      "town": "Salzburg",
+      "lat": 47.7936861,
+      "lng": 13.007416,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.hangar-7.com/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 45084619,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "MOONCITY Salzburg",
+      "description": "Kostenlose Erlebniswelt zu E-Mobilität und Energie.",
+      "venue": null,
+      "address": "Sterneckstraße 28-30",
+      "town": "Salzburg",
+      "lat": 47.8087394,
+      "lng": 13.0560546,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.mooncity-salzburg.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 7922005685,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Zoo Salzburg Hellbrunn",
+      "description": "Zoo am Fuß des Hellbrunner Bergs mit rund 1.200 Tieren.",
+      "venue": null,
+      "address": "Hellbrunner Straße 60",
+      "town": "Anif",
+      "lat": 47.756127,
+      "lng": 13.0680586,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://salzburg-zoo.at/",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 95800897,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Schloss Hellbrunn & Wasserspiele",
+      "description": "Lustschloss mit trickreichen Wasserspielen und großem Schlosspark samt Spielplatz.",
+      "venue": null,
+      "address": null,
+      "town": "Salzburg",
+      "lat": 47.7621462,
+      "lng": 13.0602803,
+      "geo_precision": "venue",
+      "categories": [
+        "park"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Wasserspiele ca. Ende März–Anfang November",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.hellbrunn.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "node",
+      "_osm_id": 4143357124,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "AYA Hallenbad Alpenstraße",
+      "description": "Städtisches Hallenbad mit Kinderbereich an der Alpenstraße.",
+      "venue": null,
+      "address": "Alpenstraße 9",
+      "town": "Salzburg",
+      "lat": 47.7915032,
+      "lng": 13.0636896,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "07:00",
+            "21:00"
+          ]
+        ],
+        "tue": [
+          [
+            "07:00",
+            "21:00"
+          ]
+        ],
+        "wed": [
+          [
+            "07:00",
+            "21:00"
+          ]
+        ],
+        "thu": [
+          [
+            "07:00",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "07:00",
+            "21:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://aya.salzburg.at/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 228409548,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Volksgarten",
+      "description": "Städtisches Sommerbad im Volksgarten.",
+      "venue": null,
+      "address": "Hermann-Bahr-Promenade 2",
+      "town": "Salzburg",
+      "lat": 47.7976627,
+      "lng": 13.0607652,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.stadt-salzburg.at/orte/ma-7-betriebe/ma-701-staedtische-betriebe/freibad-volksgarten",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 299424068,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Leopoldskron",
+      "description": "Großes Sommerbad beim Schloss Leopoldskron mit Kinderbecken.",
+      "venue": null,
+      "address": "Leopoldskronstraße 50",
+      "town": "Salzburg",
+      "lat": 47.7890889,
+      "lng": 13.0353037,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/156035629",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 156035629,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Waldbad Anif",
+      "description": "Naturnahes Waldbad mit Quellwasserbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Anif",
+      "lat": 47.7343459,
+      "lng": 13.0802788,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/138991389",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 138991389,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kletterhalle Salzburg",
+      "description": "Kletter- und Boulderhalle in Itzling mit Kinderkursen.",
+      "venue": null,
+      "address": "Wasserfeldstraße 23",
+      "town": "Salzburg",
+      "lat": 47.825783,
+      "lng": 13.0331913,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kletterhallesalzburg.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 5960350439,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "boulderbar Salzburg",
+      "description": "Boulderhalle der boulderbar-Kette.",
+      "venue": null,
+      "address": "Richard-Kürth-Straße 9",
+      "town": "Salzburg",
+      "lat": 47.8109426,
+      "lng": 13.0609246,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://boulderbar.net/salzburg",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 4511192976,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kletterhalle Südwand",
+      "description": "Kletter- und Boulderhalle in Anif.",
+      "venue": null,
+      "address": "Eisgrabenstraße 32",
+      "town": "Anif",
+      "lat": 47.7465847,
+      "lng": 13.05863,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "wed": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.suedwand-anif.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 253597455,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "JUMP DOME Salzburg",
+      "description": "Trampolinhalle mit Sprung- und Actionbereichen nahe dem Flughafen.",
+      "venue": null,
+      "address": "Wilhelm-Spazier-Straße 1A",
+      "town": "Salzburg",
+      "lat": 47.7967036,
+      "lng": 13.0066023,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://jumpdome.at/salzburg/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 12655880490,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Hoppolino Kinderspielpark",
+      "description": "Indoor-Spielpark in Anif mit Rutschen und Klettergerüsten.",
+      "venue": null,
+      "address": "Eisgrabenstraße 32",
+      "town": "Anif",
+      "lat": 47.7465542,
+      "lng": 13.0588753,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.hoppolino.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "way",
+      "_osm_id": 253596988,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Audioversum ScienceCenter",
+      "description": "Interaktives Science Center rund ums Hören und Wahrnehmen.",
+      "venue": null,
+      "address": "Wilhelm-Greil-Straße 23",
+      "town": "Innsbruck",
+      "lat": 47.2634691,
+      "lng": 11.3967841,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.audioversum.at/",
+      "_osm_category": "science_center",
+      "_osm_type": "node",
+      "_osm_id": 3221332425,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Tiroler Landesmuseum Ferdinandeum",
+      "description": "Landesmuseum mit Kunst- und Natursammlungen Tirols.",
+      "venue": null,
+      "address": "Museumstraße 15",
+      "town": "Innsbruck",
+      "lat": 47.2673231,
+      "lng": 11.3977328,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.tiroler-landesmuseen.at/haeuser/ferdinandeum/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 103339636,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Schloss Ambras Innsbruck",
+      "description": "Renaissanceschloss mit Rüstkammern, Kunstkammer und weitläufigem Schlosspark.",
+      "venue": null,
+      "address": null,
+      "town": "Innsbruck",
+      "lat": 47.2559804,
+      "lng": 11.4344216,
+      "geo_precision": "venue",
+      "categories": [
+        "museum",
+        "park"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.schlossambras-innsbruck.at/",
+      "_osm_category": "museum",
+      "_osm_type": "relation",
+      "_osm_id": 18180485,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Tirol Panorama mit Kaiserjägermuseum",
+      "description": "Museum am Bergisel mit 360-Grad-Riesenrundgemälde.",
+      "venue": null,
+      "address": "Bergisel 2",
+      "town": "Innsbruck",
+      "lat": 47.2504763,
+      "lng": 11.4015764,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Mittwoch–Montag geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.tiroler-landesmuseen.at/haeuser/tirol-panorama-mit-kjm/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 45656980,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Museum Goldenes Dachl",
+      "description": "Museum am Wahrzeichen von Innsbruck mit Blick auf die Altstadt.",
+      "venue": null,
+      "address": "Herzog-Friedrich-Straße 15",
+      "town": "Innsbruck",
+      "lat": 47.2686574,
+      "lng": 11.3932692,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Oktober–April Montag geschlossen",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.innsbruck.info/sehenswuerdigkeiten/sightseeing/historische-bauten/detail/infrastruktur/goldenes-dachl-innsbruck.html",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 103128011,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Glockengießerei Grassmayr",
+      "description": "Glockenmuseum mit Klangraum in einer aktiven Glockengießerei.",
+      "venue": null,
+      "address": "Leopoldstraße 53",
+      "town": "Innsbruck",
+      "lat": 47.256286,
+      "lng": 11.398137,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.grassmayr.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 599186233,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Münze Hall",
+      "description": "Münzmuseum in der Burg Hasegg mit Münzprägen zum Mitmachen.",
+      "venue": null,
+      "address": "Burg Hasegg 6",
+      "town": "Hall in Tirol",
+      "lat": 47.2792257,
+      "lng": 11.5069215,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Winterhalbjahr eingeschränkt geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.muenze-hall.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 118720849,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Museum im Zeughaus",
+      "description": "Kulturgeschichtliches Museum im ehemaligen Zeughaus Kaiser Maximilians I.",
+      "venue": null,
+      "address": "Zeughausgasse 1",
+      "town": "Innsbruck",
+      "lat": 47.2707929,
+      "lng": 11.4074698,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.tiroler-landesmuseen.at/haeuser/zeughaus-in-innsbruck/",
+      "_osm_category": "museum",
+      "_osm_type": "relation",
+      "_osm_id": 396334,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Swarovski Kristallwelten",
+      "description": "Erlebniswelt der Wunderkammern mit großem Garten, Spielturm und Riesenspielplatz.",
+      "venue": null,
+      "address": null,
+      "town": "Wattens",
+      "lat": 47.2937304,
+      "lng": 11.6017842,
+      "geo_precision": "venue",
+      "categories": [
+        "museum",
+        "park"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://kristallwelten.swarovski.com/",
+      "_osm_category": "attraction",
+      "_osm_type": "relation",
+      "_osm_id": 4845290,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Alpenzoo Innsbruck",
+      "description": "Höchstgelegener Themenzoo Europas mit Alpentieren, oberhalb der Stadt.",
+      "venue": null,
+      "address": "Weiherburggasse 37",
+      "town": "Innsbruck",
+      "lat": 47.2817425,
+      "lng": 11.3976548,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Täglich, im Winter bis 17:00",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.alpenzoo.at/",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 145107933,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Greifvogelpark Telfes",
+      "description": "Greifvogelpark mit Flugvorführungen im Stubaital.",
+      "venue": null,
+      "address": null,
+      "town": "Telfes im Stubai",
+      "lat": 47.1705101,
+      "lng": 11.3656756,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Nur ca. Mitte Mai–Mitte Oktober",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/226303247",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 226303247,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Freibad Tivoli",
+      "description": "Großes städtisches Freibad mit Kinderbereich.",
+      "venue": null,
+      "address": "Purtschellerstraße 1",
+      "town": "Innsbruck",
+      "lat": 47.2601654,
+      "lng": 11.4084538,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.ikb.at/privat/baeder/freibad-tivoli/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 24960629,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Hallenbad Amraser Straße",
+      "description": "Städtisches Hallenbad der IKB.",
+      "venue": null,
+      "address": "Amraser Straße 3",
+      "town": "Innsbruck",
+      "lat": 47.2650042,
+      "lng": 11.4053995,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "thu": [
+          [
+            "08:00",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "20:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.ikb.at/privat/baeder/hallenbad-sauna-amraser-strasse/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 32063658,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "StuBay Freizeitcenter",
+      "description": "Erlebnisbad im Stubaital mit Rutschen, Kinderbereich und Außenbecken.",
+      "venue": null,
+      "address": null,
+      "town": "Telfes im Stubai",
+      "lat": 47.1601812,
+      "lng": 11.3547039,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.stubay.at/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 125107319,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Schwimmbad Hall",
+      "description": "Freischwimmbad der Stadt Hall in Tirol.",
+      "venue": null,
+      "address": null,
+      "town": "Hall in Tirol",
+      "lat": 47.2849564,
+      "lng": 11.4952145,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "http://www.hall.ag/de/Freizeit/Schwimmbad-Hall",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 146219976,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kletterzentrum Innsbruck",
+      "description": "Eines der größten Kletterzentren Europas mit eigenem Kinderbereich.",
+      "venue": null,
+      "address": null,
+      "town": "Innsbruck",
+      "lat": 47.2768106,
+      "lng": 11.4134391,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kletterzentrum-innsbruck.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 7295084920,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "RumKraxlerei Kinderkletterhalle",
+      "description": "Kletterhalle speziell für Kinder in Rum.",
+      "venue": null,
+      "address": null,
+      "town": "Rum",
+      "lat": 47.2818811,
+      "lng": 11.4559159,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.rum.gv.at/Kletterhalle_Rum",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 8397805335,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Joy – Das Kinderparadies",
+      "description": "Indoor-Spielplatz in Völs mit Rutschen und Kletterbereichen.",
+      "venue": null,
+      "address": "Gießenweg 17",
+      "town": "Völs",
+      "lat": 47.2558677,
+      "lng": 11.3273408,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.joy-daskinderparadies.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "way",
+      "_osm_id": 109093263,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Serlespark",
+      "description": "Bergerlebniswelt der Serlesbahnen mit Wasserwelt und Spielstationen.",
+      "venue": null,
+      "address": null,
+      "town": "Mieders",
+      "lat": 47.1496717,
+      "lng": 11.3934373,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Nur Sommersaison (Bergbahnbetrieb)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.stubai.at/skigebiete/serlesbahnen/aktivitaeten/wasserwelt-serles/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 742668177,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Minimundus",
+      "description": "Miniaturenpark mit über 150 Modellen berühmter Bauwerke aus aller Welt.",
+      "venue": null,
+      "address": "Villacher Straße 241",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6198039,
+      "lng": 14.2643258,
+      "geo_precision": "venue",
+      "categories": [
+        "park"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Hauptsaison ca. April–Oktober, im Winter eingeschränkt",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.minimundus.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 1195098065,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Reptilienzoo Happ",
+      "description": "Reptilienzoo am Wörthersee mit Schlangen, Echsen und Schildkröten.",
+      "venue": null,
+      "address": "Villacher Straße 237",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6198392,
+      "lng": 14.2655658,
+      "geo_precision": "venue",
+      "categories": [
+        "zoo"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "November geschlossen",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.reptilienzoo.at/",
+      "_osm_category": "zoo",
+      "_osm_type": "way",
+      "_osm_id": 1379447273,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Landesmuseum Kärnten",
+      "description": "Kärntner Landesmuseum mit Natur- und Kulturgeschichte.",
+      "venue": null,
+      "address": null,
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6210457,
+      "lng": 14.3124609,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://landesmuseum.ktn.gv.at/",
+      "_osm_category": "museum",
+      "_osm_type": "relation",
+      "_osm_id": 1738712,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "wissens.wert.welt",
+      "description": "Mitmach-Ausstellung und Werkstattwelt für Kinder (blue cube & KidsMobil).",
+      "venue": null,
+      "address": "Primoschgasse 3",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6114161,
+      "lng": 14.3290503,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "08:30",
+            "16:00"
+          ]
+        ],
+        "tue": [
+          [
+            "08:30",
+            "16:00"
+          ]
+        ],
+        "wed": [
+          [
+            "08:30",
+            "16:00"
+          ]
+        ],
+        "thu": [
+          [
+            "08:30",
+            "16:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://wissenswertwelt.at/",
+      "_osm_category": "science_center",
+      "_osm_type": "way",
+      "_osm_id": 128670688,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Museum Moderner Kunst Kärnten",
+      "description": "Landesgalerie für moderne und zeitgenössische Kunst.",
+      "venue": null,
+      "address": "Burggasse 8",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6241696,
+      "lng": 14.3101324,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.mmkk.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 472646752,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Kärntner Freilichtmuseum Maria Saal",
+      "description": "Freilichtmuseum mit historischen Kärntner Bauernhäusern.",
+      "venue": null,
+      "address": "Museumweg 10",
+      "town": "Maria Saal",
+      "lat": 46.6852949,
+      "lng": 14.3470211,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Ca. Mai–Mitte Oktober geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://landesmuseum.ktn.gv.at/standorte/kfm",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 847843118,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Archäologischer Park Magdalensberg",
+      "description": "Ausgrabungen einer römischen Stadt mit Rundweg am Magdalensberg.",
+      "venue": null,
+      "address": null,
+      "town": "Magdalensberg",
+      "lat": 46.7246968,
+      "lng": 14.4294112,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Ca. Mai–Oktober geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://landesmuseum.ktn.gv.at/standorte/apm",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 2912658822,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "EXPI – hands on Science Center",
+      "description": "Kleines Mitmach-Science-Center mit Experimentierstationen im Rosental.",
+      "venue": null,
+      "address": null,
+      "town": "Sankt Margareten im Rosental",
+      "lat": 46.5448016,
+      "lng": 14.3900697,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.expi.at/",
+      "_osm_category": "science_center",
+      "_osm_type": "way",
+      "_osm_id": 153783787,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Technikmuseum Historama Ferlach",
+      "description": "Technikmuseum mit Fahrzeugen und Lokomotiven in Ferlach.",
+      "venue": null,
+      "address": "Auengasse 7",
+      "town": "Ferlach",
+      "lat": 46.5177784,
+      "lng": 14.2945901,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "11:00",
+            "17:15"
+          ]
+        ],
+        "wed": [
+          [
+            "11:00",
+            "17:15"
+          ]
+        ],
+        "thu": [
+          [
+            "11:00",
+            "17:15"
+          ]
+        ],
+        "fri": [
+          [
+            "11:00",
+            "17:15"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/1104654248",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 1104654248,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Eboardmuseum",
+      "description": "Größte Keyboard-Sammlung Europas, mit Instrumenten zum Ausprobieren.",
+      "venue": null,
+      "address": "Florian-Gröger-Straße 20",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6164923,
+      "lng": 14.304934,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.eboardmuseum.com/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 1426865723,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Aussichtsturm Pyramidenkogel",
+      "description": "Hölzerner Aussichtsturm über dem Wörthersee mit überdachter Riesenrutsche.",
+      "venue": null,
+      "address": "Linden 62",
+      "town": "Keutschach am See",
+      "lat": 46.6089906,
+      "lng": 14.1449592,
+      "geo_precision": "venue",
+      "categories": [
+        "trail"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Täglich, Öffnungszeiten saisonabhängig",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://pyramidenkogel.info/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 244329356,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Burg Hochosterwitz",
+      "description": "Mittelalterliche Burg auf einem Felskegel mit 14 Toren und Museum.",
+      "venue": null,
+      "address": null,
+      "town": "Sankt Georgen am Längsee",
+      "lat": 46.7559242,
+      "lng": 14.4523407,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Ca. April–Oktober geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.burg-hochosterwitz.com/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 122050909,
+      "_wheelchair": "limited"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "age_min": null,
+      "age_max": null,
+      "description": "Großes historisches Strandbad am Ostufer des Wörthersees mit Kinderbereich.",
+      "address": "Metnitzstrand 2",
+      "is_free": false,
+      "opening_hours": null,
+      "seasonal": "Strandbad – nur Badesaison (ca. Mai–September)",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 43675049,
+      "_wheelchair": null,
+      "title": "Strandbad Klagenfurt",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.618634,
+      "lng": 14.2551165,
+      "categories": [
+        "pool"
+      ],
+      "indoor": false,
+      "source_url": "https://stw.at/privat/freizeit/baeder/strandbad/"
+    },
+    {
+      "kind": "place",
+      "title": "Parkbad Krumpendorf",
+      "description": "Strandbad am Nordufer des Wörthersees in Krumpendorf.",
+      "venue": null,
+      "address": null,
+      "town": "Krumpendorf am Wörthersee",
+      "lat": 46.621244,
+      "lng": 14.2162854,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Strandbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/27049896",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 27049896,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Strandbad Velden",
+      "description": "Gemeindestrandbad an der Seepromenade von Velden.",
+      "venue": null,
+      "address": "Seepromenade 7",
+      "town": "Velden am Wörther See",
+      "lat": 46.6147645,
+      "lng": 14.0455479,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Strandbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://velden.gv.at/freizeit/freizeiteinrichtungen/strandbad/",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 178223736,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Boulderhalle Klagenfurt",
+      "description": "Boulderhalle der Naturfreunde Kärnten.",
+      "venue": null,
+      "address": null,
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6184818,
+      "lng": 14.2710612,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://kaernten.naturfreunde.at/service/kletterhallen-waende/boulderhalle-klagenfurt/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 654784380,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Boulderama",
+      "description": "Boulderhalle im Süden von Klagenfurt.",
+      "venue": null,
+      "address": "Raiffeisenstraße 12",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6050116,
+      "lng": 14.3046767,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://boulderama.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 5123168321,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "JUMP DOME Klagenfurt",
+      "description": "Trampolinhalle mit Sprung- und Actionbereichen.",
+      "venue": null,
+      "address": "Magazingasse 14",
+      "town": "Klagenfurt am Wörthersee",
+      "lat": 46.6300669,
+      "lng": 14.3035833,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://jumpdome.at/klagenfurt/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "node",
+      "_osm_id": 9823425552,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "KinderKunstLabor",
+      "description": "Kunsthaus für Kinder mit Mitmach-Ausstellungen zeitgenössischer Kunst, 2024 eröffnet.",
+      "venue": null,
+      "address": "Schulring 24",
+      "town": "St. Pölten",
+      "lat": 48.2012749,
+      "lng": 15.6279299,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Montag geschlossen",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kinderkunstlabor.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 1246255947,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Museum Niederösterreich",
+      "description": "Landesmuseum im Kulturbezirk mit Haus für Natur (lebende Tiere) und Haus der Geschichte.",
+      "venue": null,
+      "address": "Kulturbezirk 5",
+      "town": "St. Pölten",
+      "lat": 48.2000511,
+      "lng": 15.6311976,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Montag geschlossen",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.museumnoe.at/",
+      "_osm_category": "museum",
+      "_osm_type": "way",
+      "_osm_id": 29306672,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Stadtmuseum St. Pölten",
+      "description": "Museum zur Stadtgeschichte von St. Pölten.",
+      "venue": null,
+      "address": "Prandtauerstraße 2",
+      "town": "St. Pölten",
+      "lat": 48.2041826,
+      "lng": 15.6224886,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "wed": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.stadtmuseum-stpoelten.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 649358469,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Stift Göttweig",
+      "description": "Barockes Benediktinerstift auf dem Göttweiger Berg mit Panoramablick über die Wachau.",
+      "venue": null,
+      "address": null,
+      "town": "Furth bei Göttweig",
+      "lat": 48.366452,
+      "lng": 15.6125523,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Besucherbereich saisonal geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.stiftgoettweig.at/",
+      "_osm_category": "attraction",
+      "_osm_type": "way",
+      "_osm_id": 558772862,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Urzeitmuseum Nußdorf ob der Traisen",
+      "description": "Museum zur Urgeschichte des Traisentals.",
+      "venue": null,
+      "address": "Marktplatz 1",
+      "town": "Nußdorf ob der Traisen",
+      "lat": 48.3524886,
+      "lng": 15.6957286,
+      "geo_precision": "venue",
+      "categories": [
+        "museum"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Saisonal geöffnet",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.urzeitmuseum.at/",
+      "_osm_category": "museum",
+      "_osm_type": "node",
+      "_osm_id": 5995928225,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "AquaCity St. Pölten",
+      "description": "Städtisches Hallenbad mit Rutsche und Kinderbereich.",
+      "venue": null,
+      "address": "Schießstattring 15",
+      "town": "St. Pölten",
+      "lat": 48.205146,
+      "lng": 15.619865,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "21:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.st-poelten.at/freizeit/aktivitaeten/baeder-seen/114-aquacity-st-poelten",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 154083982,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Sommerbad Citysplash",
+      "description": "Städtisches Sommerbad neben der AquaCity.",
+      "venue": null,
+      "address": null,
+      "town": "St. Pölten",
+      "lat": 48.1954126,
+      "lng": 15.6270507,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Sommerbad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/138965470",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 138965470,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Aquapark Herzogenburg",
+      "description": "Freibad mit Rutschen und Kinderbereich in Herzogenburg.",
+      "venue": null,
+      "address": "Dammstraße 1",
+      "town": "Herzogenburg",
+      "lat": 48.2801866,
+      "lng": 15.7064557,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.osm.org/way/138966987",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 138966987,
+      "_wheelchair": true
+    },
+    {
+      "kind": "place",
+      "title": "Parkbad Wilhelmsburg",
+      "description": "Gemeindefreibad im Stadtpark von Wilhelmsburg.",
+      "venue": null,
+      "address": "Stadtpark 4",
+      "town": "Wilhelmsburg",
+      "lat": 48.0991826,
+      "lng": 15.6030303,
+      "geo_precision": "venue",
+      "categories": [
+        "pool"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.wilhelmsburg.at/Parkbad_Wilhelmsburg",
+      "_osm_category": "pool",
+      "_osm_type": "way",
+      "_osm_id": 127325031,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Boulderbar St. Pölten",
+      "description": "Boulderhalle der boulderbar-Kette.",
+      "venue": null,
+      "address": "Herzogenburger Straße 69",
+      "town": "St. Pölten",
+      "lat": 48.2164717,
+      "lng": 15.6364314,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://boulderbar.net/standorte/st-poelten/",
+      "_osm_category": "climbing",
+      "_osm_type": "node",
+      "_osm_id": 12126138899,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kletterzentrum Weinburg",
+      "description": "Kletter- und Boulderzentrum im Pielachtal.",
+      "venue": null,
+      "address": "Brüder-Teich-Straße 28a",
+      "town": "Weinburg",
+      "lat": 48.1141933,
+      "lng": 15.5417485,
+      "geo_precision": "venue",
+      "categories": [
+        "climbing"
+      ],
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kletterzentrum-weinburg.at/",
+      "_osm_category": "climbing",
+      "_osm_type": "way",
+      "_osm_id": 165413791,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Jumpzone X",
+      "description": "Trampolin- und Actionhalle in St. Pölten.",
+      "venue": null,
+      "address": "Kremser Landstraße 66",
+      "town": "St. Pölten",
+      "lat": 48.2171643,
+      "lng": 15.6271338,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.jumpzonex.at/",
+      "_osm_category": "indoor_play",
+      "_osm_type": "way",
+      "_osm_id": 183274510,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Kidsworld St. Pölten",
+      "description": "Indoor-Spielplatz mit Rutschen und Klettergerüsten.",
+      "venue": null,
+      "address": "Schulze Delitzsch-Straße 7",
+      "town": "St. Pölten",
+      "lat": 48.1790952,
+      "lng": 15.6134265,
+      "geo_precision": "venue",
+      "categories": [
+        "indoor_play"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "13:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "13:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "13:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "13:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.kidsworldstp.at/",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 51878267,
+      "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "title": "Abenteuerland Pielachtal",
+      "description": "Großer Abenteuerspielplatz mit Themenstationen in Hofstetten-Grünau.",
+      "venue": null,
+      "address": null,
+      "town": "Hofstetten-Grünau",
+      "lat": 48.0841999,
+      "lng": 15.4978533,
+      "geo_precision": "venue",
+      "categories": [
+        "playground"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Saisonal geöffnet (Sommerhalbjahr)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "source_url": "https://www.abenteuerland-pielachtal.at/",
+      "_osm_category": "playground",
+      "_osm_type": "way",
+      "_osm_id": 226678728,
+      "_wheelchair": null
+    }
+  ]
+}

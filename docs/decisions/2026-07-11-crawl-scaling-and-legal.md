@@ -50,6 +50,11 @@ structured-or-unchanged → ~50 real LLM calls/day ≈ **single-digit €/month 
   (geocode, dedup, re-describe, cross-source merge) = a new work, not a copy of anyone's database.
 - **The endgame removes the risk:** "claim your event" + RiS/GEM2GO write-integration = organizers
   hand us data with consent, no crawling. Crawl is the bootstrap; consented supply is the moat.
+- **A deterministic parser adds NO new legal surface** (2026-07-11): it reads the *same* public HTML we
+  already fetch for the LLM — it changes how we parse, not what we access. GEM2GO's own ToS don't bind
+  us (no account/API); the operative signal stays each municipal site's robots.txt, which we honor. The
+  one thing "extract as fast as possible" must NOT break is the **per-host rate limit** — GEM2GO runs on
+  small municipal servers; speed comes from concurrency across *different* hosts, never hammering one.
 - **Honest caveats:** managed risk, not zero risk — a source can still object on ToS grounds; the
   response is linkback-value + flipping them to the claim path, or dropping them. GDPR: keep organizer
   personal data to public-event facts (name of the Verein, not private phone numbers of volunteers).
