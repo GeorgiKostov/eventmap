@@ -44,6 +44,13 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
+- [ ] **Unified add-flow** (George approved 2026-07-12, brief: docs/design/add-flow.md, Opus
+      dispatched): one "+ Add" FAB → intake (photo / drag-drop / paste image / paste URL / manual);
+      new /api/extract-url (JSON-LD → OG → lib/extract.js cascade, SSRF-guarded, no paid scrapers,
+      login-wall → "screenshot it" fallback); event|place switch on confirm (AI sets kind); location
+      picking on the MAIN map (two-way address↔map, reverse geocode on settle, PinDropPicker + locMode
+      toggle removed from form); menu triplet → one Add item. Also answers the FB-channel item below
+      for the organizer-submission path.
 - [ ] **Bulgaria Facebook-events channel** (George 2026-07-12): BG events live heavily on FB, which
       the municipal crawler misses — see memory `bg-facebook-events`. Evaluate Graph API / organizer-
       submission / manual Page seeding (NOT scraping); keep facts+linkback. Do before judging BG coverage.
