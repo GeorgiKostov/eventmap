@@ -26,9 +26,16 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   is the enforced standard for ALL crawls (never-fabricate, facts+linkback, Cyrillic-verbatim,
   seed-compatible `{source_registry,events}` shape, source-extracted lat/lng honored by `seed.mjs`,
   spot-check validation). NOT the storykept `/grok` `/hermes` (those are code-review, repo-hardcoded).
-  First runs produced **20 unique validated real events** (Sofia, Varna, Ruse, Blagoevgrad, Stara
-  Zagora, Chepelare) in `data/mined/events-bg-*.json`, spot-checked on live pages — **not yet seeded**
-  to Supabase (remote write, awaiting George's go). Plovdiv/Burgas/Smolyan yielded nothing in-window.
+  Yield: a single shallow pass got only 20; **11 parallel deep per-city crawls (paginated, all
+  sources) → 322 unique real events across 13 municipalities** in `data/mined/events-bg-*.json`,
+  schema-clean, spot-checked live. Recrawl loop mirrors Austria: `scripts/build-bg-sources.mjs`
+  collects listing pages (≥2 events, dated-afish permalinks collapsed, JSON-LD/iCal/RSS
+  fingerprinted) → `data/catalog/probed-bg.json` (36 sources) → `register-probed.mjs` (now
+  country-aware, accepts BG medium) → 26 new sources over 11 oblasts → `getSourcesForCrawl` picks
+  them up so `npm run crawl` refreshes BG. **Neither seeded nor registered to Supabase yet** — both
+  are remote writes awaiting George's go. Known nits: 24 Sofia events use town "София" not the
+  catalog "Столична"; ~15 already-past (seed auto-expires); ~39 in villages/resorts off-catalog
+  (geocode by address). Launcher scripts in session scratchpad (not repo).
 - **2026-07-12 localization:** English/German/Bulgarian now cover the map UI, legal pages,
   standalone event pages, metadata, and user-facing API errors. First-visit language uses Vercel's
   approximate IP-country header (BG→BG, AT/DE→DE, all other/unknown→EN); the three-option picker
