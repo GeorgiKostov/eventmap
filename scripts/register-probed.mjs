@@ -22,6 +22,9 @@ function parseArgs(argv) {
 function passesPolicy(r) {
   if (r.confidence === 'high') return true;
   if (r.confidence === 'medium' && (r.cms === 'gem2go' || r.cms === 'ris')) return true;
+  // BG has no gem2go/ris; its sources are confirmed-working listing pages from
+  // the crawl, so accept medium there too (high is already covered above).
+  if (r.country === 'BG' && r.confidence === 'medium') return true;
   return false;
 }
 
@@ -91,6 +94,7 @@ async function main() {
       works: true,
       cms: r.cms || null,
       region: r.region || null,
+      country: r.country || 'AT',
       notes: `registered via register-probed.mjs (confidence=${r.confidence})`,
     });
     written++;
