@@ -599,6 +599,8 @@ export default function Home() {
   const mapPickProgrammatic = useRef(false); // guard: our own flyTo must not trigger a reverse-geocode overwrite
   const mapPickSnapshot = useRef(null); // draft location before entering map-pick, for cancel
   const reverseDebounce = useRef(null);
+  const reverseReqId = useRef(0); // latest-wins guard for reverse-geocode responses
+  const urlBusy = useRef(false); // in-flight guard for the link-extraction pipeline
 
   // address autocomplete (task 4b): debounced GET /api/geocode?suggest=1&q=… while
   // typing in the address field of either form; a parallel agent owns the endpoint.
@@ -667,10 +669,16 @@ export default function Home() {
         ? { label: area, lat: nl.areaLat, lng: nl.areaLng }
         : null;
       if (!location) {
-        const country = lang === 'bg' ? 'BG' : 'AT';
-        const geoRes = await fetch(`/api/geocode?q=${encodeURIComponent(area)}&country=${country}`);
-        const geoData = await geoRes.json();
-        location = geoRes.ok ? geoData.result : null;
+        // Try the UI-language country first, then the other — the map covers
+        // both AT and BG, so a Bulgarian-speaker in Linz (or vice versa) must
+        // not be told their real town is invalid just because of the language.
+        const tryGeo = async (country) => {
+          const geoRes = await fetch(`/api/geocode?q=${encodeURIComponent(area)}&country=${country}`);
+          const geoData = await geoRes.json();
+          return geoRes.ok ? geoData.result : null;
+        };
+        const primary = lang === 'bg' ? 'BG' : 'AT';
+        location = await tryGeo(primary) || await tryGeo(primary === 'AT' ? 'BG' : 'AT');
       }
       if (!location) throw new Error(t.nlAreaInvalid);
       const res = await fetch('/api/subscribe', {
@@ -689,7 +697,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t.requestFailed);
       track('newsletter_signup');
-      setNl((s) => ({ ...s, busy: false, done: true }));
+      setNl((s) => ({ ...s, busy: false, done: true, pending: data.pending !== false }));
     } catch (err) {
       setNl((s) => ({ ...s, busy: false, err: String(err.message || err) }));
     }
@@ -883,9 +891,13 @@ export default function Home() {
       if (mapPickProgrammatic.current) { mapPickProgrammatic.current = false; return; }
       clearTimeout(reverseDebounce.current);
       reverseDebounce.current = setTimeout(async () => {
+        // Latest-wins: a fast drag can fire several lookups; a slow earlier
+        // one must not overwrite the address for where the pin now sits.
+        const reqId = ++reverseReqId.current;
         try {
           const res = await fetch(`/api/geocode?reverse=1&lat=${c.lat.toFixed(5)}&lng=${c.lng.toFixed(5)}`);
           const data = await res.json();
+          if (reqId !== reverseReqId.current) return;
           const a = data.address;
           if (a) setDraft((d) => (d ? { ...d, address: a.address ?? d.address, town: a.town || d.town } : d));
         } catch { /* keep whatever's there */ }
@@ -1221,7 +1233,7 @@ export default function Home() {
     setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
     setMapPick(false); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
     setDraft({
-      kind: 'event', title: '', date_start: todayStr(), time_start: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
+      kind: 'event', title: '', date_start: todayStr(), time_start: '', date_end: '', time_end: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
       categories: [], is_free: false, description: '', confidence: {},
       always_open: false, hours: {}, seasonal: '',
     });
@@ -1277,9 +1289,11 @@ export default function Home() {
         title: x.title || '',
         date_start: x.date_start || '',
         time_start: x.time_start || '',
+        date_end: x.date_end || '',
+        time_end: x.time_end || '',
         venue: x.venue || '',
         address: x.address || '',
-        town: x.town || 'Linz',
+        town: x.town || '', // never default a town — fabricated locations break trust (hard rule 5)
         lat: null, lng: null,
         categories: (x.categories || []).filter((c) => CATS[c]),
         is_free: x.is_free === true,
@@ -1298,7 +1312,8 @@ export default function Home() {
   // stay on the intake screen where the camera drop zone is one tap away.
   async function handleUrl(rawUrl) {
     const url = (rawUrl || '').trim();
-    if (!url) return;
+    if (!url || urlBusy.current) return; // guard against double-submit (button + paste + Enter)
+    urlBusy.current = true;
     setScanErr(''); setScanImg(null); setScanState('scanning');
     try {
       const res = await fetch('/api/extract-url', {
@@ -1315,9 +1330,11 @@ export default function Home() {
         title: x.title || '',
         date_start: x.date_start || '',
         time_start: x.time_start || '',
+        date_end: x.date_end || '',
+        time_end: x.time_end || '',
         venue: x.venue || '',
         address: x.address || '',
-        town: x.town || 'Linz',
+        town: x.town || '', // never default a town — fabricated locations break trust (hard rule 5)
         lat: null, lng: null,
         categories: (x.categories || []).filter((c) => CATS[c]),
         is_free: x.is_free === true,
@@ -1330,6 +1347,8 @@ export default function Home() {
     } catch (e) {
       setScanErr(String(e.message || e));
       setScanState('pick');
+    } finally {
+      urlBusy.current = false;
     }
   }
   // Location picking on the MAIN map. Enter → collapse the form to a slim bar
@@ -1345,6 +1364,7 @@ export default function Home() {
   async function confirmMapPick() {
     const c = mapObj.current?.getCenter();
     clearTimeout(reverseDebounce.current);
+    const reqId = ++reverseReqId.current; // invalidates any in-flight drag lookup
     if (c) setDraft((d) => ({ ...d, lat: c.lat, lng: c.lng }));
     // Restore the form immediately; Nominatim may take a few seconds. The
     // resolved label fills in behind it without making Confirm feel stuck.
@@ -1353,6 +1373,7 @@ export default function Home() {
     try {
       const res = await fetch(`/api/geocode?reverse=1&lat=${c.lat.toFixed(5)}&lng=${c.lng.toFixed(5)}`);
       const data = await res.json();
+      if (reqId !== reverseReqId.current) return;
       const address = data.address;
       if (address) setDraft((d) => ({ ...d, address: address.address ?? d.address, town: address.town || d.town }));
     } catch { /* coordinates remain valid even if the label lookup fails */ }
@@ -1374,7 +1395,9 @@ export default function Home() {
   }
   async function publish() {
     const isPlace = draft.kind === 'place';
-    if (!draft.title || (!isPlace && !draft.date_start)) {
+    // Town is required, never defaulted — a fabricated location is worse than a
+    // missing event (hard rule 5), and the server geocodes town → coords.
+    if (!draft.title || !draft.town?.trim() || (!isPlace && !draft.date_start)) {
       setScanErr(isPlace ? t.requiredErrPlace : t.requiredErr);
       return;
     }
@@ -1383,6 +1406,12 @@ export default function Home() {
     // trusted over server-side geocoding whenever we have them, for either kind.
     const coordsPatch = draft.lat != null ? { lat: draft.lat, lng: draft.lng, geo_precision: 'address' } : {};
     const placeHours = buildOpeningHours(draft.hours);
+    // Preserve a multi-day / explicit end so date-range filtering and the ICS
+    // export don't collapse it to a single day. Timed end only when timed start.
+    const timed = /^\d{2}:\d{2}$/.test(draft.time_start);
+    const endsAt = draft.date_end && draft.date_end >= draft.date_start
+      ? `${draft.date_end}T${timed && /^\d{2}:\d{2}$/.test(draft.time_end) ? draft.time_end : (timed ? draft.time_start : '23:59')}`
+      : null;
     const body = isPlace
       ? {
           kind: 'place',
@@ -1390,7 +1419,7 @@ export default function Home() {
           description: draft.description || null,
           venue: draft.venue || null,
           address: draft.address || null,
-          town: draft.town || 'Linz',
+          town: draft.town.trim(),
           categories: draft.categories,
           is_free: draft.is_free,
           opening_hours: draft.always_open ? { always: true } : Object.keys(placeHours).length ? placeHours : null,
@@ -1401,11 +1430,12 @@ export default function Home() {
           kind: 'event',
           title: draft.title,
           description: draft.description || null,
-          starts_at: `${draft.date_start}T${/^\d{2}:\d{2}$/.test(draft.time_start) ? draft.time_start : '09:00'}`,
-          all_day: !/^\d{2}:\d{2}$/.test(draft.time_start),
+          starts_at: `${draft.date_start}T${timed ? draft.time_start : '09:00'}`,
+          ...(endsAt ? { ends_at: endsAt } : {}),
+          all_day: !timed,
           venue: draft.venue || null,
           address: draft.address || null,
-          town: draft.town || 'Linz',
+          town: draft.town.trim(),
           categories: draft.categories,
           is_free: draft.is_free,
           photo_path: photoPath,
@@ -2025,16 +2055,29 @@ export default function Home() {
               <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
             </div>
             {!isPlaceDraft && (
-              <div className="xrow">
-                <div className={`xfield ${conf?.datetime < 0.6 ? 'check' : ''}`}>
-                  <div className="lab">{t.fDate} {confChip(conf?.datetime)}</div>
-                  <input type="date" value={draft.date_start} onChange={(e) => setDraft({ ...draft, date_start: e.target.value })} />
+              <>
+                <div className="xrow">
+                  <div className={`xfield ${conf?.datetime < 0.6 ? 'check' : ''}`}>
+                    <div className="lab">{t.fDate} {confChip(conf?.datetime)}</div>
+                    <input type="date" value={draft.date_start} onChange={(e) => setDraft({ ...draft, date_start: e.target.value })} />
+                  </div>
+                  <div className="xfield">
+                    <div className="lab">{t.fTime}</div>
+                    <input type="time" value={draft.time_start} onChange={(e) => setDraft({ ...draft, time_start: e.target.value })} />
+                  </div>
                 </div>
-                <div className="xfield">
-                  <div className="lab">{t.fTime}</div>
-                  <input type="time" value={draft.time_start} onChange={(e) => setDraft({ ...draft, time_start: e.target.value })} />
+                {/* End date/time — optional; only kept when it's on/after the start. */}
+                <div className="xrow">
+                  <div className="xfield">
+                    <div className="lab">{t.fEndDate}</div>
+                    <input type="date" value={draft.date_end || ''} min={draft.date_start || undefined} onChange={(e) => setDraft({ ...draft, date_end: e.target.value })} />
+                  </div>
+                  <div className="xfield">
+                    <div className="lab">{t.fEndTime}</div>
+                    <input type="time" value={draft.time_end || ''} onChange={(e) => setDraft({ ...draft, time_end: e.target.value })} />
+                  </div>
                 </div>
-              </div>
+              </>
             )}
             <div className={`xfield ${conf?.location < 0.6 ? 'check' : ''}`}>
               <div className="lab">{t.fVenue} {confChip(conf?.location)}</div>
@@ -2341,7 +2384,7 @@ export default function Home() {
             <div className="nl-icon">✉️</div>
             <h3 id="newsletter-title">{t.nlTitle}</h3>
             {nl.done ? (
-              <p className="nl-done">{t.nlThanks}</p>
+              <p className="nl-done">{nl.pending ? t.nlConfirmSent : t.nlThanks}</p>
             ) : (
               <>
                 <p className="nl-blurb">{t.nlBlurb}</p>

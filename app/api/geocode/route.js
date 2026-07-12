@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
 import { reverseGeocode, reverseGeocodeAddress, forwardGeocode } from '../../../lib/geocode.js';
+import { limit } from '../../../lib/ratelimit.js';
 
 export const dynamic = 'force-dynamic';
+
+// Generous per-IP cap on the Nominatim-backed paths (forward + reverse). Real
+// use is a handful of lookups; this stops one client from flooding the shared
+// (per-instance-serialized) Nominatim chain and starving map geocoding. The
+// Photon suggest path is cached and autocomplete-frequent, so it's excluded.
+const GEO_LIMIT = { perHour: 120, perDay: 600 };
 
 // Address-suggest (autocomplete-as-you-type) uses Photon, not Nominatim:
 // Nominatim's usage policy explicitly forbids autocomplete, Photon is built
@@ -67,6 +74,9 @@ export async function GET(req) {
   }
   const q = searchParams.get('q');
   if (q != null) {
+    if (q.trim().length >= 2 && (await limit(req, 'geocode', GEO_LIMIT))) {
+      return NextResponse.json({ result: null }, { status: 429 });
+    }
     const country = searchParams.get('country') === 'BG' ? 'BG' : 'AT';
     const result = q.trim().length >= 2 ? await forwardGeocode(q, country) : null;
     return NextResponse.json({ result });
@@ -75,6 +85,9 @@ export async function GET(req) {
   const lng = parseFloat(searchParams.get('lng'));
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return NextResponse.json({ error: 'lat/lng required' }, { status: 400 });
+  }
+  if (await limit(req, 'geocode', GEO_LIMIT)) {
+    return NextResponse.json({ address: null, label: null }, { status: 429 });
   }
   // reverse=1: fuller {address, town} for the add-flow map picker (drag the
   // main map under the crosshair → fill the location fields). Default reverse
