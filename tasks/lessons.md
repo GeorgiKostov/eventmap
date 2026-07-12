@@ -2,6 +2,16 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-12 — One control, one meaning; async actions need instant feedback
+
+George flagged the v4 search pill: it displayed the current locality (`📍 Linz`) as its resting
+label, so "where you are" masqueraded as "what you searched" — confusing. And locate-me waited up
+to 8s for a fresh GPS fix before doing anything visible, with no in-flight indicator and one
+generic error toast. **Lesson:** (1) don't overload a control with a second meaning to save space —
+search shows search, location shows location; (2) any button that triggers an async fetch must
+respond within ~100ms (fly to last-known / show a pulse) and fail loudly with a cause-specific
+message (denied vs unavailable), not a generic one after a long silent wait.
+
 ## 2026-07-11 — Sentinel values are not data; re-audit consumers when a new data class arrives
 
 Two same-day instances of one class: (1) venue grouping by "coords within 30m" merged 50 unrelated

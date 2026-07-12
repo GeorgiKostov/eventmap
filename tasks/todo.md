@@ -44,6 +44,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
+- [x] **Locate/search UX fixes** (George 2026-07-12, shipped ef6fac7): search pill no longer shows
+      current locality (was confusing), locate-me flies instantly to last-known + cached fix +
+      pulsing feedback + denied/unavailable toasts.
 - [ ] **National source probe/registration** — OWNED BY THE OTHER LIVE SESSION (GEM2GO parser +
       tiering + host-concurrency, briefs/gem2go-parser-and-source-rating-brief.md). State when
       checked: 272 sources (Sbg 119 / OÖ 113 / NÖ 40), 206 gem2go, tiering active. Missing
