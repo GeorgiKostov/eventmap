@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork } from '@phosphor-icons/react';
+import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, CaretRight } from '@phosphor-icons/react';
 import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
@@ -742,7 +742,7 @@ export default function Home() {
         mapObj.current.flyTo({
           center: [ev.lng, ev.lat],
           zoom: Math.max(mapObj.current.getZoom(), 12.5),
-          padding: isDesktop ? { left: 0 } : { bottom: 180 },
+          padding: isDesktop ? { left: 0 } : { top: 200, bottom: 150 },
           duration: 700,
         });
       }
@@ -1818,6 +1818,20 @@ export default function Home() {
         {/* mobile top bar — Google-Maps-style search pill + account circle (menu content lives in locSearchBar) */}
         <div className="m-topbar mobileonly">
           {locSearchBar(true)}
+          {/* quick preview — sits right under the search bar: full title, time, short description */}
+          {selected && !isDesktop && !detailFull && (
+            <div className="minicard" style={{ '--cc': CATS[primaryCat(selected)].color }} onClick={() => setDetailFull(true)}>
+              <span className="thumb"><CatIcon cat={primaryCat(selected)} size={19} /></span>
+              <span className="tx">
+                <span className="t">{selected.title}</span>
+                <span className="w">{selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}</span>
+                <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
+                {selected.description && <span className="d">{selected.description}</span>}
+              </span>
+              <button className="morebtn" onClick={(e) => { e.stopPropagation(); setDetailFull(true); }} aria-label={t.learnMore}><CaretRight size={18} weight="bold" /></button>
+              <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label={t.close}><X size={14} weight="bold" /></button>
+            </div>
+          )}
         </div>
 
         <details className="map-legend">
@@ -1832,8 +1846,8 @@ export default function Home() {
           </div>
         </details>
 
-        {/* mobile bottom chip bar */}
-        {sheet === 'closed' && !selected && (
+        {/* mobile bottom chip bar — filters stay visible even with a preview open */}
+        {sheet === 'closed' && !detailFull && (
           <div className="m-bottombar mobileonly">
             <div className="chiprow" style={{ paddingBottom: 4 }}>{kindToggle}</div>
             <div className="chiprow" style={{ paddingBottom: 4 }}>{dateChips}</div>
@@ -1870,27 +1884,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* mini card (mobile google-maps style) */}
-        {selected && !isDesktop && !detailFull && (
-          <div className="minicard" style={{ '--cc': CATS[primaryCat(selected)].color }} onClick={() => setDetailFull(true)}>
-            <span className="thumb"><CatIcon cat={primaryCat(selected)} size={19} /></span>
-            <span className="tx">
-              <span className="t">{selected.title}</span>
-              <span className="w">{selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}</span>
-              <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
-            </span>
-            <button className="morebtn" onClick={(e) => { e.stopPropagation(); setDetailFull(true); }}>{t.learnMore}</button>
-            <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label={t.close}><X size={14} weight="bold" /></button>
-          </div>
-        )}
-
         {/* full-screen detail (mobile) */}
         {selected && !isDesktop && detailFull && (
           <div className="detail-full">{eventDetail(selected, { onBack: () => setDetailFull(false), onClose: () => selectEvent(null, { fly: false }) })}</div>
         )}
 
         <button
-          className={`locate-btn ${capture ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
+          className={`locate-btn ${capture ? 'hidden' : ''} ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
           onClick={locateMe}
           aria-label={t.locateMe}
         >
