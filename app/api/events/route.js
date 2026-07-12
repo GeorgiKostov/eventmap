@@ -82,8 +82,11 @@ export async function POST(req) {
     photo_path: body.photo_path || null,
     opening_hours: kind === 'place' ? (body.opening_hours ?? null) : null,
     seasonal: kind === 'place' ? (body.seasonal || null) : null,
-    src_kind: kind === 'place' ? 'manual' : 'user_photo',
-    source_name: kind === 'place' ? 'Manuell hinzugefügt' : 'Foto-Upload',
+    // Genuine public submissions: photo scans carry a photo_path, everything
+    // else (typed place/event) is a hand-typed community entry. source_name is
+    // left null so the detail view renders a localized "community" label.
+    src_kind: body.photo_path ? 'user_photo' : 'user_manual',
+    source_name: null,
     source_url: null,
   });
   return NextResponse.json({ ok: true, id: res.id, updated: res.updated, lat, lng, geo_precision });
