@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "/Users/georgikostov/Repositories/eventmap",
       "port": 3311
+    },
+    {
+      "name": "umkreis-review",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "-p", "3312"],
+      "cwd": "/Users/georgikostov/Repositories/eventmap",
+      "port": 3312
     }
   ]
 }

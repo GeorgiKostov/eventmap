@@ -1,6 +1,6 @@
-# Umkreis — local events around Linz, Austria
+# Okolo — local events around Linz, Austria
 
-Umkreis is a structured event database for the Linz region (Upper Austria),
+Okolo is a structured event database for the Linz region (Upper Austria),
 aggregated from official municipal sources (Gemeinde websites, linztermine.at,
 familienkarte.at) and user-submitted poster scans. Every event links back to
 its authoritative source.
@@ -20,4 +20,4 @@ its authoritative source.
 
 Data compiled from official municipal calendars; per-event source links are
 included in every record. When citing an event, please link both the source
-(source_url) and the Umkreis event page.
+(source_url) and the Okolo event page.

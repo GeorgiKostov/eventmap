@@ -115,8 +115,11 @@ function circleGeoJSON(center, km) {
 function primaryCat(ev) {
   return (ev.categories || []).find((c) => CATS[c]) || 'family';
 }
+// Community = genuinely submitted by a member of the public (poster scan or the
+// add-a-place/event form). Editorial/curated entries (crawl, osm_mined, and the
+// legacy 'manual' curator seeds) are NOT community — they come from public data.
 function isCommunitySubmitted(ev) {
-  return ev.src_kind === 'user_photo' || ev.src_kind === 'manual';
+  return ev.src_kind === 'user_photo' || ev.src_kind === 'user_manual';
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
 // within ~30m. Used both to collapse event pins per venue and to list "more at
@@ -652,7 +655,6 @@ export default function Home() {
       const community = isCommunitySubmitted(ev);
       const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '');
       const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
-      const sourceBadgeHtml = community ? '<span class="pin-source-badge" aria-hidden="true">+</span>' : '';
       const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
       if (community) ariaBits.push(t.legendCommunity);
       if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
@@ -662,7 +664,7 @@ export default function Home() {
       if (existing) {
         existing.ev = ev;
         existing.el.style.setProperty('--cc', color);
-        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml + sourceBadgeHtml;
+        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
         existing.el.className = pinClass;
         existing.el.setAttribute('aria-label', ariaLabel);
         existing.el.style.visibility = map.getZoom() >= DETAIL_MARKER_ZOOM ? '' : 'hidden';
@@ -672,7 +674,7 @@ export default function Home() {
       const el = document.createElement('div');
       el.className = pinClass;
       el.style.setProperty('--cc', color);
-      el.innerHTML = catIconSvg(cat, 15) + badgeHtml + sourceBadgeHtml;
+      el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', ariaLabel);
       el.tabIndex = 0;
@@ -1283,6 +1285,7 @@ export default function Home() {
   function eventDetail(ev, { onBack, onClose }) {
     const cat = primaryCat(ev);
     const place = ev.kind === 'place';
+    const community = isCommunitySubmitted(ev);
     // Task 3: "more at this venue" — for an event, its venue-group siblings; for a
     // place, other upcoming events at/near it (same venue-matching rule).
     const venueSiblings = place
@@ -1324,10 +1327,12 @@ export default function Home() {
           </div>
           {ev.description && <p className="ddesc">{ev.description}</p>}
           <div className="prov">
-            <span>{ev.src_kind === 'user_photo' ? '📷' : ev.src_kind === 'manual' ? '✍️' : '🌐'}</span>
+            <span>{community ? (ev.src_kind === 'user_photo' ? '📷' : '👤') : '🌐'}</span>
             <span>
               {t.source}:{' '}
-              {ev.source_url ? (
+              {community ? (
+                <b>{t.communitySource}</b>
+              ) : ev.source_url ? (
                 <a href={ev.source_url} target="_blank" rel="noreferrer">{ev.source_name || ev.source_url}</a>
               ) : (
                 <b>{ev.source_name || t.uploadSource}</b>
@@ -1606,7 +1611,20 @@ export default function Home() {
       {/* ===== map ===== */}
       <div className="mapwrap">
         <div id="map" ref={mapRef} />
-        {!events && <div className="loading">Umkreis<span className="dot">.</span></div>}
+        {!events && (
+          <div className="loading" role="status" aria-label="Okolo lädt Events in deinem Umkreis">
+            <div className="okolo-radar" aria-hidden="true">
+              <span className="okolo-wave" />
+              <span className="okolo-wave" />
+              <span className="okolo-wave" />
+              <span className="okolo-blip b1" />
+              <span className="okolo-blip b2" />
+              <span className="okolo-blip b3" />
+              <span className="okolo-pin" />
+            </div>
+            <div className="okolo-word">okolo<i>.</i></div>
+          </div>
+        )}
 
         {/* mobile top bar — Google-Maps-style search pill + account circle (menu content lives in locSearchBar) */}
         <div className="m-topbar mobileonly">

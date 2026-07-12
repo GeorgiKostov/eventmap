@@ -10,6 +10,7 @@
   --accent-ink: #ffffff;
   --good: #2e7d4f;
   --warn: #b26a1b;
+  --community: #e59500; /* ring around genuinely user-submitted pins */
   --shadow-sm: 0 1px 3px rgba(23, 32, 28, 0.08), 0 1px 2px rgba(23, 32, 28, 0.06);
   --shadow-md: 0 4px 16px rgba(23, 32, 28, 0.12);
   --shadow-lg: 0 12px 40px rgba(23, 32, 28, 0.18);
@@ -246,11 +247,12 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   background: var(--ink); color: #fff; font-size: 9.5px; font-weight: 800;
   display: grid; place-items: center; line-height: 1; border: 1.5px solid #fff;
 }
-.pin-source-badge {
-  position: absolute; top: -5px; left: -5px; z-index: 2;
-  width: 16px; height: 16px; border-radius: 50%;
-  background: var(--ink); color: #fff; border: 1.5px solid #fff;
-  display: grid; place-items: center; font-size: 11px; line-height: 1; font-weight: 800;
+/* community (genuinely user-submitted) pins wear a colored ring around the whole
+   pin — no corner badge. A pseudo-element ring coexists with the selected halo,
+   the approx dashed halo, and the count badge without fighting them. */
+.pin2.pin-user::after {
+  content: ""; position: absolute; inset: -3px; pointer-events: none;
+  border: 2px solid var(--community); border-radius: inherit;
 }
 
 /* Compact, collapsible marker grammar. Category color remains on the pin only;
@@ -273,9 +275,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .legend-pin.event { border-radius: 50% 50% 50% 3px; }
 .legend-pin.place { border-radius: 50%; }
+.legend-pin.community { background: var(--community); }
 .legend-pin.community::after {
-  content: "+"; position: absolute; top: -6px; left: -6px; width: 11px; height: 11px;
-  display: grid; place-items: center; border-radius: 50%; background: var(--ink); color: #fff; border: 1px solid #fff; font-size: 8px;
+  content: ""; position: absolute; inset: -4px; border: 2px solid var(--community); border-radius: inherit;
 }
 .legend-pin.approximate::before { content: ""; position: absolute; inset: -5px; border: 1.5px dashed var(--muted); border-radius: inherit; }
 .legend-pin.count::after { content: "3"; position: absolute; top: -6px; right: -6px; min-width: 11px; height: 11px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: #fff; border: 1px solid #fff; font-size: 7px; line-height: 10px; text-align: center; }
@@ -673,10 +675,54 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .loading {
-  position: absolute; inset: 0; z-index: 50; display: grid; place-items: center;
-  background: var(--bg); font-family: var(--font-display); font-size: 20px; font-weight: 700;
+  position: absolute; inset: 0; z-index: 50; display: flex;
+  flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: var(--bg);
 }
-.loading .dot { color: var(--accent); }
+
+/* ---- Okolo radar loader: rings ripple out from a center pin, event blips light up around it ---- */
+.okolo-radar { position: relative; width: 132px; height: 132px; }
+.okolo-radar > span { position: absolute; }
+
+.okolo-pin {
+  inset: 0; margin: auto; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft);
+  animation: okolo-pin 2.4s ease-in-out infinite;
+}
+@keyframes okolo-pin { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+
+.okolo-wave {
+  inset: 0; margin: auto; width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--accent); opacity: 0;
+  animation: okolo-wave 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+.okolo-wave:nth-child(2) { animation-delay: 0.8s; }
+.okolo-wave:nth-child(3) { animation-delay: 1.6s; }
+@keyframes okolo-wave {
+  0% { transform: scale(0.5); opacity: 0.55; }
+  70% { opacity: 0; }
+  100% { transform: scale(5.2); opacity: 0; }
+}
+
+.okolo-blip {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--ink);
+  opacity: 0; animation: okolo-blip 2.4s ease-in-out infinite;
+}
+.okolo-blip.b1 { top: 22px; left: 96px; animation-delay: 0.35s; }
+.okolo-blip.b2 { top: 92px; left: 26px; animation-delay: 1.05s; }
+.okolo-blip.b3 { top: 58px; left: 108px; animation-delay: 1.7s; }
+@keyframes okolo-blip {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  40%, 68% { opacity: 1; transform: scale(1); }
+}
+
+.okolo-word {
+  font-family: var(--font-display); font-size: 26px; font-weight: 800;
+  letter-spacing: 0.01em; color: var(--ink);
+  animation: okolo-word 0.6s ease 0.2s both;
+}
+.okolo-word i { color: var(--accent); font-style: normal; }
+@keyframes okolo-word { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
