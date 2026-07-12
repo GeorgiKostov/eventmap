@@ -104,6 +104,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 ## Validation (the actual go/no-go — design-doc §11)
 - [ ] Run the **four-weekend Linz coverage/retention test**: measure % of good events the big
       aggregators miss, and weekly return rate. This gates everything downstream.
+- [ ] **Partnership outreach (George sends; drafts in briefs/outreach-emails-de.md, agent preparing
+      2026-07-12)**: (1) Stadt Linz — Linztermine eventExport XML API access; (2) Österreich Werbung
+      api@austria.info — ContentDB/LTO feed key; (3) Familienkarte / Land OÖ — feed + partnership;
+      (4, optional) tips.at — regional media feed. German drafts state: who we are (Okolo,
+      okolo.events, families-first event map), what we ask (feed/API access, permission to display
+      event facts with linkback), what they get (reach, referral traffic, zero work).
 - [ ] Email Familienkarte / Land OÖ for a feed/partnership (cheapest legal data path + first B2B contact).
       **Bundle two more asks** (docs/research/open-event-sources.md, 2026-07-12): (a) Stadt Linz —
       access to the Linztermine `eventExport` XML API (CC-BY-4.0, event-granular, replaces our flaky
