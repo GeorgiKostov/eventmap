@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { publishedEvents, upsertEvent } from '../../../lib/db.js';
+import { publishedEvents, upsertEvent, updateEventFields } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
+import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,25 @@ export async function POST(req) {
 
   let ends_at = body.ends_at || null;
   if (ends_at && body.starts_at && ends_at <= body.starts_at) ends_at = null;
+
+  // Same-event-twice check #2: this event may already be on the map (crawled
+  // from a different source, or scanned once before). Events only — places
+  // are evergreen singletons with no natural "duplicate" concept here.
+  if (kind === 'event') {
+    const candidate = {
+      title: body.title, starts_at: body.starts_at, ends_at, town: body.town || null, lat, lng,
+      description: body.description || null, address: body.address || null, venue: body.venue || null,
+      is_free: body.is_free ?? null, age_min: body.age_min ?? null, age_max: body.age_max ?? null,
+      indoor: body.indoor ?? null, photo_path: body.photo_path || null,
+      categories: Array.isArray(body.categories) ? body.categories.slice(0, 3) : [],
+    };
+    const match = findDuplicate(candidate, await publishedEvents());
+    if (match) {
+      const patch = mergePlan(match, candidate);
+      await updateEventFields(match.id, patch);
+      return NextResponse.json({ ok: true, merged: true, id: match.id, lat: match.lat, lng: match.lng });
+    }
+  }
 
   const res = await upsertEvent({
     kind,

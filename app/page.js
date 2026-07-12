@@ -418,6 +418,7 @@ export default function Home() {
   const [photoPath, setPhotoPath] = useState(null);
   const [locMode, setLocMode] = useState('address'); // address | map — location method (event + place forms)
   const [refine, setRefine] = useState(null); // pending low-precision publish awaiting pin refine
+  const [dupNotice, setDupNotice] = useState(null); // {id,title,starts_at} — scan matched an already-published event
 
   // address autocomplete (task 4b): debounced GET /api/geocode?suggest=1&q=… while
   // typing in the address field of either form; a parallel agent owns the endpoint.
@@ -462,6 +463,7 @@ export default function Home() {
     const res = await fetch('/api/events');
     const data = await res.json();
     setEvents(data.events);
+    return data.events;
   }
   useEffect(() => { loadEvents(); }, []);
 
@@ -743,13 +745,13 @@ export default function Home() {
   /* ---------------- scan flow ---------------- */
   function openCapture() {
     setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setManualEntry(false);
-    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false);
+    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
   }
   // "Add event manually" reuses the exact same confirm-screen UI as the scan flow,
   // just pre-seeded with empty fields and skipping the photo/extraction steps.
   function openManualAdd() {
     setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
-    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false);
+    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
     setDraft({
       kind: 'event', title: '', date_start: todayStr(), time_start: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
       categories: [], is_free: false, description: '', confidence: {},
@@ -759,7 +761,7 @@ export default function Home() {
   // opening hours + a location step that also accepts the map pin-drop.
   function openManualPlace() {
     setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
-    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false);
+    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
     setDraft({
       kind: 'place', title: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
       categories: [], is_free: false, description: '', confidence: {},
@@ -789,6 +791,7 @@ export default function Home() {
       const x = data.extraction;
       if (!x.is_event) setScanErr(t.noEventDetected);
       setPhotoPath(data.photo_path);
+      setDupNotice(data.duplicate || null);
       setDraft({
         title: x.title || '',
         date_start: x.date_start || todayStr(),
@@ -812,9 +815,10 @@ export default function Home() {
     setCapture(false);
     setManualEntry(false);
     setRefine(null);
-    await loadEvents();
+    const freshEvents = await loadEvents();
     showToast(t.toastLive);
     setWhenMode('all');
+    return freshEvents;
   }
   async function publish() {
     const isPlace = draft.kind === 'place';
@@ -858,6 +862,15 @@ export default function Home() {
       const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Save failed');
+      if (data.merged) {
+        // This event was already on the map (crawled elsewhere, or scanned
+        // once before) — our info enriched the existing row instead of
+        // inserting a new one. Focus the map on that (now-enriched) row.
+        const fresh = await finishPublish();
+        const mergedEvent = fresh?.find((ev) => ev.id === data.id) || { id: data.id, lat: data.lat, lng: data.lng };
+        selectRef.current(mergedEvent);
+        return;
+      }
       if (data.geo_precision === 'town' && data.lat != null) {
         // Low-precision geocode — offer the same pin-drop picker to refine it.
         // A re-POST with explicit lat/lng + the same content (same title/day/
@@ -1319,6 +1332,7 @@ export default function Home() {
         {(scanState === 'confirm' || scanState === 'publishing') && draft && (
           <>
             {scanImg && <div className="preview" style={{ maxHeight: 120 }}><img src={scanImg} alt="" style={{ maxHeight: 120 }} /></div>}
+            {dupNotice && <div className="dupnotice">ℹ️ {t.dupNotice}</div>}
             <div className="xfield">
               <div className="lab">{t.fTitle} {confChip(conf?.title)}</div>
               <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />

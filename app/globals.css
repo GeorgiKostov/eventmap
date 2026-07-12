@@ -562,6 +562,11 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line));
   border-radius: 12px; padding: 10px 13px; font-size: 12.5px; line-height: 1.5;
 }
+.dupnotice {
+  background: color-mix(in srgb, var(--good) 10%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--good) 35%, var(--line));
+  border-radius: 12px; padding: 10px 13px; font-size: 12.5px; line-height: 1.5;
+}
 
 /* ================= add-a-place: location + opening hours ================= */
 .locseg { margin: -2px 0 0; }

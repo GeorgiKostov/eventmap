@@ -7,10 +7,10 @@
     "dev": "next dev -p 3311",
     "build": "next build",
     "start": "next start -p 3311",
-    "seed": "node scripts/seed.mjs",
-    "seed:sql": "node scripts/import-sql.mjs",
-    "crawl": "node scripts/crawl.mjs",
-    "mcp": "node scripts/mcp-server.mjs"
+    "seed": "node --env-file=.env.local scripts/seed.mjs",
+    "seed:sql": "node --env-file=.env.local scripts/import-sql.mjs",
+    "crawl": "node --env-file=.env.local scripts/crawl.mjs",
+    "mcp": "node --env-file=.env.local scripts/mcp-server.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

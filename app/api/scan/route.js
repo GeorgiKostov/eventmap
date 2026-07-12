@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { extractFromImage } from '../../../lib/extract.js';
+import { publishedEvents } from '../../../lib/db.js';
+import { findDuplicate } from '../../../lib/dedup.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -38,7 +40,23 @@ export async function POST(req) {
       filePath,
       geoHint,
     });
-    return NextResponse.json({ extraction, photo_path: name });
+
+    // Same-event-twice check #1: a poster scanned for an event we already
+    // crawled. Only town-level matching is possible here (no geocode yet —
+    // that happens on publish), so this is a best-effort heads-up, not a hard
+    // block; the user still confirms before anything is written.
+    let duplicate = null;
+    if (extraction?.is_event && extraction.title && extraction.date_start) {
+      const candidate = {
+        title: extraction.title,
+        starts_at: `${extraction.date_start}T${/^\d{2}:\d{2}$/.test(extraction.time_start) ? extraction.time_start : '09:00'}`,
+        town: extraction.town || null,
+      };
+      const match = findDuplicate(candidate, await publishedEvents());
+      if (match) duplicate = { id: match.id, title: match.title, starts_at: match.starts_at };
+    }
+
+    return NextResponse.json({ extraction, photo_path: name, duplicate });
   } catch (err) {
     console.error('scan extraction failed:', err);
     return NextResponse.json(

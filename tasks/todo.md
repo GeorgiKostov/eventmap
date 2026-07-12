@@ -43,7 +43,27 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] opening_hours semantics fixed: `{"always":true}` = always open, null = unknown (renders
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
-## Now / next
+## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
+- [ ] **National source probe/registration** — OWNED BY THE OTHER LIVE SESSION (GEM2GO parser +
+      tiering + host-concurrency, briefs/gem2go-parser-and-source-rating-brief.md). State when
+      checked: 272 sources (Sbg 119 / OÖ 113 / NÖ 40), 206 gem2go, tiering active. Missing
+      Bundesländer: Wien, Stmk, Tirol, Ktn, Bgld, Vbg. Don't duplicate from this session.
+- [x] **Dedup + merge system** (shipped 2026-07-12): lib/dedup.js fuzzy match (same Vienna day +
+      town/300m-non-sentinel + word-boundary/Jaccard-0.75 titles), scan-of-existing → enrich-merge
+      with UI notice, POST /api/events merge path, scripts/merge-dups.mjs (canonical-linkage
+      clustering; applied: 127 clusters, 129 dupes deleted, 14 enriched, idempotent-verified).
+      Multi-source attribution column = future schema change (after other session lands).
+- [ ] **Austria family places** (agent mining, this session): Overpass sweep of the 9 capitals
+      + Wels/Steyr, ~25-30/city curated, same shape as Linz file; seed after review.
+- [x] **Pipeline source-of-truth doc** (shipped 2026-07-12): docs/design/data-pipeline.md (12
+      sections + runbook + how-to-add-a-region + coverage snapshot). Update it in post-commit
+      housekeeping whenever pipeline behavior changes.
+- [ ] **Doc-agent findings for the crawl session** (their files, don't fix here): (a) upsertSource()
+      has no region param + no committed probe/register script — registration path is ad-hoc SQL;
+      (b) crawl.mjs header comment states wrong waterfall order (code: JSON-LD→iCal→GEM2GO→RSS);
+      (c) design-doc §5/§6 sources-table description + counts badly stale.
+- [ ] **Crawl-time fuzzy dedup**: content_hash still the only crawl-path guard; wire findDuplicate
+      into crawl.mjs after the concurrent session lands its changes.
 - [ ] **Regeocode repair run**: `node --env-file=.env.local scripts/regeocode.mjs` (dry-run) once
       Nominatim rate-limit has cooled (first dry-run was pre-fix and had bad long-distance matches —
       discard it); sanity-check no multi-km cross-region jumps, then `--write`.

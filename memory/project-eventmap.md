@@ -21,6 +21,13 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - **Pending:** regeocode repair — rerun `scripts/regeocode.mjs` dry-run after Nominatim rate-limit
   cooldown (first dry-run pre-fix, discard), review, then `--write`. Google Places API: not needed
   and legally unusable on non-Google maps (documented in todo).
+- **2026-07-12, Austria build-out (this session):** dedup+merge shipped (lib/dedup.js, entry-point
+  guards, merge-dups applied: −129 dupes, 14 enriched, idempotent; DB 1892 events + 60 places);
+  docs/design/data-pipeline.md = pipeline source of truth (read it before pipeline work);
+  npm scripts now carry --env-file. National source probe/GEM2GO parser/tiering = OWNED BY THE
+  CONCURRENT SESSION (272 sources, Sbg/OÖ/NÖ; feed_kind last-crawl: 74% gem2go, 24% llm).
+  Austria-capitals places mining in flight (data/mined/places-family-austria.json, incremental).
+  Session token limit hit once ~22:30 (resets 1:30am Vienna) — agents restarted fine.
 
 ## Where things stood (2026-07-11 evening)
 - **~1.8k published events from 100 sources / 133 towns** (was 92) after the OÖ expansion round:

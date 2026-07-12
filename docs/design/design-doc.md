@@ -113,6 +113,11 @@ prose/images).
 
 ## 6. Data sources (18 registered; ~92 events)
 
+> Full pipeline reality (waterfall, tiering, geocoding, dedup, runbook, costs, legal posture):
+> [`docs/design/data-pipeline.md`](data-pipeline.md) — source of truth, kept current per CLAUDE.md's
+> post-commit housekeeping step. The counts in this heading are stale (source registry has grown well
+> past 18 sources/92 events since 2026-07-10); see that doc's coverage snapshot for current numbers.
+
 - **linztermine.at** (city calendar), **familienkarte.at** (Land OÖ — our exact audience),
   **erlebe.enns.at**, **tips.at**, and **14 Gemeinde sites**: Asten, Traun, Leonding, Ansfelden,
   Pucking, St. Marien, Luftenberg, Niederneukirchen, Hargelsberg, Wilhering, Ottensheim,
