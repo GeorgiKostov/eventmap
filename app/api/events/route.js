@@ -50,6 +50,16 @@ export async function POST(req) {
     address: sanitizeText(raw.address, 200),
     town: sanitizeText(raw.town, 80),
   };
+  // Link-pipeline submissions carry the page they were extracted from — keep it
+  // as the linkback (facts + source_url doctrine). Only http(s); anything else
+  // is dropped rather than trusted.
+  let sourceUrl = null;
+  if (typeof raw.source_url === 'string') {
+    try {
+      const u = new URL(raw.source_url.trim());
+      if (u.protocol === 'http:' || u.protocol === 'https:') sourceUrl = u.href.slice(0, 500);
+    } catch { /* not a URL → no linkback */ }
+  }
   const kind = body.kind === 'place' ? 'place' : 'event';
   // Places are evergreen (no date); events still require starts_at.
   if (!body.title || (kind === 'event' && !body.starts_at)) {
@@ -124,9 +134,9 @@ export async function POST(req) {
     // Genuine public submissions: photo scans carry a photo_path, everything
     // else (typed place/event) is a hand-typed community entry. source_name is
     // left null so the detail view renders a localized "community" label.
-    src_kind: body.photo_path ? 'user_photo' : 'user_manual',
+    src_kind: body.photo_path ? 'user_photo' : sourceUrl ? 'user_link' : 'user_manual',
     source_name: null,
-    source_url: null,
+    source_url: sourceUrl,
   });
 
   // Every community submission goes live immediately — so tell the operator,
@@ -144,7 +154,7 @@ export async function POST(req) {
       kind === 'event' ? `Datum: ${body.starts_at}` : null,
       `Ort: ${[body.venue, body.address, body.town].filter(Boolean).join(', ') || '—'}`,
       body.description ? `Beschreibung: ${body.description}` : null,
-      `Quelle: ${body.photo_path ? 'Poster-Scan' : 'Formular'}`,
+      `Quelle: ${body.photo_path ? 'Poster-Scan' : sourceUrl ? sourceUrl : 'Formular'}`,
       '',
       `Ansehen: ${base}/event/${res.id}`,
       `Entfernen: ${removeUrl}`,

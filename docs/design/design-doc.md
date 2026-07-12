@@ -191,8 +191,11 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
   calendar range uses a connected accent fill in the picker and a quiet accent rail on matching
   event rows; overlapping events that began before the range are grouped as ongoing. Places remain
   date-neutral.
-- **Map density + marker grammar:** regional zooms use neutral, count-labelled geographic clusters;
-  neighborhood zooms reveal the full markers. Category owns fill color/icon, kind owns shape
+- **Map density + marker grammar:** resolve locations first; collapse conservative same-title+town
+  occurrences into a distinct series bubble anchored at the strongest resolved venue; collapse safe
+  same-venue groups next; then feed the remaining representatives into neutral, count-labelled
+  geographic clusters at regional zoom. Neighborhood zooms reveal the full markers and series dates
+  are navigable from detail. Category owns fill color/icon, kind owns shape
   (teardrop event vs circle place), user submissions get a small neutral `+` badge, town-level
   positions get a dashed outer halo, and same-venue groups retain a compact count badge. A compact
   collapsible legend explains these signals.

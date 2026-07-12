@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, CaretRight } from '@phosphor-icons/react';
+import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork } from '@phosphor-icons/react';
 import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
+import { groupEventSeries } from '../lib/map-groups.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 
@@ -131,7 +132,7 @@ function primaryCat(ev) {
 // add-a-place/event form). Editorial/curated entries (crawl, osm_mined, and the
 // legacy 'manual' curator seeds) are NOT community — they come from public data.
 function isCommunitySubmitted(ev) {
-  return ev.src_kind === 'user_photo' || ev.src_kind === 'user_manual';
+  return ev.src_kind === 'user_photo' || ev.src_kind === 'user_manual' || ev.src_kind === 'user_link';
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
 // within ~30m. Used both to collapse event pins per venue and to list "more at
@@ -538,9 +539,13 @@ export default function Home() {
   const [scanErr, setScanErr] = useState('');
   const [draft, setDraft] = useState(null);
   const [photoPath, setPhotoPath] = useState(null);
-  const [locMode, setLocMode] = useState('address'); // address | map — location method (event + place forms)
+  const [urlInput, setUrlInput] = useState(''); // intake: paste-a-link field
+  const [mapPick, setMapPick] = useState(false); // location picking happens on the MAIN map
   const [refine, setRefine] = useState(null); // pending low-precision publish awaiting pin refine
   const [dupNotice, setDupNotice] = useState(null); // {id,title,starts_at} — scan matched an already-published event
+  const mapPickProgrammatic = useRef(false); // guard: our own flyTo must not trigger a reverse-geocode overwrite
+  const mapPickSnapshot = useRef(null); // draft location before entering map-pick, for cancel
+  const reverseDebounce = useRef(null);
 
   // address autocomplete (task 4b): debounced GET /api/geocode?suggest=1&q=… while
   // typing in the address field of either form; a parallel agent owns the endpoint.
@@ -573,6 +578,21 @@ export default function Home() {
     setDraft((d) => ({ ...d, address: s.label, lat: s.lat, lng: s.lng }));
     setAddrSuggestions([]);
     setAddrSuggestOpen(false);
+    // Two-way bind: a picked address flies the main map to that point (visible on
+    // desktop and in map-pick mode). Flag the move so its moveend doesn't reverse-
+    // geocode over what we just set.
+    if (mapObj.current && s.lat != null) {
+      flyProgrammatic([s.lng, s.lat], Math.max(mapObj.current.getZoom(), 15));
+    }
+  }
+  // Fly the main map from a geocode result WITHOUT letting the resulting moveend
+  // reverse-geocode over the address we just set. The flag is force-cleared on a
+  // timer so it can never get stuck (a no-op flyTo may emit no moveend).
+  function flyProgrammatic(center, zoom) {
+    mapPickProgrammatic.current = true;
+    mapObj.current?.flyTo({ center, zoom, duration: 700 });
+    clearTimeout(reverseDebounce.current);
+    setTimeout(() => { mapPickProgrammatic.current = false; }, 900);
   }
 
   async function submitNewsletter(e) {
@@ -722,6 +742,49 @@ export default function Home() {
     }
   }, [searchCenter]);
 
+  // Map-pick mode: keep draft coords glued to the map centre, and on settle
+  // reverse-geocode into address+town — unless the move was our own flyTo (loop
+  // guard), which already knows the address it flew to.
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map || !mapPick) return;
+    const onMove = () => {
+      const c = map.getCenter();
+      setDraft((d) => (d ? { ...d, lat: c.lat, lng: c.lng } : d));
+      if (mapPickProgrammatic.current) { mapPickProgrammatic.current = false; return; }
+      clearTimeout(reverseDebounce.current);
+      reverseDebounce.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/geocode?reverse=1&lat=${c.lat.toFixed(5)}&lng=${c.lng.toFixed(5)}`);
+          const data = await res.json();
+          const a = data.address;
+          if (a) setDraft((d) => (d ? { ...d, address: a.address ?? d.address, town: a.town || d.town } : d));
+        } catch { /* keep whatever's there */ }
+      }, 600);
+    };
+    map.on('moveend', onMove);
+    return () => { map.off('moveend', onMove); clearTimeout(reverseDebounce.current); };
+  }, [mapPick]);
+
+  // Intake paste: while the intake screen is open, a pasted image goes to the
+  // scan pipeline and pasted URL text goes to the link pipeline.
+  useEffect(() => {
+    if (!capture || scanState !== 'pick') return;
+    const onPaste = (e) => {
+      const items = e.clipboardData?.items || [];
+      for (const it of items) {
+        if (it.type && it.type.startsWith('image/')) {
+          const file = it.getAsFile();
+          if (file) { e.preventDefault(); handleFile(file); return; }
+        }
+      }
+      const text = e.clipboardData?.getData('text')?.trim();
+      if (text && /^https?:\/\/\S+$/i.test(text)) { e.preventDefault(); setUrlInput(text); handleUrl(text); }
+    };
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+  }, [capture, scanState]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function selectEvent(ev, { fly = true } = {}) {
     setSelected(ev);
     setDetailFull(false);
@@ -737,12 +800,17 @@ export default function Home() {
           .catch(() => {});
       }
       track('open_detail', { kind: ev.kind, cat: primaryCat(ev), town: ev.town });
-      for (const [id, rec] of markers.current) rec.el.classList.toggle('selected', id === ev.id);
+      let groupedMarker = null;
+      for (const rec of markers.current.values()) {
+        const selectedHere = (rec.ev._venueIds || [rec.ev.id]).includes(ev.id);
+        rec.el.classList.toggle('selected', selectedHere);
+        if (selectedHere) groupedMarker = rec;
+      }
       if (fly && mapObj.current) {
         mapObj.current.flyTo({
-          center: [ev.lng, ev.lat],
+          center: [groupedMarker?.ev.lng ?? ev.lng, groupedMarker?.ev.lat ?? ev.lat],
           zoom: Math.max(mapObj.current.getZoom(), 12.5),
-          padding: isDesktop ? { left: 0 } : { top: 200, bottom: 150 },
+          padding: isDesktop ? { left: 0 } : { bottom: 180 },
           duration: 700,
         });
       }
@@ -814,31 +882,54 @@ export default function Home() {
 
   const filtered = useMemo(() => [...filteredEvents, ...filteredPlaces], [filteredEvents, filteredPlaces]);
 
-  const venueGroups = useMemo(
-    () => detailMarkersVisible ? groupEventsByVenue(filtered) : new Map(),
-    [detailMarkersVisible, filtered]
-  );
+  // Map grammar, in order: resolved event coordinates → same-series collapse →
+  // safe same-venue collapse → generic spatial clustering. Every occurrence
+  // remains independently available in the list and detail view.
+  const seriesGroups = useMemo(() => groupEventSeries(filteredEvents), [filteredEvents]);
 
-  // Rich DOM markers are useful only at neighborhood zoom. Build them solely
-  // from matching rows, so initial regional views do not allocate thousands of
-  // hidden elements and a venue badge never includes filtered-out events.
-  const markerItems = useMemo(() => {
-    if (!detailMarkersVisible) return [];
+  const seriesCollapsedItems = useMemo(() => {
+    const seen = new Set();
+    const items = [];
+    for (const ev of filtered) {
+      if (ev.kind === 'place') { items.push(ev); continue; }
+      const series = seriesGroups.byId.get(ev.id);
+      if (!series) { items.push(ev); continue; }
+      if (seen.has(series)) continue;
+      seen.add(series);
+      items.push({
+        ...series.anchor,
+        _seriesCount: series.members.length,
+        _seriesIds: series.members.map((member) => member.id),
+      });
+    }
+    return items;
+  }, [filtered, seriesGroups]);
+
+  const venueGroups = useMemo(() => groupEventsByVenue(seriesCollapsedItems), [seriesCollapsedItems]);
+
+  const groupedMapItems = useMemo(() => {
     const seen = new Set();
     const reps = [];
-    for (const ev of filtered) {
+    for (const ev of seriesCollapsedItems) {
       if (ev.kind === 'place') { reps.push(ev); continue; }
       const group = venueGroups.get(ev.id);
       if (!group || seen.has(group)) continue;
       seen.add(group);
+      const representative = group.members.find((member) => member._seriesCount) || group.members[0];
+      const memberIds = group.members.flatMap((member) => member._seriesIds || [member.id]);
       reps.push({
-        ...group.members[0],
-        _venueCount: group.members.length,
-        _venueIds: group.members.map((member) => member.id),
+        ...representative,
+        _venueCount: memberIds.length,
+        _venueIds: memberIds,
       });
     }
     return reps;
-  }, [detailMarkersVisible, filtered, venueGroups]);
+  }, [seriesCollapsedItems, venueGroups]);
+
+  // Rich DOM markers are useful only at neighborhood zoom. Build them solely
+  // from matching rows, so initial regional views do not allocate thousands of
+  // hidden elements and a venue badge never includes filtered-out events.
+  const markerItems = useMemo(() => detailMarkersVisible ? groupedMapItems : [], [detailMarkersVisible, groupedMapItems]);
 
   useEffect(() => {
     const map = mapObj.current;
@@ -854,11 +945,13 @@ export default function Home() {
       const cat = primaryCat(ev);
       const color = CATS[cat].color;
       const community = isCommunitySubmitted(ev);
-      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '');
+      const selectedHere = selected && (ev._venueIds || [ev.id]).includes(selected.id);
+      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '') + (ev._seriesCount > 1 ? ' pin-series' : '') + (selectedHere ? ' selected' : '');
       const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
       const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
       if (community) ariaBits.push(t.legendCommunity);
       if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
+      if (ev._seriesCount > 1) ariaBits.push(t.markerSeriesCount.replace('{count}', ev._seriesCount));
       if (ev._venueCount > 1) ariaBits.push(t.markerVenueCount.replace('{count}', ev._venueCount));
       const ariaLabel = ariaBits.join(', ');
       const existing = markers.current.get(ev.id);
@@ -890,19 +983,19 @@ export default function Home() {
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([ev.lng, ev.lat]).addTo(map);
       markers.current.set(ev.id, { marker, el, ev });
     }
-  }, [markerItems, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [markerItems, lang, selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Regional zoom uses MapLibre's native spatial clustering so hundreds of
   // results remain scannable. At neighborhood zoom the richer DOM markers take
   // over (category icon/color, event/place shape, provenance, precision, venue count).
   const clusterData = useMemo(() => {
-    const features = filtered.map((ev) => ({
+    const features = groupedMapItems.map((ev) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [ev.lng, ev.lat] },
         properties: { color: CATS[primaryCat(ev)].color },
       }));
     return { type: 'FeatureCollection', features };
-  }, [filtered]);
+  }, [groupedMapItems]);
   const clusterDataRef = useRef(clusterData);
   clusterDataRef.current = clusterData;
 
@@ -975,29 +1068,32 @@ export default function Home() {
   }
 
   /* ---------------- scan flow ---------------- */
+  // The intake screen (scanState 'pick'): one drop zone (tap/drag/paste an
+  // image → scan) + a paste-a-link field (→ /api/extract-url) + "type it in
+  // manually". Every input converges on the shared confirm screen.
   function openCapture() {
     setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setManualEntry(false);
-    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
+    setMapPick(false); setUrlInput(''); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
   }
-  // "Add event manually" reuses the exact same confirm-screen UI as the scan flow,
-  // just pre-seeded with empty fields and skipping the photo/extraction steps.
+  // "Type it in manually" reuses the exact same confirm-screen UI as the scan
+  // flow, just pre-seeded with empty fields and skipping the photo/extraction
+  // steps. Defaults to an event; the Event|Place switch flips draft.kind.
   function openManualAdd() {
     setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
-    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
+    setMapPick(false); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
     setDraft({
       kind: 'event', title: '', date_start: todayStr(), time_start: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
       categories: [], is_free: false, description: '', confidence: {},
+      always_open: false, hours: {}, seasonal: '',
     });
   }
-  // "Add a place" reuses the same confirm-screen UI, minus date/time, plus
-  // opening hours + a location step that also accepts the map pin-drop.
-  function openManualPlace() {
-    setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
-    setLocMode('address'); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
-    setDraft({
-      kind: 'place', title: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
-      categories: [], is_free: false, description: '', confidence: {},
-      always_open: true, hours: {}, seasonal: '',
+  // The Event|Place segmented switch on the confirm screen. Fills in whichever
+  // kind's extra fields are missing so either direction is lossless.
+  function setDraftKind(kind) {
+    setDraft((d) => {
+      if (!d || d.kind === kind) return d;
+      if (kind === 'place') return { ...d, kind: 'place', always_open: d.always_open ?? false, hours: d.hours || {}, seasonal: d.seasonal || '' };
+      return { ...d, kind: 'event', date_start: d.date_start || todayStr(), time_start: d.time_start || '' };
     });
   }
   async function handleFile(file) {
@@ -1025,8 +1121,9 @@ export default function Home() {
       setPhotoPath(data.photo_path);
       setDupNotice(data.duplicate || null);
       setDraft({
+        kind: 'event',
         title: x.title || '',
-        date_start: x.date_start || todayStr(),
+        date_start: x.date_start || '',
         time_start: x.time_start || '',
         venue: x.venue || '',
         address: x.address || '',
@@ -1043,8 +1140,77 @@ export default function Home() {
       setScanState('pick');
     }
   }
+  // Link pipeline: server-side fetch + JSON-LD/OG/AI cascade (/api/extract-url),
+  // then the same confirm screen as a poster scan. A blocked/login-walled/
+  // event-less page comes back with fallback:true — we surface the nudge and
+  // stay on the intake screen where the camera drop zone is one tap away.
+  async function handleUrl(rawUrl) {
+    const url = (rawUrl || '').trim();
+    if (!url) return;
+    setScanErr(''); setScanImg(null); setScanState('scanning');
+    try {
+      const res = await fetch('/api/extract-url', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setScanErr(data.error || t.extractionFailed); setScanState('pick'); return; }
+      const x = data.extraction;
+      const place = x.kind === 'place';
+      setPhotoPath(null); setDupNotice(null);
+      setDraft({
+        kind: place ? 'place' : 'event',
+        title: x.title || '',
+        date_start: x.date_start || '',
+        time_start: x.time_start || '',
+        venue: x.venue || '',
+        address: x.address || '',
+        town: x.town || 'Linz',
+        lat: null, lng: null,
+        categories: (x.categories || []).filter((c) => CATS[c]),
+        is_free: x.is_free === true,
+        description: x.description || '',
+        confidence: x.confidence || { title: 0, datetime: 0, location: 0 },
+        source_url: data.source_url || url,
+        always_open: false, hours: {}, seasonal: '',
+      });
+      setScanState('confirm');
+    } catch (e) {
+      setScanErr(String(e.message || e));
+      setScanState('pick');
+    }
+  }
+  // Location picking on the MAIN map. Enter → collapse the form to a slim bar
+  // (mobile) / keep it live (desktop) and drop a fixed centre crosshair; the
+  // moveend effect reverse-geocodes the settled centre into address+town.
+  function enterMapPick() {
+    mapPickSnapshot.current = { lat: draft.lat, lng: draft.lng, address: draft.address, town: draft.town };
+    const start = draft.lat != null ? { lat: draft.lat, lng: draft.lng } : (searchCenter || me);
+    setDraft((d) => ({ ...d, lat: start.lat, lng: start.lng }));
+    setMapPick(true);
+    flyProgrammatic([start.lng, start.lat], Math.max(mapObj.current?.getZoom() || 0, 15));
+  }
+  async function confirmMapPick() {
+    const c = mapObj.current?.getCenter();
+    clearTimeout(reverseDebounce.current);
+    if (c) setDraft((d) => ({ ...d, lat: c.lat, lng: c.lng }));
+    // Restore the form immediately; Nominatim may take a few seconds. The
+    // resolved label fills in behind it without making Confirm feel stuck.
+    setMapPick(false);
+    if (!c) return;
+    try {
+      const res = await fetch(`/api/geocode?reverse=1&lat=${c.lat.toFixed(5)}&lng=${c.lng.toFixed(5)}`);
+      const data = await res.json();
+      const address = data.address;
+      if (address) setDraft((d) => ({ ...d, address: address.address ?? d.address, town: address.town || d.town }));
+    } catch { /* coordinates remain valid even if the label lookup fails */ }
+  }
+  function cancelMapPick() {
+    const s = mapPickSnapshot.current;
+    if (s) setDraft((d) => ({ ...d, lat: s.lat, lng: s.lng, address: s.address, town: s.town }));
+    setMapPick(false);
+  }
   async function finishPublish() {
-    track('contribution_published', { kind: draft.kind === 'place' ? 'place' : 'event', via: photoPath ? 'scan' : 'form' });
+    track('contribution_published', { kind: draft.kind === 'place' ? 'place' : 'event', via: photoPath ? 'scan' : draft.source_url ? 'link' : 'form' });
     setCapture(false);
     setManualEntry(false);
     setRefine(null);
@@ -1063,6 +1229,7 @@ export default function Home() {
     // Known coordinates (from the map pin-drop or a picked address suggestion) are
     // trusted over server-side geocoding whenever we have them, for either kind.
     const coordsPatch = draft.lat != null ? { lat: draft.lat, lng: draft.lng, geo_precision: 'address' } : {};
+    const placeHours = buildOpeningHours(draft.hours);
     const body = isPlace
       ? {
           kind: 'place',
@@ -1071,9 +1238,9 @@ export default function Home() {
           venue: draft.venue || null,
           address: draft.address || null,
           town: draft.town || 'Linz',
-          categories: draft.categories.length ? draft.categories : ['playground'],
+          categories: draft.categories,
           is_free: draft.is_free,
-          opening_hours: draft.always_open ? { always: true } : buildOpeningHours(draft.hours),
+          opening_hours: draft.always_open ? { always: true } : Object.keys(placeHours).length ? placeHours : null,
           seasonal: draft.seasonal || null,
           ...coordsPatch,
         }
@@ -1086,11 +1253,12 @@ export default function Home() {
           venue: draft.venue || null,
           address: draft.address || null,
           town: draft.town || 'Linz',
-          categories: draft.categories.length ? draft.categories : ['family'],
+          categories: draft.categories,
           is_free: draft.is_free,
           photo_path: photoPath,
           ...coordsPatch,
         };
+    if (draft.source_url) body.source_url = draft.source_url; // link-pipeline linkback
     body.website = draft.website || ''; // honeypot — server rejects if filled
     try {
       const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify(body) });
@@ -1183,13 +1351,7 @@ export default function Home() {
               <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
               <div className="menudrop">
                 <button className="menuitem" onClick={() => { setMenuOpen(false); openCapture(); }}>
-                  <span className="ic">📷</span>{t.scanTitle}
-                </button>
-                <button className="menuitem" onClick={() => { setMenuOpen(false); openManualAdd(); }}>
-                  <span className="ic">➕</span>{t.addManual}
-                </button>
-                <button className="menuitem" onClick={() => { setMenuOpen(false); openManualPlace(); }}>
-                  <span className="ic">📍</span>{t.addPlace}
+                  <span className="ic">➕</span>{t.addToMap}
                 </button>
                 <button className="menuitem" onClick={() => { setMenuOpen(false); setNl({ open: true, email: '', busy: false, done: false, err: '' }); }}>
                   <span className="ic">✉️</span>{t.newsletter}
@@ -1447,6 +1609,11 @@ export default function Home() {
     const cat = primaryCat(ev);
     const place = ev.kind === 'place';
     const community = isCommunitySubmitted(ev);
+    const series = seriesGroups.byId.get(ev.id);
+    const seriesIds = new Set(series?.members.map((item) => item.id) || []);
+    const seriesSiblings = (series?.members || [])
+      .filter((item) => item.id !== ev.id)
+      .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
     // Task 3: "more at this venue" — for an event, its venue-group siblings; for a
     // place, other upcoming events at/near it (same venue-matching rule).
     const venueSiblings = place
@@ -1454,7 +1621,7 @@ export default function Home() {
           .filter((e) => e.kind !== 'place' && e.id !== ev.id && sameVenue(e, ev))
           .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
       : (events || [])
-          .filter((e) => e.kind !== 'place' && e.id !== ev.id && sameVenue(e, ev))
+          .filter((e) => e.kind !== 'place' && e.id !== ev.id && !seriesIds.has(e.id) && sameVenue(e, ev))
           .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
     return (
       <>
@@ -1492,7 +1659,10 @@ export default function Home() {
             <span>
               {t.source}:{' '}
               {community ? (
-                <b>{t.communitySource}</b>
+                <>
+                  <b>{t.communitySource}</b>
+                  {ev.source_url && <> · <a href={ev.source_url} target="_blank" rel="noreferrer">{ev.source_url}</a></>}
+                </>
               ) : ev.source_url ? (
                 <a href={ev.source_url} target="_blank" rel="noreferrer">{ev.source_name || ev.source_url}</a>
               ) : (
@@ -1544,6 +1714,25 @@ export default function Home() {
             </button>
             {/* Future: favorite/star action slot goes here */}
           </div>
+          {seriesSiblings.length > 0 && (
+            <div className="dvenue dseries">
+              <h4>{t.moreInSeries}</h4>
+              <div className="dvenue-list">
+                {seriesSiblings.map((s) => {
+                  const sCat = primaryCat(s);
+                  return (
+                    <button key={s.id} className="dvenue-row" style={{ '--cc': CATS[sCat].color }} onClick={() => switchToVenueEvent(s)}>
+                      <span className="thumb"><CatIcon cat={sCat} size={15} /></span>
+                      <span className="tx">
+                        <span className="t">{fmtWhenShort(s, lang, t)}</span>
+                        <span className="m">{[s.venue, s.town].filter(Boolean).join(', ')}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {venueSiblings.length > 0 && (
             <div className="dvenue">
               <h4>{t.moreAtVenue}</h4>
@@ -1573,11 +1762,11 @@ export default function Home() {
 
   const isPlaceDraft = draft?.kind === 'place';
   const captureView = (
-    <section className={`capture ${capture ? 'show' : ''}`}>
+    <section className={`capture ${capture ? 'show' : ''} ${mapPick ? 'mappick' : ''}`}>
       <div className="caphead">
         <h3>
-          {scanState === 'pick' && t.scanTitle}
-          {scanState === 'scanning' && t.scanReading}
+          {scanState === 'pick' && t.addToMap}
+          {scanState === 'scanning' && (scanImg ? t.scanReading : t.urlReading)}
           {scanState === 'confirm' && (isPlaceDraft ? t.addPlaceTitle : manualEntry ? t.addManual : t.scanConfirm)}
           {scanState === 'refine' && t.adjustPosition}
           {scanState === 'publishing' && t.scanPublishing}
@@ -1589,20 +1778,54 @@ export default function Home() {
         {scanState === 'pick' && (
           <>
             <input ref={fileInput} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
-            <div className="droparea" onClick={() => fileInput.current?.click()}>
+            <div
+              className="droparea"
+              onClick={() => fileInput.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); }}
+              onDragLeave={(e) => e.currentTarget.classList.remove('dragover')}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.currentTarget.classList.remove('dragover');
+                const file = e.dataTransfer?.files?.[0];
+                if (file) handleFile(file);
+              }}
+            >
               <span className="big">📷</span>
               <p><b>{t.scanPrompt}</b><br />{t.scanPromptSub}</p>
             </div>
+            <div className="intake-or"><span>{t.intakeOr}</span></div>
+            <div className="intake-url">
+              <input
+                type="url"
+                inputMode="url"
+                autoComplete="off"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleUrl(urlInput); } }}
+                placeholder={t.intakeUrlPlaceholder}
+              />
+              <button type="button" className="intake-url-go" disabled={!urlInput.trim()} onClick={() => handleUrl(urlInput)}>
+                {t.intakeReadLink}
+              </button>
+            </div>
+            <button type="button" className="intake-manual" onClick={openManualAdd}>{t.intakeManualLink}</button>
           </>
         )}
-        {scanState === 'scanning' && scanImg && (
-          <>
-            <div className="preview">
-              <img src={scanImg} alt="" />
-              <div className="scanline-wrap"><div className="scanline" /></div>
+        {scanState === 'scanning' && (
+          scanImg ? (
+            <>
+              <div className="preview">
+                <img src={scanImg} alt="" />
+                <div className="scanline-wrap"><div className="scanline" /></div>
+              </div>
+              <div className="scanstatus">{t.scanExtracting}</div>
+            </>
+          ) : (
+            <div className="url-reading">
+              <span className="big">🔗</span>
+              <div className="scanstatus">{t.urlReading}</div>
             </div>
-            <div className="scanstatus">{t.scanExtracting}</div>
-          </>
+          )
         )}
         {scanState === 'refine' && refine && (
           <>
@@ -1628,6 +1851,10 @@ export default function Home() {
               autoComplete="off"
               aria-hidden="true"
             />
+            <div className="seg kindswitch">
+              <button className={!isPlaceDraft ? 'on' : ''} onClick={() => setDraftKind('event')}>{t.switchEvent}</button>
+              <button className={isPlaceDraft ? 'on' : ''} onClick={() => setDraftKind('place')}>{t.switchPlace}</button>
+            </div>
             <div className="xfield">
               <div className="lab">{t.fTitle} {confChip(conf?.title)}</div>
               <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
@@ -1648,58 +1875,45 @@ export default function Home() {
               <div className="lab">{t.fVenue} {confChip(conf?.location)}</div>
               <input value={draft.venue} onChange={(e) => setDraft({ ...draft, venue: e.target.value })} />
             </div>
-            {/* task 4a: "choose on map" now shared by both the add-place and add-event
-                forms — same address/map toggle + pin-drop picker either way. */}
-            <div className="seg locseg">
-              <button className={locMode === 'address' ? 'on' : ''} onClick={() => setLocMode('address')}>{t.locByAddress}</button>
-              <button className={locMode === 'map' ? 'on' : ''} onClick={() => setLocMode('map')}>{t.locByMap}</button>
-            </div>
+            {/* Location: two-way-bound address field + main-map picker. Typing/
+                picking an address flies the big map; "Adjust on map" collapses
+                this form and reverse-geocodes the settled map centre back here. */}
             <div className="xrow">
-              {locMode === 'address' && (
-                <div className="xfield addr-field">
-                  <div className="lab">{t.fAddress}</div>
-                  <input
-                    value={draft.address}
-                    onChange={(e) => onAddressChange(e.target.value)}
-                    onFocus={() => setAddrSuggestOpen(true)}
-                    onBlur={() => setTimeout(() => setAddrSuggestOpen(false), 150)}
-                    autoComplete="off"
-                  />
-                  {/* task 4b: address autocomplete — GET /api/geocode?suggest=1&q=…,
-                      debounced 300ms / ≥3 chars; gracefully shows nothing on a
-                      non-200 or empty response (see onAddressChange/fetchAddressSuggestions). */}
-                  {addrSuggestOpen && addrSuggestions.length > 0 && (
-                    <div className="addr-suggest" role="listbox" aria-label={t.fAddressSuggest}>
-                      {addrSuggestions.map((s, i) => (
-                        <button
-                          key={i}
-                          type="button"
-                          className="addr-suggest-row"
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => pickAddressSuggestion(s)}
-                        >
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              <div className="xfield addr-field">
+                <div className="lab">{t.fAddress}</div>
+                <input
+                  value={draft.address}
+                  onChange={(e) => onAddressChange(e.target.value)}
+                  onFocus={() => setAddrSuggestOpen(true)}
+                  onBlur={() => setTimeout(() => setAddrSuggestOpen(false), 150)}
+                  autoComplete="off"
+                />
+                {/* address autocomplete — GET /api/geocode?suggest=1&q=…, debounced
+                    300ms / ≥3 chars; picking a row also flies the main map. */}
+                {addrSuggestOpen && addrSuggestions.length > 0 && (
+                  <div className="addr-suggest" role="listbox" aria-label={t.fAddressSuggest}>
+                    {addrSuggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="addr-suggest-row"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => pickAddressSuggestion(s)}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className="xfield">
                 <div className="lab">{t.fTown}</div>
                 <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
               </div>
             </div>
-            {locMode === 'map' && (
-              <>
-                <PinDropPicker
-                  center={draft.lat != null ? { lat: draft.lat, lng: draft.lng } : me}
-                  t={t}
-                  onConfirm={(pos) => setDraft((d) => ({ ...d, lat: pos.lat, lng: pos.lng }))}
-                />
-                {draft.lat != null && <div className="posset">📍 {t.positionSet}</div>}
-              </>
-            )}
+            <button type="button" className="mapadjust-btn" onClick={enterMapPick}>
+              🗺️ {t.adjustOnMap}{draft.lat != null ? ` · ${t.positionSet}` : ''}
+            </button>
             <div className="xfield">
               <div className="lab">{t.categories}</div>
               <div className="catgrid">
@@ -1818,20 +2032,6 @@ export default function Home() {
         {/* mobile top bar — Google-Maps-style search pill + account circle (menu content lives in locSearchBar) */}
         <div className="m-topbar mobileonly">
           {locSearchBar(true)}
-          {/* quick preview — sits right under the search bar: full title, time, short description */}
-          {selected && !isDesktop && !detailFull && (
-            <div className="minicard" style={{ '--cc': CATS[primaryCat(selected)].color }} onClick={() => setDetailFull(true)}>
-              <span className="thumb"><CatIcon cat={primaryCat(selected)} size={19} /></span>
-              <span className="tx">
-                <span className="t">{selected.title}</span>
-                <span className="w">{selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}</span>
-                <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
-                {selected.description && <span className="d">{selected.description}</span>}
-              </span>
-              <button className="morebtn" onClick={(e) => { e.stopPropagation(); setDetailFull(true); }} aria-label={t.learnMore}><CaretRight size={18} weight="bold" /></button>
-              <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label={t.close}><X size={14} weight="bold" /></button>
-            </div>
-          )}
         </div>
 
         <details className="map-legend">
@@ -1841,13 +2041,14 @@ export default function Home() {
             <span><i className="legend-pin place" />{t.legendPlace}</span>
             <span><i className="legend-pin event community" />{t.legendCommunity}</span>
             <span><i className="legend-pin event approximate" />{t.legendApprox}</span>
+            <span><i className="legend-pin series">3</i>{t.legendSeries}</span>
             <span><i className="legend-pin event count" />{t.moreAtVenue}</span>
             <span><i className="legend-cluster">12</i>{t.legendCluster}</span>
           </div>
         </details>
 
-        {/* mobile bottom chip bar — filters stay visible even with a preview open */}
-        {sheet === 'closed' && !detailFull && (
+        {/* mobile bottom chip bar */}
+        {sheet === 'closed' && !selected && (
           <div className="m-bottombar mobileonly">
             <div className="chiprow" style={{ paddingBottom: 4 }}>{kindToggle}</div>
             <div className="chiprow" style={{ paddingBottom: 4 }}>{dateChips}</div>
@@ -1884,13 +2085,46 @@ export default function Home() {
           </div>
         </section>
 
+        {/* mini card (mobile google-maps style) */}
+        {selected && !isDesktop && !detailFull && (
+          <div className="minicard" style={{ '--cc': CATS[primaryCat(selected)].color }} onClick={() => setDetailFull(true)}>
+            <span className="thumb"><CatIcon cat={primaryCat(selected)} size={19} /></span>
+            <span className="tx">
+              <span className="t">{selected.title}</span>
+              <span className="w">{selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}</span>
+              <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
+            </span>
+            <button className="morebtn" onClick={(e) => { e.stopPropagation(); setDetailFull(true); }}>{t.learnMore}</button>
+            <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label={t.close}><X size={14} weight="bold" /></button>
+          </div>
+        )}
+
         {/* full-screen detail (mobile) */}
         {selected && !isDesktop && detailFull && (
           <div className="detail-full">{eventDetail(selected, { onBack: () => setDetailFull(false), onClose: () => selectEvent(null, { fly: false }) })}</div>
         )}
 
+        {/* map-pick: fixed centre crosshair + slim confirm bar over the live map */}
+        {mapPick && <div className="map-crosshair" aria-hidden="true">📍</div>}
+        {mapPick && (
+          <div className="mappick-bar">
+            <button className="mappick-cancel" onClick={cancelMapPick} aria-label={t.cancel}><X size={16} weight="bold" /></button>
+            <span className="mappick-hint">{t.mapPickHint}</span>
+            <button className="mappick-confirm" onClick={confirmMapPick}>✓ {t.confirmPosition}</button>
+          </div>
+        )}
+
+        {/* round "+" FAB — opens the unified intake; hidden while adding or in full-screen detail */}
         <button
-          className={`locate-btn ${capture ? 'hidden' : ''} ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
+          className={`fab ${capture || (selected && detailFull) ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${sheet === 'half' ? 'above-sheet' : ''}`}
+          onClick={openCapture}
+          aria-label={t.addToMap}
+        >
+          +
+        </button>
+
+        <button
+          className={`locate-btn ${capture ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${sheet === 'half' ? 'above-sheet' : ''} ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
           onClick={locateMe}
           aria-label={t.locateMe}
         >

@@ -44,13 +44,16 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
-- [ ] **Unified add-flow** (George approved 2026-07-12, brief: docs/design/add-flow.md, Opus
-      dispatched): one "+ Add" FAB → intake (photo / drag-drop / paste image / paste URL / manual);
+- [x] **Unified add-flow** (shipped 2026-07-12, brief: docs/design/add-flow.md): one "+ Add" FAB
+      → intake (photo / drag-drop / paste image / paste URL / manual);
       new /api/extract-url (JSON-LD → OG → lib/extract.js cascade, SSRF-guarded, no paid scrapers,
       login-wall → "screenshot it" fallback); event|place switch on confirm (AI sets kind); location
       picking on the MAIN map (two-way address↔map, reverse geocode on settle, PinDropPicker + locMode
       toggle removed from form); menu triplet → one Add item. Also answers the FB-channel item below
       for the organizer-submission path.
+- [x] **Series/occurrence map collapse** (2026-07-12): conservative same-title+town grouping anchors
+      repeated dates at the strongest resolved venue, renders a distinct count bubble + date list,
+      then applies safe same-venue collapse and finally neutral geographic clustering.
 - [ ] **Sofia jevents parser** (2026-07-12): visitsofia.bg (Столична община) runs a Joomla *jevents*
       calendar listing ~176 events; LLM crawl only pulls a slice per pass and no iCal export exists
       (403). Write a dedicated parser (enumerate `component/jevents/month.calendar/YYYY/MM/..` →

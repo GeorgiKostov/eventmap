@@ -1,6 +1,6 @@
 # Brief: Unified add-flow (intake · link pipeline · big-map location picker · FAB)
 
-*2026-07-12 — approved by George. Architect brief for Developer. Discussion context: FB events
+*2026-07-12 — shipped. Approved by George. Discussion context: FB events
 can't be crawled (API dead, scraping ToS/anti-bot), so paste-a-link + scan + manual become one
 first-class contribute funnel. No paid scraping services — free-tier fetching only.*
 

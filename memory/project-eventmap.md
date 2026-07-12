@@ -10,6 +10,12 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
 ## Where things stand (2026-07-12 late — AUSTRIA NATIONAL)
+- **Unified contribution + series map shipped:** one Add FAB accepts poster/photo, pasted image,
+  public URL, or manual entry; URL extraction cascades JSON-LD → OG → provider-routed AI with SSRF
+  guards and screenshot fallback. Event|Place shares one confirm form; address autocomplete and the
+  main map are two-way bound. Map density now resolves coordinates first, collapses conservative
+  same-title+town occurrences into a distinct series bubble (with date navigation), collapses safe
+  same-venue groups, then applies generic spatial clusters.
 - **15,946+601 events, all 9 Länder, 1,069 sources.** Deterministic prober (scripts/probe-sources.mjs,
   2,092-town catalog, no LLM, ~23min sweep) → 796 registered → hardened crawl (age-coercion +
   per-event/source isolation after the "4.5" batch-kill). Vienna = aggregators not Gemeinde:

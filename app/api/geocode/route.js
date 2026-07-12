@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { reverseGeocode, forwardGeocode } from '../../../lib/geocode.js';
+import { reverseGeocode, reverseGeocodeAddress, forwardGeocode } from '../../../lib/geocode.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,6 +74,13 @@ export async function GET(req) {
   const lng = parseFloat(searchParams.get('lng'));
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return NextResponse.json({ error: 'lat/lng required' }, { status: 400 });
+  }
+  // reverse=1: fuller {address, town} for the add-flow map picker (drag the
+  // main map under the crosshair → fill the location fields). Default reverse
+  // stays the short locality label for the "you are near X" pill.
+  if (searchParams.get('reverse') === '1') {
+    const address = await reverseGeocodeAddress(lat, lng);
+    return NextResponse.json({ address });
   }
   const label = await reverseGeocode(lat, lng);
   return NextResponse.json({ label });
