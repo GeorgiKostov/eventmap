@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Чепеларе",
+    "oblast": "Смолян",
+    "website": "https://visitchepelare.bg",
+    "calendar_url": "https://visitchepelare.bg/en/cultural-calendar",
+    "cms": "custom",
+    "structured_data": {"json_ld": true, "ical": false, "rss_event_dates": false, "table_pattern": true},
+    "confidence": "high",
+    "notes": "Confirmed JSON-LD + cultural events. Strong candidate.",
+    "probed_at": "2026-07-12"
+  },
+  {
+    "name": "Столична",
+    "oblast": "София-град",
+    "website": "https://www.sofia.bg",
+    "calendar_url": "https://visitsofia.bg/en/events-calendar",
+    "cms": "other",
+    "structured_data": {"json_ld": false, "ical": false, "rss_event_dates": false, "table_pattern": true},
+    "confidence": "medium",
+    "notes": "Main municipal site; English version sometimes restricted. Bulgarian /bg/ paths recommended.",
+    "probed_at": "2026-07-12"
+  },
+  {
+    "name": "Пловдив",
+    "oblast": "Пловдив",
+    "website": "https://www.visitplovdiv.com",
+    "calendar_url": "https://www.visitplovdiv.com/en/events",
+    "cms": "other",
+    "structured_data": {"json_ld": false, "ical": false, "rss_event_dates": false, "table_pattern": true},
+    "confidence": "medium",
+    "notes": "Major tourism portal – good candidate for deeper probe.",
+    "probed_at": "2026-07-12"
+  },
+  {
+    "name": "Варна",
+    "oblast": "Варна",
+    "website": "https://www.visitvarna.bg",
+    "calendar_url": null,
+    "cms": "other",
+    "structured_data": {"json_ld": false, "ical": false, "rss_event_dates": false, "table_pattern": false},
+    "confidence": "low",
+    "notes": "Needs probing of actual events calendar.",
+    "probed_at": "2026-07-12"
+  },
+  {
+    "name": "Бургас",
+    "oblast": "Бургас",
+    "website": "https://www.burgas.bg",
+    "calendar_url": "https://www.burgas.bg/en/events",
+    "cms": "other",
+    "structured_data": {"json_ld": false, "ical": false, "rss_event_dates": false, "table_pattern": true},
+    "confidence": "medium",
+    "notes": "Municipal site with events section.",
+    "probed_at": "2026-07-12"
+  }
+]

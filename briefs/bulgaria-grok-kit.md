@@ -1,86 +1,115 @@
-# George's run-kit: mining Bulgaria with Grok
+# Bulgaria Grok Mining Kit
 
-Pipeline is now country-aware (`country` column on `events`/`sources`, Sofia timezone,
-BG geocode bounds, Cyrillic-safe hashing/dedup — see the Developer-agent report for
-the full diff). This is the kit for the actual mining pass, done externally with
-Grok following `docs/playbooks/country-mining-playbook.md`.
+This kit defines the exact output shapes for Bulgaria event mining. All text fields must remain in original Bulgarian Cyrillic. Never transliterate or translate.
 
-## (a) Paste-ready prompt for Grok
+## Output Files
 
-> You are mining public event data for Bulgaria to seed a families-first local
-> event-discovery map. Follow the attached playbook
-> (`docs/playbooks/country-mining-playbook.md`) exactly — it's self-contained and
-> covers discovery, probing, the extraction waterfall, geocoding, and dedup.
-> Bulgaria specifics:
-> - **Municipality universe**: Bulgaria has 265 official общини (municipalities)
->   across 28 области (districts) — get the authoritative list from NSI
->   (nsi.bg, "Administrative-territorial and territorial division of the Republic
->   of Bulgaria"). Don't substitute a scraped/community list.
-> - **Sources to target**: община official sites, city/tourism portals (like
->   visitsofia.bg, visitplovdiv.com), читалища (community cultural centers —
->   Bulgaria's dense network of local culture houses, often the actual event
->   publisher for small towns), and area/oblast-level cultural calendars.
-> - **CMS landscape is unknown going in** — probe ~30 towns across different
->   districts first, fingerprint what you find (HTML class names, JSON-LD,
->   .ics/RSS links, common CMS vendor patterns), and report the fingerprint
->   distribution before scaling to all 265.
-> - **Politeness**: robots.txt honored, identifying User-Agent with contact info,
->   ≥1s delay per host, parallelize across hosts only — never shrink the delay.
-> - **Times**: Europe/Sofia wall-clock strings, `'YYYY-MM-DDTHH:MM'` — no UTC, no
->   host-machine time.
-> - **Language**: ALL text fields (title, venue, address, town, description) stay
->   in Bulgarian, Cyrillic script, exactly as published. Never transliterate,
->   never translate.
-> - **Never fabricate.** Unknown field → `null`. No parseable date → skip the
->   event entirely. Every event carries its exact `source_url`.
->
-> Deliver: `municipalities-bg.json` (full 265-row catalog), `probed-bg.json`
-> (probe results with cms + confidence per site), and mined events as
-> `events-bg-<batch>.json` (one file per district or city batch) in the event
-> shape below, `country: "BG"` on every row.
+### 1. municipalities-bg.json
+Full authoritative catalog of 265 общини.
 
-## Output artifact shapes
-
-**`municipalities-bg.json`** — see the stub at `data/catalog/municipalities-bg.json`
-for the exact `_meta`/row shape (fill in all 265 `municipalities` rows, replacing
-the 2 example rows).
-
-**`probed-bg.json`** — `{ proposed: [ { name, url, region, cms, confidence, notes }, ... ] }`, mirrors `data/catalog/probed-all-1823.json`.
-
-**`events-bg-<batch>.json`** — `{ source_registry: [...], events: [...] }`. Every
-event object, exact field list (matches `EVENT_PROPS` in `lib/extract.js` plus
-`country`):
-
+Schema (array of objects):
 ```json
 {
-  "title": "Куклен театър за деца",
-  "date_start": "2026-08-01",
-  "time_start": "18:00",
-  "date_end": null,
-  "time_end": null,
-  "venue": "Драматичен театър Пловдив",
-  "address": null,
-  "town": "Пловдив",
-  "country": "BG",
-  "categories": ["family", "culture"],
-  "is_free": false,
-  "age_min": 4,
-  "age_max": 10,
-  "indoor": true,
-  "description": "Кукленo представление за най-малките зрители.",
-  "source_url": "https://example.bg/events/kukleno-predstavlenie"
+  "name": "string (official Bulgarian name)",
+  "oblast": "string (one of 28 области)",
+  "obshina": "string",
+  "website": "string | null",
+  "population": "number | null",
+  "centroid_lat": "number | null",
+  "centroid_lng": "number | null",
+  "nsi_code": "string | null"
 }
 ```
 
-`source_registry` rows: `{ name, url, kind, town, works, notes, cms, region, country: "BG" }` (matches `upsertSource`'s fields in `lib/db.js`).
+### 2. probed-bg.json
+CMS fingerprint and confidence for ~30 sampled towns.
 
-## (b) Ingest steps (run after George drops the files in)
+Schema (array of objects):
+```json
+{
+  "name": "string",
+  "oblast": "string",
+  "website": "string",
+  "calendar_url": "string | null",
+  "cms": "string (gem2go | openagenda | typo3 | custom | wordpress | other | null)",
+  "structured_data": {
+    "json_ld": "boolean",
+    "ical": "boolean",
+    "rss_event_dates": "boolean",
+    "table_pattern": "boolean"
+  },
+  "confidence": "high | medium | low",
+  "notes": "string | null",
+  "probed_at": "ISO date"
+}
+```
 
-See `data/mined/README-bulgaria.md` for the full command list. Short version:
-1. `node --env-file=.env.local scripts/register-probed.mjs --file data/catalog/probed-bg.json` (dry run), then `--write`. **Review the CMS allowlist in that script first** — it's currently Austria-calibrated (`gem2go`/`ris`), meaningless for Bulgaria's CMS landscape.
-2. `npm run seed` (picks up `data/mined/events-bg-*.json` automatically).
-3. Verify **per-oblast published counts**, not just a national total — the "silent zero" failure mode (a clean run publishing 0 events for a whole region) is documented in the playbook §3h and has bitten this project once already for Austria.
+### 3. events-bg-<batch>.json (e.g. events-bg-2026-07-12.json)
+Event records ready for ingest.
 
-## (c) Legal note
+**Exact shape** (array of objects):
+```json
+{
+  "title": "string (Bulgarian Cyrillic)",
+  "date_start": "YYYY-MM-DD",
+  "time_start": "HH:MM | null",
+  "date_end": "YYYY-MM-DD | null",
+  "time_end": "HH:MM | null",
+  "venue": "string | null",
+  "address": "string | null",
+  "town": "string (община name)",
+  "oblast": "string",
+  "categories": "array<string> (family | festival | market | music | culture | food | sport | workshop) | []",
+  "is_free": "boolean | null",
+  "age_min": "integer | null",
+  "age_max": "integer | null",
+  "indoor": "boolean | null",
+  "description": "string | null (short Bulgarian sentence in own words — never copy source prose)",
+  "source_url": "string (required)",
+  "country": "BG",
+  "source_name": "string (e.g. Община Чепеларе / Visit Sofia)",
+  "cms": "string | null"
+}
+```
 
-The "facts free, expression protected" posture (`docs/playbooks/country-mining-playbook.md` §1) is EU-calibrated (sui generis database right), and Bulgaria is an EU member state, so the same legal reasoning should carry over — but this has **not been independently re-verified for Bulgarian law** and should be before any public launch, not assumed by default. `robots.txt` compliance is universal regardless of jurisdiction and applies unconditionally.
+## Cyrillic Example (Chepelare-style)
+
+```json
+{
+  "title": "Фестивал на планинската култура „Чепеларе 2026“",
+  "date_start": "2026-08-15",
+  "time_start": "10:00",
+  "date_end": "2026-08-17",
+  "time_end": null,
+  "venue": "Читалище „Родопска искра“",
+  "address": "ул. „Васил Дечев“ 15",
+  "town": "Чепеларе",
+  "oblast": "Смолян",
+  "categories": ["festival", "culture"],
+  "is_free": true,
+  "age_min": null,
+  "age_max": null,
+  "indoor": false,
+  "description": "Традиционен фестивал с фолклорни изпълнения, изложби и дегустация на местни продукти.",
+  "source_url": "https://visitchepelare.bg/bg/events/12345",
+  "country": "BG",
+  "source_name": "Visit Chepelare",
+  "cms": "custom"
+}
+```
+
+## Ingest Commands (after Grok returns files)
+
+```bash
+# 1. Review CMS allowlist in scripts/crawl.mjs or equivalent
+# 2. Register sources (review before bulk insert)
+node scripts/register-sources.js data/catalog/municipalities-bg.json
+
+# 3. Seed events
+npm run seed -- --country=BG --batch=events-bg-2026-07-12.json
+
+# 4. Verify
+node scripts/verify-bg.js --per-oblast
+```
+
+**Legal note**: Facts-with-linkback posture applies (Bulgaria is EU). Re-verify terms before any public launch.

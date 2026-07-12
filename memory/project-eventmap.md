@@ -10,6 +10,10 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
 ## Where things stand (2026-07-11 late — UI v4)
+- **2026-07-12 localization:** English/German/Bulgarian now cover the map UI, legal pages,
+  standalone event pages, metadata, and user-facing API errors. First-visit language uses Vercel's
+  approximate IP-country header (BG→BG, AT/DE→DE, all other/unknown→EN); the three-option picker
+  stores a manual override in a necessary first-party cookie and local storage.
 - **UI v4 shipped** (3 Sonnet agents, Architect-reviewed): Google-Maps shell (brand text gone, pill
   search + account circle → actions menu), Phosphor icons (back/X, directions/calendar/share action
   row, star slot reserved), venue grouping (count badge + "More at this venue"; town-centroid coords

@@ -12,6 +12,11 @@ export const maxDuration = 120;
 // /tmp on serverless (read-only project dir), local data/uploads otherwise.
 const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(process.cwd(), 'data', 'uploads');
 const ALLOWED = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+const MESSAGES = {
+  de: { globalLimit: 'Das Scan-Limit für heute ist erreicht — bitte morgen wieder.', limit: 'Zu viele Scans — bitte in einer Stunde wieder.', noImage: 'Kein Bild empfangen.', format: 'Dieses Bildformat wird nicht unterstützt.', size: 'Das Bild ist größer als 8 MB.', invalid: 'Die Datei ist kein gültiges Bild.', extraction: 'Die KI-Extraktion ist fehlgeschlagen. Bitte später erneut versuchen.' },
+  en: { globalLimit: 'Today’s scan limit has been reached — please try again tomorrow.', limit: 'Too many scans — please try again in an hour.', noImage: 'No image received.', format: 'This image format is not supported.', size: 'The image is larger than 8 MB.', invalid: 'The file is not a valid image.', extraction: 'AI extraction failed. Please try again later.' },
+  bg: { globalLimit: 'Днешният лимит за сканиране е достигнат — опитай отново утре.', limit: 'Твърде много сканирания — опитай отново след час.', noImage: 'Не е получено изображение.', format: 'Този формат на изображение не се поддържа.', size: 'Изображението е по-голямо от 8 MB.', invalid: 'Файлът не е валидно изображение.', extraction: 'AI разпознаването беше неуспешно. Опитай отново по-късно.' },
+};
 
 // First bytes must match the claimed image type — a MIME header is free to
 // fake, magic bytes cost the attacker an actual image file.
@@ -25,29 +30,28 @@ function sniffImage(buf) {
 }
 
 export async function POST(req) {
+  const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
   // Each scan calls an LLM ($$), so cap it hard: 4/hour + 10/day per IP hash,
   // and a global 100/day circuit-breaker to bound worst-case cost/abuse.
   const rl = await limit(req, 'scan', { perHour: 4, perDay: 10, globalPerDay: 100 });
   if (rl) {
-    const msg = rl.scope === 'global'
-      ? 'Das Scan-Limit für heute ist erreicht — bitte morgen wieder.'
-      : 'Zu viele Scans — bitte in einer Stunde wieder.';
+    const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
     return NextResponse.json({ error: msg }, { status: 429 });
   }
   const form = await req.formData();
   const file = form.get('image');
   if (!file || typeof file === 'string') {
-    return NextResponse.json({ error: 'Kein Bild empfangen.' }, { status: 400 });
+    return NextResponse.json({ error: messages.noImage }, { status: 400 });
   }
   const ext = ALLOWED[file.type];
-  if (!ext) return NextResponse.json({ error: `Bildformat ${file.type} nicht unterstützt.` }, { status: 415 });
+  if (!ext) return NextResponse.json({ error: messages.format }, { status: 415 });
   if (file.size > 8 * 1024 * 1024) {
-    return NextResponse.json({ error: 'Bild größer als 8 MB.' }, { status: 413 });
+    return NextResponse.json({ error: messages.size }, { status: 413 });
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
   if (sniffImage(buf) !== file.type) {
-    return NextResponse.json({ error: 'Datei ist kein gültiges Bild.' }, { status: 415 });
+    return NextResponse.json({ error: messages.invalid }, { status: 415 });
   }
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
   const name = `scan-${Date.now()}.${ext}`;
@@ -84,7 +88,7 @@ export async function POST(req) {
   } catch (err) {
     console.error('scan extraction failed:', err);
     return NextResponse.json(
-      { error: 'KI-Extraktion fehlgeschlagen. Ist ein Claude-API-Key konfiguriert (.env.local) oder Claude Code installiert?', detail: String(err?.message || err) },
+      { error: messages.extraction, detail: String(err?.message || err) },
       { status: 502 }
     );
   } finally {

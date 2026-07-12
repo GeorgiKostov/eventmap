@@ -5,13 +5,24 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork } from '@phosphor-icons/react';
 import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
-import { STRINGS, detectLang } from '../lib/i18n.js';
+import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
 import { track } from '../lib/analytics.js';
+import { useLanguage } from './language-provider.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
 const DETAIL_MARKER_ZOOM = 12.5;
+const OVERVIEW_MARKER_MAX_ZOOM = DETAIL_MARKER_ZOOM + 0.25;
+
+function mapLibreLocale(t) {
+  return {
+    'Map.Title': t.mapLabel,
+    'NavigationControl.ZoomIn': t.zoomIn,
+    'NavigationControl.ZoomOut': t.zoomOut,
+    'AttributionControl.ToggleAttribution': t.toggleAttribution,
+  };
+}
 
 /* ---------------- date helpers (pinned to Europe/Vienna) ---------------- */
 function todayStr(offset = 0) {
@@ -29,7 +40,7 @@ function addDays(dateStr, n) {
   return new Intl.DateTimeFormat('en-CA').format(d);
 }
 function locale(lang) {
-  return lang === 'de' ? 'de-AT' : 'en-GB';
+  return lang === 'de' ? 'de-AT' : lang === 'bg' ? 'bg-BG' : 'en-GB';
 }
 function fmtDay(dateStr, lang, t) {
   if (dateStr === todayStr()) return t.today;
@@ -139,6 +150,52 @@ function sameVenue(a, b) {
   if (a.geo_precision === 'town' || b.geo_precision === 'town') return false;
   return distKm(a, b) <= 0.03; // 30m
 }
+
+// Group only the currently relevant rows. A small spatial index preserves the
+// existing same-name/30m behavior without the old all-pairs scan over thousands
+// of published events.
+function groupEventsByVenue(items) {
+  const byId = new Map();
+  const groups = [];
+  const byName = new Map();
+  const byCell = new Map();
+  const cellSize = 0.0005; // ~37m longitude near Linz; adjacent cells cover 30m
+  const cell = (ev) => [Math.floor(ev.lat / cellSize), Math.floor(ev.lng / cellSize)];
+  const cellKey = (a, b) => `${a}:${b}`;
+
+  for (const ev of items) {
+    if (ev.kind === 'place') continue;
+    const candidates = new Set();
+    const nameKey = normVenue(ev.venue) ? `${normVenue(ev.venue)}|${normVenue(ev.town)}` : '';
+    if (nameKey && byName.has(nameKey)) candidates.add(byName.get(nameKey));
+    if (ev.geo_precision !== 'town') {
+      const [cy, cx] = cell(ev);
+      for (let y = cy - 1; y <= cy + 1; y++) {
+        for (let x = cx - 1; x <= cx + 1; x++) {
+          for (const g of byCell.get(cellKey(y, x)) || []) candidates.add(g);
+        }
+      }
+    }
+    let group = [...candidates]
+      .sort((a, b) => a.index - b.index)
+      .find((g) => sameVenue(g.members[0], ev));
+    if (!group) {
+      group = { index: groups.length, members: [ev] };
+      groups.push(group);
+      if (nameKey) byName.set(nameKey, group);
+      if (ev.geo_precision !== 'town') {
+        const [cy, cx] = cell(ev);
+        const key = cellKey(cy, cx);
+        if (!byCell.has(key)) byCell.set(key, []);
+        byCell.get(key).push(group);
+      }
+    } else {
+      group.members.push(ev);
+    }
+    byId.set(ev.id, group);
+  }
+  return byId;
+}
 // Shared date math for all three calendar targets.
 // timed  → start "20260712T193000", end +2h if no ends_at (Vienna wall-clock)
 // all-day → start "20260712", end exclusive next day "20260713"
@@ -239,9 +296,9 @@ function DateRangePicker({ lang, t, from, to, onChange, onDone }) {
   return (
     <div className="dp-pop" onClick={(e) => e.stopPropagation()}>
       <div className="dp-head">
-        <button className="dp-nav" onClick={() => setView((v) => ({ y: v.m === 0 ? v.y - 1 : v.y, m: (v.m + 11) % 12 }))} aria-label="prev">‹</button>
+        <button className="dp-nav" onClick={() => setView((v) => ({ y: v.m === 0 ? v.y - 1 : v.y, m: (v.m + 11) % 12 }))} aria-label={t.previousMonth}>‹</button>
         <b>{monthName}</b>
-        <button className="dp-nav" onClick={() => setView((v) => ({ y: v.m === 11 ? v.y + 1 : v.y, m: (v.m + 1) % 12 }))} aria-label="next">›</button>
+        <button className="dp-nav" onClick={() => setView((v) => ({ y: v.m === 11 ? v.y + 1 : v.y, m: (v.m + 1) % 12 }))} aria-label={t.nextMonth}>›</button>
       </div>
       <div className="dp-grid">
         {t.weekdays.map((w) => <div key={w} className="dp-wd">{w}</div>)}
@@ -287,6 +344,7 @@ function PinDropPicker({ center, t, onConfirm }) {
       center: [center.lng, center.lat],
       zoom: 16,
       attributionControl: false,
+      locale: mapLibreLocale(t),
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('moveend', () => {
@@ -314,14 +372,24 @@ export default function Home() {
   const markers = useRef(new Map());
   const fileInput = useRef(null);
 
-  const [lang, setLang] = useState('de');
-  const t = STRINGS[lang];
-  useEffect(() => setLang(detectLang()), []);
-  function switchLang() {
-    const next = lang === 'de' ? 'en' : 'de';
-    setLang(next);
-    localStorage.setItem('umkreis-lang', next);
-  }
+  const { lang, t, chooseLanguage } = useLanguage();
+  useEffect(() => {
+    const root = mapRef.current;
+    if (!root) return;
+    for (const [selector, label] of [
+      ['.maplibregl-canvas', t.mapLabel],
+      ['.maplibregl-ctrl-zoom-in', t.zoomIn],
+      ['.maplibregl-ctrl-zoom-out', t.zoomOut],
+      ['.maplibregl-ctrl-attrib-button', t.toggleAttribution],
+    ]) {
+      const element = root.querySelector(selector);
+      if (!element) continue;
+      element.setAttribute('aria-label', label);
+      if (element.matches('button')) element.setAttribute('title', label);
+    }
+    const placeAttribution = root.querySelector('.maplibregl-ctrl-attrib-inner > a');
+    if (placeAttribution) placeAttribution.textContent = t.mapAttribution;
+  }, [t]);
 
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
@@ -371,12 +439,19 @@ export default function Home() {
   const townCenters = useMemo(() => {
     const m = new Map(Object.entries(TOWNS));
     if (events) {
+      const averages = new Map();
+      for (const ev of events) {
+        if (!ev.town || m.has(ev.town)) continue;
+        const acc = averages.get(ev.town) || { lat: 0, lng: 0, count: 0 };
+        acc.lat += ev.lat; acc.lng += ev.lng; acc.count++;
+        averages.set(ev.town, acc);
+      }
       for (const ev of events) {
         if (!ev.town || m.has(ev.town)) continue;
         let c = townCentroid(ev.town);
         if (!c) {
-          const rows = events.filter((e) => e.town === ev.town);
-          c = { lat: rows.reduce((s, e) => s + e.lat, 0) / rows.length, lng: rows.reduce((s, e) => s + e.lng, 0) / rows.length };
+          const acc = averages.get(ev.town);
+          c = { lat: acc.lat / acc.count, lng: acc.lng / acc.count };
         }
         m.set(ev.town, c);
       }
@@ -508,11 +583,11 @@ export default function Home() {
     try {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang },
         body: JSON.stringify({ email, lang }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Fehler');
+      if (!res.ok) throw new Error(data.error || t.requestFailed);
       track('newsletter_signup');
       setNl((s) => ({ ...s, busy: false, done: true }));
     } catch (err) {
@@ -527,7 +602,7 @@ export default function Home() {
   }
 
   async function loadEvents() {
-    const res = await fetch('/api/events');
+    const res = await fetch('/api/events?view=map');
     const data = await res.json();
     setEvents(data.events);
     return data.events;
@@ -573,12 +648,14 @@ export default function Home() {
   }
 
   /* ---------------- map ---------------- */
+  const [detailMarkersVisible, setDetailMarkersVisible] = useState(false);
   const geoRef = useRef({ me: HOME, radius: 20 });
   geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
 
   function syncMarkerZoomVisibility(map) {
     const showDetailMarkers = map.getZoom() >= DETAIL_MARKER_ZOOM;
+    setDetailMarkersVisible(showDetailMarkers);
     for (const { el } of markers.current.values()) el.style.visibility = showDetailMarkers ? '' : 'hidden';
   }
 
@@ -589,10 +666,11 @@ export default function Home() {
       style: MAP_STYLE,
       center: [HOME.lng, HOME.lat],
       zoom: 10.6,
+      locale: mapLibreLocale(t),
       // OSM-mined place *data* requires its own ODbL credit beyond the tile attribution.
       attributionControl: {
         compact: true,
-        customAttribution: '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">Place data © OpenStreetMap contributors (ODbL)</a>',
+        customAttribution: `<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">${t.mapAttribution}</a>`,
       },
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
@@ -609,6 +687,7 @@ export default function Home() {
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
     if (typeof window !== 'undefined') window.__umkreisMap = map;
     mapObj.current = map;
+    syncMarkerZoomVisibility(map);
     return () => {
       map.remove();
       mapObj.current = null;
@@ -647,6 +726,16 @@ export default function Home() {
     setSelected(ev);
     setDetailFull(false);
     if (ev) {
+      // The homepage payload intentionally omits heavy detail-only fields.
+      // Hydrate just the row the user opens, without delaying the map response.
+      if (!Object.prototype.hasOwnProperty.call(ev, 'description')) {
+        fetch(`/api/events?id=${encodeURIComponent(ev.id)}`)
+          .then((res) => res.ok ? res.json() : null)
+          .then((data) => {
+            if (data?.event) setSelected((current) => current?.id === ev.id ? data.event : current);
+          })
+          .catch(() => {});
+      }
       track('open_detail', { kind: ev.kind, cat: primaryCat(ev), town: ev.town });
       for (const [id, rec] of markers.current) rec.el.classList.toggle('selected', id === ev.id);
       if (fly && mapObj.current) {
@@ -662,98 +751,6 @@ export default function Home() {
     }
   }
   selectRef.current = selectEvent;
-
-  // Venue grouping (task 3): events sharing a venue (identical name OR ≤30m apart)
-  // collapse into a single map pin with a count badge. Places keep one pin each —
-  // they're distinct evergreen locations, not clustered. `events` here are already
-  // "upcoming": publishedEvents() (lib/db.js) excludes expired rows server-side, so
-  // no extra Vienna-time filtering is needed on the client for this feature.
-  const venueGroups = useMemo(() => {
-    const byId = new Map(); // event id -> group {members:[...]}
-    if (!events) return byId;
-    const groups = [];
-    for (const ev of events) {
-      if (ev.kind === 'place') continue;
-      const g = groups.find((grp) => sameVenue(grp.members[0], ev));
-      if (g) g.members.push(ev);
-      else groups.push({ members: [ev] });
-    }
-    for (const g of groups) for (const m of g.members) byId.set(m.id, g);
-    return byId;
-  }, [events]);
-
-  // One map-pin representative per venue group (soonest-starting event) + one per
-  // place. Carries _venueCount/_venueIds so the badge + visibility sync see the
-  // whole group, not just the representative.
-  const markerItems = useMemo(() => {
-    if (!events) return [];
-    const seen = new Set();
-    const reps = [];
-    for (const ev of events) {
-      if (ev.kind === 'place') { reps.push(ev); continue; }
-      const g = venueGroups.get(ev.id);
-      if (seen.has(g)) continue;
-      seen.add(g);
-      const sorted = [...g.members].sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-      reps.push({ ...sorted[0], _venueCount: g.members.length, _venueIds: g.members.map((m) => m.id) });
-    }
-    return reps;
-  }, [events, venueGroups]);
-
-  // markers — full sync
-  useEffect(() => {
-    const map = mapObj.current;
-    if (!map || !events) return;
-    const ids = new Set(markerItems.map((e) => e.id));
-    for (const [id, rec] of markers.current) {
-      if (!ids.has(id)) {
-        rec.marker.remove();
-        markers.current.delete(id);
-      }
-    }
-    for (const ev of markerItems) {
-      const cat = primaryCat(ev);
-      const color = CATS[cat].color;
-      const community = isCommunitySubmitted(ev);
-      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '');
-      const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
-      const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
-      if (community) ariaBits.push(t.legendCommunity);
-      if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
-      if (ev._venueCount > 1) ariaBits.push(t.markerVenueCount.replace('{count}', ev._venueCount));
-      const ariaLabel = ariaBits.join(', ');
-      const existing = markers.current.get(ev.id);
-      if (existing) {
-        existing.ev = ev;
-        existing.el.style.setProperty('--cc', color);
-        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
-        existing.el.className = pinClass;
-        existing.el.setAttribute('aria-label', ariaLabel);
-        existing.el.style.visibility = map.getZoom() >= DETAIL_MARKER_ZOOM ? '' : 'hidden';
-        existing.marker.setLngLat([ev.lng, ev.lat]);
-        continue;
-      }
-      const el = document.createElement('div');
-      el.className = pinClass;
-      el.style.setProperty('--cc', color);
-      el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
-      el.setAttribute('role', 'button');
-      el.setAttribute('aria-label', ariaLabel);
-      el.tabIndex = 0;
-      el.style.visibility = map.getZoom() >= DETAIL_MARKER_ZOOM ? '' : 'hidden';
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectRef.current(markers.current.get(ev.id)?.ev || ev);
-      });
-      el.addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        e.preventDefault();
-        selectRef.current(markers.current.get(ev.id)?.ev || ev);
-      });
-      const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([ev.lng, ev.lat]).addTo(map);
-      markers.current.set(ev.id, { marker, el, ev });
-    }
-  }, [markerItems, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ---------------- filtering ---------------- */
   const [dFrom, dTo] = useMemo(() => {
@@ -817,20 +814,97 @@ export default function Home() {
 
   const filtered = useMemo(() => [...filteredEvents, ...filteredPlaces], [filteredEvents, filteredPlaces]);
 
+  const venueGroups = useMemo(
+    () => detailMarkersVisible ? groupEventsByVenue(filtered) : new Map(),
+    [detailMarkersVisible, filtered]
+  );
+
+  // Rich DOM markers are useful only at neighborhood zoom. Build them solely
+  // from matching rows, so initial regional views do not allocate thousands of
+  // hidden elements and a venue badge never includes filtered-out events.
+  const markerItems = useMemo(() => {
+    if (!detailMarkersVisible) return [];
+    const seen = new Set();
+    const reps = [];
+    for (const ev of filtered) {
+      if (ev.kind === 'place') { reps.push(ev); continue; }
+      const group = venueGroups.get(ev.id);
+      if (!group || seen.has(group)) continue;
+      seen.add(group);
+      reps.push({
+        ...group.members[0],
+        _venueCount: group.members.length,
+        _venueIds: group.members.map((member) => member.id),
+      });
+    }
+    return reps;
+  }, [detailMarkersVisible, filtered, venueGroups]);
+
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map) return;
+    const ids = new Set(markerItems.map((ev) => ev.id));
+    for (const [id, rec] of markers.current) {
+      if (!ids.has(id)) {
+        rec.marker.remove();
+        markers.current.delete(id);
+      }
+    }
+    for (const ev of markerItems) {
+      const cat = primaryCat(ev);
+      const color = CATS[cat].color;
+      const community = isCommunitySubmitted(ev);
+      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '');
+      const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
+      const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
+      if (community) ariaBits.push(t.legendCommunity);
+      if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
+      if (ev._venueCount > 1) ariaBits.push(t.markerVenueCount.replace('{count}', ev._venueCount));
+      const ariaLabel = ariaBits.join(', ');
+      const existing = markers.current.get(ev.id);
+      if (existing) {
+        existing.ev = ev;
+        existing.el.style.setProperty('--cc', color);
+        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
+        existing.el.className = pinClass;
+        existing.el.setAttribute('aria-label', ariaLabel);
+        existing.marker.setLngLat([ev.lng, ev.lat]);
+        continue;
+      }
+      const el = document.createElement('div');
+      el.className = pinClass;
+      el.style.setProperty('--cc', color);
+      el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
+      el.setAttribute('role', 'button');
+      el.setAttribute('aria-label', ariaLabel);
+      el.tabIndex = 0;
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectRef.current(markers.current.get(ev.id)?.ev || ev);
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        selectRef.current(markers.current.get(ev.id)?.ev || ev);
+      });
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([ev.lng, ev.lat]).addTo(map);
+      markers.current.set(ev.id, { marker, el, ev });
+    }
+  }, [markerItems, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Regional zoom uses MapLibre's native spatial clustering so hundreds of
   // results remain scannable. At neighborhood zoom the richer DOM markers take
   // over (category icon/color, event/place shape, provenance, precision, venue count).
   const clusterData = useMemo(() => {
-    const visible = new Set(filtered.map((e) => e.id));
-    const features = markerItems
-      .filter((ev) => (ev._venueIds || [ev.id]).some((id) => visible.has(id)))
-      .map((ev) => ({
+    const features = filtered.map((ev) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [ev.lng, ev.lat] },
         properties: { color: CATS[primaryCat(ev)].color },
       }));
     return { type: 'FeatureCollection', features };
-  }, [filtered, markerItems]);
+  }, [filtered]);
+  const clusterDataRef = useRef(clusterData);
+  clusterDataRef.current = clusterData;
 
   useEffect(() => {
     const map = mapObj.current;
@@ -838,14 +912,14 @@ export default function Home() {
     const install = () => {
       const existing = map.getSource('result-clusters');
       if (existing) {
-        existing.setData(clusterData);
+        existing.setData(clusterDataRef.current);
         return;
       }
       map.addSource('result-clusters', {
-        type: 'geojson', data: clusterData, cluster: true, clusterMaxZoom: 12, clusterRadius: 48,
+        type: 'geojson', data: clusterDataRef.current, cluster: true, clusterMaxZoom: 12, clusterRadius: 48,
       });
       map.addLayer({
-        id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: DETAIL_MARKER_ZOOM,
+        id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
         filter: ['has', 'point_count'],
         paint: {
           'circle-color': '#26332f', 'circle-opacity': 0.93,
@@ -854,13 +928,13 @@ export default function Home() {
         },
       });
       map.addLayer({
-        id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: DETAIL_MARKER_ZOOM,
+        id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
         filter: ['has', 'point_count'],
         layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 11, 'text-font': ['Noto Sans Bold'] },
         paint: { 'text-color': '#ffffff' },
       });
       map.addLayer({
-        id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: DETAIL_MARKER_ZOOM,
+        id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': 0.94,
@@ -881,6 +955,7 @@ export default function Home() {
     };
     if (map.isStyleLoaded()) install();
     else map.once('load', install);
+    return () => map.off('load', install);
   }, [clusterData]);
 
   useEffect(() => {
@@ -942,9 +1017,9 @@ export default function Home() {
     fd.append('lat', String(me.lat));
     fd.append('lng', String(me.lng));
     try {
-      const res = await fetch('/api/scan', { method: 'POST', body: fd });
+      const res = await fetch('/api/scan', { method: 'POST', headers: { 'X-Okolo-Lang': lang }, body: fd });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Extraction failed');
+      if (!res.ok) throw new Error(data.error || t.extractionFailed);
       const x = data.extraction;
       if (!x.is_event) setScanErr(t.noEventDetected);
       setPhotoPath(data.photo_path);
@@ -1018,9 +1093,9 @@ export default function Home() {
         };
     body.website = draft.website || ''; // honeypot — server rejects if filled
     try {
-      const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify(body) });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Save failed');
+      if (!res.ok) throw new Error(data.error || t.saveFailed);
       if (data.merged) {
         // This event was already on the map (crawled elsewhere, or scanned
         // once before) — our info enriched the existing row instead of
@@ -1049,11 +1124,11 @@ export default function Home() {
     try {
       const res = await fetch('/api/events', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang },
         body: JSON.stringify({ ...refine.body, lat: pos.lat, lng: pos.lng, geo_precision: 'address' }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Save failed');
+      if (!res.ok) throw new Error(data.error || t.saveFailed);
       await finishPublish();
     } catch (e) {
       setScanErr(String(e.message || e));
@@ -1119,9 +1194,23 @@ export default function Home() {
                 <button className="menuitem" onClick={() => { setMenuOpen(false); setNl({ open: true, email: '', busy: false, done: false, err: '' }); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>
-                <button className="menuitem" onClick={() => { switchLang(); setMenuOpen(false); }}>
-                  <span className="ic">🌐</span>{lang === 'de' ? 'English' : 'Deutsch'}
-                </button>
+                <div className="language-picker">
+                  <div className="language-label"><span className="ic">🌐</span>{t.language}</div>
+                  <div className="language-options" role="radiogroup" aria-label={t.language}>
+                    {LANGS.map((code) => (
+                      <button
+                        key={code}
+                        type="button"
+                        role="radio"
+                        aria-checked={lang === code}
+                        className={lang === code ? 'selected' : ''}
+                        onClick={() => { chooseLanguage(code); setMenuOpen(false); }}
+                      >
+                        <span>{LANGUAGE_NAMES[code]}</span><span aria-hidden="true">{lang === code ? '✓' : ''}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="menu-legal">
                   <a href="/impressum" target="_blank" rel="noreferrer">{t.imprint}</a>
                   <span>·</span>
@@ -1364,8 +1453,8 @@ export default function Home() {
       ? (events || [])
           .filter((e) => e.kind !== 'place' && e.id !== ev.id && sameVenue(e, ev))
           .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
-      : (venueGroups.get(ev.id)?.members || [])
-          .filter((e) => e.id !== ev.id)
+      : (events || [])
+          .filter((e) => e.kind !== 'place' && e.id !== ev.id && sameVenue(e, ev))
           .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
     return (
       <>
@@ -1714,7 +1803,7 @@ export default function Home() {
       <div className="mapwrap">
         <div id="map" ref={mapRef} />
         {!events && (
-          <div className="loading" role="status" aria-label="okolo lädt Events in deinem Umkreis">
+          <div className="loading" role="status" aria-label={t.loading}>
             <svg className="okolo-mark" viewBox="0 0 380 120" aria-hidden="true">
               <circle cx="52" cy="70" r="30" fill="none" stroke="currentColor" strokeWidth="11" />
               <path d="M104 22 V100 M104 71 L141 42 M104 71 L141 100" fill="none" stroke="currentColor" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
@@ -1762,7 +1851,7 @@ export default function Home() {
 
         {/* mobile sheet (filters / list) */}
         <section className={`m-sheet mobileonly ${sheet !== 'closed' ? sheet : ''}`}>
-          <button className="grabber" onClick={() => setSheet(sheet === 'full' ? 'half' : 'full')} aria-label="resize"><i /></button>
+          <button className="grabber" onClick={() => setSheet(sheet === 'full' ? 'half' : 'full')} aria-label={t.resizePanel}><i /></button>
           <div className="m-sheethead">
             <b>{sheetContent === 'filters' ? t.filters : `${filtered.length} ${t.events}`}</b>
             <button className="m-close" onClick={() => setSheet('closed')} aria-label={t.close}><X size={14} weight="bold" /></button>

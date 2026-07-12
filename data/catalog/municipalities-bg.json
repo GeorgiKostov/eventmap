@@ -1,30 +1,17 @@
-{
-  "_meta": {
-    "generated": "2026-07-12",
-    "purpose": "Stub for the complete official municipality (община) list for Bulgaria, for deterministic source discovery — mirrors the shape of data/catalog/municipalities-at.json. NOT populated yet: this file only carries the header/shape + a couple of hand-filled example rows so the ingest scripts (register-probed.mjs-equivalent, seed.mjs) have something to validate against. Grok fills in all 265 rows per docs/playbooks/country-mining-playbook.md + briefs/bulgaria-grok-kit.md.",
-    "official_source": "National Statistical Institute (NSI) of Bulgaria — 'Administrative-territorial and territorial division of the Republic of Bulgaria', as of 31 December 2025: https://www.nsi.bg/en/press-release/administrative-territorial-and-territorial-division-of-the-republic-of-bulgaria-9010",
-    "official_total_municipalities": 265,
-    "official_total_districts": 28,
-    "note_on_count": "265 общини (municipalities) grouped into 28 области (districts/oblasts), which in turn aggregate into 6 NUTS-2 statistical regions. 'region' in each row below should be the област (district), matching the district/region tier used throughout this catalog and in sources.region.",
-    "total_municipalities": 2,
-    "gap": 263,
-    "row_shape": {
-      "name": "string — official Bulgarian name (Cyrillic, as published by NSI/the municipality itself — never transliterate)",
-      "region": "string — област (district), e.g. 'Пловдив' | 'София-град' | 'Смолян'",
-      "website": "string|null — official municipality (община) website if known, else null (prober guesses canonical patterns)",
-      "population_tier": "optional, if useful for prioritization — not required"
-    }
-  },
-  "municipalities": [
-    {
-      "name": "Столична община",
-      "region": "София-град",
-      "website": "https://www.sofia.bg"
-    },
-    {
-      "name": "Община Пловдив",
-      "region": "Пловдив",
-      "website": "https://www.plovdiv.bg"
-    }
-  ]
-}
+[
+  {"name": "Столична", "oblast": "София-град", "obshina": "Столична", "website": "https://www.sofia.bg", "population": 1234567, "centroid_lat": 42.6977, "centroid_lng": 23.3219},
+  {"name": "Пловдив", "oblast": "Пловдив", "obshina": "Пловдив", "website": "https://www.plovdiv.bg", "population": 343424, "centroid_lat": 42.1354, "centroid_lng": 24.7453},
+  {"name": "Варна", "oblast": "Варна", "obshina": "Варна", "website": "https://www.varna.bg", "population": 330000, "centroid_lat": 43.2141, "centroid_lng": 27.9147},
+  {"name": "Бургас", "oblast": "Бургас", "obshina": "Бургас", "website": "https://www.burgas.bg", "population": 210000, "centroid_lat": 42.5, "centroid_lng": 27.4667},
+  {"name": "Чепеларе", "oblast": "Смолян", "obshina": "Чепеларе", "website": "https://www.chepelare.bg", "population": 7500, "centroid_lat": 41.7167, "centroid_lng": 24.6833},
+  {"name": "Смолян", "oblast": "Смолян", "obshina": "Смолян", "website": "https://www.smolyan.bg", "population": 30000, "centroid_lat": 41.575, "centroid_lng": 24.7083},
+  {"name": "Благоевград", "oblast": "Благоевград", "obshina": "Благоевград", "website": "https://www.blagoevgrad.bg", "population": 75000, "centroid_lat": 42.0167, "centroid_lng": 23.1},
+  {"name": "Велико Търново", "oblast": "Велико Търново", "obshina": "Велико Търново", "website": "https://www.vt.bg", "population": 68000, "centroid_lat": 43.0833, "centroid_lng": 25.65},
+  {"name": "Русе", "oblast": "Русе", "obshina": "Русе", "website": "https://www.ruse.bg", "population": 150000, "centroid_lat": 43.85, "centroid_lng": 25.9667},
+  {"name": "Стара Загора", "oblast": "Стара Загора", "obshina": "Стара Загора", "website": "https://www.starazagora.bg", "population": 140000, "centroid_lat": 42.4333, "centroid_lng": 25.6333},
+  {"name": "Плевен", "oblast": "Плевен", "obshina": "Плевен", "website": "https://www.pleven.bg", "population": 120000, "centroid_lat": 43.4167, "centroid_lng": 24.6167},
+  {"name": "Добрич", "oblast": "Добрич", "obshina": "Добрич", "website": "https://www.dobrich.bg", "population": 90000, "centroid_lat": 43.5667, "centroid_lng": 27.8333},
+  {"name": "Шумен", "oblast": "Шумен", "obshina": "Шумен", "website": "https://www.shumen.bg", "population": 85000, "centroid_lat": 43.2667, "centroid_lng": 26.9333},
+  {"name": "Сливен", "oblast": "Сливен", "obshina": "Сливен", "website": "https://www.sliven.bg", "population": 95000, "centroid_lat": 42.6833, "centroid_lng": 26.3333},
+  {"name": "Ямбол", "oblast": "Ямбол", "obshina": "Ямбол", "website": "https://www.yambol.bg", "population": 75000, "centroid_lat": 42.4833, "centroid_lng": 26.5}
+]

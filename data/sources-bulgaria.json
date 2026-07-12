@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Chepelare",
+    "region": "Smolyan",
+    "district": "Chepelare",
+    "website": "https://visitchepelare.bg",
+    "cms": "other",
+    "works": true,
+    "probed": true,
+    "notes": "Cultural calendar with JSON-LD. Good test case.",
+    "calendarUrl": "https://visitchepelare.bg/en/cultural-calendar"
+  },
+  {
+    "name": "Sofia Municipality",
+    "region": "Sofia",
+    "district": "Sofia",
+    "website": "https://www.sofia.bg",
+    "cms": "other",
+    "works": null,
+    "probed": true,
+    "notes": "Main municipal events page (English version blocked in probe; try Bulgarian /bg/ or visitsofia.bg).",
+    "calendarUrl": "https://visitsofia.bg/en/events-calendar"
+  },
+  {
+    "name": "Visit Sofia",
+    "region": "Sofia",
+    "district": "Sofia",
+    "website": "https://visitsofia.bg",
+    "cms": "other",
+    "works": null,
+    "probed": true,
+    "notes": "Official tourism calendar for Sofia.",
+    "calendarUrl": "https://visitsofia.bg/en/events-calendar"
+  },
+  {
+    "name": "Plovdiv Tourism",
+    "region": "Plovdiv",
+    "district": "Plovdiv",
+    "website": "https://www.visitplovdiv.com",
+    "cms": "other",
+    "works": null,
+    "probed": false,
+    "notes": "Major city tourism calendar - candidate for probing.",
+    "calendarUrl": "https://www.visitplovdiv.com/en/events"
+  },
+  {
+    "name": "Varna Tourism",
+    "region": "Varna",
+    "district": "Varna",
+    "website": "https://www.visitvarna.bg",
+    "cms": "other",
+    "works": null,
+    "probed": false,
+    "notes": "Black Sea coast major city.",
+    "calendarUrl": "https://www.visitvarna.bg/en/events"
+  },
+  {
+    "name": "Burgas Events",
+    "region": "Burgas",
+    "district": "Burgas",
+    "website": "https://www.burgas.bg",
+    "cms": "other",
+    "works": null,
+    "probed": false,
+    "notes": "Municipal site - candidate.",
+    "calendarUrl": "https://www.burgas.bg/en/events"
+  }
+]

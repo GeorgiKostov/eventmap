@@ -44,6 +44,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
+- [x] **EN/DE/BG localization** (2026-07-12): proper language picker; BG UI, legal, metadata,
+      standalone event pages, and API errors; first visit uses IP country (BG→BG, AT/DE→DE,
+      elsewhere→EN) while a manual choice persists and always wins.
 - [x] **Locate/search UX fixes** (George 2026-07-12, shipped ef6fac7): search pill no longer shows
       current locality (was confusing), locate-me flies instantly to last-known + cached fix +
       pulsing feedback + denied/unavailable toasts.

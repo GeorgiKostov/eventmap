@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { publishedEvents, upsertEvent, updateEventFields, viennaNow } from '../../../lib/db.js';
+import { getEvent, publishedEvents, publishedMapEvents, upsertEvent, updateEventFields, viennaNow } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
 import { limit } from '../../../lib/ratelimit.js';
@@ -7,18 +7,33 @@ import { spamReason, sanitizeText, submissionProblem } from '../../../lib/modera
 import { notifyOperator } from '../../../lib/mail.js';
 
 export const dynamic = 'force-dynamic';
+const MESSAGES = {
+  de: { limited: 'Zu viele Einträge — bitte später wieder.', title: 'Titel ist Pflicht.', titleDate: 'Titel und Datum sind Pflicht.', outside: 'Der Ort liegt außerhalb Österreichs.', date: 'Bitte ein gültiges Datum (nicht vergangen, max. ~1 Jahr voraus) angeben.', meaningful: 'Bitte einen aussagekräftigen Titel angeben.', spam: 'Eintrag wurde als möglicher Spam abgelehnt.', location: 'Ort nicht gefunden — bitte Pin setzen.' },
+  en: { limited: 'Too many submissions — please try again later.', title: 'Title is required.', titleDate: 'Title and date are required.', outside: 'The place is outside Austria.', date: 'Enter a valid date (not in the past and no more than about one year ahead).', meaningful: 'Enter a meaningful title.', spam: 'The listing was rejected as possible spam.', location: 'Place not found — please set a pin.' },
+  bg: { limited: 'Твърде много публикации — опитай отново по-късно.', title: 'Заглавието е задължително.', titleDate: 'Заглавието и датата са задължителни.', outside: 'Мястото е извън Австрия.', date: 'Въведи валидна дата (не в миналото и до около една година напред).', meaningful: 'Въведи смислено заглавие.', spam: 'Публикацията беше отхвърлена като възможен спам.', location: 'Мястото не е намерено — постави маркер на картата.' },
+};
 
-export async function GET() {
+export async function GET(req) {
+  const id = req.nextUrl.searchParams.get('id');
+  if (id) return NextResponse.json({ event: await getEvent(id) });
+
+  // The map/list does not need descriptions and source links for all rows up
+  // front. Keep the public default response unchanged; the homepage opts into
+  // this compact view and fetches the full row only when a detail is opened.
+  if (req.nextUrl.searchParams.get('view') === 'map') {
+    return NextResponse.json({ events: await publishedMapEvents() });
+  }
   return NextResponse.json({ events: await publishedEvents() });
 }
 
 export async function POST(req) {
+  const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
   // Durable per-IP-hash rate limit (the old in-memory Map didn't survive
   // serverless isolation). Anonymous submissions: 5/hour, 15/day per IP,
   // 150/day across everyone (a flood of "valid" entries is itself abuse).
   const rl = await limit(req, 'submit', { perHour: 5, perDay: 15, globalPerDay: 150 });
   if (rl) {
-    return NextResponse.json({ error: 'Zu viele Einträge — bitte später wieder.' }, { status: 429 });
+    return NextResponse.json({ error: messages.limited }, { status: 429 });
   }
   const raw = await req.json();
   // Honeypot: a hidden "website" field humans never see. Bots that fill it get
@@ -38,28 +53,28 @@ export async function POST(req) {
   const kind = body.kind === 'place' ? 'place' : 'event';
   // Places are evergreen (no date); events still require starts_at.
   if (!body.title || (kind === 'event' && !body.starts_at)) {
-    return NextResponse.json({ error: kind === 'place' ? 'Titel ist Pflicht.' : 'Titel und Datum sind Pflicht.' }, { status: 400 });
+    return NextResponse.json({ error: kind === 'place' ? messages.title : messages.titleDate }, { status: 400 });
   }
   // Plausibility: date format + range (nothing far past/future), coords in Austria.
   const problem = submissionProblem(body, kind, viennaNow().slice(0, 10));
   if (problem) {
     const msg = problem === 'coords_outside_austria'
-      ? 'Der Ort liegt außerhalb Österreichs.'
+      ? messages.outside
       : problem.startsWith('date') || problem.startsWith('bad_date')
-        ? 'Bitte ein gültiges Datum (nicht vergangen, max. ~1 Jahr voraus) angeben.'
-        : 'Bitte einen aussagekräftigen Titel angeben.';
+        ? messages.date
+        : messages.meaningful;
     return NextResponse.json({ error: msg }, { status: 422 });
   }
   // Basic spam/abuse guard for anonymous content.
   const spam = spamReason(body.title, body.description);
   if (spam) {
-    return NextResponse.json({ error: 'Eintrag wurde als möglicher Spam abgelehnt.' }, { status: 422 });
+    return NextResponse.json({ error: messages.spam }, { status: 422 });
   }
 
   let lat = body.lat, lng = body.lng, geo_precision = body.geo_precision || 'venue';
   if (typeof lat !== 'number' || typeof lng !== 'number') {
     const geo = await geocodeEvent(body);
-    if (!geo) return NextResponse.json({ error: 'Ort nicht gefunden — bitte Pin setzen.' }, { status: 422 });
+    if (!geo) return NextResponse.json({ error: messages.location }, { status: 422 });
     ({ lat, lng } = geo);
     geo_precision = geo.geo_precision;
   }

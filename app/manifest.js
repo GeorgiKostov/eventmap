@@ -1,14 +1,14 @@
 export default function manifest() {
   return {
-    name: 'Okolo — Events rund um Linz',
+    name: 'Okolo — Events around Linz',
     short_name: 'Okolo',
     description:
-      'Familien-Events und lokale Veranstaltungen rund um Linz auf einer Karte.',
+      'Family events and local happenings around Linz on a map.',
     start_url: '/',
     display: 'standalone',
     background_color: '#f2f2ee',
     theme_color: '#c93a5b',
-    lang: 'de-AT',
+    lang: 'en',
     categories: ['events', 'lifestyle', 'navigation'],
     orientation: 'portrait',
     icons: [

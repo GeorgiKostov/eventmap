@@ -54,7 +54,7 @@ ephemeral). What's live:
 - Google-Maps-style UI: desktop sidebar + map; mobile mini-card → full-screen detail.
 - Filters: date (Today/Tomorrow/Weekend/7-days + **calendar range picker**), radius,
   category, indoor/outdoor, time-of-day, for-kids, free.
-- Full **DE/EN localization** (auto-detect + toggle).
+- Full **EN/DE/BG localization** (IP-country first visit, explicit language picker, persisted manual override; English fallback).
 - **AI poster scan** (photo → Claude extraction → confirm → publish), pipeline works;
   needs an API key at runtime.
 - **AI-readiness:** `/event/[id]` SSR pages with schema.org/Event JSON-LD, `sitemap.xml`,
