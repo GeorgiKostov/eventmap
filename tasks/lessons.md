@@ -2,6 +2,45 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-12 — Don't recompute a map layer's data on every gesture frame
+
+Fixing the cluster↔pin zoom handoff, the first cut synced the viewport (and so
+recomputed the padded marker-bounds / marker SET) on every `move` frame. That
+churned DOM markers continuously while panning — pins appeared to drift and
+blink in/out. **Lesson:** MapLibre already repositions `Marker` DOM elements
+smoothly on its own every render; a gesture-frame handler must not rebuild the
+marker set. Update only cheap flags mid-gesture (a ref-guarded visibility bool),
+and recompute the set/bounds only on `moveend` (settle) or the single frame a
+layer first turns on. Drive per-frame *visual* transitions (cluster fade) with
+zoom-interpolated paint expressions, which MapLibre evaluates each frame for
+free — not with React state. Verify map behavior needs WebGL; the in-app preview
+browser can't render MapLibre (style fetches 200 but `isStyleLoaded()` never
+flips), so map QA must happen in a real browser.
+
+## 2026-07-12 — One crawl process at a time: Nominatim throttles per-IP, not per-host
+
+Ran 3 crawl processes concurrently (parallel big-city + gap-fill agents). Per-host politeness
+(≥1s/host, built into `politeFetch`) is enforced *within* a process, but Nominatim's rate limit is
+**global per public IP** — three processes sharing one IP collectively blew past 1 req/s and got
+throttled, silently dropping geocodes (→ the silent-zero failure mode again, this time for whole
+cities like Innsbruck). **Lesson:** never run more than one `npm run crawl` at once from a single
+machine/IP. Parallelize *discovery/registration* across agents (writes to `sources`, no shared
+external limit), but funnel *crawling* through a single sequential process — or a global cross-process
+geocode rate limiter if concurrency is ever truly needed. Registration and crawling are separable:
+agents register their sources, then ONE consolidating `npm run crawl` (cadence-gated → only the
+never-crawled/due ones run) finishes the job without contention.
+
+## 2026-07-12 — Big cities ≠ Gemeinde: statutory cities need the Vienna treatment, not the prober
+
+The municipal prober (catalog × URL patterns × GEM2GO/RiS fingerprints) covers the ~2,000 small
+Gemeinden but returns ~nothing for the 15 Statutarstädte + big cities (Graz, Salzburg, Innsbruck,
+Klagenfurt, Villach, St. Pölten, Dornbirn…): they run bespoke event portals, not the municipal CMS.
+Result after the national crawl: Graz/Innsbruck/Klagenfurt/Villach etc. sat at **0 events** while
+looking "covered" by region totals. **Lesson:** population centers are a *separate* source-discovery
+track — per city, hand-find the official calendar + tourism board + top family publishers (WIENXTRA
+pattern), verify live, register, crawl. Never assume region-level event totals mean the cities inside
+are covered — assert per-CITY counts for the population centers specifically.
+
 ## 2026-07-12 — A relative overlay must stay inside its positioning container
 
 The mobile quick-preview was deliberately `position: relative` inside `.m-topbar`, directly below

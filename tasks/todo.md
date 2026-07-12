@@ -43,6 +43,29 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] opening_hours semantics fixed: `{"always":true}` = always open, null = unknown (renders
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
+## Review findings — tonight's commits (2026-07-12 review pass, fix before validation)
+- [x] **Zoom cluster↔pin handoff drift/flicker** (fixed efa8ef6): cross-fade + hysteresis + set
+      frozen mid-gesture, recomputed on moveend only.
+- [ ] **HIGH — extract-url UTC millis mis-parse** (app/api/extract-url/route.js ~L135): `viennaFromIso`
+      `hasTz` regex rejects fractional seconds, so `...T20:00:00.000Z` (standard toISOString) stores as
+      Vienna wall-clock instead of UTC→Vienna. One-line fix `(?:\.\d+)?` before the offset group. Hard-rule
+      (Vienna time) violation; publishes events 1–2h early.
+- [ ] **HIGH — datenschutz stale vs newsletter data** (app/datenschutz/page.js): policy says only email
+      stored, but subscribe now stores area label, coords, radius, categories, language. Art. 13 gap.
+- [ ] **HIGH — no unsubscribe path + silent re-opt-in** (app/api/subscribe/route.js): `unsubscribed_at`
+      exists but nothing can set it; re-subscribe clears it with no verification. Blocks first real send legally.
+- [ ] **MED — big-city series over-collapse** (lib/map-groups.js groupEventSeries): same-title+town with no
+      venue/date guard collapses same-named events at DIFFERENT venues (e.g. 5-location Ferienspiel) to one
+      pin. The exact big-city case the feature targets. Add venue/day constraint.
+- [ ] **MED — reverse-geocode out-of-order** (app/page.js ~L844): moveend debounce has no request token;
+      fast pin drags land B then A, publishing B's coords with A's address. Copy the `addrReqId` latest-wins pattern.
+- [ ] **MED — register-bigcities-sw.mjs resurrects dead sources** (L255): unconditional upsert resets
+      `works=true`, clobbering crawler-marked-dead sources on re-run. Guard like register-bigcities-e.mjs.
+- [ ] **MED — extract-url SSRF DNS-rebinding TOCTOU**: guard resolves then fetch re-resolves; pin the IP.
+- [ ] **MED — geocode country from UI lang** (app/page.js ~L670): BG-speaker in Linz geocoded against BG.
+- [ ] **LOW batch**: publish() drops ends_at (multi-day lost); extract-url first-JSON-LD-event-wins;
+      reverse=1 unthrottled; CSV formula-injection in export-subscribers; radius_km vestigial column.
+
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
 - [x] **Unified add-flow** (shipped 2026-07-12, brief: docs/design/add-flow.md): one "+ Add" FAB
       → intake (photo / drag-drop / paste image / paste URL / manual);
