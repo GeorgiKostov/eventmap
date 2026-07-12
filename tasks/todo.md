@@ -44,6 +44,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
+- [ ] **Bulgaria Facebook-events channel** (George 2026-07-12): BG events live heavily on FB, which
+      the municipal crawler misses — see memory `bg-facebook-events`. Evaluate Graph API / organizer-
+      submission / manual Page seeding (NOT scraping); keep facts+linkback. Do before judging BG coverage.
+- [x] **Bulgaria deep crawl + recrawl sources** (2026-07-12): 322 events / 13 municipalities seeded;
+      36 fingerprinted listing sources in data/catalog/probed-bg.json, 26 registered (country=BG) so
+      `npm run crawl` refreshes BG like AT. Tooling: /crawl-bg, scripts/build-bg-sources.mjs, skills/crawl-doctrine.md.
 - [x] **Mobile quick-preview relayout** (2026-07-12, branch claude/mobile-event-preview-layout):
       moved the selected event/place preview from a truncated bottom mini-card to a card docked
       under the search bar — full wrapping title, time/status, venue+distance, 2-line short
