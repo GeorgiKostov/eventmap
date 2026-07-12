@@ -102,6 +102,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] Run the **four-weekend Linz coverage/retention test**: measure % of good events the big
       aggregators miss, and weekly return rate. This gates everything downstream.
 - [ ] Email Familienkarte / Land OÖ for a feed/partnership (cheapest legal data path + first B2B contact).
+      **Bundle two more asks** (docs/research/open-event-sources.md, 2026-07-12): (a) Stadt Linz —
+      access to the Linztermine `eventExport` XML API (CC-BY-4.0, event-granular, replaces our flaky
+      HTML scrape; endpoint exists but 403-gated); (b) api@austria.info — Österreich Werbung ContentDB
+      key (all-Austria tourism events, CC-BY-4.0 open tier). Both are George-emails, not engineering.
+      Research verdict: no open event DB replaces crawling — Gemeinde long tail has no feed; FB/
+      Meetup/Ticketmaster ToS-blocked or closed; Common Crawl useful for source discovery only.
 - [ ] Verify the competitive landscape (`docs/research/competitive-landscape.md` §7): confirm LocalPosters,
       Familienkarte, Rausgegangen/AllEvents OÖ coverage, and scan for any 2024–26 AI-native / DACH poster-
       scan entrant (the LLM-extraction wedge is recent enough a fresh competitor is plausible).
