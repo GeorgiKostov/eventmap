@@ -419,6 +419,9 @@ cached misses are still valid.
 
 ## 11. How to add a region
 
+Standalone, portable version of this whole recipe (any country, hand-off-able to an outside agent):
+[`docs/playbooks/country-mining-playbook.md`](../playbooks/country-mining-playbook.md).
+
 1. **Catalog**: a municipality list for the Bundesland (Wikipedia is the source used so far — see
    `data/sources-austria.json`, 1,654 entries covering multiple Länder — and the older
    `data/sources-ooe.json`), stored as `data/sources-<region>.json`.
