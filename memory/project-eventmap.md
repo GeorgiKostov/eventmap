@@ -74,7 +74,9 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   retained audience, not the plumbing. Mechanism: "claim your event" (post-validation).
 
 ## Open decisions
-- Final name (+ register, then rebrand UI/metadata/llms.txt).
+- **Name = Okolo (okolo.events)** — rebrand shipped 2026-07-12 (radar identity: pin + rings =
+  "events around you"; favicon app/icon.svg, next/og OG image, animated loader; full SEO surface
+  robots/manifest/metadataBase/openGraph). Still open: register the domain + set NEXT_PUBLIC_BASE_URL on Vercel.
 - Family = filter or default lens?
 - Familienkarte / Land OÖ partnership ask (data + first B2B contact) — not yet attempted.
 

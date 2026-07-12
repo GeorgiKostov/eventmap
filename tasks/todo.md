@@ -80,9 +80,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] **Pushed to GitHub** (`git@github.com:GeorgiKostov/eventmap.git`, over SSH). main tracks origin.
 - [ ] **Deploy to Vercel** (George — dashboard import; MCP can't set env vars). Env: `DATABASE_URL`
       (pooler, required — copy from `.env.local`), `GEMINI_API_KEY`, `NEXT_PUBLIC_BASE_URL` (live URL).
-- [ ] **Decide the name** and, once registered, rename "Umkreis" in UI + metadata + llms.txt.
-      Live availability (2026-07-10): grok/sidequest .events now taken; okolo/afoot/nabo/outings/ambit
-      free at $17.99 on `.events`. Shortlist in `docs/decisions/2026-07-10-naming.md`.
+- [x] **Name decided: Okolo (okolo.events)** — rebrand shipped 2026-07-12: radar identity
+      (app/icon.svg favicon, next/og opengraph-image, animated loader), full SEO surface
+      (app/robots.js, app/manifest.js, layout metadataBase+openGraph+twitter), title/llms.txt.
+      Still TODO: register the domain, set `NEXT_PUBLIC_BASE_URL=https://okolo.events` on Vercel.
 
 ## Production backend (mostly done)
 - [x] Supabase Postgres port (see above). PostGIS deferred — radius filter is client-side; lat/lng

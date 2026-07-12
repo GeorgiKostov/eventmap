@@ -81,3 +81,13 @@ demo until the Supabase port." Don't promise persistent writes on serverless SQL
 A wrong event on the map destroys trust faster than a missing one, and copying source prose/images
 is an EU-database-right problem. **Lesson:** extraction/mining uses `null` for unknowns, skips undated
 events, writes our own descriptions, and keeps every `source_url`. This is a hard rule, not a nicety.
+
+## 2026-07-12 — `rm -rf .next` under a running dev server / build gives fake errors
+
+Ran `rm -rf .next && npm run build` while the preview dev server (`next dev`) shared the same
+`.next`. Result: a misleading `next build` prerender crash (`Cannot read properties of undefined
+(reading 'call')`) and, on the dev server, `Cannot find module './331.js'` + missing
+`routes-manifest.json` / `middleware-manifest.json` 500s. None were code bugs. **Lesson:** that class
+of webpack-runtime error usually means a corrupt/half-written `.next`, not your diff. Don't delete
+`.next` while `next dev`/`next build` is touching it. To confirm the code is fine: stop the dev
+server, `rm -rf .next`, and do one clean `npm run build`. Only bisect the diff if the *clean* build fails.
