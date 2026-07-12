@@ -909,10 +909,19 @@ export default function Home() {
   useEffect(() => {
     const map = mapObj.current;
     if (!map) return;
+    // Once the source exists, setData is always safe — including mid-move, when
+    // isStyleLoaded() briefly returns false because the source is still
+    // reloading. Only the *first* install (addSource + addLayer) needs the style
+    // loaded. The old code gated every update on isStyleLoaded() and deferred to
+    // map.once('load', …) otherwise — but 'load' fires only once per map, so any
+    // update that landed during a reload was dropped until an unrelated re-render
+    // happened to re-run this effect. That's why the map looked empty after
+    // searching a location until you clicked something.
+    const existing = map.getSource('result-clusters');
+    if (existing) { existing.setData(clusterData); return; }
     const install = () => {
-      const existing = map.getSource('result-clusters');
-      if (existing) {
-        existing.setData(clusterDataRef.current);
+      if (map.getSource('result-clusters')) {
+        map.getSource('result-clusters').setData(clusterDataRef.current);
         return;
       }
       map.addSource('result-clusters', {

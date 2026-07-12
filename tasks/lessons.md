@@ -91,3 +91,15 @@ Ran `rm -rf .next && npm run build` while the preview dev server (`next dev`) sh
 of webpack-runtime error usually means a corrupt/half-written `.next`, not your diff. Don't delete
 `.next` while `next dev`/`next build` is touching it. To confirm the code is fine: stop the dev
 server, `rm -rf .next`, and do one clean `npm run build`. Only bisect the diff if the *clean* build fails.
+
+## 2026-07-12 — `map.once('load', …)` is not a safe fallback for reactive map updates
+
+The result-cluster source effect gated every update on `map.isStyleLoaded()` and, when false,
+deferred to `map.once('load', install)`. But MapLibre's `load` fires exactly once per map, and
+`isStyleLoaded()` briefly returns false whenever a source is reloading (e.g. right after a
+`setData`). So a `setData` that landed during a reload — as happens when searching a location
+re-anchors the radius and refilters — was dropped and never reapplied, leaving the map empty until
+an unrelated re-render happened to run the effect while the style was loaded ("click something and
+it appears"). **Lesson:** once a source exists, `setData` is always safe regardless of
+`isStyleLoaded()` — call it directly and return. Reserve the style-loaded gate (and the one-shot
+`once('load')`) for the *initial* `addSource`/`addLayer` only, never for subsequent data updates.

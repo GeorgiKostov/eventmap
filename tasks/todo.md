@@ -44,6 +44,11 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
+- [x] **Search-anywhere left the map empty until you clicked** (2026-07-12): the result-cluster
+      source effect deferred `setData` to `map.once('load')` whenever `isStyleLoaded()` was false —
+      but `load` fires once, so updates during a source reload (exactly what a location search
+      triggers) were dropped. Now `setData` runs directly once the source exists; only the initial
+      addSource/addLayer waits for style load. (lesson logged)
 - [x] **Mobile locate button overlap** (2026-07-12, branch claude/mobile-location-button-overlap):
       `.locate-btn` sat at `bottom:70px` z-index 14, behind the ~138px three-row filter chip bar
       (`.m-bottombar`, z-index 15) — raised its mobile `bottom` to clear the bar; desktop unchanged.
