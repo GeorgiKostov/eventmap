@@ -56,8 +56,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       with UI notice, POST /api/events merge path, scripts/merge-dups.mjs (canonical-linkage
       clustering; applied: 127 clusters, 129 dupes deleted, 14 enriched, idempotent-verified).
       Multi-source attribution column = future schema change (after other session lands).
-- [ ] **Austria family places** (agent mining, this session): Overpass sweep of the 9 capitals
-      + Wels/Steyr, ~25-30/city curated, same shape as Linz file; seed after review.
+- [x] **Austria family places** (shipped 2026-07-12): 229 curated places seeded across Wien 36 /
+      Graz 21 / Salzburg 15 / Innsbruck 11 / Klagenfurt 10 / St. Pölten 14 / Bregenz+Dornbirn 26 /
+      Eisenstadt 16 (incl. Familypark) / Wels 29 / Steyr 22 + surroundings — DB now 289 places.
+      Marquees verified vs official sites (Museum Arbeitswelt address corrected vs OSM).
 - [x] **Pipeline source-of-truth doc** (shipped 2026-07-12): docs/design/data-pipeline.md (12
       sections + runbook + how-to-add-a-region + coverage snapshot). Update it in post-commit
       housekeeping whenever pipeline behavior changes.

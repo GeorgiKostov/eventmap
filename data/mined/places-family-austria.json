@@ -4,14 +4,18 @@
     "generator": "Overpass API (overpass-api.de / kumi mirror) one combined query per city + web cross-check of marquee venues for official websites/addresses; town from addr:city or reverse-resolved",
     "attribution": "Map data © OpenStreetMap contributors, available under the Open Database License (ODbL) 1.0 — https://www.openstreetmap.org/copyright / https://opendatacommons.org/licenses/odbl/",
     "search_area": "~20km radius around Wien, Graz, Salzburg, Innsbruck, Klagenfurt, St. Pölten, Bregenz/Dornbirn, Eisenstadt, Wels, Steyr",
-    "count": 136,
+    "count": 229,
     "cities": [
       "Wien",
       "Graz",
       "Salzburg",
       "Innsbruck",
       "Klagenfurt",
-      "St. Pölten"
+      "St. Pölten",
+      "Bregenz/Dornbirn",
+      "Eisenstadt",
+      "Wels",
+      "Steyr"
     ],
     "notes": [
       "Facts (name/address/hours/website) only — no source prose copied; descriptions are one-line factual summaries written for this dataset, null where the venue is not personally verifiable.",
@@ -5133,6 +5137,3750 @@
       "_osm_type": "way",
       "_osm_id": 226678728,
       "_wheelchair": null
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 156354626,
+      "_wheelchair": true,
+      "title": "inatura – Erlebnis Naturschau Dornbirn",
+      "description": "Naturkundemuseum mit Aquarien, Terrarien und Mitmachstationen zu Naturphänomenen.",
+      "address": "Jahngasse 9",
+      "town": "Dornbirn",
+      "lat": 47.4091033,
+      "lng": 9.738676,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.inatura.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "18:30"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "18:30"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "18:30"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "18:30"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "18:30"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "18:30"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "18:30"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 218444202,
+      "_wheelchair": "limited",
+      "title": "Alpenwildpark Pfänder",
+      "description": "Frei zugänglicher Wildpark auf dem Pfänder mit heimischen Alpentieren, erreichbar mit der Pfänderbahn.",
+      "address": "Pfänder 4",
+      "town": "Lochau",
+      "lat": 47.5065883,
+      "lng": 9.7789005,
+      "categories": [
+        "zoo"
+      ],
+      "source_url": "https://www.pfaenderbahn.at/de/erlebnis/alpenwildpark",
+      "_osm_category": "zoo"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Ganzjährig geöffnet, kurze Wartungspause im November",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 1124817477,
+      "_wheelchair": true,
+      "title": "Pfänderbahn-Museum",
+      "description": "Kleines Museum zur Geschichte der Pfänderbahn an der Talstation in Bregenz.",
+      "address": "Steinbruchgasse 4",
+      "town": "Bregenz",
+      "lat": 47.504903,
+      "lng": 9.7530541,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.pfaenderbahn.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 240681421,
+      "_wheelchair": true,
+      "title": "vorarlberg museum",
+      "description": "Landesmuseum mit wechselnden Ausstellungen zu Kunst, Kultur und Naturkunde Vorarlbergs.",
+      "address": "Kornmarktplatz 1",
+      "town": "Bregenz",
+      "lat": 47.5045513,
+      "lng": 9.7466645,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.vorarlbergmuseum.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Nur Mai bis Oktober geöffnet (Mi, Fr–So, Feiertage 13–17 Uhr)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 91088463,
+      "_wheelchair": true,
+      "title": "Museum Rhein Schauen",
+      "description": "Museum zur Rheinregulierung mit Ausstellungen und Bootsfahrten zur Rheinmündung.",
+      "address": "Höchster Straße 4",
+      "town": "Lustenau",
+      "lat": 47.4473838,
+      "lng": 9.6609931,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.rheinschauen.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "always": true
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 158004279,
+      "_wheelchair": true,
+      "title": "Doppelmayr Zoo",
+      "description": "Kostenloser Freiluft-Tierpark der Firma Doppelmayr mit rund 70 Tierarten, rund um die Uhr zugänglich.",
+      "address": null,
+      "town": "Wolfurt",
+      "lat": 47.4562997,
+      "lng": 9.7604222,
+      "categories": [
+        "zoo"
+      ],
+      "source_url": "https://www.doppelmayr.com/unternehmen/doppelmayr-zoo/",
+      "_osm_category": "zoo"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 161069090,
+      "_wheelchair": null,
+      "title": "Streichelzoo Möcklebur",
+      "description": "Streichelzoo auf einem Bauernhof in Dornbirn.",
+      "address": "Möckle 10",
+      "town": "Dornbirn",
+      "lat": 47.4427041,
+      "lng": 9.7161664,
+      "categories": [
+        "zoo"
+      ],
+      "source_url": "http://moecklebur.at/",
+      "_osm_category": "zoo"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 105527400,
+      "_wheelchair": "limited",
+      "title": "Waldbad Enz",
+      "description": "Freibad im Wald am Rand von Dornbirn.",
+      "address": "Gütlestraße 16",
+      "town": "Dornbirn",
+      "lat": 47.3970321,
+      "lng": 9.76007,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.waldbadenz.at/",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 208889850,
+      "_wheelchair": true,
+      "title": "Schwimmbad in der Riebe",
+      "description": "Freibad der Gemeinde Götzis.",
+      "address": null,
+      "town": "Götzis",
+      "lat": 47.3331615,
+      "lng": 9.6544327,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://goetzis.at/freizeit/schwimmbad/",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 334686460,
+      "_wheelchair": true,
+      "title": "Erholungszentrum Rheinauen",
+      "description": "Freizeit- und Badeanlage am Rhein in Hohenems.",
+      "address": "Rheinauen 2",
+      "town": "Hohenems",
+      "lat": 47.3672473,
+      "lng": 9.6531778,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "http://www.rheinauen.at",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 433450864,
+      "_wheelchair": "limited",
+      "title": "Seebad Bregenz",
+      "description": "Freibad direkt am Bodensee in Bregenz.",
+      "address": null,
+      "town": "Bregenz",
+      "lat": 47.5056723,
+      "lng": 9.7338146,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/433450864",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 1726890138,
+      "_wheelchair": true,
+      "title": "K1",
+      "description": "Kletterhalle in Dornbirn mit Boulder- und Seilkletterbereich.",
+      "address": "Bildgasse 10",
+      "town": "Dornbirn",
+      "lat": 47.4148186,
+      "lng": 9.7326291,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "http://www.k1-dornbirn.at",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "12:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 6872680468,
+      "_wheelchair": null,
+      "title": "Greifbar",
+      "description": "Boulderhalle in Bregenz.",
+      "address": "Achsiedlungsstraße 1",
+      "town": "Bregenz",
+      "lat": 47.4939938,
+      "lng": 9.7093679,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://greifbar-bouldern.at/",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "14:00",
+            "22:30"
+          ]
+        ],
+        "tue": [
+          [
+            "14:00",
+            "22:30"
+          ]
+        ],
+        "wed": [
+          [
+            "14:00",
+            "22:30"
+          ]
+        ],
+        "thu": [
+          [
+            "14:00",
+            "22:30"
+          ]
+        ],
+        "fri": [
+          [
+            "14:00",
+            "22:30"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "22:30"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "22:30"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 222891357,
+      "_wheelchair": null,
+      "title": "Steinblock Dornbirn (Boulderhalle)",
+      "description": "Boulderhalle in Dornbirn.",
+      "address": "Eisengasse 42",
+      "town": "Dornbirn",
+      "lat": 47.4209724,
+      "lng": 9.7477596,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://steinblock.at/dornbirn/",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 1331685730,
+      "_wheelchair": true,
+      "title": "Kletterturm Kids Buin",
+      "description": "Kostenloser Kletterturm für Kinder und Jugendliche in Wolfurt, betrieben vom Vorarlberger Kinderdorf.",
+      "address": null,
+      "town": "Wolfurt",
+      "lat": 47.4767161,
+      "lng": 9.7608227,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://www.vorarlberger-kinderdorf.at/subsite/kletterturm",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 10654019095,
+      "_wheelchair": null,
+      "title": "KletterWald Egg",
+      "description": "Hochseilgarten im Wald in Egg.",
+      "address": null,
+      "town": "Egg",
+      "lat": 47.4291973,
+      "lng": 9.8941385,
+      "categories": [
+        "trail"
+      ],
+      "source_url": "https://www.alpenverein.at/vorarlberg-bezirk-egg/Kletterwald.php?navid=169489169489",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "14:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 7283115003,
+      "_wheelchair": null,
+      "title": "Spielfabrik",
+      "description": "Indoor-Spielplatz in Dornbirn mit Rutschen, Bällebad und Kletterlandschaft.",
+      "address": "Eisengasse 44",
+      "town": "Dornbirn",
+      "lat": 47.4208569,
+      "lng": 9.7486682,
+      "categories": [
+        "indoor_play"
+      ],
+      "source_url": "https://www.spielfabrik.at/",
+      "_osm_category": "indoor_play"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 693705084,
+      "_wheelchair": null,
+      "title": "Naturspielpark Am Moosbach",
+      "description": "Naturnaher Themenspielplatz in Lustenau mit Wasserlauf und Spielturm, rund 2000 m² groß.",
+      "address": null,
+      "town": "Lustenau",
+      "lat": 47.443908,
+      "lng": 9.6653571,
+      "categories": [
+        "playground"
+      ],
+      "source_url": "https://www.lustenau.at/de/freizeit/kinder/freizeitangebote/spiel-und-freiraeume/naturspielpark-am-moosbach",
+      "_osm_category": "playground"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Geschlossen von November bis März",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 12054630885,
+      "_wheelchair": null,
+      "title": "Erlebnisparcours Doren",
+      "description": "Niedrigseil-Klettergarten im Wald neben dem Fußballplatz in Doren, für Kinder von 2 bis 10 Jahren.",
+      "address": null,
+      "town": "Doren",
+      "lat": 47.4937752,
+      "lng": 9.8537174,
+      "categories": [
+        "trail"
+      ],
+      "source_url": "https://www.doren.at/Doren_er_leben/Sehenswuerdigkeiten/Erlebnisparcours",
+      "_osm_category": "attraction"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 639002672,
+      "_wheelchair": null,
+      "title": "Spielplatz Seepark",
+      "description": "Spielplatz im Seepark am Bodenseeufer in Bregenz.",
+      "address": null,
+      "town": "Bregenz",
+      "lat": 47.5119655,
+      "lng": 9.7544201,
+      "categories": [
+        "playground"
+      ],
+      "source_url": "https://www.osm.org/way/639002672",
+      "_osm_category": "playground"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 105527290,
+      "_wheelchair": null,
+      "title": "Rolls-Royce-Museum",
+      "description": "Museum mit historischen Rolls-Royce- und Bentley-Fahrzeugen in Dornbirn.",
+      "address": "Höchsterstraße 11a",
+      "town": "Dornbirn",
+      "lat": 47.3907136,
+      "lng": 9.7769536,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.rolls-royce-museum.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 840121580,
+      "_wheelchair": false,
+      "title": "Rappenlochschlucht",
+      "description": "Begehbare Felsschlucht mit Steg nahe Dornbirn, beliebtes Familienwanderziel.",
+      "address": null,
+      "town": "Dornbirn",
+      "lat": 47.3837783,
+      "lng": 9.7794809,
+      "categories": [
+        "trail"
+      ],
+      "source_url": "https://www.osm.org/way/840121580",
+      "_osm_category": "attraction"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 135633777,
+      "_wheelchair": false,
+      "title": "Stadtmuseum Dornbirn",
+      "description": "Stadtmuseum zur Geschichte Dornbirns.",
+      "address": "Marktplatz 11",
+      "town": "Dornbirn",
+      "lat": 47.4136628,
+      "lng": 9.7432321,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://stadtmuseum.dornbirn.at/?id=3043",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 84052990,
+      "_wheelchair": null,
+      "title": "Freibad Mellau",
+      "description": "Freibad in Mellau im Bregenzerwald.",
+      "address": null,
+      "town": "Mellau",
+      "lat": 47.3481312,
+      "lng": 9.8763466,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/84052990",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 432791619,
+      "_wheelchair": null,
+      "title": "Freibad Hittisau",
+      "description": "Freibad in Hittisau im Bregenzerwald.",
+      "address": null,
+      "town": "Hittisau",
+      "lat": 47.4639257,
+      "lng": 9.9582636,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/432791619",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": null,
+      "_osm_id": null,
+      "_wheelchair": null,
+      "title": "Egg Museum",
+      "description": "Regionalmuseum zur Geschichte der Gemeinde Egg im Bregenzerwald.",
+      "address": "Egg 5",
+      "town": "Egg",
+      "lat": 47.4317041,
+      "lng": 9.8959165,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.egg-museum.at",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:30",
+            "17:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:30",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:30",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:30",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:30",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:30",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:30",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 1024852901,
+      "_wheelchair": "limited",
+      "title": "Schloss Esterházy",
+      "description": "Barockschloss der Familie Esterházy mit Prunkräumen, Haydnsaal und Ausstellungen.",
+      "address": "Esterhazyplatz 1",
+      "town": "Eisenstadt",
+      "lat": 47.8464433,
+      "lng": 16.5193017,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://esterhazy.at/schloss-esterhazy",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 30344097,
+      "_wheelchair": null,
+      "title": "Haydnmuseum",
+      "description": "Wohnhaus Joseph Haydns in Eisenstadt mit Ausstellung zu seinem Leben und Werk.",
+      "address": "Joseph-Haydn-Gasse 19",
+      "town": "Eisenstadt",
+      "lat": 47.8471787,
+      "lng": 16.522703,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://haydnhaus.at",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 47035374,
+      "_wheelchair": true,
+      "title": "Landesmuseum Burgenland",
+      "description": "Landesmuseum mit Sammlungen zu Natur-, Kultur- und Landesgeschichte des Burgenlands.",
+      "address": "Museumgasse 1-5",
+      "town": "Eisenstadt",
+      "lat": 47.8464815,
+      "lng": 16.5169747,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://landesmuseum-burgenland.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 13340574966,
+      "_wheelchair": null,
+      "title": "Diözesanmuseum Eisenstadt",
+      "description": "Diözesanmuseum mit kirchlicher Kunst und Sakralobjekten.",
+      "address": null,
+      "town": "Eisenstadt",
+      "lat": 47.8450637,
+      "lng": 16.5117614,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.martinus.at/dioezesanmuseum/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "08:00",
+            "16:00"
+          ]
+        ],
+        "tue": [
+          [
+            "08:00",
+            "16:00"
+          ]
+        ],
+        "wed": [
+          [
+            "08:00",
+            "16:00"
+          ]
+        ],
+        "thu": [
+          [
+            "08:00",
+            "16:00"
+          ]
+        ],
+        "fri": [
+          [
+            "08:00",
+            "13:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 102196416,
+      "_wheelchair": null,
+      "title": "Burgenländisches Feuerwehrmuseum",
+      "description": "Feuerwehrmuseum mit historischen Löschfahrzeugen und Ausrüstung.",
+      "address": "Leithaberstraße 41",
+      "town": "Eisenstadt",
+      "lat": 47.8598246,
+      "lng": 16.5372305,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://kulturburgenland.at",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Saisonal geöffnet (Ende März bis Anfang November)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 30344611,
+      "_wheelchair": true,
+      "title": "Familypark",
+      "description": "Großer Freizeit- und Märchenpark für Kinder mit Fahrattraktionen, Spielbereichen und Streichelzoo.",
+      "address": "Märchenparkweg 1",
+      "town": "Sankt Margarethen im Burgenland",
+      "lat": 47.8031264,
+      "lng": 16.6482206,
+      "categories": [
+        "playground"
+      ],
+      "source_url": "https://www.familypark.at/",
+      "_osm_category": "theme_park"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 142698209,
+      "_wheelchair": null,
+      "title": "Freibad Eisenstadt (Schlosspark)",
+      "description": "Freibad im Esterházy-Schlosspark in Eisenstadt.",
+      "address": "Feiersteigweg 9",
+      "town": "Eisenstadt",
+      "lat": 47.8489086,
+      "lng": 16.5253548,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.eisenstadt.gv.at/freizeit/freibad/",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 126118782,
+      "_wheelchair": null,
+      "title": "Neuer Strand Breitenbrunn",
+      "description": "Seebad am Neusiedler See in Breitenbrunn.",
+      "address": null,
+      "town": "Breitenbrunn am Neusiedlersee",
+      "lat": 47.9165682,
+      "lng": 16.7665339,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "http://www.breitenbrunn.at",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 271163413,
+      "_wheelchair": "limited",
+      "title": "Seebad Mörbisch",
+      "description": "Seebad am Neusiedler See in Mörbisch am See.",
+      "address": null,
+      "town": "Mörbisch am See",
+      "lat": 47.7528797,
+      "lng": 16.6972136,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/271163413",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 140942750,
+      "_wheelchair": null,
+      "title": "Freibad Purbach am Neusiedler See",
+      "description": "Freibad in Purbach am Neusiedler See.",
+      "address": "Türkenhain 2",
+      "town": "Purbach am Neusiedler See",
+      "lat": 47.9084662,
+      "lng": 16.7057035,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/140942750",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 166724866,
+      "_wheelchair": null,
+      "title": "Strandbad Neufelder See",
+      "description": "Strandbad am Neufelder Stausee.",
+      "address": null,
+      "town": "Neufeld an der Leitha",
+      "lat": 47.8681788,
+      "lng": 16.3868747,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/166724866",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 338224173,
+      "_wheelchair": null,
+      "title": "Freibad Siegendorf",
+      "description": "Freibad der Gemeinde Siegendorf.",
+      "address": "Badgasse 4",
+      "town": "Siegendorf",
+      "lat": 47.7850132,
+      "lng": 16.5474285,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/338224173",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 379427628,
+      "_wheelchair": null,
+      "title": "Städtisches Freibad Mattersburg",
+      "description": "Freibad der Stadt Mattersburg.",
+      "address": "Michael Koch-Straße 56",
+      "town": "Mattersburg",
+      "lat": 47.7397999,
+      "lng": 16.4083291,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/379427628",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 6422825682,
+      "_wheelchair": null,
+      "title": "Kletterhalle Steinbrunn",
+      "description": "Kletterhalle in Steinbrunn.",
+      "address": null,
+      "town": "Steinbrunn",
+      "lat": 47.8574062,
+      "lng": 16.3939733,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://www.osm.org/node/6422825682",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 45019497,
+      "_wheelchair": null,
+      "title": "Freibad Oggau",
+      "description": "Freibad der Gemeinde Oggau am Neusiedler See.",
+      "address": null,
+      "town": "Oggau am Neusiedler See",
+      "lat": 47.8437071,
+      "lng": 16.6907919,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/45019497",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 154142382,
+      "_wheelchair": null,
+      "title": "Freibad Bad Sauerbrunn",
+      "description": "Freibad im Kurort Bad Sauerbrunn.",
+      "address": null,
+      "town": "Bad Sauerbrunn",
+      "lat": 47.7782261,
+      "lng": 16.3294011,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/154142382",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "09:00",
+            "14:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "14:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 24968628,
+      "_wheelchair": true,
+      "title": "Welios Science Center",
+      "description": "Mitmach-Science-Center zu Naturwissenschaft, Technik und erneuerbaren Energien.",
+      "address": "Weliosplatz 1",
+      "town": "Wels",
+      "lat": 48.1539513,
+      "lng": 14.0225881,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.welios.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "14:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "16:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 490174610,
+      "_wheelchair": true,
+      "title": "Stadtmuseum Wels – Burg",
+      "description": "Stadtmuseum in der Welser Burg zu Stadtgeschichte, Landwirtschaft und Gebäckmuseum.",
+      "address": "Burggasse 13",
+      "town": "Wels",
+      "lat": 48.1566027,
+      "lng": 14.0280363,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.wels.gv.at/lebensbereiche/bildung-und-kultur/welser-stadtmuseen/burg-wels/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 38235132,
+      "_wheelchair": null,
+      "title": "Medien Kultur Haus",
+      "description": "Kulturhaus in Wels mit Ausstellungen und Veranstaltungen.",
+      "address": "Pollheimerstraße 17",
+      "town": "Wels",
+      "lat": 48.1569576,
+      "lng": 14.0215935,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.medienkulturhaus.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "thu": [
+          [
+            "13:00",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 198112167,
+      "_wheelchair": true,
+      "title": "Museum Angerlehner",
+      "description": "Museum für zeitgenössische österreichische Kunst in Thalheim bei Wels.",
+      "address": "Ascheter Straße 54",
+      "town": "Thalheim bei Wels",
+      "lat": 48.1484384,
+      "lng": 14.0198466,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://museum-angerlehner.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "18:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 150520077,
+      "_wheelchair": null,
+      "title": "Bahnzeit",
+      "description": "Eisenbahnmuseum in Wels mit historischen Fahrzeugen und Modellbahnen.",
+      "address": "Maxlheid 9",
+      "town": "Wels",
+      "lat": 48.1862003,
+      "lng": 14.0753794,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "http://www.bahnzeit.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 974298325,
+      "_wheelchair": null,
+      "title": "Stift Kremsmünster",
+      "description": "Barockes Benediktinerstift mit Kaisersaal, Fischbehältern und der Sternwarte.",
+      "address": null,
+      "town": "Kremsmünster",
+      "lat": 48.0551222,
+      "lng": 14.1293959,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.stift-kremsmuenster.at/",
+      "_osm_category": "attraction"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 99207435,
+      "_wheelchair": null,
+      "title": "Sternwarte Kremsmünster",
+      "description": "Historische Sternwarte des Stifts Kremsmünster mit astronomischen und meteorologischen Sammlungen.",
+      "address": null,
+      "town": "Kremsmünster",
+      "lat": 48.0551992,
+      "lng": 14.1315657,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.stift-kremsmuenster.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "12:00"
+          ],
+          [
+            "13:00",
+            "16:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "12:00"
+          ],
+          [
+            "13:00",
+            "16:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "12:00"
+          ],
+          [
+            "13:00",
+            "16:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "12:00"
+          ],
+          [
+            "13:00",
+            "16:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "12:00"
+          ],
+          [
+            "13:00",
+            "16:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 1022620129,
+      "_wheelchair": null,
+      "title": "Stift Lambach",
+      "description": "Barockes Benediktinerstift in Lambach mit romanischen Fresken.",
+      "address": "Klosterplatz 1",
+      "town": "Lambach",
+      "lat": 48.0908005,
+      "lng": 13.8770172,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.stift-lambach.at/",
+      "_osm_category": "attraction"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "sat": [
+          [
+            "10:00",
+            "11:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 573453327,
+      "_wheelchair": null,
+      "title": "Freilichtmuseum Hackenschmiede",
+      "description": "Historische wasserbetriebene Hammerschmiede als Freilichtmuseum mit Vorführungen.",
+      "address": null,
+      "town": "Bad Wimsbach-Neydharting",
+      "lat": 48.0637264,
+      "lng": 13.9044418,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.bad-wimsbach.at/Museum_Hackenschmiede_1",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 264337336,
+      "_wheelchair": null,
+      "title": "Samareiner Mostmuseum",
+      "description": "Museum zur Mostherstellung in St. Marienkirchen an der Polsenz.",
+      "address": "Kirchenplatz 10",
+      "town": "St. Marienkirchen an der Polsenz",
+      "lat": 48.2632545,
+      "lng": 13.9308019,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "http://www.mostmuseum.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "07:00",
+            "19:45"
+          ]
+        ],
+        "tue": [
+          [
+            "07:00",
+            "19:45"
+          ]
+        ],
+        "wed": [
+          [
+            "07:00",
+            "19:45"
+          ]
+        ],
+        "thu": [
+          [
+            "07:00",
+            "19:45"
+          ]
+        ],
+        "fri": [
+          [
+            "07:00",
+            "19:45"
+          ]
+        ],
+        "sat": [
+          [
+            "07:00",
+            "19:45"
+          ]
+        ],
+        "sun": [
+          [
+            "07:00",
+            "19:45"
+          ]
+        ]
+      },
+      "seasonal": "Kürzere Öffnungszeiten (08:00–16:45) von Mitte Oktober bis Mitte März",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 24809168,
+      "_wheelchair": "limited",
+      "title": "Welser Tiergarten",
+      "description": "Kostenloser Tiergarten in Wels mit heimischen und exotischen Tierarten.",
+      "address": "Maria-Theresia-Straße",
+      "town": "Wels",
+      "lat": 48.1535236,
+      "lng": 14.0170574,
+      "categories": [
+        "zoo"
+      ],
+      "source_url": "https://www.wels.at/welsmarketing/oesterreich-poi/detail/401930/tiergarten-wels.html",
+      "_osm_category": "zoo"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "19:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 58723920,
+      "_wheelchair": "limited",
+      "title": "Zoo Schmiding",
+      "description": "Großer Zoo mit Regenwaldhaus, Safaripark und zahlreichen Tierarten in Krenglbach.",
+      "address": "Schmidingerstraße 5",
+      "town": "Krenglbach",
+      "lat": 48.1955962,
+      "lng": 13.9551344,
+      "categories": [
+        "zoo"
+      ],
+      "source_url": "https://www.zooschmiding.at/",
+      "_osm_category": "zoo"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Saisonal geöffnet (April bis Oktober)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 182388083,
+      "_wheelchair": false,
+      "title": "Time Out Park",
+      "description": "Freizeitpark mit Trampolinen und Klettermöglichkeiten in Fischlham.",
+      "address": null,
+      "town": "Fischlham",
+      "lat": 48.0673946,
+      "lng": 13.9221652,
+      "categories": [
+        "playground"
+      ],
+      "source_url": "https://www.timeoutpark.at/",
+      "_osm_category": "theme_park"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 190530873,
+      "_wheelchair": null,
+      "title": "Kindererlebnishof Funtasia",
+      "description": "Erlebnisbauernhof für Kinder in Steinerkirchen an der Traun, Besuch nach Voranmeldung.",
+      "address": "Niederheisschbach 11",
+      "town": "Steinerkirchen an der Traun",
+      "lat": 48.0850818,
+      "lng": 13.9796696,
+      "categories": [
+        "park"
+      ],
+      "source_url": "https://funtasia.stadtausstellung.at/",
+      "_osm_category": "theme_park"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "20:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 38142750,
+      "_wheelchair": true,
+      "title": "Welldorado",
+      "description": "Hallen- und Freibad in Wels mit Rutschen und Saunabereich.",
+      "address": "Rosenauer Straße 70",
+      "town": "Wels",
+      "lat": 48.1493335,
+      "lng": 14.016725,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.wels.gv.at/lebensbereiche/freizeit-und-sport/welldorado/",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 38449361,
+      "_wheelchair": null,
+      "title": "Eurotherme Bad Schallerbach",
+      "description": "Thermenlandschaft mit Innen- und Außenbecken sowie Kinderbereich in Bad Schallerbach.",
+      "address": null,
+      "town": "Bad Schallerbach",
+      "lat": 48.2259567,
+      "lng": 13.9179094,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.eurothermen.at/bad-schallerbach/",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 54564260,
+      "_wheelchair": null,
+      "title": "Freibad Kremsmünster",
+      "description": "Freibad der Gemeinde Kremsmünster.",
+      "address": "Dr.-Watzenböck-Gasse 1",
+      "town": "Kremsmünster",
+      "lat": 48.0503841,
+      "lng": 14.130143,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.kremsmuenster.at/Kultur_Freizeit_Vereine/Freibad",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ],
+        "sat": [
+          [
+            "09:00",
+            "24:00"
+          ]
+        ],
+        "sun": [
+          [
+            "09:00",
+            "22:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 111495023,
+      "_wheelchair": true,
+      "title": "Aquapulco die Piratenwelt",
+      "description": "Piraten-Themenbad mit Rutschen in Bad Schallerbach.",
+      "address": "Promenade 1",
+      "town": "Bad Schallerbach",
+      "lat": 48.2261344,
+      "lng": 13.918257,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.piratenwelt.at/",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 128493724,
+      "_wheelchair": null,
+      "title": "Naturerlebnisbad Gallspach",
+      "description": "Naturerlebnisbad in Gallspach mit biologischer Wasseraufbereitung.",
+      "address": null,
+      "town": "Gallspach",
+      "lat": 48.2134662,
+      "lng": 13.816736,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "http://www.gallspach.ooe.gv.at/system/web/sonderseite.aspx?menuonr=220313040&detailonr=220313040",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 134988685,
+      "_wheelchair": null,
+      "title": "Freibad Vorchdorf",
+      "description": "Freibad der Gemeinde Vorchdorf.",
+      "address": null,
+      "town": "Vorchdorf",
+      "lat": 47.9991261,
+      "lng": 13.9233337,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/134988685",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 240862316,
+      "_wheelchair": null,
+      "title": "Schwimmbad Grieskirchen",
+      "description": "Freibad der Stadt Grieskirchen.",
+      "address": null,
+      "town": "Grieskirchen",
+      "lat": 48.2293019,
+      "lng": 13.8336439,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/240862316",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 307053000,
+      "_wheelchair": null,
+      "title": "Flavia-Bad Lambach",
+      "description": "Freibad der Marktgemeinde Lambach.",
+      "address": null,
+      "town": "Lambach",
+      "lat": 48.0878571,
+      "lng": 13.8647826,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/307053000",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 26349896,
+      "_wheelchair": null,
+      "title": "Freibad Bad Hall - Pfarrkirchen",
+      "description": "Freibad für Bad Hall und Pfarrkirchen bei Bad Hall.",
+      "address": null,
+      "town": "Bad Hall",
+      "lat": 48.0319832,
+      "lng": 14.2036161,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/26349896",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 702974118,
+      "_wheelchair": null,
+      "title": "Kletterhalle Wels",
+      "description": "Kletterhalle in Wels für Sportklettern und Bouldern.",
+      "address": null,
+      "town": "Wels",
+      "lat": 48.1538456,
+      "lng": 14.0256891,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://kletterhallewels.at/kontakt/",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 4432787235,
+      "_wheelchair": null,
+      "title": "Kletterhalle Vorchdorf",
+      "description": "Kletterhalle in Vorchdorf.",
+      "address": null,
+      "town": "Vorchdorf",
+      "lat": 48.0077778,
+      "lng": 13.9269626,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://www.osm.org/node/4432787235",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 26574239,
+      "_wheelchair": null,
+      "title": "Klettergarten Steinbruch Dörnbach",
+      "description": "Ehemaliger Steinbruch als Klettergarten mit rund 20 Routen in Wilhering.",
+      "address": null,
+      "town": "Wilhering",
+      "lat": 48.284621,
+      "lng": 14.2113433,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://www.bergsteigen.com/touren/klettergarten/doernbach-steinbruch/",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 587469553,
+      "_wheelchair": null,
+      "title": "Motorikpark Feldkirchen an der Donau",
+      "description": "Kostenloser Bewegungsparcours mit 20 Koordinationsstationen am Feldkirchner Badesee.",
+      "address": "Badeseestraße",
+      "town": "Feldkirchen an der Donau",
+      "lat": 48.3266334,
+      "lng": 14.0642542,
+      "categories": [
+        "playground"
+      ],
+      "source_url": "https://www.feldkirchen-donau.at/Motorikpark_Feldkirchen_a_d_D_",
+      "_osm_category": "playground"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 1151550115,
+      "_wheelchair": null,
+      "title": "Wallern Aktiv Park",
+      "description": "Bewegungs- und Freizeitpark in Wallern an der Trattnach.",
+      "address": "Fellehnerweg",
+      "town": "Wallern an der Trattnach",
+      "lat": 48.2289062,
+      "lng": 13.9457294,
+      "categories": [
+        "park"
+      ],
+      "source_url": "https://www.osm.org/way/1151550115",
+      "_osm_category": "playground"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 518497040,
+      "_wheelchair": null,
+      "title": "Generationenpark Noitzmühle",
+      "description": "Generationenpark in Wels mit Kinderspielplatz und kostenlosen Fitnessgeräten.",
+      "address": null,
+      "town": "Wels",
+      "lat": 48.1461454,
+      "lng": 13.9947036,
+      "categories": [
+        "park"
+      ],
+      "source_url": "https://www.osm.org/way/518497040",
+      "_osm_category": "playground"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "tue": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "wed": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "09:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 30577175,
+      "_wheelchair": null,
+      "title": "Museum Arbeitswelt",
+      "description": "Sozial- und Industriegeschichte-Museum im Steyrer Wehrgraben mit Themen zu Arbeit und Alltag.",
+      "address": "Wehrgrabengasse 7",
+      "town": "Steyr",
+      "lat": 48.0427679,
+      "lng": 14.4165049,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://museumarbeitswelt.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "wed": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "17:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "16:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 8094967620,
+      "_wheelchair": null,
+      "title": "Museum der Stadt Steyr (Innerberger Stadel)",
+      "description": "Stadtmuseum im historischen Innerberger Stadel zur Steyrer Stadtgeschichte.",
+      "address": "Grünmarkt 26",
+      "town": "Steyr",
+      "lat": 48.0369002,
+      "lng": 14.4179058,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.steyr.at/Stadtmuseum",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Fahrten nur an ausgewählten Terminen (Saisonbetrieb)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 3923334828,
+      "_wheelchair": null,
+      "title": "Steyrtal-Museumsbahn",
+      "description": "Österreichs älteste dampfbetriebene Schmalspurbahn, Museumsbahnhof in Steyr.",
+      "address": "Redtenbachergasse 14",
+      "town": "Steyr",
+      "lat": 48.03915,
+      "lng": 14.4078332,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.oegeg.at/schmalspur-steyrtalbahn/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 122999640,
+      "_wheelchair": null,
+      "title": "Alte Remise Florianerbahn",
+      "description": "Bahnmuseum der Feldbahn St. Florian in einer historischen Remise.",
+      "address": "Leopold-Kotzmann-Straße 14a",
+      "town": "St. Florian",
+      "lat": 48.2057328,
+      "lng": 14.3843431,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.florianerbahn.at/",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 628168800,
+      "_wheelchair": null,
+      "title": "OÖ Jagdmuseum (Schloss Hohenbrunn)",
+      "description": "Landesjagdmuseum im Jagdschloss Hohenbrunn bei St. Florian.",
+      "address": null,
+      "town": "St. Florian",
+      "lat": 48.1991655,
+      "lng": 14.356955,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.osm.org/node/628168800",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "mon": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "16:00"
+          ]
+        ],
+        "tue": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "16:00"
+          ]
+        ],
+        "wed": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "16:00"
+          ]
+        ],
+        "thu": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "16:00"
+          ]
+        ],
+        "fri": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "16:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "16:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "12:00"
+          ],
+          [
+            "14:00",
+            "16:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 4563434989,
+      "_wheelchair": null,
+      "title": "Kutschenmuseum Gruber",
+      "description": "Private Kutschensammlung in Großraming.",
+      "address": "Rodelsbach 36",
+      "town": "Großraming",
+      "lat": 47.8811211,
+      "lng": 14.5414698,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "http://www.johannesgruber.com",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 620825745,
+      "_wheelchair": null,
+      "title": "Geschichtliches Museum der Stadt St. Valentin",
+      "description": "Heimat- und Stadtgeschichtemuseum in St. Valentin.",
+      "address": "Hauptplatz 5",
+      "town": "St. Valentin",
+      "lat": 48.1750474,
+      "lng": 14.5339197,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://valentinmuseum.at/museum",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": "Nur im Advent geöffnet (ca. Ende November bis Anfang Jänner)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 1534567959,
+      "_wheelchair": null,
+      "title": "Christkindl Großkrippe und mechanische Krippe",
+      "description": "Große mechanische mechanische Weihnachtskrippe mit beweglichen Figuren in Steyr-Christkindl.",
+      "address": "Christkindlweg 69",
+      "town": "Steyr",
+      "lat": 48.0377204,
+      "lng": 14.3873775,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.steyr.at/Krippen_in_Christkindl",
+      "_osm_category": "attraction"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 527917628,
+      "_wheelchair": null,
+      "title": "Messingmuseum",
+      "description": "Museum zur Geschichte der Messingverarbeitung in Reichraming.",
+      "address": null,
+      "town": "Reichraming",
+      "lat": 47.8930358,
+      "lng": 14.4626413,
+      "categories": [
+        "museum"
+      ],
+      "source_url": "https://www.osm.org/node/527917628",
+      "_osm_category": "museum"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": {
+        "mon": [
+          [
+            "08:30",
+            "17:30"
+          ]
+        ],
+        "tue": [
+          [
+            "08:30",
+            "17:30"
+          ]
+        ],
+        "wed": [
+          [
+            "08:30",
+            "17:30"
+          ]
+        ],
+        "thu": [
+          [
+            "08:30",
+            "17:30"
+          ]
+        ],
+        "fri": [
+          [
+            "08:30",
+            "17:30"
+          ]
+        ],
+        "sat": [
+          [
+            "08:30",
+            "17:30"
+          ]
+        ],
+        "sun": [
+          [
+            "08:30",
+            "17:30"
+          ]
+        ]
+      },
+      "seasonal": "Kürzere Öffnungszeiten im Winterhalbjahr",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 30219669,
+      "_wheelchair": "limited",
+      "title": "Tierpark Stadt Haag",
+      "description": "Tierpark in Haag mit Wildtieren, Haustierrassen und Streichelbereich.",
+      "address": "Salaberg 34",
+      "town": "Haag",
+      "lat": 48.1009993,
+      "lng": 14.5556762,
+      "categories": [
+        "zoo"
+      ],
+      "source_url": "http://www.tierparkstadthaag.at",
+      "_osm_category": "zoo"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 6743618585,
+      "_wheelchair": null,
+      "title": "Alpakabauernhof Geiblinger",
+      "description": "Alpakabauernhof in Haag mit Wanderungen und Hofführungen.",
+      "address": "Krottendorf 10",
+      "town": "Haag",
+      "lat": 48.0910891,
+      "lng": 14.5544367,
+      "categories": [
+        "zoo"
+      ],
+      "source_url": "http://alpakabauernhof.at",
+      "_osm_category": "attraction"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 176795825,
+      "_wheelchair": null,
+      "title": "Kaiserin Elisabeth Warte",
+      "description": "Aussichtswarte bei Haag, beliebtes Wanderziel für Familien.",
+      "address": null,
+      "town": "Haag",
+      "lat": 48.0148061,
+      "lng": 14.5483631,
+      "categories": [
+        "trail"
+      ],
+      "source_url": "http://www.elisabethwarte.at/",
+      "_osm_category": "attraction"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 24443459,
+      "_wheelchair": null,
+      "title": "Stadtbad Steyr",
+      "description": "Hallenbad der Stadt Steyr mit Sportbecken, Nichtschwimmerbecken und Baby-Planschbecken.",
+      "address": "Haratzmüllerstraße 126",
+      "town": "Steyr",
+      "lat": 48.0461412,
+      "lng": 14.4432301,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.stadtbetriebe.at/Stadtbad/Kontakt_Oeffnungszeiten",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 24444267,
+      "_wheelchair": null,
+      "title": "Garstner Bad",
+      "description": "Freibad der Gemeinde Garsten.",
+      "address": null,
+      "town": "Garsten",
+      "lat": 48.0210326,
+      "lng": 14.4120632,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/24444267",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 30219412,
+      "_wheelchair": null,
+      "title": "Erlebnisbad Haag",
+      "description": "Freibad der Stadt Haag.",
+      "address": null,
+      "town": "Haag",
+      "lat": 48.1113083,
+      "lng": 14.5790027,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/30219412",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": {
+        "tue": [
+          [
+            "13:30",
+            "21:00"
+          ]
+        ],
+        "wed": [
+          [
+            "13:30",
+            "21:00"
+          ]
+        ],
+        "thu": [
+          [
+            "13:30",
+            "21:00"
+          ]
+        ],
+        "fri": [
+          [
+            "13:30",
+            "21:00"
+          ]
+        ],
+        "sat": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ],
+        "sun": [
+          [
+            "10:00",
+            "21:00"
+          ]
+        ]
+      },
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 85673095,
+      "_wheelchair": "limited",
+      "title": "Hallenbad Losenstein",
+      "description": "Hallenbad der Marktgemeinde Losenstein.",
+      "address": "Anton Schosserweg 37",
+      "town": "Losenstein",
+      "lat": 47.9275818,
+      "lng": 14.4328218,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/85673095",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 189251598,
+      "_wheelchair": null,
+      "title": "Freibad Sierning",
+      "description": "Freibad der Marktgemeinde Sierning.",
+      "address": null,
+      "town": "Sierning",
+      "lat": 48.0420083,
+      "lng": 14.3134384,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.sierning.at/Verwaltung_Politik/Bereiche_der_Gemeinde/Freibad",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 189891552,
+      "_wheelchair": null,
+      "title": "Freibad Laussa",
+      "description": "Freibad der Gemeinde Laussa.",
+      "address": null,
+      "town": "Laussa",
+      "lat": 47.9541585,
+      "lng": 14.4574299,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/189891552",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 237187785,
+      "_wheelchair": null,
+      "title": "Waldbad Wolfern",
+      "description": "Freibad im Wald in der Gemeinde Wolfern.",
+      "address": "Eglmayrstraße 2a",
+      "town": "Wolfern",
+      "lat": 48.0852476,
+      "lng": 14.3837626,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.osm.org/way/237187785",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": "Freibad – nur Badesaison (ca. Mai–September)",
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 433139929,
+      "_wheelchair": null,
+      "title": "Freibad Steinbach an der Steyr",
+      "description": "Freibad der Gemeinde Steinbach an der Steyr.",
+      "address": null,
+      "town": "Steinbach an der Steyr",
+      "lat": 47.9666261,
+      "lng": 14.263717,
+      "categories": [
+        "pool"
+      ],
+      "source_url": "https://www.steinbachsteyr.at/Freibad_Steinbach_an_der_Steyr_7",
+      "_osm_category": "pool"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": false,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "way",
+      "_osm_id": 525953816,
+      "_wheelchair": null,
+      "title": "Kletterhalle Naturfreunde Steyr",
+      "description": "Kletterhalle der Naturfreunde in Steyr.",
+      "address": null,
+      "town": "Steyr",
+      "lat": 48.063245,
+      "lng": 14.4247971,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://www.kletterhalle-steyr.at/",
+      "_osm_category": "climbing"
+    },
+    {
+      "kind": "place",
+      "venue": null,
+      "geo_precision": "venue",
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "opening_hours": null,
+      "seasonal": null,
+      "emoji": "📌",
+      "src_kind": "osm_mined",
+      "source_name": "OpenStreetMap contributors",
+      "_osm_type": "node",
+      "_osm_id": 527917651,
+      "_wheelchair": null,
+      "title": "Kletterturm Großraming",
+      "description": "Kletterturm in Großraming.",
+      "address": "Eisenstraße 9",
+      "town": "Großraming",
+      "lat": 47.8863527,
+      "lng": 14.5395143,
+      "categories": [
+        "climbing"
+      ],
+      "source_url": "https://www.osm.org/node/527917651",
+      "_osm_category": "climbing"
     }
   ]
 }
