@@ -122,21 +122,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .seg button.on { background: var(--panel); color: var(--ink); box-shadow: var(--shadow-sm); }
 
-.togglerow { display: flex; gap: 8px; flex-wrap: wrap; }
-.toggle {
-  flex: 1 1 45%; border-radius: 12px; padding: 10px 12px;
-  background: var(--panel); border: 1.5px solid var(--line);
-  font-size: 13px; font-weight: 600; text-align: left;
-  display: flex; justify-content: space-between; align-items: center; gap: 8px;
-}
-.toggle .knob { width: 32px; height: 19px; border-radius: 99px; background: var(--line); position: relative; transition: background 0.15s; flex: 0 0 auto; }
-.toggle .knob::after {
-  content: ""; position: absolute; top: 2px; left: 2px; width: 15px; height: 15px;
-  border-radius: 99px; background: #fff; transition: left 0.15s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-}
-.toggle.on { border-color: var(--good); }
-.toggle.on .knob { background: var(--good); }
-.toggle.on .knob::after { left: 15px; }
+/* Binary on/off uses the chip grammar everywhere (filters and the add form) —
+   no iOS-style switch as a second binary vocabulary (design-system.md). */
 
 .resetbtn { font-size: 12.5px; font-weight: 600; color: var(--muted); text-decoration: underline; margin-top: 14px; }
 
@@ -319,7 +306,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   font-size: 9.5px; line-height: 1.2; font-weight: 700; color: var(--muted);
   border: 1px solid var(--line); background: var(--panel2); padding: 2px 6px; border-radius: 99px;
 }
-.source-tag.community { border-style: dashed; color: var(--ink); }
+/* same --community trust token as the pin corner badge + legend dot */
+.source-tag.community { border-style: dashed; border-color: color-mix(in srgb, var(--community) 60%, var(--line)); color: var(--ink); }
 .empty { padding: 30px 20px; text-align: center; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
 .empty button { color: var(--accent); font-weight: 700; margin-top: 6px; }
 
@@ -347,36 +335,30 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   background: rgba(255, 255, 255, 0.42);
 }
 /* places: evergreen locations get a plain circle vs the event teardrop — subtle,
-   consistent distinction that still reads as "same family of pin". */
+   consistent distinction that still reads as "same family of pin". Shape carries
+   exactly two values (event teardrop / place circle); "many" is the count badge,
+   never a third silhouette (design-system.md marker grammar). */
 .pin2.pin-place { border-radius: 50%; }
-/* Same-title occurrences within one town collapse into a larger rounded bubble.
-   It keeps the category colour/icon but is deliberately neither an event
-   teardrop nor a place circle. */
-.pin2.pin-series {
-  width: 38px; height: 34px; border-radius: 13px;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cc) 42%, #fff), 0 3px 8px rgba(23, 32, 28, 0.38);
-}
+/* Selection is the ONLY thing allowed to add a ring/scale to a pin. */
 .pin2.selected {
   transform: scale(1.3);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--cc) 30%, transparent), 0 4px 14px rgba(23, 32, 28, 0.4);
   z-index: 6;
 }
-.pin2.pin-series.selected {
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cc) 34%, transparent), 0 4px 14px rgba(23, 32, 28, 0.4);
-}
-/* venue-group count badge (task 3: multiple events collapsed into one pin) */
+/* count badge — carries both venue groups and same-title series ("many here"). */
 .pin-badge {
   position: absolute; top: -5px; right: -5px; z-index: 1;
   min-width: 16px; height: 16px; padding: 0 3px; border-radius: 99px;
   background: var(--ink); color: #fff; font-size: 9.5px; font-weight: 800;
   display: grid; place-items: center; line-height: 1; border: 1.5px solid #fff;
 }
-/* community (genuinely user-submitted) pins wear a colored ring around the whole
-   pin — no corner badge. A pseudo-element ring coexists with the selected halo,
-   the approx dashed halo, and the count badge without fighting them. */
-.pin2.pin-user::after {
-  content: ""; position: absolute; inset: -3px; pointer-events: none;
-  border: 2px solid var(--community); border-radius: inherit;
+/* community (genuinely user-submitted) trust: one small corner badge in
+   --community — the same token the list .source-tag.community and the legend
+   use. Top-left, so it never collides with the top-right count badge. */
+.pin-community {
+  position: absolute; top: -4px; left: -4px; z-index: 1;
+  width: 12px; height: 12px; border-radius: 99px;
+  background: var(--community); border: 1.5px solid #fff;
 }
 
 /* Compact, collapsible marker grammar. Category color remains on the pin only;
@@ -399,10 +381,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .legend-pin.event { border-radius: 50% 50% 50% 3px; }
 .legend-pin.place { border-radius: 50%; }
-.legend-pin.series { width: 22px; border-radius: 7px; background: var(--muted); box-shadow: 0 0 0 2px color-mix(in srgb, var(--muted) 42%, #fff); }
-.legend-pin.community { background: var(--community); }
 .legend-pin.community::after {
-  content: ""; position: absolute; inset: -4px; border: 2px solid var(--community); border-radius: inherit;
+  content: ""; position: absolute; top: -3px; left: -3px; width: 8px; height: 8px;
+  border-radius: 99px; background: var(--community); border: 1px solid #fff;
 }
 .legend-pin.approximate::before { content: ""; position: absolute; inset: -5px; border: 1.5px dashed var(--muted); border-radius: inherit; }
 .legend-pin.count::after { content: "3"; position: absolute; top: -6px; right: -6px; min-width: 11px; height: 11px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: #fff; border: 1px solid #fff; font-size: 7px; line-height: 10px; text-align: center; }
@@ -668,48 +649,46 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .dvenue-row .t { font-weight: 650; font-size: 13px; line-height: 1.3; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dvenue-row .m { font-size: 11.5px; color: var(--muted); }
 
-/* ================= "+" Add FAB (opens the unified intake) ================= */
-/* Primary contribution action stays closest to the mobile filter bar. */
-.fab {
+/* ================= floating controls stack (locate + Add) ================= */
+/* One reflowing column anchored above the mobile filter bar — no per-element
+   magic-number offsets. column-reverse puts the primary Add action at the
+   bottom (closest to the filter bar) with locate above it (design-system.md). */
+.floatstack {
   position: absolute; right: 14px; bottom: calc(124px + env(safe-area-inset-bottom)); z-index: 15;
+  display: flex; flex-direction: column-reverse; align-items: center; gap: 12px;
+  transition: opacity 0.2s;
+}
+.floatstack.hidden { opacity: 0; pointer-events: none; }
+@media (min-width: 900px) {
+  .floatstack { bottom: 18px; right: 18px; }
+}
+
+/* "+" Add FAB (opens the unified intake) — primary contribution action. */
+.fab {
+  flex: 0 0 auto;
   width: 52px; height: 52px; border-radius: 50%;
   background: var(--accent); color: #fff; font-size: 30px; font-weight: 300; line-height: 1;
   display: grid; place-items: center; padding-bottom: 3px;
   box-shadow: 0 6px 20px rgba(201, 58, 91, 0.45);
-  transition: transform 0.15s, opacity 0.2s, bottom 0.3s cubic-bezier(0.3, 1, 0.3, 1);
+  transition: transform 0.15s, opacity 0.2s;
 }
 .fab:active { transform: scale(0.94); }
-.fab.hidden { opacity: 0; pointer-events: none; }
-.fab.lifted { bottom: calc(214px + env(safe-area-inset-bottom)); } /* clears the mini-card */
-.fab.above-sheet { bottom: calc(min(480px, 72%) + 66px); } /* stays above the sheet */
-@media (min-width: 900px) {
-  .fab { bottom: 72px; right: 18px; }
-  .fab.lifted { bottom: 162px; }
-}
+.fab.hidden { display: none; }
 
-/* ================= locate-me control (standard map control, not an action FAB) ================= */
+/* locate-me control (standard map control, not an action FAB). */
 .locate-btn {
-  position: absolute; right: 14px; bottom: calc(186px + env(safe-area-inset-bottom)); z-index: 14;
+  flex: 0 0 auto;
   width: 44px; height: 44px; border-radius: 50%;
   background: var(--panel); border: 1px solid var(--line); color: #5f6b68;
   display: grid; place-items: center;
   box-shadow: var(--shadow-md);
-  transition: transform 0.15s, opacity 0.2s, color 0.15s, border-color 0.15s, right 0.3s cubic-bezier(0.3, 1, 0.3, 1), bottom 0.3s cubic-bezier(0.3, 1, 0.3, 1);
+  transition: transform 0.15s, opacity 0.2s, color 0.15s, border-color 0.15s;
 }
 .locate-btn:hover { border-color: #cfcfc6; }
 .locate-btn:active { transform: scale(0.94); }
-.locate-btn.hidden { opacity: 0; pointer-events: none; }
-.locate-btn.lifted { bottom: calc(276px + env(safe-area-inset-bottom)); } /* stays above the lifted add button */
-.locate-btn.above-sheet {
-  right: 76px; bottom: calc(min(480px, 72%) + 70px);
-} /* sits beside add when the sheet leaves too little room to stack */
 .locate-btn.active { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .locate-btn.locating svg { animation: locate-pulse 0.9s ease-in-out infinite; }
 @keyframes locate-pulse { 50% { opacity: 0.25; } }
-@media (min-width: 900px) {
-  .locate-btn { bottom: 18px; right: 18px; }
-  .locate-btn.lifted { bottom: 108px; }
-}
 
 /* ================= capture / scan ================= */
 .capture {

@@ -1,8 +1,9 @@
-# Umkreis / eventmap — Design Doc
+# Okolo / eventmap — Design Doc
 
 > Status: living document · Owner: Architect agent · Last updated: 2026-07-10
 > This is the "what we're building and why" bible. Read it before significant work.
-> Working product name: **Umkreis** (final name TBD — see `docs/decisions/2026-07-10-naming.md`).
+> Product name: **Okolo** (okolo.events). The working name was *Umkreis* — retired
+> (see `docs/decisions/2026-07-10-naming.md`); don't use it in prose.
 > Repo: `eventmap`.
 
 ---
@@ -179,6 +180,10 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
 
 ## 9. UI model
 
+> **Source of truth for tokens, marker grammar, and control vocabulary:
+> [`design-system.md`](./design-system.md).** This section is the product-level summary; the design
+> system is the binding spec every new UI must conform to.
+
 - **Desktop:** fixed left sidebar (list / filters / detail) + map fills the rest. Selecting an
   event flies the map to the pin and shows detail in the panel — never covers the map edge-to-edge.
 - **Mobile:** tap a pin → compact **mini-card** (title, time, venue, distance, "Learn more") →
@@ -191,14 +196,16 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
   calendar range uses a connected accent fill in the picker and a quiet accent rail on matching
   event rows; overlapping events that began before the range are grouped as ongoing. Places remain
   date-neutral.
-- **Map density + marker grammar:** resolve locations first; collapse conservative same-title+town
-  occurrences into a distinct series bubble anchored at the strongest resolved venue; collapse safe
-  same-venue groups next; then feed the remaining representatives into neutral, count-labelled
-  geographic clusters at regional zoom. Neighborhood zooms reveal the full markers and series dates
-  are navigable from detail. Category owns fill color/icon, kind owns shape
-  (teardrop event vs circle place), user submissions get a small neutral `+` badge, town-level
-  positions get a dashed outer halo, and same-venue groups retain a compact count badge. A compact
-  collapsible legend explains these signals.
+- **Map density + marker grammar** (full spec: [`design-system.md`](./design-system.md)): resolve
+  locations first; collapse conservative same-title+town occurrences into a series anchored at the
+  strongest resolved venue; collapse safe same-venue groups next; then feed the remaining
+  representatives into neutral, count-labelled geographic clusters at regional zoom. Neighborhood
+  zooms reveal the full markers and series dates are navigable from detail. **The hard cap:** a pin
+  encodes at most color = category · shape = kind (teardrop event / circle place — no third shape) ·
+  one optional trust badge · optional dashed approx halo; selection is the only thing that adds a
+  ring/scale. "Many" (venue group *or* series) is the ink count badge, not a distinct silhouette.
+  User-submitted pins carry a small `--community` corner badge — the same token used in the list and
+  legend. A compact collapsible legend explains every signal in use.
 - **Places (kind='place'):** top-level **Events | Orte | Alle** toggle chip (default Alle) next to
   the date chips — filters both the list and the map pins. Date chips and time-of-day filters never
   hide places; radius/category/free/kids/indoor-outdoor filters apply to both kinds. Places render

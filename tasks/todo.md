@@ -43,6 +43,29 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] opening_hours semantics fixed: `{"always":true}` = always open, null = unknown (renders
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
+## Design-system consolidation (2026-07-13, brief: design map review) — SHIPPED
+- [x] **Design system doc** `docs/design/design-system.md` = source of truth for tokens / marker
+      grammar / control vocabulary; design-doc §9 links to it. Any new UI must cite it.
+- [x] **Marker grammar hard cap:** retired the `.pin-series` shape (count badge now carries "many"
+      for series too) and the whole-pin community ring (→ small `--community` corner badge, same
+      token as list `.source-tag.community` + legend dot). Ring/scale reserved for `.selected`.
+      Legend updated (series row removed).
+- [x] **Contrast:** darkened the two light golds in `CATS` (`food` #B8860B→#A0750A, `playground`
+      #B5A82E→#9D9228) so the white pin glyph clears ≥3:1. Rule documented; keep new cats ≥3:1.
+- [x] **One binary grammar:** removed the `.toggle`/`.knob` iOS-switch vocabulary; add-form
+      always-open / free-entry are now chips. Kids/Free/Indoor already chips everywhere.
+- [x] **Floating controls:** one `.floatstack` (column-reverse: Add bottom, locate above) replaces
+      the `.lifted`/`.above-sheet` magic-number offsets; hides over sheet/full-detail. Verified 375px.
+- [x] **Umkreis retired** from shipped UI/i18n (DE radius→Radius, chip→"Rund um {ort}", layout meta),
+      docs (design-doc/README note), and both prototypes (superseded banner). Product name = Okolo.
+- [x] Confirmed single location picker (`.pinpicker` is only the post-publish refine step); confirmed
+      `CATS` is the only category-color source (no literals outside it); inline `dtag` hex → tokens.
+- [ ] **Follow-up — display webfont:** wordmark is an inline SVG (OS-stable by construction), but
+      `--font-display` still leads with Apple-only "Avenir Next" for detail/heading `h2`. Self-host
+      one OFL woff2 (`font-display:swap`) if cross-platform heading consistency matters. (Backlog.)
+- [ ] **Call to record (not code):** family = filter or default lens? (design-doc §11.3) — until
+      decided, "Kids" stays a chip. George's call → `docs/decisions/`.
+
 ## Review findings — tonight's commits (2026-07-12 review pass — ALL FIXED 2026-07-12)
 - [x] **Zoom cluster↔pin handoff drift/flicker** (efa8ef6): cross-fade + hysteresis + set frozen mid-gesture.
 - [x] **HIGH — extract-url UTC millis mis-parse** (4c485af): regex allows `(?:\.\d+)?`; verified millis/offset/bare.

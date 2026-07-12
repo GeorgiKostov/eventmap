@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-13 — design-system consolidation)
+- **Landed `docs/design/design-system.md`** as the binding source of truth (tokens / marker grammar /
+  control vocabulary); design-doc §9 links to it. Fixed the design-drift issues: marker hard cap
+  (retired `.pin-series` shape → count badge; retired whole-pin community ring → `--community` corner
+  badge shared across pin/list/legend; ring/scale reserved for `.selected`); darkened the two light
+  gold cats in `CATS` for ≥3:1 white-glyph contrast; removed the `.toggle`/`.knob` switch vocabulary
+  (one binary grammar = chip); replaced the `.lifted`/`.above-sheet` FAB/locate magic-number offsets
+  with one reflowing `.floatstack`; retired the word *Umkreis* from shipped UI/i18n/docs/prototypes
+  (product name = Okolo). Build green; verified at 375px in-browser (map + legend + floatstack).
+  Two open follow-ups: self-host a display webfont (wordmark is already an OS-stable SVG, so low
+  priority); and George's call on family = filter vs default lens.
+
 ## Where things stand (2026-07-12 latest — review-fix pass)
 - **Reviewed tonight's commits + fixed everything found (5 commits efa8ef6, 4c485af,
   790eaa7, d2e0b54, dcf4bca).** Highlights: map cluster↔pin zoom handoff no longer drifts/flickers

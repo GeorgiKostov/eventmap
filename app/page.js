@@ -1091,9 +1091,12 @@ export default function Home() {
       const color = CATS[cat].color;
       const community = isCommunitySubmitted(ev);
       const selectedHere = selected && (ev._venueIds || [ev.id]).includes(selected.id);
-      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '') + (ev._seriesCount > 1 ? ' pin-series' : '') + (selectedHere ? ' selected' : '');
-      const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
-      const markerHtml = catIconSvg(cat, 15) + badgeHtml;
+      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (selectedHere ? ' selected' : '');
+      // count badge carries "many here" for both venue groups and same-title series
+      const groupCount = ev._venueCount > 1 ? ev._venueCount : (ev._seriesCount > 1 ? ev._seriesCount : 0);
+      const badgeHtml = groupCount > 1 ? `<span class="pin-badge">${groupCount}</span>` : '';
+      const communityHtml = community ? '<span class="pin-community" aria-hidden="true"></span>' : '';
+      const markerHtml = catIconSvg(cat, 15) + badgeHtml + communityHtml;
       const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
       if (community) ariaBits.push(t.legendCommunity);
       if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
@@ -1824,9 +1827,9 @@ export default function Home() {
                 <CatIcon cat={c} size={11} /> {t.cats[c]}
               </span>
             ))}
-            {ev.is_free === 1 && <span className="dtag" style={{ '--cc': '#2e7d4f' }}>{t.freeTag}</span>}
-            {ev.indoor === 1 && <span className="dtag" style={{ '--cc': '#6d7876' }}>{t.indoorTag}</span>}
-            {ev.indoor === 0 && <span className="dtag" style={{ '--cc': '#6d7876' }}>{t.outdoorTag}</span>}
+            {ev.is_free === 1 && <span className="dtag" style={{ '--cc': 'var(--good)' }}>{t.freeTag}</span>}
+            {ev.indoor === 1 && <span className="dtag" style={{ '--cc': 'var(--muted)' }}>{t.indoorTag}</span>}
+            {ev.indoor === 0 && <span className="dtag" style={{ '--cc': 'var(--muted)' }}>{t.outdoorTag}</span>}
           </div>
           <div className="dmeta">
             <div><span className="k">📍</span><span>{[ev.venue, ev.address, ev.town].filter(Boolean).join(', ') || '—'}</span></div>
@@ -2149,8 +2152,8 @@ export default function Home() {
             {isPlaceDraft && (
               <div className="xfield">
                 <div className="lab">{t.openingHours}</div>
-                <button className={`toggle ${draft.always_open ? 'on' : ''}`} onClick={() => setDraft({ ...draft, always_open: !draft.always_open })}>
-                  {t.alwaysOpen} <span className="knob" />
+                <button type="button" className={`chip ${draft.always_open ? 'on' : ''}`} onClick={() => setDraft({ ...draft, always_open: !draft.always_open })}>
+                  {t.alwaysOpen}
                 </button>
                 {!draft.always_open && (
                   <div className="hoursform">
@@ -2180,8 +2183,8 @@ export default function Home() {
                 />
               </div>
             )}
-            <button className={`toggle ${draft.is_free ? 'on' : ''}`} onClick={() => setDraft({ ...draft, is_free: !draft.is_free })}>
-              {t.freeEntry} <span className="knob" />
+            <button type="button" className={`chip ${draft.is_free ? 'on' : ''}`} onClick={() => setDraft({ ...draft, is_free: !draft.is_free })} style={{ alignSelf: 'flex-start' }}>
+              {t.freeEntry}
             </button>
             <button className="pubbtn" disabled={scanState === 'publishing'} onClick={publish}>
               {scanState === 'publishing' ? t.publishing : t.publish}
@@ -2276,7 +2279,6 @@ export default function Home() {
             <span><i className="legend-pin place" />{t.legendPlace}</span>
             <span><i className="legend-pin event community" />{t.legendCommunity}</span>
             <span><i className="legend-pin event approximate" />{t.legendApprox}</span>
-            <span><i className="legend-pin series">3</i>{t.legendSeries}</span>
             <span><i className="legend-pin event count" />{t.moreAtVenue}</span>
             <span><i className="legend-cluster">12</i>{t.legendCluster}</span>
           </div>
@@ -2335,28 +2337,27 @@ export default function Home() {
           </div>
         )}
 
-        {/* round "+" FAB — opens the unified intake; hidden while adding or in full-screen detail */}
-        <button
-          className={`fab ${capture || (selected && detailFull) ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${sheet === 'half' ? 'above-sheet' : ''}`}
-          onClick={openCapture}
-          aria-label={t.addToMap}
-        >
-          +
-        </button>
-
-        <button
-          className={`locate-btn ${capture ? 'hidden' : ''} ${selected && !detailFull ? 'lifted' : ''} ${sheet === 'half' ? 'above-sheet' : ''} ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
-          onClick={locateMe}
-          aria-label={t.locateMe}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <line x1="2" y1="12" x2="5" y2="12" />
-            <line x1="19" y1="12" x2="22" y2="12" />
-            <line x1="12" y1="2" x2="12" y2="5" />
-            <line x1="12" y1="19" x2="12" y2="22" />
-            <circle cx="12" cy="12" r="7" />
-          </svg>
-        </button>
+        {/* floating controls — one reflowing column above the filter bar: Add FAB
+            at the bottom (primary, DOM-first → column-reverse), locate above it.
+            The whole stack hides where it would overlap a sheet / full detail. */}
+        <div className={`floatstack ${capture || (!isDesktop && (sheet !== 'closed' || detailFull)) ? 'hidden' : ''}`}>
+          <button className="fab" onClick={openCapture} aria-label={t.addToMap}>
+            +
+          </button>
+          <button
+            className={`locate-btn ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
+            onClick={locateMe}
+            aria-label={t.locateMe}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <line x1="2" y1="12" x2="5" y2="12" />
+              <line x1="19" y1="12" x2="22" y2="12" />
+              <line x1="12" y1="2" x2="12" y2="5" />
+              <line x1="12" y1="19" x2="12" y2="22" />
+              <circle cx="12" cy="12" r="7" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* date range picker modal */}

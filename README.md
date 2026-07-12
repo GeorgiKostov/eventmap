@@ -1,8 +1,8 @@
-# Umkreis — lokale Event-Karte (Prototyp)
+# Okolo — lokale Event-Karte (Prototyp)
 
 Event map for the Linz/Asten region: real events mined from official municipal sources,
 browsable on a map with filters, plus an AI poster-scan flow to add events from photos.
-Working title; no accounts, no tracking.
+Product name **Okolo** (okolo.events); the working name was *Umkreis*. No accounts, no tracking.
 
 ## Run it
 

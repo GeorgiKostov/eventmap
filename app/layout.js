@@ -8,7 +8,7 @@ import { LANGS } from '../lib/i18n.js';
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
 const META_COPY = {
   en: { title: 'Okolo — Events around Linz', description: 'Family events and local happenings around Linz on a map. Discover what is happening near you.', locale: 'en_GB', keywords: ['Events', 'Linz', 'Austria', 'Family', 'Map', 'Nearby'] },
-  de: { title: 'Okolo — Events rund um Linz', description: 'Familien-Events und lokale Veranstaltungen rund um Linz auf einer Karte. Entdecke, was in deinem Umkreis passiert.', locale: 'de_AT', keywords: ['Events', 'Linz', 'Oberösterreich', 'Familie', 'Veranstaltungen', 'Karte', 'Umkreis'] },
+  de: { title: 'Okolo — Events rund um Linz', description: 'Familien-Events und lokale Veranstaltungen rund um Linz auf einer Karte. Entdecke, was in deiner Nähe passiert.', locale: 'de_AT', keywords: ['Events', 'Linz', 'Oberösterreich', 'Familie', 'Veranstaltungen', 'Karte', 'Umgebung'] },
   bg: { title: 'Okolo — Събития около Линц', description: 'Семейни и местни събития около Линц на карта. Открий какво се случва близо до теб.', locale: 'bg_BG', keywords: ['Събития', 'Линц', 'Австрия', 'Семейство', 'Карта', 'Наблизо'] },
 };
 
