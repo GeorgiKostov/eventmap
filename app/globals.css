@@ -335,7 +335,10 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   cursor: pointer;
   transition: transform 0.12s, box-shadow 0.12s;
   isolation: isolate;
+  /* fade in as GL clusters fade out across the zoom handoff band */
+  animation: pin-fade-in 0.18s ease-out;
 }
+@keyframes pin-fade-in { from { opacity: 0; } to { opacity: 1; } }
 .pin2:hover { transform: scale(1.12); z-index: 5; }
 .pin2:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; z-index: 7; }
 .pin2.approx-precision::before {

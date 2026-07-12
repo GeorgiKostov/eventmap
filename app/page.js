@@ -14,7 +14,13 @@ import { useLanguage } from './language-provider.js';
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
 const DETAIL_MARKER_ZOOM = 12.5;
-const OVERVIEW_MARKER_MAX_ZOOM = DETAIL_MARKER_ZOOM;
+// Google-Maps-style handoff between GL cluster layers and rich DOM pins:
+// clusters fade out across a zoom band while pins fade in, both updating
+// continuously during the gesture, with hysteresis so the boundary never flickers.
+const DETAIL_MARKER_SHOW_ZOOM = 12.2; // pins appear here while zooming in
+const DETAIL_MARKER_HIDE_ZOOM = 12.05; // pins persist down to here while zooming out
+const OVERVIEW_FADE_START_ZOOM = 12.1; // clusters at full opacity below this
+const OVERVIEW_MARKER_MAX_ZOOM = 12.7; // clusters fully faded / culled here
 
 function mapLibreLocale(t) {
   return {
@@ -744,29 +750,49 @@ export default function Home() {
   /* ---------------- map ---------------- */
   const [detailMarkersVisible, setDetailMarkersVisible] = useState(false);
   const [detailMarkerBounds, setDetailMarkerBounds] = useState(null);
+  const detailVisibleRef = useRef(false);
   const geoRef = useRef({ me: HOME, radius: 20 });
   geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
 
-  function syncDetailMarkerViewport(map) {
-    const showDetailMarkers = map.getZoom() >= DETAIL_MARKER_ZOOM;
-    setDetailMarkersVisible((current) => current === showDetailMarkers ? current : showDetailMarkers);
-    if (!showDetailMarkers) {
+  // `settle` = the gesture has ended (moveend). The marker SET is only ever
+  // recomputed on settle (or the first frame pins turn on) — never on every
+  // pan frame. Recomputing mid-pan is what made pins churn/flicker and appear
+  // to drift: MapLibre already repositions the existing DOM pins smoothly on
+  // its own, so we keep the set stable during the gesture and re-cull once it
+  // stops. During the gesture we only flip the visibility flag when the zoom
+  // threshold is crossed, so the GL-cluster→pin handoff still happens live.
+  function syncDetailMarkerViewport(map, settle) {
+    const zoom = map.getZoom();
+    // Hysteresis: pins appear at SHOW, persist down to HIDE, so a zoom that
+    // settles on the boundary can't toggle them on and off between frames.
+    const shouldShow = detailVisibleRef.current ? zoom >= DETAIL_MARKER_HIDE_ZOOM : zoom >= DETAIL_MARKER_SHOW_ZOOM;
+    if (shouldShow !== detailVisibleRef.current) {
+      detailVisibleRef.current = shouldShow;
+      setDetailMarkersVisible(shouldShow);
+    }
+    if (!shouldShow) {
       setDetailMarkerBounds((current) => current == null ? current : null);
       return;
     }
-    const bounds = map.getBounds();
-    const lngPad = (bounds.getEast() - bounds.getWest()) * 0.2;
-    const latPad = (bounds.getNorth() - bounds.getSouth()) * 0.2;
-    const next = [
-      bounds.getWest() - lngPad,
-      bounds.getSouth() - latPad,
-      bounds.getEast() + lngPad,
-      bounds.getNorth() + latPad,
-    ];
-    setDetailMarkerBounds((current) => (
-      current?.every((value, i) => Math.abs(value - next[i]) < 0.00001) ? current : next
-    ));
+    setDetailMarkerBounds((current) => {
+      // Keep the existing set stable mid-gesture; only compute a fresh padded
+      // viewport when the gesture settles or when pins have just turned on
+      // (no set yet). The 20% pad gives the new set a little slack so a small
+      // settle nudge doesn't immediately recompute.
+      if (!settle && current != null) return current;
+      const bounds = map.getBounds();
+      const lngPad = (bounds.getEast() - bounds.getWest()) * 0.2;
+      const latPad = (bounds.getNorth() - bounds.getSouth()) * 0.2;
+      const next = [
+        bounds.getWest() - lngPad,
+        bounds.getSouth() - latPad,
+        bounds.getEast() + lngPad,
+        bounds.getNorth() + latPad,
+      ];
+      if (current && current.every((value, i) => Math.abs(value - next[i]) < 0.00001)) return current;
+      return next;
+    });
   }
 
   useEffect(() => {
@@ -789,7 +815,19 @@ export default function Home() {
       map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius', paint: { 'fill-color': '#C93A5B', 'fill-opacity': 0.035 } });
       map.addLayer({ id: 'radius-line', type: 'line', source: 'radius', paint: { 'line-color': '#C93A5B', 'line-opacity': 0.5, 'line-width': 1.5, 'line-dasharray': [3, 3] } });
     });
-    map.on('moveend', () => syncDetailMarkerViewport(map));
+    // Sync during the gesture (rAF-coalesced), not just after it settles —
+    // 'move' fires throughout pans AND zoom animations, so the GL→DOM handoff
+    // flips the moment the zoom threshold is crossed instead of only on moveend
+    // (which left clusters gone and pins not-yet-shown mid-zoom). The mid-gesture
+    // call only touches the visibility flag; the marker set is recomputed on
+    // moveend (settle=true), keeping pins stable — not drifting — during the pan.
+    let syncRaf = null;
+    const scheduleViewportSync = () => {
+      if (syncRaf != null) return;
+      syncRaf = requestAnimationFrame(() => { syncRaf = null; syncDetailMarkerViewport(map, false); });
+    };
+    map.on('move', scheduleViewportSync);
+    map.on('moveend', () => syncDetailMarkerViewport(map, true));
     map.on('click', () => { selectRef.current(null, { fly: false }); setMenuOpen(false); });
     const meEl = document.createElement('div');
     meEl.className = 'me-marker hidden';
@@ -797,8 +835,9 @@ export default function Home() {
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
     if (typeof window !== 'undefined') window.__umkreisMap = map;
     mapObj.current = map;
-    syncDetailMarkerViewport(map);
+    syncDetailMarkerViewport(map, true);
     return () => {
+      if (syncRaf != null) cancelAnimationFrame(syncRaf);
       map.remove();
       mapObj.current = null;
       markers.current.clear();
@@ -1112,27 +1151,31 @@ export default function Home() {
       map.addSource('result-clusters', {
         type: 'geojson', data: clusterDataRef.current, cluster: true, clusterMaxZoom: 12, clusterRadius: 48,
       });
+      // Opacity ramps across the FADE_START→MAX_ZOOM band so clusters dissolve
+      // while the DOM pins (shown from DETAIL_MARKER_SHOW_ZOOM, inside the band)
+      // take over — a cross-fade instead of the old hard pop at one zoom level.
+      const clusterFade = (peak) => ['interpolate', ['linear'], ['zoom'], OVERVIEW_FADE_START_ZOOM, peak, OVERVIEW_MARKER_MAX_ZOOM, 0];
       map.addLayer({
         id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': '#26332f', 'circle-opacity': 0.93,
+          'circle-color': '#26332f', 'circle-opacity': clusterFade(0.93),
           'circle-radius': ['step', ['get', 'point_count'], 17, 25, 21, 100, 26],
-          'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': clusterFade(1),
         },
       });
       map.addLayer({
         id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
         filter: ['has', 'point_count'],
         layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 11, 'text-font': ['Noto Sans Bold'] },
-        paint: { 'text-color': '#ffffff' },
+        paint: { 'text-color': '#ffffff', 'text-opacity': clusterFade(1) },
       });
       map.addLayer({
         id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': 0.94,
-          'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff',
+          'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': clusterFade(0.94),
+          'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': clusterFade(1),
         },
       });
       const zoomToFeature = (e) => {
@@ -1889,7 +1932,7 @@ export default function Home() {
         {scanErr && <div className="errbox">⚠️ {scanErr}</div>}
         {scanState === 'pick' && (
           <>
-            <input ref={fileInput} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
+            <input ref={fileInput} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
             <div className="intake-card">
               <button
                 type="button"
