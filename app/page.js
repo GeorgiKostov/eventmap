@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork } from '@phosphor-icons/react';
+import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, LinkSimple, PencilSimple, CaretRight } from '@phosphor-icons/react';
 import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
@@ -14,7 +14,7 @@ import { useLanguage } from './language-provider.js';
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
 const DETAIL_MARKER_ZOOM = 12.5;
-const OVERVIEW_MARKER_MAX_ZOOM = DETAIL_MARKER_ZOOM + 0.25;
+const OVERVIEW_MARKER_MAX_ZOOM = DETAIL_MARKER_ZOOM;
 
 function mapLibreLocale(t) {
   return {
@@ -515,6 +515,7 @@ export default function Home() {
   const [dpOpen, setDpOpen] = useState(false);
   const [dpDraft, setDpDraft] = useState({ from: null, to: null });
   const [radius, setRadius] = useState(20);
+  const deferredRadius = useDeferredValue(radius);
   const [cats, setCats] = useState([]);
   const [freeOnly, setFreeOnly] = useState(false);
   const [kidsOnly, setKidsOnly] = useState(false);
@@ -669,14 +670,30 @@ export default function Home() {
 
   /* ---------------- map ---------------- */
   const [detailMarkersVisible, setDetailMarkersVisible] = useState(false);
+  const [detailMarkerBounds, setDetailMarkerBounds] = useState(null);
   const geoRef = useRef({ me: HOME, radius: 20 });
   geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
 
-  function syncMarkerZoomVisibility(map) {
+  function syncDetailMarkerViewport(map) {
     const showDetailMarkers = map.getZoom() >= DETAIL_MARKER_ZOOM;
-    setDetailMarkersVisible(showDetailMarkers);
-    for (const { el } of markers.current.values()) el.style.visibility = showDetailMarkers ? '' : 'hidden';
+    setDetailMarkersVisible((current) => current === showDetailMarkers ? current : showDetailMarkers);
+    if (!showDetailMarkers) {
+      setDetailMarkerBounds((current) => current == null ? current : null);
+      return;
+    }
+    const bounds = map.getBounds();
+    const lngPad = (bounds.getEast() - bounds.getWest()) * 0.2;
+    const latPad = (bounds.getNorth() - bounds.getSouth()) * 0.2;
+    const next = [
+      bounds.getWest() - lngPad,
+      bounds.getSouth() - latPad,
+      bounds.getEast() + lngPad,
+      bounds.getNorth() + latPad,
+    ];
+    setDetailMarkerBounds((current) => (
+      current?.every((value, i) => Math.abs(value - next[i]) < 0.00001) ? current : next
+    ));
   }
 
   useEffect(() => {
@@ -699,7 +716,7 @@ export default function Home() {
       map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius', paint: { 'fill-color': '#C93A5B', 'fill-opacity': 0.035 } });
       map.addLayer({ id: 'radius-line', type: 'line', source: 'radius', paint: { 'line-color': '#C93A5B', 'line-opacity': 0.5, 'line-width': 1.5, 'line-dasharray': [3, 3] } });
     });
-    map.on('zoom', () => syncMarkerZoomVisibility(map));
+    map.on('moveend', () => syncDetailMarkerViewport(map));
     map.on('click', () => { selectRef.current(null, { fly: false }); setMenuOpen(false); });
     const meEl = document.createElement('div');
     meEl.className = 'me-marker hidden';
@@ -707,7 +724,7 @@ export default function Home() {
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
     if (typeof window !== 'undefined') window.__umkreisMap = map;
     mapObj.current = map;
-    syncMarkerZoomVisibility(map);
+    syncDetailMarkerViewport(map);
     return () => {
       map.remove();
       mapObj.current = null;
@@ -839,7 +856,7 @@ export default function Home() {
   const commonFiltered = useMemo(() => {
     if (!events) return [];
     return events.filter((ev) => {
-      if (distKm(refPoint, ev) > radius) return false;
+      if (distKm(refPoint, ev) > deferredRadius) return false;
       if (cats.length && !ev.categories.some((c) => cats.includes(c))) return false;
       if (freeOnly && ev.is_free !== 1) return false;
       if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
@@ -853,7 +870,7 @@ export default function Home() {
       }
       return true;
     });
-  }, [events, radius, cats, freeOnly, kidsOnly, inOut, refPoint, searchQuery, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [events, deferredRadius, cats, freeOnly, kidsOnly, inOut, refPoint, searchQuery, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredEvents = useMemo(() => {
     if (kindFilter === 'place') return [];
@@ -929,7 +946,11 @@ export default function Home() {
   // Rich DOM markers are useful only at neighborhood zoom. Build them solely
   // from matching rows, so initial regional views do not allocate thousands of
   // hidden elements and a venue badge never includes filtered-out events.
-  const markerItems = useMemo(() => detailMarkersVisible ? groupedMapItems : [], [detailMarkersVisible, groupedMapItems]);
+  const markerItems = useMemo(() => {
+    if (!detailMarkersVisible || !detailMarkerBounds) return [];
+    const [west, south, east, north] = detailMarkerBounds;
+    return groupedMapItems.filter((ev) => ev.lng >= west && ev.lng <= east && ev.lat >= south && ev.lat <= north);
+  }, [detailMarkersVisible, detailMarkerBounds, groupedMapItems]);
 
   useEffect(() => {
     const map = mapObj.current;
@@ -948,6 +969,7 @@ export default function Home() {
       const selectedHere = selected && (ev._venueIds || [ev.id]).includes(selected.id);
       const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (community ? ' pin-user' : '') + (ev._seriesCount > 1 ? ' pin-series' : '') + (selectedHere ? ' selected' : '');
       const badgeHtml = ev._venueCount > 1 ? `<span class="pin-badge">${ev._venueCount}</span>` : '';
+      const markerHtml = catIconSvg(cat, 15) + badgeHtml;
       const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
       if (community) ariaBits.push(t.legendCommunity);
       if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
@@ -956,18 +978,18 @@ export default function Home() {
       const ariaLabel = ariaBits.join(', ');
       const existing = markers.current.get(ev.id);
       if (existing) {
+        if (existing.el.style.getPropertyValue('--cc') !== color) existing.el.style.setProperty('--cc', color);
+        if (existing.el.innerHTML !== markerHtml) existing.el.innerHTML = markerHtml;
+        if (existing.el.className !== pinClass) existing.el.className = pinClass;
+        if (existing.el.getAttribute('aria-label') !== ariaLabel) existing.el.setAttribute('aria-label', ariaLabel);
+        if (existing.ev.lat !== ev.lat || existing.ev.lng !== ev.lng) existing.marker.setLngLat([ev.lng, ev.lat]);
         existing.ev = ev;
-        existing.el.style.setProperty('--cc', color);
-        existing.el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
-        existing.el.className = pinClass;
-        existing.el.setAttribute('aria-label', ariaLabel);
-        existing.marker.setLngLat([ev.lng, ev.lat]);
         continue;
       }
       const el = document.createElement('div');
       el.className = pinClass;
       el.style.setProperty('--cc', color);
-      el.innerHTML = catIconSvg(cat, 15) + badgeHtml;
+      el.innerHTML = markerHtml;
       el.setAttribute('role', 'button');
       el.setAttribute('aria-label', ariaLabel);
       el.tabIndex = 0;
@@ -983,7 +1005,13 @@ export default function Home() {
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([ev.lng, ev.lat]).addTo(map);
       markers.current.set(ev.id, { marker, el, ev });
     }
-  }, [markerItems, lang, selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [markerItems, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    for (const { el, ev } of markers.current.values()) {
+      el.classList.toggle('selected', Boolean(selected && (ev._venueIds || [ev.id]).includes(selected.id)));
+    }
+  }, [selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Regional zoom uses MapLibre's native spatial clustering so hundreds of
   // results remain scannable. At neighborhood zoom the richer DOM markers take
@@ -1053,11 +1081,6 @@ export default function Home() {
 
   useEffect(() => {
     const visible = new Set(filtered.map((e) => e.id));
-    for (const { el, ev } of markers.current.values()) {
-      // a grouped marker stays visible if any event in its venue group matches the filters
-      const ids = ev._venueIds || [ev.id];
-      el.style.display = ids.some((id) => visible.has(id)) ? '' : 'none';
-    }
     if (selected && !visible.has(selected.id)) selectEvent(null, { fly: false });
   }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1762,7 +1785,7 @@ export default function Home() {
 
   const isPlaceDraft = draft?.kind === 'place';
   const captureView = (
-    <section className={`capture ${capture ? 'show' : ''} ${mapPick ? 'mappick' : ''}`}>
+    <section className={`capture ${capture ? 'show' : ''} ${scanState === 'pick' ? 'intake-sheet' : ''} ${mapPick ? 'mappick' : ''}`}>
       <div className="caphead">
         <h3>
           {scanState === 'pick' && t.addToMap}
@@ -1778,7 +1801,9 @@ export default function Home() {
         {scanState === 'pick' && (
           <>
             <input ref={fileInput} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
-            <div
+            <div className="intake-card">
+              <button
+                type="button"
               className="droparea"
               onClick={() => fileInput.current?.click()}
               onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); }}
@@ -1790,25 +1815,33 @@ export default function Home() {
                 if (file) handleFile(file);
               }}
             >
-              <span className="big">📷</span>
-              <p><b>{t.scanPrompt}</b><br />{t.scanPromptSub}</p>
-            </div>
-            <div className="intake-or"><span>{t.intakeOr}</span></div>
-            <div className="intake-url">
-              <input
-                type="url"
-                inputMode="url"
-                autoComplete="off"
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleUrl(urlInput); } }}
-                placeholder={t.intakeUrlPlaceholder}
-              />
-              <button type="button" className="intake-url-go" disabled={!urlInput.trim()} onClick={() => handleUrl(urlInput)}>
-                {t.intakeReadLink}
+                <span className="intake-icon primary"><Camera size={23} weight="bold" /></span>
+                <span className="intake-copy"><b>{t.scanPrompt}</b><small>{t.scanPromptSub}</small></span>
+                <CaretRight className="intake-chevron" size={18} weight="bold" />
+              </button>
+
+              <div className="intake-url">
+                <LinkSimple className="intake-url-icon" size={20} weight="bold" />
+                <input
+                  type="url"
+                  inputMode="url"
+                  autoComplete="off"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleUrl(urlInput); } }}
+                  placeholder={t.intakeUrlPlaceholder}
+                />
+                <button type="button" className="intake-url-go" disabled={!urlInput.trim()} onClick={() => handleUrl(urlInput)}>
+                  {t.intakeReadLink}
+                </button>
+              </div>
+
+              <button type="button" className="intake-manual" onClick={openManualAdd}>
+                <span className="intake-icon"><PencilSimple size={21} weight="bold" /></span>
+                <span>{t.intakeManualLink}</span>
+                <CaretRight className="intake-chevron" size={18} weight="bold" />
               </button>
             </div>
-            <button type="button" className="intake-manual" onClick={openManualAdd}>{t.intakeManualLink}</button>
           </>
         )}
         {scanState === 'scanning' && (

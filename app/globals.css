@@ -596,7 +596,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .dvenue-row .m { font-size: 11.5px; color: var(--muted); }
 
 /* ================= "+" Add FAB (opens the unified intake) ================= */
-/* Stacked directly above .locate-btn (which sits at bottom 70px, height 44). */
+/* Primary contribution action stays closest to the mobile filter bar. */
 .fab {
   position: absolute; right: 14px; bottom: calc(124px + env(safe-area-inset-bottom)); z-index: 15;
   width: 52px; height: 52px; border-radius: 50%;
@@ -607,8 +607,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .fab:active { transform: scale(0.94); }
 .fab.hidden { opacity: 0; pointer-events: none; }
-.fab.lifted { bottom: calc(214px + env(safe-area-inset-bottom)); } /* clears the mini-card + locate-btn */
-.fab.above-sheet { bottom: calc(min(480px, 72%) + 66px); } /* stays above the locate-btn over the sheet */
+.fab.lifted { bottom: calc(214px + env(safe-area-inset-bottom)); } /* clears the mini-card */
+.fab.above-sheet { bottom: calc(min(480px, 72%) + 66px); } /* stays above the sheet */
 @media (min-width: 900px) {
   .fab { bottom: 72px; right: 18px; }
   .fab.lifted { bottom: 162px; }
@@ -616,18 +616,20 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 
 /* ================= locate-me control (standard map control, not an action FAB) ================= */
 .locate-btn {
-  position: absolute; right: 14px; bottom: calc(70px + env(safe-area-inset-bottom)); z-index: 14;
+  position: absolute; right: 14px; bottom: calc(186px + env(safe-area-inset-bottom)); z-index: 14;
   width: 44px; height: 44px; border-radius: 50%;
   background: var(--panel); border: 1px solid var(--line); color: #5f6b68;
   display: grid; place-items: center;
   box-shadow: var(--shadow-md);
-  transition: transform 0.15s, opacity 0.2s, color 0.15s, border-color 0.15s, bottom 0.3s cubic-bezier(0.3, 1, 0.3, 1);
+  transition: transform 0.15s, opacity 0.2s, color 0.15s, border-color 0.15s, right 0.3s cubic-bezier(0.3, 1, 0.3, 1), bottom 0.3s cubic-bezier(0.3, 1, 0.3, 1);
 }
 .locate-btn:hover { border-color: #cfcfc6; }
 .locate-btn:active { transform: scale(0.94); }
 .locate-btn.hidden { opacity: 0; pointer-events: none; }
-.locate-btn.lifted { bottom: calc(160px + env(safe-area-inset-bottom)); } /* clears the mini-card */
-.locate-btn.above-sheet { bottom: calc(min(480px, 72%) + 12px); } /* stays on the visible map above the mobile filter sheet */
+.locate-btn.lifted { bottom: calc(276px + env(safe-area-inset-bottom)); } /* stays above the lifted add button */
+.locate-btn.above-sheet {
+  right: 76px; bottom: calc(min(480px, 72%) + 70px);
+} /* sits beside add when the sheet leaves too little room to stack */
 .locate-btn.active { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .locate-btn.locating svg { animation: locate-pulse 0.9s ease-in-out infinite; }
 @keyframes locate-pulse { 50% { opacity: 0.25; } }
@@ -643,6 +645,19 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   display: flex; flex-direction: column;
 }
 .capture.show { transform: translateY(0); }
+@media (max-width: 899px) {
+  /* The intake menu is a short choice sheet; extraction and forms still use
+     the full-screen capture shell once the user chooses a path. */
+  .capture.intake-sheet {
+    inset: auto 0 0 0; max-height: calc(100% - 88px);
+    border-radius: 24px 24px 0 0; border-top: 1px solid var(--line);
+    box-shadow: 0 -12px 40px rgba(23, 32, 28, 0.16);
+  }
+  .capture.intake-sheet .caphead { padding: 18px 20px 10px; }
+  .capture.intake-sheet .capbody {
+    flex: 0 1 auto; padding: 8px 16px calc(22px + env(safe-area-inset-bottom));
+  }
+}
 /* map-pick mode (mobile): drop the form off-screen so the live map + crosshair
    show through; the slim confirm bar is the only control. */
 .capture.show.mappick { transform: translateY(102%); }
@@ -677,28 +692,59 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 @keyframes scan { 0% { top: 8%; } 50% { top: 88%; } 100% { top: 8%; } }
 .scanstatus { text-align: center; font-size: 13px; color: var(--muted); font-weight: 600; }
 
-/* ---- unified intake (drop zone + paste-a-link + manual) ---- */
-.droparea.dragover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--panel)); }
-.droparea { min-height: 200px; }
-.intake-or {
-  display: flex; align-items: center; gap: 10px; margin: 2px 0;
-  font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+/* ---- unified intake (compact action menu + paste-a-link + manual) ---- */
+.intake-card {
+  overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: 20px;
+  box-shadow: var(--shadow-sm);
 }
-.intake-or::before, .intake-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-.intake-url { display: flex; gap: 8px; }
+.droparea {
+  width: 100%; min-height: 126px; border: 0; border-radius: 0; background: var(--panel);
+  display: grid; grid-template-columns: 48px minmax(0, 1fr) 20px; align-items: center;
+  gap: 14px; padding: 20px; text-align: left; cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.droparea:hover { background: var(--panel2); }
+.droparea.dragover {
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel));
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.intake-icon {
+  width: 44px; height: 44px; border-radius: 13px; background: var(--panel2); color: var(--ink);
+  display: grid; place-items: center; flex: 0 0 auto;
+}
+.intake-icon.primary { width: 48px; height: 48px; border-radius: 15px; background: var(--accent-soft); color: var(--accent); }
+.intake-copy { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.intake-copy b { font-size: 14px; line-height: 1.35; }
+.intake-copy small { color: var(--muted); font-size: 12.5px; line-height: 1.4; }
+.intake-chevron { color: #a2aaa8; flex: 0 0 auto; }
+.intake-url {
+  min-height: 64px; border-top: 1px solid var(--line);
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px 8px 18px;
+}
+.intake-url-icon { flex: 0 0 auto; color: var(--muted); }
 .intake-url input {
-  flex: 1; min-width: 0; border: 1.5px solid var(--line); border-radius: 12px;
-  padding: 12px 13px; font-size: 13.5px; font-family: inherit; color: var(--ink); background: var(--panel);
+  flex: 1; min-width: 0; border: 0; padding: 10px 0;
+  font-size: 13px; font-family: inherit; color: var(--ink); background: transparent;
 }
-.intake-url input:focus { outline: none; border-color: var(--accent); }
+.intake-url input:focus { outline: none; }
 .intake-url-go {
-  flex: 0 0 auto; border-radius: 12px; padding: 0 16px; font-size: 13.5px; font-weight: 700;
-  background: var(--accent); color: #fff;
+  flex: 0 0 auto; min-height: 40px; border-radius: 12px; padding: 0 13px; font-size: 12.5px; font-weight: 750;
+  background: var(--accent); color: var(--accent-ink);
 }
 .intake-url-go:disabled { opacity: 0.45; }
 .intake-manual {
-  align-self: center; margin-top: 4px; font-size: 13px; font-weight: 650;
-  color: var(--muted); text-decoration: underline; text-underline-offset: 3px;
+  width: 100%; min-height: 68px; border-top: 1px solid var(--line); padding: 11px 20px;
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) 20px; align-items: center; gap: 14px;
+  color: var(--ink); font-size: 13.5px; font-weight: 700; text-align: left;
+  transition: background 0.15s;
+}
+.intake-manual:hover { background: var(--panel2); }
+@media (max-width: 380px) {
+  .droparea { grid-template-columns: 44px minmax(0, 1fr) 18px; gap: 11px; padding: 17px 15px; }
+  .intake-icon.primary { width: 44px; height: 44px; }
+  .intake-url { padding-left: 15px; }
+  .intake-url-go { padding: 0 10px; }
+  .intake-manual { padding-inline: 15px; gap: 11px; }
 }
 .url-reading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 0; }
 .url-reading .big { font-size: 40px; animation: locate-pulse 1.1s ease-in-out infinite; }
