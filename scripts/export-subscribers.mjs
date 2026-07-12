@@ -9,14 +9,22 @@ const sql = postgres(process.env.DATABASE_URL || '', {
   connection: { search_path: 'umkreis' },
 });
 
+// Active = confirmed the double opt-in AND not unsubscribed.
 const rows = await sql`
   SELECT email, source, lang, area_label, area_lat, area_lng, radius_km, categories, created_at
   FROM subscribers
-  WHERE unsubscribed_at IS NULL
+  WHERE confirmed_at IS NOT NULL AND unsubscribed_at IS NULL
   ORDER BY created_at DESC
 `;
 
-const csv = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+// Quote for CSV, and neutralize spreadsheet formula injection: a cell that a
+// subscriber controls (e.g. area_label) starting with = + - @ or a control
+// char is prefixed with ' so Excel/LibreOffice won't execute it on open.
+const csv = (value) => {
+  let s = String(value ?? '');
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  return `"${s.replaceAll('"', '""')}"`;
+};
 console.log('email,source,lang,area_label,area_lat,area_lng,radius_km,categories,created_at');
 for (const r of rows) {
   const created = r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at;

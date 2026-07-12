@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
 import { addSubscriber } from '../../../lib/db.js';
 import { limit } from '../../../lib/ratelimit.js';
-import { notifyNewSubscriber } from '../../../lib/mail.js';
+import { notifyNewSubscriber, sendSubscriberConfirm } from '../../../lib/mail.js';
+import { EVENT_CATS } from '../../../lib/icons.js';
 
 export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const EVENT_CATEGORIES = new Set(['family', 'festival', 'market', 'music', 'culture', 'food', 'sport', 'workshop']);
+// Single source of truth for the category whitelist (shared with the map).
+const EVENT_CATEGORIES = new Set(EVENT_CATS);
+// The events map covers Austria + Bulgaria; a subscriber's locality centre must
+// fall in that region, not just be a syntactically valid world coordinate — so
+// a crafted (0,0) can't pollute targeting exports.
+const AREA_BOUNDS = { latMin: 40, latMax: 50, lngMin: 8, lngMax: 30 };
 const MESSAGES = {
   de: {
     limited: 'Zu viele Anfragen — bitte später wieder.',
@@ -42,12 +49,13 @@ export async function POST(req) {
   const areaLng = body.areaLng;
   if (
     areaLabel.length < 2 || areaLabel.length > 120 ||
-    !Number.isFinite(areaLat) || areaLat < -90 || areaLat > 90 ||
-    !Number.isFinite(areaLng) || areaLng < -180 || areaLng > 180
+    !Number.isFinite(areaLat) || areaLat < AREA_BOUNDS.latMin || areaLat > AREA_BOUNDS.latMax ||
+    !Number.isFinite(areaLng) || areaLng < AREA_BOUNDS.lngMin || areaLng > AREA_BOUNDS.lngMax
   ) {
     return NextResponse.json({ error: msg.invalidArea }, { status: 400 });
   }
-  const radiusKm = body.radiusKm;
+  // radius is no longer a UI field — default it, but still validate if a client sends one.
+  const radiusKm = body.radiusKm == null ? 20 : body.radiusKm;
   const categories = Array.isArray(body.categories) ? [...new Set(body.categories)] : [];
   if (
     !Number.isInteger(radiusKm) || radiusKm < 3 || radiusKm > 40 ||
@@ -56,7 +64,8 @@ export async function POST(req) {
     return NextResponse.json({ error: msg.invalidPreferences }, { status: 400 });
   }
   const lang = ['de', 'en', 'bg'].includes(body.lang) ? body.lang : null;
-  const { inserted } = await addSubscriber(email, {
+
+  const { pending, token } = await addSubscriber(email, {
     source: 'newsletter_popup',
     lang,
     areaLabel,
@@ -64,7 +73,16 @@ export async function POST(req) {
     areaLng,
     radiusKm,
     categories,
+    token: randomUUID(),
   });
-  if (inserted) await notifyNewSubscriber(email, { lang, source: 'newsletter_popup' });
-  return NextResponse.json({ ok: true, inserted });
+
+  // Double opt-in: nothing is "subscribed" until the address owner clicks the
+  // confirm link, so we can't leak whether the email already existed.
+  if (pending && token) {
+    const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
+    const confirmUrl = `${base}/api/subscribe/confirm?token=${encodeURIComponent(token)}&lang=${lang || 'en'}`;
+    await sendSubscriberConfirm(email, { lang, confirmUrl });
+    await notifyNewSubscriber(email, { lang, source: 'newsletter_popup' });
+  }
+  return NextResponse.json({ ok: true, pending });
 }

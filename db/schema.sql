@@ -81,6 +81,11 @@ create table if not exists subscribers (
   radius_km      integer not null default 20 check (radius_km between 3 and 40),
   categories     text[] not null default '{}',
   created_at     timestamptz default now(),
+  -- double opt-in (GDPR/TKG): a subscriber is only "active" once confirmed and
+  -- not unsubscribed. `token` is the per-subscriber secret for the confirm and
+  -- unsubscribe links; rotated whenever a pending/unsubscribed row re-subscribes.
+  token          text,
+  confirmed_at   timestamptz,
   unsubscribed_at timestamptz
 );
 

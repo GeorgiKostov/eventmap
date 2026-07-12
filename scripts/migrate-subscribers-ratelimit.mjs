@@ -31,6 +31,10 @@ await sql`alter table subscribers add column if not exists radius_km integer not
 await sql`alter table subscribers add column if not exists categories text[] not null default '{}'`;
 await sql`alter table subscribers drop constraint if exists subscribers_radius_km_check`;
 await sql`alter table subscribers add constraint subscribers_radius_km_check check (radius_km between 3 and 40)`;
+// double opt-in columns (added after the initial newsletter ship).
+await sql`alter table subscribers add column if not exists token text`;
+await sql`alter table subscribers add column if not exists confirmed_at timestamptz`;
+await sql`create index if not exists subscribers_token on subscribers(token)`;
 await sql`
   create table if not exists rate_hits (
     id       bigint generated always as identity primary key,
