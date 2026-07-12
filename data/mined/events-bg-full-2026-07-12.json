@@ -1,0 +1,578 @@
+{
+  "source_registry": [
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": true,
+      "notes": "Home page lists specific dated events for July 2026 with titles, categories and links to details; detail pages provide venue and address."
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/12/24821/-/%D1%81%D0%BE%D1%84%D0%B8%D0%B9%D1%81%D0%BA%D0%B8-%D1%84%D0%B5%D1%81%D1%82%D0%B8%D0%B2%D0%B0%D0%BB-%D0%BD%D0%B0-%D0%B8%D0%B7%D0%BA%D1%83%D1%81%D1%82%D0%B2%D0%B0%D1%82%D0%B0-%D0%B8-%D0%BC%D1%83%D0%B7%D0%B8%D0%BA%D0%B0%D1%82%D0%B0-%D0%BC%D1%83%D0%B7%D0%B8%D0%BA%D0%B0%D0%BB%D0%BD%D0%B8-%D0%BF%D0%B5%D0%B9%D0%B7%D0%B0%D0%B6%D0%B8",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": true,
+      "notes": "Detail page for Musical Landscapes concert with exact date, time, venue and street address."
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/15/24778/-/весела-ваканция-безплатни-летни-занимания-на-открито-за-деца-над-5-години?Itemid=330",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": true,
+      "notes": "Detail for recurring Весела ваканция with schedule and precise venue address in Sofia."
+    },
+    {
+      "name": "Визит Варна",
+      "url": "https://visit.varna.bg/bg/event.html",
+      "kind": "crawl",
+      "town": "Варна",
+      "works": true,
+      "notes": "Events calendar lists specific dated concerts, exhibitions and programs overlapping July-August 2026 window."
+    },
+    {
+      "name": "Визит Варна",
+      "url": "https://visit.varna.bg/bg/event/100-godini-mezhdunaroden-muzikalen-festival-varnen.html",
+      "kind": "crawl",
+      "town": "Варна",
+      "works": true,
+      "notes": "Detail page for 100 years Varna Summer festival with many July 2026 concert dates and venues."
+    },
+    {
+      "name": "Община Русе",
+      "url": "https://obshtinaruse.bg/kulturen-afish",
+      "kind": "crawl",
+      "town": "Русе",
+      "works": true,
+      "notes": "Културен афиш lists specific July 2026 events with dates, times, venues and addresses."
+    },
+    {
+      "name": "Община Благоевград",
+      "url": "https://www.blagoevgrad.bg/static/4538",
+      "kind": "crawl",
+      "town": "Благоевград",
+      "works": true,
+      "notes": "Detailed cultural calendar for July 2026 with many dated events, locations and organizers."
+    },
+    {
+      "name": "Община Стара Загора",
+      "url": "https://www.starazagora.bg/bg/novini/kulturen-afish-13-19-yuli-2026-g",
+      "kind": "crawl",
+      "town": "Стара Загора",
+      "works": true,
+      "notes": "Културен афиш for 13-19 July 2026 lists library programs, exhibitions, theater performances with dates, times and venues."
+    },
+    {
+      "name": "Визит Чепеларе",
+      "url": "https://visitchepelare.bg/bg/",
+      "kind": "crawl",
+      "town": "Чепеларе",
+      "works": true,
+      "notes": "Lists dated 2026 festivals and events with venues in window."
+    },
+    {
+      "name": "Визит Пловдив",
+      "url": "https://www.visitplovdiv.com/bg/events",
+      "kind": "crawl",
+      "town": "Пловдив",
+      "works": true,
+      "notes": "Event listing page loaded but no events with reliable dates inside 2026-07-12 to 2026-09-10 extracted from fetched content."
+    },
+    {
+      "name": "Община Бургас",
+      "url": "https://www.burgas.bg/bg/",
+      "kind": "crawl",
+      "town": "Бургас",
+      "works": false,
+      "notes": "Multiple attempts to fetch kulturna-programa and events sections failed to retrieve usable content."
+    },
+    {
+      "name": "Община Бургас",
+      "url": "https://www.burgas.bg/bg/kulturna-programa",
+      "kind": "crawl",
+      "town": "Бургас",
+      "works": false,
+      "notes": "Fetch failed to retrieve page content."
+    },
+    {
+      "name": "Община Бургас",
+      "url": "https://www.burgas.bg/bg/kulturna-programa/kulturna-programa-za-mesets-yuli",
+      "kind": "crawl",
+      "town": "Бургас",
+      "works": false,
+      "notes": "Fetch failed to retrieve page content."
+    },
+    {
+      "name": "Община Смолян",
+      "url": "https://www.smolyan.bg",
+      "kind": "crawl",
+      "town": "Смолян",
+      "works": true,
+      "notes": "Has cultural calendar references and PDFs; no individual dated events in target window extracted from text pages."
+    },
+    {
+      "name": "Община Благоевград",
+      "url": "https://www.blagoevgrad.bg",
+      "kind": "crawl",
+      "town": "Благоевград",
+      "works": true,
+      "notes": "Main site links to detailed July calendar."
+    },
+    {
+      "name": "Община Велико Търново",
+      "url": "https://www.velikotarnovo.bg",
+      "kind": "crawl",
+      "town": "Велико Търново",
+      "works": false,
+      "notes": "Searches and site did not yield specific dated event listings in target window with fetchable detail."
+    },
+    {
+      "name": "Община Русе",
+      "url": "https://obshtinaruse.bg/programa-za-mesetsa",
+      "kind": "crawl",
+      "town": "Русе",
+      "works": true,
+      "notes": "Monthly programs and afish linked."
+    },
+    {
+      "name": "Община Стара Загора",
+      "url": "https://www.starazagora.bg",
+      "kind": "crawl",
+      "town": "Стара Загора",
+      "works": true,
+      "notes": "Publishes weekly културен афиш."
+    },
+    {
+      "name": "Община Плевен",
+      "url": "https://www.pleven.bg",
+      "kind": "crawl",
+      "town": "Плевен",
+      "works": true,
+      "notes": "Site and social mention cultural calendar items; no concrete dated events in window extracted from primary pages."
+    },
+    {
+      "name": "Община Добрич",
+      "url": "https://www.dobrich.bg/bg/kulturen-kalendar",
+      "kind": "crawl",
+      "town": "Добрич",
+      "works": true,
+      "notes": "Weekly cultural calendar pages exist; specific July dates noted in search but limited detail extracted."
+    },
+    {
+      "name": "Община Шумен",
+      "url": "https://www.shumen.bg",
+      "kind": "crawl",
+      "town": "Шумен",
+      "works": false,
+      "notes": "No specific event listings with dates in window successfully extracted."
+    },
+    {
+      "name": "Община Сливен",
+      "url": "https://www.sliven.bg",
+      "kind": "crawl",
+      "town": "Сливен",
+      "works": false,
+      "notes": "Limited public event listings found in searches for the period."
+    },
+    {
+      "name": "Община Ямбол",
+      "url": "https://www.yambol.bg",
+      "kind": "crawl",
+      "town": "Ямбол",
+      "works": true,
+      "notes": "Publishes седмичен културен календар; early July examples seen, limited confirmed in full window."
+    },
+    {
+      "name": "Столична община",
+      "url": "https://www.sofia.bg",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": false,
+      "notes": "Primary calendar is on visitsofia.bg; main municipal site has limited direct event listings."
+    }
+  ],
+  "failed_urls": [
+    "https://www.burgas.bg/bg/ (fetch failed to retrieve content)",
+    "https://www.burgas.bg/en/ (fetch failed to retrieve content)",
+    "https://www.burgas.bg/bg/kulturna-programa (fetch failed to retrieve content)",
+    "https://www.burgas.bg/bg/kulturna-programa/kulturna-programa-za-mesets-yuli (fetch failed to retrieve content)",
+    "https://visitchepelare.bg/bg/kulturen-kalendar (only intro text, no specific dated events extracted)",
+    "https://visitchepelare.bg/bg/predstoyashti-sabitiya (no detailed event list extracted from fetch)"
+  ],
+  "events": [
+    {
+      "title": "Софийски фестивал на изкуствата и музиката: Музикални пейзажи",
+      "description_short": "Концерт на Националния филхармоничен оркестър с международни солисти в рамките на летния фестивал.",
+      "date_start": "2026-07-12",
+      "time_start": "19:30",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Зала „България“",
+      "address_text": "ул „Аксаков“ 1, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "music",
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/12/24821/-/%D1%81%D0%BE%D1%84%D0%B8%D0%B9%D1%81%D0%BA%D0%B8-%D1%84%D0%B5%D1%81%D1%82%D0%B8%D0%B2%D0%B0%D0%BB-%D0%BD%D0%B0-%D0%B8%D0%B7%D0%BA%D1%83%D1%81%D1%82%D0%B2%D0%B0%D1%82%D0%B0-%D0%B8-%D0%BC%D1%83%D0%B7%D0%B8%D0%BA%D0%B0%D1%82%D0%B0-%D0%BC%D1%83%D0%B7%D0%B8%D0%BA%D0%B0%D0%BB%D0%BD%D0%B8-%D0%BF%D0%B5%D0%B9%D0%B7%D0%B0%D0%B6%D0%B8",
+      "source_name": "Визит София",
+      "country": "BG"
+    },
+    {
+      "title": "ВЕСЕЛА ВАКАНЦИЯ - безплатни летни занимания на открито за деца над 5 години",
+      "description_short": "Седмични безплатни занимания с театър, изкуство, танци и творчество на открито пред ДК Искър.",
+      "date_start": "2026-07-13",
+      "time_start": "11:00",
+      "date_end": "2026-07-17",
+      "time_end": null,
+      "venue": "ОКИ ДК „ИСКЪР“",
+      "address_text": "Пространството пред северен вход на ОКИ ДК „ИСКЪР“, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "workshop",
+        "family"
+      ],
+      "is_free": true,
+      "age_min": 5,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/15/24778/-/весела-ваканция-безплатни-летни-занимания-на-открито-за-деца-над-5-години?Itemid=330",
+      "source_name": "Визит София",
+      "country": "BG"
+    },
+    {
+      "title": "Концерт на изявени участници от майсторския клас на Емил Иванов",
+      "description_short": "Концерт на млади таланти от майсторския клас по оперно пеене в програмата на Варненско лято.",
+      "date_start": "2026-07-12",
+      "time_start": null,
+      "date_end": null,
+      "time_end": null,
+      "venue": "Градска художествена галерия",
+      "address_text": "Градска художествена галерия, Варна",
+      "town": "Варна",
+      "oblast": "Варна",
+      "categories": [
+        "music",
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://visit.varna.bg/bg/event.html",
+      "source_name": "Визит Варна",
+      "country": "BG"
+    },
+    {
+      "title": "100 години Международен музикален фестивал „Варненско лято“ - концертна програма",
+      "description_short": "Серия концерти, майсторски класове и събития в рамките на юбилейното издание на фестивала.",
+      "date_start": "2026-07-12",
+      "time_start": null,
+      "date_end": "2026-08-31",
+      "time_end": null,
+      "venue": "Фестивален и конгресен център и други зали",
+      "address_text": "Фестивален и конгресен център, Варна",
+      "town": "Варна",
+      "oblast": "Варна",
+      "categories": [
+        "music",
+        "festival"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": null,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://visit.varna.bg/bg/event/100-godini-mezhdunaroden-muzikalen-festival-varnen.html",
+      "source_name": "Визит Варна",
+      "country": "BG"
+    },
+    {
+      "title": "„Приказка за Боби и шайка микроби“",
+      "description_short": "Детски куклен спектакъл подходящ за деца над 2 години в Държавния куклен театър.",
+      "date_start": "2026-07-12",
+      "time_start": "11:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Държавен куклен театър - Русе",
+      "address_text": "Държавен куклен театър - Русе, Русе",
+      "town": "Русе",
+      "oblast": "Русе",
+      "categories": [
+        "family",
+        "workshop"
+      ],
+      "is_free": null,
+      "age_min": 2,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://obshtinaruse.bg/kulturen-afish",
+      "source_name": "Община Русе",
+      "country": "BG"
+    },
+    {
+      "title": "Скулптури на природата: Голямото начало",
+      "description_short": "Изложба на скулптури от Николай Маринов в Историческия музей.",
+      "date_start": "2026-07-13",
+      "time_start": "20:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Исторически музей зала за временни изложби",
+      "address_text": "Исторически музей зала за временни изложби, Русе",
+      "town": "Русе",
+      "oblast": "Русе",
+      "categories": [
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://obshtinaruse.bg/kulturen-afish",
+      "source_name": "Община Русе",
+      "country": "BG"
+    },
+    {
+      "title": "Концерт на Биг Бенд Русе",
+      "description_short": "Концерт „Сцена под звездите 2026“ с диригент Димчо Рубчев пред Доходното здание.",
+      "date_start": "2026-07-14",
+      "time_start": null,
+      "date_end": null,
+      "time_end": null,
+      "venue": "Доходно здание",
+      "address_text": "Доходно здание пред Доходно здание, Русе",
+      "town": "Русе",
+      "oblast": "Русе",
+      "categories": [
+        "music"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://obshtinaruse.bg/kulturen-afish",
+      "source_name": "Община Русе",
+      "country": "BG"
+    },
+    {
+      "title": "Лятно кино - Завръщане 2",
+      "description_short": "Безплатно лятно кино на открито на централния площад.",
+      "date_start": "2026-07-11",
+      "time_start": "21:30",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Площад „Македония“",
+      "address_text": "Площад „Македония“, Благоевград",
+      "town": "Благоевград",
+      "oblast": "Благоевград",
+      "categories": [
+        "culture",
+        "family"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://www.blagoevgrad.bg/static/4538",
+      "source_name": "Община Благоевград",
+      "country": "BG"
+    },
+    {
+      "title": "Пикник Артистик - празник на френската култура и кухня",
+      "description_short": "Артистичен пикник с френска култура и кухня на стадиона.",
+      "date_start": "2026-07-18",
+      "time_start": "18:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Стадион „Рилци Арена“",
+      "address_text": "Стадион „Рилци Арена“, Благоевград",
+      "town": "Благоевград",
+      "oblast": "Благоевград",
+      "categories": [
+        "culture",
+        "food",
+        "festival"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://www.blagoevgrad.bg/static/4538",
+      "source_name": "Община Благоевград",
+      "country": "BG"
+    },
+    {
+      "title": "Лятно кино - Клас '90",
+      "description_short": "Лятно кино на открито на централния площад.",
+      "date_start": "2026-07-16",
+      "time_start": "21:30",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Площад „Македония“",
+      "address_text": "Площад „Македония“, Благоевград",
+      "town": "Благоевград",
+      "oblast": "Благоевград",
+      "categories": [
+        "culture",
+        "family"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://www.blagoevgrad.bg/static/4538",
+      "source_name": "Община Благоевград",
+      "country": "BG"
+    },
+    {
+      "title": "Изложба „Цветоглед“ на Фелиция Жинка",
+      "description_short": "Самостоятелна изложба с геометрична абстракция и пейзажи в изложбената зала.",
+      "date_start": "2026-07-15",
+      "time_start": "18:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Изложбена зала „Лубор Байер“",
+      "address_text": "Изложбена зала „Лубор Байер“, Стара Загора",
+      "town": "Стара Загора",
+      "oblast": "Стара Загора",
+      "categories": [
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://www.starazagora.bg/bg/novini/kulturen-afish-13-19-yuli-2026-g",
+      "source_name": "Община Стара Загора",
+      "country": "BG"
+    },
+    {
+      "title": "Пижама за шестима",
+      "description_short": "Комедиен спектакъл по Марк Камолети на сцената на Летния театър.",
+      "date_start": "2026-07-15",
+      "time_start": "21:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Летен театър",
+      "address_text": "Летен театър, Стара Загора",
+      "town": "Стара Загора",
+      "oblast": "Стара Загора",
+      "categories": [
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://www.starazagora.bg/bg/novini/kulturen-afish-13-19-yuli-2026-g",
+      "source_name": "Община Стара Загора",
+      "country": "BG"
+    },
+    {
+      "title": "СУИНИ ТОД",
+      "description_short": "Премиера на мюзикъла „Суини Тод: Демонът бръснар от Флийт стрийт“ на Античния форум.",
+      "date_start": "2026-07-16",
+      "time_start": "21:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Античен форум Августа Траяна",
+      "address_text": "Античен форум Августа Траяна, Стара Загора",
+      "town": "Стара Загора",
+      "oblast": "Стара Загора",
+      "categories": [
+        "music",
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://www.starazagora.bg/bg/novini/kulturen-afish-13-19-yuli-2026-g",
+      "source_name": "Община Стара Загора",
+      "country": "BG"
+    },
+    {
+      "title": "Ex Ante Fest 2026",
+      "description_short": "Тридневен икономически и образователен фестивал с фокус върху математиката в градския парк.",
+      "date_start": "2026-07-24",
+      "time_start": "10:30",
+      "date_end": "2026-07-26",
+      "time_end": null,
+      "venue": "Градски парк",
+      "address_text": "Градски парк, Чепеларе",
+      "town": "Чепеларе",
+      "oblast": "Смолян",
+      "categories": [
+        "festival",
+        "workshop"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://visitchepelare.bg/bg/predstoyashti-sabitiya/chepelare-shte-e-domakin-na-tridneven-ikonomicheski-festival",
+      "source_name": "Визит Чепеларе",
+      "country": "BG"
+    },
+    {
+      "title": "Пампорово Байк Фест 2026",
+      "description_short": "Велосипеден фестивал с надпревари и съпътстващи събития в Пампорово.",
+      "date_start": "2026-07-16",
+      "time_start": null,
+      "date_end": "2026-07-19",
+      "time_end": null,
+      "venue": "Пампорово",
+      "address_text": "Пампорово, Чепеларе",
+      "town": "Чепеларе",
+      "oblast": "Смолян",
+      "categories": [
+        "sport",
+        "festival"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://visitchepelare.bg/bg/",
+      "source_name": "Визит Чепеларе",
+      "country": "BG"
+    }
+  ]
+}
