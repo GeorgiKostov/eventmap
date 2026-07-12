@@ -55,10 +55,22 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] **Locate/search UX fixes** (George 2026-07-12, shipped ef6fac7): search pill no longer shows
       current locality (was confusing), locate-me flies instantly to last-known + cached fix +
       pulsing feedback + denied/unavailable toasts.
-- [ ] **National source probe/registration** — OWNED BY THE OTHER LIVE SESSION (GEM2GO parser +
-      tiering + host-concurrency, briefs/gem2go-parser-and-source-rating-brief.md). State when
-      checked: 272 sources (Sbg 119 / OÖ 113 / NÖ 40), 206 gem2go, tiering active. Missing
-      Bundesländer: Wien, Stmk, Tirol, Ktn, Bgld, Vbg. Don't duplicate from this session.
+- [x] **National coverage SHIPPED 2026-07-12**: deterministic probe of all 2,092 municipalities
+      (23 min, no LLM) → 796 sources registered (policy: high-conf + medium-with-CMS-fingerprint)
+      → hardened batch crawl → **15,946 events, all 8 Länder** (NÖ 6.9k / OÖ 4.4k / T 1.8k /
+      S 1.2k / V 736 / St 457 / B 227 / K 124). Salzburg silent-zero root cause: the batch was
+      never run + one "4.5" age string aborted it; both fixed (coercion + isolation).
+- [x] **Vienna deep (shipped 2026-07-12)**: 601 Wien events. Backbone = wien.gv.at "Wien erleben"
+      (new Sept-2025 system; old open-data dataset confirmed dead) via cms-gated two-hop JSON-LD
+      parser ($0); + WIENXTRA, MuseumsQuartier. 45% family-tagged. Skipped on policy: Büchereien/
+      VHS Wien robots.txt names ClaudeBot in an AI-bot blocklist — we honor named-AI blocks even
+      though UmkreisBot isn't literally listed (George to confirm this policy). wien.info JS-only;
+      ZOOM redirect-broken; Kinderfreunde/Wien Museum = follow-up candidates.
+- [ ] **Steiermark + Kärnten depth**: thin (457/124 events) — CMS landscape not GEM2GO-dominated;
+      identify their dominant CMS from the probe's 'unknown' fingerprints, add a parser or route
+      the residue through the LLM waterfall in a targeted batch.
+- [ ] **Wien erleben API watch**: the dataset page says a new official API "is in preparation" —
+      check quarterly; an API beats our two-hop parse.
 - [x] **Dedup + merge system** (shipped 2026-07-12): lib/dedup.js fuzzy match (same Vienna day +
       town/300m-non-sentinel + word-boundary/Jaccard-0.75 titles), scan-of-existing → enrich-merge
       with UI notice, POST /api/events merge path, scripts/merge-dups.mjs (canonical-linkage

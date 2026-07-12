@@ -514,8 +514,77 @@ function parseGem2goEvents(html, src) {
   return [];
 }
 
-// Waterfall: JSON-LD → iCal → GEM2GO (cms-gated) → RSS/Atom. First route
-// that yields ≥1 valid event wins and the LLM call is skipped entirely.
+// --- wien.gv.at "Wien erleben" (cms='wien-erleben') — the city's official
+// events aggregator. Its listing/category pages (registered as sources) are
+// teaser cards only — the actual schema.org/Event JSON-LD lives on each
+// event's own detail page, in a non-standard dialect the generic parseJsonLdEvents
+// doesn't match (no top-level startDate — recurring occurrences live in a
+// `subEvent[]` array; address is `addresses[]` not `location`). So this is a
+// genuine two-hop structured route: collect detail links from the given page,
+// politeFetch each (same host, same politeness queue as everything else),
+// pull the Event node(s) out. Capped so one source's crawl can't run away.
+const WIEN_DETAIL_CAP = 40;
+function wienJsonLdAddress(n) {
+  const a = Array.isArray(n.addresses) ? n.addresses[0] : null;
+  if (!a) return { address: null };
+  return { address: a.street ? a.street.trim() : null };
+}
+function parseWienErlebenEventNode(n, pageUrl, src) {
+  // Never trust addressLocality for the town field — this dialect's own data
+  // renders it in English ("Vienna"), inconsistent with our German-name
+  // convention elsewhere ("Wien"). Every event on this source is Vienna
+  // anyway (src.town is fixed at registration), so always use that instead.
+  const { address } = wienJsonLdAddress(n);
+  const props = Array.isArray(n.additionalProperty) ? n.additionalProperty : [];
+  const kidTag = props.some((p) => p && p.value === true && /kind/i.test(String(p.name || '')));
+  const base = {
+    title: n.name || null,
+    venue: null, address, town: src.town || null,
+    categories: kidTag ? ['family'] : [],
+    is_free: typeof n.isAccessibleForFree === 'boolean' ? n.isAccessibleForFree : null,
+    age_min: null, age_max: null, indoor: null,
+    description: null,
+    source_url: pageUrl,
+  };
+  const occurrences = Array.isArray(n.subEvent) && n.subEvent.length ? n.subEvent : [n];
+  const out = [];
+  for (const occ of occurrences) {
+    const { date: date_start, time: time_start } = splitLocalDateTime(occ.startDate);
+    if (!base.title || !date_start) continue; // never fabricate: no date → skip
+    const { date: date_end, time: time_end } = splitLocalDateTime(occ.endDate);
+    out.push({ ...base, date_start, time_start, date_end: date_end || null, time_end: time_end || null });
+  }
+  return out;
+}
+async function parseWienErlebenEvents(html, src) {
+  const hrefs = [...html.matchAll(/href="(https:\/\/www\.wien\.gv\.at\/veranstaltungen\/[a-z0-9-]+)"/gi)].map((m) => m[1]);
+  const uniq = [...new Set(hrefs)].slice(0, WIEN_DETAIL_CAP);
+  const events = [];
+  for (const url of uniq) {
+    try {
+      if (!(await robotsAllowed(url))) continue;
+      const res = await politeFetch(url);
+      if (!res.ok) continue;
+      const detailHtml = await res.text();
+      const blocks = [...detailHtml.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+      for (const b of blocks) {
+        let data;
+        try { data = JSON.parse(b[1].trim()); } catch { continue; }
+        const nodes = [];
+        collectJsonLdNodes(data, nodes);
+        for (const n of nodes) {
+          if (!isEventType(n['@type'])) continue;
+          events.push(...parseWienErlebenEventNode(n, url, src));
+        }
+      }
+    } catch { /* one bad detail page must not break the rest */ }
+  }
+  return events;
+}
+
+// Waterfall: JSON-LD → iCal → wien-erleben (cms-gated, two-hop) → GEM2GO
+// (cms-gated) → RSS/Atom. First route that yields ≥1 valid event wins and
+// the LLM call is skipped entirely.
 async function tryStructuredExtraction(html, src) {
   const jsonld = parseJsonLdEvents(html, src);
   if (jsonld.length) return { route: 'jsonld', events: jsonld };
@@ -530,6 +599,11 @@ async function tryStructuredExtraction(html, src) {
         if (icsEvents.length) return { route: 'ical', events: icsEvents };
       }
     } catch { /* fall through */ }
+  }
+
+  if (src.cms === 'wien-erleben') {
+    const wienEvents = await parseWienErlebenEvents(html, src);
+    if (wienEvents.length) return { route: 'jsonld', events: wienEvents };
   }
 
   if (src.cms === 'gem2go') {

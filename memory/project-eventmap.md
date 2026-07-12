@@ -9,6 +9,17 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-12 late — AUSTRIA NATIONAL)
+- **15,946+601 events, all 9 Länder, 1,069 sources.** Deterministic prober (scripts/probe-sources.mjs,
+  2,092-town catalog, no LLM, ~23min sweep) → 796 registered → hardened crawl (age-coercion +
+  per-event/source isolation after the "4.5" batch-kill). Vienna = aggregators not Gemeinde:
+  "Wien erleben" two-hop parser (cms='wien-erleben'), WIENXTRA, MQW; 601 Wien events, 45% family-
+  tagged. Robots policy: honor named-AI-bot blocks (Büchereien/VHS Wien) even under UmkreisBot UA —
+  pending George confirm. Next levers: Stmk/Ktn CMS parser, regeocode repair, crawl cron, deploy.
+- **Country-aware pipeline (AT/BG)** + Cyrillic-safe hashing (AT hashes proven byte-identical);
+  Bulgaria Grok run-kit briefs/bulgaria-grok-kit.md; playbook docs/playbooks/country-mining-playbook.md.
+  Outreach drafts ready (briefs/outreach-emails-de.md) — George sends.
+
 ## Where things stand (2026-07-11 late — UI v4)
 - **2026-07-12 Bulgaria crawl tooling:** `/crawl-bg` command (`.claude/commands/`) drives Grok Build
   on the **SuperGrok OAuth entitlement** ($0 API) as an agentic BG event miner; `skills/crawl-doctrine.md`
