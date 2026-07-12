@@ -67,7 +67,8 @@ export async function GET(req) {
   }
   const q = searchParams.get('q');
   if (q != null) {
-    const result = q.trim().length >= 2 ? await forwardGeocode(q) : null;
+    const country = searchParams.get('country') === 'BG' ? 'BG' : 'AT';
+    const result = q.trim().length >= 2 ? await forwardGeocode(q, country) : null;
     return NextResponse.json({ result });
   }
   const lat = parseFloat(searchParams.get('lat'));

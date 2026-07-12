@@ -14,10 +14,23 @@ await sql`
     email           text unique not null,
     source          text,
     lang            text,
+    area_label      text,
+    area_lat        double precision,
+    area_lng        double precision,
+    radius_km       integer not null default 20,
+    categories      text[] not null default '{}',
     created_at      timestamptz default now(),
     unsubscribed_at timestamptz
   )
 `;
+// CREATE TABLE IF NOT EXISTS does not add new columns to an older install.
+await sql`alter table subscribers add column if not exists area_label text`;
+await sql`alter table subscribers add column if not exists area_lat double precision`;
+await sql`alter table subscribers add column if not exists area_lng double precision`;
+await sql`alter table subscribers add column if not exists radius_km integer not null default 20`;
+await sql`alter table subscribers add column if not exists categories text[] not null default '{}'`;
+await sql`alter table subscribers drop constraint if exists subscribers_radius_km_check`;
+await sql`alter table subscribers add constraint subscribers_radius_km_check check (radius_km between 3 and 40)`;
 await sql`
   create table if not exists rate_hits (
     id       bigint generated always as identity primary key,

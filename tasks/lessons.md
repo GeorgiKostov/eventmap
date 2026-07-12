@@ -2,6 +2,14 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-12 — A relative overlay must stay inside its positioning container
+
+The mobile quick-preview was deliberately `position: relative` inside `.m-topbar`, directly below
+the search pill. A later feature merge moved it to the map root without restoring absolute anchors,
+so it rendered from the screen origin and overlapped the search UI. **Lesson:** when relocating an
+overlay in JSX, audit its containing block and positioning contract together; preserve intentional
+UI work from the branch base unless the new feature explicitly replaces it.
+
 ## 2026-07-12 — One control, one meaning; async actions need instant feedback
 
 George flagged the v4 search pill: it displayed the current locality (`📍 Linz`) as its resting

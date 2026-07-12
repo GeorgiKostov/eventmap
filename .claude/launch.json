@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "/Users/georgikostov/Repositories/eventmap",
       "port": 3311
+    },
+    {
+      "name": "umkreis-bigcity",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "-p", "3457"],
+      "cwd": "/Users/georgikostov/Repositories/eventmap/.claude/worktrees/bigcity-pins",
+      "port": 3457
     }
   ]
 }

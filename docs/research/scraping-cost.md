@@ -124,6 +124,38 @@ and needs the same two-pass discipline; (2) this is a preview of exactly the kin
 deterministic CMS parser (build-order item 4 in the architecture doc) would eliminate structurally
 instead of via regex-and-pray.
 
+## Third-party scraper APIs (Facebook events) — BG lever, not yet adopted
+
+Separate cost model from the municipal LLM crawl above. For Bulgaria, a lot of real event supply
+lives in **Facebook events**, which the municipal crawler misses (see `memory/bg-facebook-events.md`).
+Rather than fight FB's anti-scraping arms race ourselves, the pragmatic bulk option is a hosted
+scraper API priced per record. Pricing verified 2026-07-12 against official pages:
+
+| Provider | Model | Rate | Notes |
+|---|---|---:|---|
+| **Bright Data** Web Scraper API (FB events) | pay-per-success | **$0.75 / 1k records** | Only pay for delivered records; **5k records/mo free**. Cheapest live option, more setup friction. |
+| **Apify** `facebook-events-scraper` | pay-per-result | **$13 / 1k** (free tier) → **~$7–10 / 1k** (paid plans) | Plan tiers: Starter $29/mo→$10, Scale $199/mo→$8.50, Business $999/mo→$7. Hosted actor, JSON out — fastest to wire up, ~10× Bright Data per record. |
+| **Bright Data** pre-collected FB datasets | one-time / subscription | **~$0.0025 / record** (~$250 / 100k) | Historical bulk dump, not live-fresh. For one-off backfill only. |
+
+**At our scale** (BG seeded ~302 events; a realistic recurring pull ≈ low-hundreds → ~1–2k events/refresh):
+- Bright Data Web Scraper API: ~$0.75/refresh; weekly ≈ ~$3/mo, and the **first 5k/mo are free** →
+  effectively **$0 at validation-prototype volumes**. Recommended pick if we do this.
+- Apify: ~$8–13/refresh; weekly ≈ ~$35–55/mo. Reserve for when integration speed matters more than cost.
+
+**Two caveats before adopting (posture decision, not a default — ties to
+`docs/decisions/2026-07-11-crawl-scaling-and-legal.md`):**
+1. **Legal/access.** These scrape FB against its ToS. Our facts-only + linkback rule (title/date/place
+   + `source_url`) keeps the *content* defensible, but the *access method* is still a scrape — a
+   deliberate call, not a default.
+2. **Verify the actor's output shape** before wiring — several FB "events" actors on Apify are really
+   page/search scrapers with different field sets.
+
+Sources: [Apify FB Events Scraper](https://apify.com/apify/facebook-events-scraper) ·
+[Apify pricing](https://apify.com/pricing) ·
+[Bright Data Web Scraper API pricing](https://brightdata.com/pricing/web-scraper) ·
+[Bright Data FB Events Scraper](https://brightdata.com/products/web-scraper/facebook/events) ·
+[Bright Data FB Datasets](https://brightdata.com/products/datasets/facebook).
+
 ## What's not costed here
 
 - **Poster scanning** (`extractFromImage`) — out of scope per the brief; separate, user-driven

@@ -460,6 +460,49 @@ export default function Home() {
     return m;
   }, [events]);
 
+  function openNewsletter() {
+    const nearest = [...townCenters.entries()].reduce((best, [label, center]) => {
+      const distance = distKm(refPoint, center);
+      return !best || distance < best.distance ? { label, center, distance } : best;
+    }, null);
+    setNl({
+      open: true,
+      email: '',
+      area: nearest?.label || 'Linz',
+      areaLat: nearest?.center.lat ?? HOME.lat,
+      areaLng: nearest?.center.lng ?? HOME.lng,
+      radiusKm: 20,
+      categories: [],
+      busy: false,
+      done: false,
+      err: '',
+    });
+  }
+
+  function changeNewsletterArea(value) {
+    const exact = [...townCenters.entries()].find(([name]) => name.toLowerCase() === value.trim().toLowerCase());
+    setNl((s) => ({
+      ...s,
+      area: value,
+      areaLat: exact?.[1].lat ?? null,
+      areaLng: exact?.[1].lng ?? null,
+      err: '',
+    }));
+  }
+
+  function toggleNewsletterCategory(category) {
+    setNl((s) => {
+      const selectedCategory = s.categories.includes(category);
+      if (!selectedCategory && s.categories.length >= 3) return s;
+      return {
+        ...s,
+        categories: selectedCategory
+          ? s.categories.filter((c) => c !== category)
+          : [...s.categories, category],
+      };
+    });
+  }
+
   async function runForwardGeocode(q) {
     const reqId = ++geoReqId.current;
     setGeoLoading(true);
@@ -529,7 +572,10 @@ export default function Home() {
   const [selected, setSelected] = useState(null);
   const [detailFull, setDetailFull] = useState(false);
   const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
-  const [nl, setNl] = useState({ open: false, email: '', busy: false, done: false, err: '' });
+  const [nl, setNl] = useState({
+    open: false, email: '', area: '', areaLat: null, areaLng: null,
+    radiusKm: 20, categories: [], busy: false, done: false, err: '',
+  });
   const [advertiseOpen, setAdvertiseOpen] = useState(false);
   const [limitNotice, setLimitNotice] = useState(null);
   const [toast, setToast] = useState('');
@@ -609,13 +655,32 @@ export default function Home() {
   async function submitNewsletter(e) {
     e.preventDefault();
     const email = nl.email.trim();
-    if (!email) return;
+    const area = nl.area.trim();
+    if (!email || !area) return;
     setNl((s) => ({ ...s, busy: true, err: '' }));
     try {
+      let location = nl.areaLat != null && nl.areaLng != null
+        ? { label: area, lat: nl.areaLat, lng: nl.areaLng }
+        : null;
+      if (!location) {
+        const country = lang === 'bg' ? 'BG' : 'AT';
+        const geoRes = await fetch(`/api/geocode?q=${encodeURIComponent(area)}&country=${country}`);
+        const geoData = await geoRes.json();
+        location = geoRes.ok ? geoData.result : null;
+      }
+      if (!location) throw new Error(t.nlAreaInvalid);
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang },
-        body: JSON.stringify({ email, lang }),
+        body: JSON.stringify({
+          email,
+          lang,
+          areaLabel: area,
+          areaLat: location.lat,
+          areaLng: location.lng,
+          radiusKm: nl.radiusKm,
+          categories: nl.categories,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t.requestFailed);
@@ -1399,7 +1464,7 @@ export default function Home() {
             <>
               <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
               <div className="menudrop">
-                <button className="menuitem" onClick={() => { setMenuOpen(false); setNl({ open: true, email: '', busy: false, done: false, err: '' }); }}>
+                <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>
                 <button className="menuitem" onClick={() => { setMenuOpen(false); setAdvertiseOpen(true); }}>
@@ -2230,25 +2295,81 @@ export default function Home() {
 
       {nl.open && (
         <div className="nl-scrim" onClick={() => setNl((s) => ({ ...s, open: false }))}>
-          <div className="nl-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="nl-modal nl-preferences-modal" role="dialog" aria-modal="true" aria-labelledby="newsletter-title" onClick={(e) => e.stopPropagation()}>
             <button className="nl-close" onClick={() => setNl((s) => ({ ...s, open: false }))} aria-label={t.close}><X size={16} weight="bold" /></button>
             <div className="nl-icon">✉️</div>
-            <h3>{t.nlTitle}</h3>
+            <h3 id="newsletter-title">{t.nlTitle}</h3>
             {nl.done ? (
               <p className="nl-done">{t.nlThanks}</p>
             ) : (
               <>
                 <p className="nl-blurb">{t.nlBlurb}</p>
                 <form onSubmit={submitNewsletter}>
-                  <input
-                    type="email"
-                    className="nl-input"
-                    value={nl.email}
-                    onChange={(e) => setNl((s) => ({ ...s, email: e.target.value }))}
-                    placeholder={t.nlPlaceholder}
-                    autoFocus
-                    required
-                  />
+                  <label className="nl-field">
+                    <span>{t.nlEmail}</span>
+                    <input
+                      type="email"
+                      className="nl-input"
+                      value={nl.email}
+                      onChange={(e) => setNl((s) => ({ ...s, email: e.target.value }))}
+                      placeholder={t.nlPlaceholder}
+                      autoFocus
+                      required
+                    />
+                  </label>
+                  <label className="nl-field">
+                    <span>{t.nlArea}</span>
+                    <input
+                      type="text"
+                      className="nl-input"
+                      value={nl.area}
+                      onChange={(e) => changeNewsletterArea(e.target.value)}
+                      placeholder={t.nlAreaPlaceholder}
+                      list="newsletter-towns"
+                      autoComplete="postal-code"
+                      required
+                    />
+                    <datalist id="newsletter-towns">
+                      {[...townCenters.keys()]
+                        .sort((a, b) => a.localeCompare(b, locale(lang)))
+                        .map((town) => <option key={town} value={town} />)}
+                    </datalist>
+                    <small>{t.nlAreaHelp}</small>
+                  </label>
+                  <fieldset className="nl-interest-field">
+                    <legend>{t.nlInterests}</legend>
+                    <p>{t.nlInterestsHelp}</p>
+                    <div className="nl-category-grid">
+                      {EVENT_CATS.map((category) => {
+                        const selectedCategory = nl.categories.includes(category);
+                        const disabledCategory = !selectedCategory && nl.categories.length >= 3;
+                        return (
+                          <button
+                            key={category}
+                            type="button"
+                            className={selectedCategory ? 'selected' : ''}
+                            disabled={disabledCategory}
+                            aria-pressed={selectedCategory}
+                            onClick={() => toggleNewsletterCategory(category)}
+                          >
+                            <CatIcon cat={category} size={15} />
+                            <span>{t.cats[category]}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                  <label className="nl-radius-field">
+                    <span>{t.nlRadius.replace('{count}', nl.radiusKm)}</span>
+                    <input
+                      type="range"
+                      min="5"
+                      max="40"
+                      step="5"
+                      value={nl.radiusKm}
+                      onChange={(e) => setNl((s) => ({ ...s, radiusKm: Number(e.target.value) }))}
+                    />
+                  </label>
                   <button type="submit" className="nl-submit" disabled={nl.busy}>{nl.busy ? t.nlSending : t.nlSubmit}</button>
                 </form>
                 {nl.err && <p className="nl-err">{nl.err}</p>}

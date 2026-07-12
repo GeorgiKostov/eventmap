@@ -10,16 +10,27 @@ const sql = postgres(process.env.DATABASE_URL || '', {
 });
 
 const rows = await sql`
-  SELECT email, source, lang, created_at
+  SELECT email, source, lang, area_label, area_lat, area_lng, radius_km, categories, created_at
   FROM subscribers
   WHERE unsubscribed_at IS NULL
   ORDER BY created_at DESC
 `;
 
-console.log('email,source,lang,created_at');
+const csv = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+console.log('email,source,lang,area_label,area_lat,area_lng,radius_km,categories,created_at');
 for (const r of rows) {
   const created = r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at;
-  console.log(`${r.email},${r.source || ''},${r.lang || ''},${created}`);
+  console.log([
+    r.email,
+    r.source,
+    r.lang,
+    r.area_label,
+    r.area_lat,
+    r.area_lng,
+    r.radius_km,
+    (r.categories || []).join('|'),
+    created,
+  ].map(csv).join(','));
 }
 console.error(`\n${rows.length} active subscriber(s).`);
 await sql.end();

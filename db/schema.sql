@@ -69,12 +69,17 @@ create table if not exists geocache (
   hit   boolean default true
 );
 
--- newsletter signups (no accounts; just an email + when)
+-- newsletter signups (no accounts; locality is deliberately coarse — never device GPS)
 create table if not exists subscribers (
   id             bigint generated always as identity primary key,
   email          text unique not null,
   source         text,               -- e.g. 'newsletter_popup'
   lang           text,
+  area_label     text,               -- chosen town/postcode, shown back to the subscriber
+  area_lat       double precision,   -- locality/postcode centre, not a precise user position
+  area_lng       double precision,
+  radius_km      integer not null default 20 check (radius_km between 3 and 40),
+  categories     text[] not null default '{}',
   created_at     timestamptz default now(),
   unsubscribed_at timestamptz
 );
