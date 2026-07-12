@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import dns from 'dns';
 import net from 'net';
+import http from 'node:http';
+import https from 'node:https';
 import { extractFromImage, extractSingleFromText } from '../../../lib/extract.js';
 import { limit } from '../../../lib/ratelimit.js';
 
@@ -40,45 +42,76 @@ function isPrivateIp(ip) {
   if (net.isIPv6(ip)) {
     const v = ip.toLowerCase();
     if (v === '::1' || v === '::') return true;
-    if (v.startsWith('fe80') || v.startsWith('fc') || v.startsWith('fd')) return true;
-    // IPv4-mapped (::ffff:a.b.c.d) — re-check the embedded v4.
-    const m = v.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    if (/^fe[89ab]/.test(v)) return true; // fe80::/10 link-local (fe80–febf)
+    if (/^f[cd]/.test(v)) return true;     // fc00::/7 unique-local
+    if (v.startsWith('64:ff9b:')) return true; // NAT64 well-known prefix → embedded v4
+    // IPv4-mapped ::ffff:a.b.c.d (dotted) — re-check the embedded v4.
+    let m = v.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
     if (m) return isPrivateIp(m[1]);
+    // IPv4-mapped in hex form ::ffff:7f00:1 — reconstruct the dotted v4.
+    m = v.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+    if (m) {
+      const hi = parseInt(m[1], 16), lo = parseInt(m[2], 16);
+      return isPrivateIp(`${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`);
+    }
     return false;
   }
   return true; // unparseable → refuse
 }
 
-async function assertPublicHost(hostname) {
+async function resolvePublicAddr(hostname) {
   // IP literals: check directly. Hostnames: resolve EVERY A/AAAA and reject if
-  // any resolves private (defeats DNS-rebinding to a single bad record).
+  // any is private, then return one validated address to PIN the connection to.
   if (net.isIP(hostname)) {
     if (isPrivateIp(hostname)) throw new Error('blocked');
-    return;
+    return hostname;
   }
   const addrs = await dns.promises.lookup(hostname, { all: true });
   if (!addrs.length) throw new Error('blocked');
   for (const a of addrs) if (isPrivateIp(a.address)) throw new Error('blocked');
+  return addrs[0].address;
+}
+
+// One GET via node http/https, resolving the host through `lookup` so the
+// connection lands on the exact IP we validated — the URL still carries the
+// real hostname, so Host header and TLS SNI stay correct. Returns the
+// IncomingMessage stream.
+function rawGet(urlObj, lookup) {
+  return new Promise((resolve, reject) => {
+    const lib = urlObj.protocol === 'https:' ? https : http;
+    const req = lib.request(urlObj, {
+      method: 'GET',
+      lookup,
+      headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html,application/xhtml+xml,image/*;q=0.8,*/*;q=0.5', 'Accept-Language': 'de,en;q=0.8' },
+    }, resolve);
+    req.setTimeout(FETCH_TIMEOUT, () => req.destroy(new Error('timeout')));
+    req.on('error', reject);
+    req.end();
+  });
 }
 
 // Fetch with a manual redirect loop so every hop is re-validated against the
-// SSRF guard (a public URL can 30x to an internal one). http/https only.
+// SSRF guard (a public URL can 30x to an internal one). http/https only. Each
+// hop pins the connection IP to the pre-validated address via node's `lookup`
+// option — closing the DNS-rebinding TOCTOU where the transport would otherwise
+// re-resolve the host to a private IP after the check.
 async function safeFetch(rawUrl) {
   let current;
   try { current = new URL(rawUrl); } catch { throw new Error('badUrl'); }
   for (let hop = 0; hop < 5; hop++) {
     if (current.protocol !== 'http:' && current.protocol !== 'https:') throw new Error('badUrl');
-    await assertPublicHost(current.hostname);
+    const pinned = await resolvePublicAddr(current.hostname);
+    const family = net.isIPv6(pinned) ? 6 : 4;
+    // node calls lookup either as (err, address, family) or, when opts.all is
+    // set, as (err, [{address, family}]) — support both forms.
+    const lookup = (_host, opts, cb) => (opts && opts.all ? cb(null, [{ address: pinned, family }]) : cb(null, pinned, family));
     let res;
-    try {
-      res = await fetch(current.href, {
-        redirect: 'manual',
-        headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html,application/xhtml+xml,image/*;q=0.8,*/*;q=0.5', 'Accept-Language': 'de,en;q=0.8' },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT),
-      });
-    } catch { throw new Error('failed'); }
-    if (res.status >= 300 && res.status < 400 && res.headers.get('location')) {
-      try { current = new URL(res.headers.get('location'), current); } catch { throw new Error('failed'); }
+    try { res = await rawGet(current, lookup); } catch { throw new Error('failed'); }
+    const status = res.statusCode;
+    const location = res.headers.location;
+    if (status >= 300 && status < 400 && location) {
+      res.destroy();
+      try { current = new URL(location, current); } catch { throw new Error('failed'); }
       continue;
     }
     return { res, finalUrl: current.href };
@@ -87,19 +120,20 @@ async function safeFetch(rawUrl) {
 }
 
 // Read the body streaming, hard-capped at MAX_BYTES (never trust content-length).
+// Returns { buf, truncated } so callers can reject oversize binary payloads
+// rather than hand a corrupt, mid-stream-cut buffer to the vision model.
 async function readCapped(res) {
-  if (!res.body) return Buffer.alloc(0);
-  const reader = res.body.getReader();
   const chunks = [];
   let total = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.length;
-    if (total > MAX_BYTES) { await reader.cancel(); break; }
-    chunks.push(value);
-  }
-  return Buffer.concat(chunks.map((c) => Buffer.from(c)));
+  let truncated = false;
+  try {
+    for await (const chunk of res) {
+      total += chunk.length;
+      if (total > MAX_BYTES) { truncated = true; res.destroy(); break; }
+      chunks.push(Buffer.from(chunk));
+    }
+  } catch { /* stream aborted — return what we have */ }
+  return { buf: Buffer.concat(chunks), truncated };
 }
 
 /* ---------------- JSON-LD / OpenGraph parsing (zero AI cost) ---------------- */
@@ -132,7 +166,7 @@ const isPlaceType = (node) => typeList(node).some((t) => PLACE_TYPES.test(t));
 // bare local datetimes are taken literally.
 function viennaFromIso(iso) {
   if (!iso || typeof iso !== 'string') return { date: null, time: null };
-  const hasTz = /[T ]\d{2}:\d{2}(?::\d{2})?\s*(Z|[+-]\d{2}:?\d{2})$/.test(iso.trim());
+  const hasTz = /[T ]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?\s*(Z|[+-]\d{2}:?\d{2})$/.test(iso.trim());
   if (hasTz) {
     const d = new Date(iso);
     if (isNaN(d.getTime())) return { date: null, time: null };
@@ -212,6 +246,20 @@ function metaContent(html, prop) {
 
 export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
+
+  // Validate the URL BEFORE spending a rate-limit slot — a typo or empty body
+  // must not burn one of the (shared-with-scan) AI-intake allowances.
+  let url;
+  try { url = (await req.json())?.url; } catch { url = null; }
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    return NextResponse.json({ error: messages.noUrl }, { status: 400 });
+  }
+  let parsed;
+  try { parsed = new URL(url.trim()); } catch { parsed = null; }
+  if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) {
+    return NextResponse.json({ error: messages.badUrl }, { status: 400 });
+  }
+
   const rl = await limit(req, 'scan', { perHour: 4, perDay: 10, globalPerDay: 100 });
   if (rl) {
     const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
@@ -225,12 +273,6 @@ export async function POST(req) {
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
 
-  let url;
-  try { url = (await req.json())?.url; } catch { url = null; }
-  if (!url || typeof url !== 'string' || !url.trim()) {
-    return NextResponse.json({ error: messages.noUrl }, { status: 400 });
-  }
-
   let res, finalUrl;
   try {
     ({ res, finalUrl } = await safeFetch(url.trim()));
@@ -241,12 +283,14 @@ export async function POST(req) {
     return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
   }
 
-  const contentType = (res.headers.get('content-type') || '').toLowerCase();
+  const ctRaw = res.headers['content-type'];
+  const contentType = (Array.isArray(ctRaw) ? ctRaw[0] : ctRaw || '').toLowerCase();
 
   // Image URL → run the poster-scan path on the bytes.
   if (contentType.startsWith('image/')) {
-    const buf = await readCapped(res);
-    if (!buf.length) return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
+    const { buf, truncated } = await readCapped(res);
+    // A truncated image is corrupt bytes — reject rather than feed it to the model.
+    if (truncated || !buf.length) return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
     const mediaType = contentType.split(';')[0].trim();
     try {
       const extraction = await extractFromImage({ base64: buf.toString('base64'), mediaType, geoHint: null });
@@ -258,15 +302,28 @@ export async function POST(req) {
     }
   }
 
-  if (!res.ok) {
+  if (res.statusCode >= 400) {
+    res.destroy();
     return NextResponse.json({ error: messages.blocked, fallback: true }, { status: 422 });
   }
 
-  const html = (await readCapped(res)).toString('utf-8');
+  const html = (await readCapped(res)).buf.toString('utf-8');
 
   // 1. JSON-LD schema.org Event / Place — exact fields, zero AI cost.
   const nodes = parseJsonLd(html);
-  const ldEvent = nodes.find(isEventType) || nodes.find(isPlaceType);
+  // A listing page carries many distinct events; picking one arbitrarily would
+  // publish the wrong event, so bail to the "screenshot a single event" path
+  // instead of guessing (never fabricate). Dedup by title+start first, since a
+  // single event is often repeated across multiple ld blocks.
+  const eventNodes = nodes.filter(isEventType);
+  const distinctEvents = new Map();
+  for (const n of eventNodes) {
+    distinctEvents.set(`${firstString(n.name) || ''}|${n.startDate || ''}`.toLowerCase(), n);
+  }
+  if (distinctEvents.size > 1) {
+    return NextResponse.json({ error: messages.noEvent, fallback: true }, { status: 422 });
+  }
+  const ldEvent = eventNodes[0] || nodes.find(isPlaceType);
   if (ldEvent) {
     const extraction = extractionFromLd(ldEvent);
     // 2. OpenGraph title fill-in when JSON-LD omitted the name.
