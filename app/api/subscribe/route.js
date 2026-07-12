@@ -11,19 +11,19 @@ const MESSAGES = {
     limited: 'Zu viele Anfragen — bitte später wieder.',
     invalid: 'Bitte eine gültige E-Mail-Adresse eingeben.',
     invalidArea: 'Bitte einen gültigen Ort oder eine Postleitzahl auswählen.',
-    invalidPreferences: 'Bitte wähle höchstens drei gültige Interessen aus.',
+    invalidPreferences: 'Bitte wähle nur gültige Interessen aus.',
   },
   en: {
     limited: 'Too many requests — please try again later.',
     invalid: 'Please enter a valid email address.',
     invalidArea: 'Please choose a valid town or postcode.',
-    invalidPreferences: 'Please choose no more than three valid interests.',
+    invalidPreferences: 'Please choose valid interests.',
   },
   bg: {
     limited: 'Твърде много заявки — опитай отново по-късно.',
     invalid: 'Въведи валиден имейл адрес.',
     invalidArea: 'Избери валиден град или пощенски код.',
-    invalidPreferences: 'Избери най-много три валидни интереса.',
+    invalidPreferences: 'Избери валидни интереси.',
   },
 };
 
@@ -51,7 +51,7 @@ export async function POST(req) {
   const categories = Array.isArray(body.categories) ? [...new Set(body.categories)] : [];
   if (
     !Number.isInteger(radiusKm) || radiusKm < 3 || radiusKm > 40 ||
-    categories.length > 3 || categories.some((cat) => !EVENT_CATEGORIES.has(cat))
+    categories.some((cat) => !EVENT_CATEGORIES.has(cat))
   ) {
     return NextResponse.json({ error: msg.invalidPreferences }, { status: 400 });
   }

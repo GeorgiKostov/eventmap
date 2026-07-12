@@ -202,7 +202,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .nl-input:focus { border-color: var(--accent); background: var(--panel); }
 .nl-field { display: grid; gap: 6px; text-align: left; }
-.nl-field > span, .nl-interest-field legend, .nl-radius-field > span { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+.nl-field > span, .nl-interest-field legend { font-size: 12.5px; font-weight: 700; color: var(--ink); }
 .nl-field small { font-size: 10.5px; line-height: 1.4; color: var(--muted); }
 .nl-interest-field { min-width: 0; margin: 2px 0 0; padding: 0; border: 0; text-align: left; }
 .nl-interest-field p { margin: 3px 0 8px; font-size: 10.5px; line-height: 1.4; color: var(--muted); }
@@ -214,9 +214,6 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 }
 .nl-category-grid button svg { flex: 0 0 auto; }
 .nl-category-grid button.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-.nl-category-grid button:disabled { opacity: 0.42; }
-.nl-radius-field { display: grid; grid-template-columns: 1fr 145px; align-items: center; gap: 12px; margin-top: 2px; text-align: left; }
-.nl-radius-field input { width: 100%; accent-color: var(--accent); }
 .nl-submit { padding: 12px 14px; border-radius: 12px; background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; }
 .nl-submit:disabled { opacity: 0.6; }
 .nl-err { margin: 9px 0 0; font-size: 12.5px; color: var(--accent); }
@@ -225,7 +222,6 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .nl-fine a { color: var(--accent); text-decoration: underline; }
 @media (max-width: 480px) {
   .nl-preferences-modal { max-width: none; max-height: calc(100dvh - 40px); padding: 24px 20px 18px; }
-  .nl-radius-field { grid-template-columns: 1fr 125px; }
 }
 .advertise-modal { max-width: 390px; }
 .ad-benefits { display: grid; gap: 8px; margin: 16px 0 12px; text-align: left; }

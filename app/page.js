@@ -471,7 +471,6 @@ export default function Home() {
       area: nearest?.label || 'Linz',
       areaLat: nearest?.center.lat ?? HOME.lat,
       areaLng: nearest?.center.lng ?? HOME.lng,
-      radiusKm: 20,
       categories: [],
       busy: false,
       done: false,
@@ -493,7 +492,6 @@ export default function Home() {
   function toggleNewsletterCategory(category) {
     setNl((s) => {
       const selectedCategory = s.categories.includes(category);
-      if (!selectedCategory && s.categories.length >= 3) return s;
       return {
         ...s,
         categories: selectedCategory
@@ -574,7 +572,7 @@ export default function Home() {
   const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
   const [nl, setNl] = useState({
     open: false, email: '', area: '', areaLat: null, areaLng: null,
-    radiusKm: 20, categories: [], busy: false, done: false, err: '',
+    categories: [], busy: false, done: false, err: '',
   });
   const [advertiseOpen, setAdvertiseOpen] = useState(false);
   const [limitNotice, setLimitNotice] = useState(null);
@@ -678,7 +676,7 @@ export default function Home() {
           areaLabel: area,
           areaLat: location.lat,
           areaLng: location.lng,
-          radiusKm: nl.radiusKm,
+          radiusKm: 20,
           categories: nl.categories,
         }),
       });
@@ -2342,13 +2340,11 @@ export default function Home() {
                     <div className="nl-category-grid">
                       {EVENT_CATS.map((category) => {
                         const selectedCategory = nl.categories.includes(category);
-                        const disabledCategory = !selectedCategory && nl.categories.length >= 3;
                         return (
                           <button
                             key={category}
                             type="button"
                             className={selectedCategory ? 'selected' : ''}
-                            disabled={disabledCategory}
                             aria-pressed={selectedCategory}
                             onClick={() => toggleNewsletterCategory(category)}
                           >
@@ -2359,17 +2355,6 @@ export default function Home() {
                       })}
                     </div>
                   </fieldset>
-                  <label className="nl-radius-field">
-                    <span>{t.nlRadius.replace('{count}', nl.radiusKm)}</span>
-                    <input
-                      type="range"
-                      min="5"
-                      max="40"
-                      step="5"
-                      value={nl.radiusKm}
-                      onChange={(e) => setNl((s) => ({ ...s, radiusKm: Number(e.target.value) }))}
-                    />
-                  </label>
                   <button type="submit" className="nl-submit" disabled={nl.busy}>{nl.busy ? t.nlSending : t.nlSubmit}</button>
                 </form>
                 {nl.err && <p className="nl-err">{nl.err}</p>}
