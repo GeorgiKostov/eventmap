@@ -253,8 +253,11 @@ async function main() {
   for (const s of SOURCES) {
     byTown[s.town] = (byTown[s.town] || 0) + 1;
     const already = existingUrls.has(s.url);
-    console.log(`${already ? '[update]' : '[new]   '} [${s.town}] ${s.name} — ${s.url}`);
-    if (write) {
+    // Skip sources already registered — re-running must NOT flip works=true on a
+    // source the crawler has since marked dead, nor clobber crawler-updated
+    // cms/notes. Only genuinely new sources are inserted (matches register-bigcities-e).
+    console.log(`${already ? '[skip]  ' : '[new]   '} [${s.town}] ${s.name} — ${s.url}`);
+    if (write && !already) {
       await upsertSource({ ...s, country: 'AT', works: true });
     }
   }
