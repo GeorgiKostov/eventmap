@@ -32,10 +32,13 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   collects listing pages (≥2 events, dated-afish permalinks collapsed, JSON-LD/iCal/RSS
   fingerprinted) → `data/catalog/probed-bg.json` (36 sources) → `register-probed.mjs` (now
   country-aware, accepts BG medium) → 26 new sources over 11 oblasts → `getSourcesForCrawl` picks
-  them up so `npm run crawl` refreshes BG. **Neither seeded nor registered to Supabase yet** — both
-  are remote writes awaiting George's go. Known nits: 24 Sofia events use town "София" not the
-  catalog "Столична"; ~15 already-past (seed auto-expires); ~39 in villages/resorts off-catalog
-  (geocode by address). Launcher scripts in session scratchpad (not repo).
+  them up so `npm run crawl` refreshes BG. **Seeded + registered to Supabase (2026-07-12):** 302 BG
+  published events (155 venue / 30 address / 117 town-centroid geo), 31 vetted sources works=true
+  (65 single-event permalinks deactivated but on record), all country=BG. Fixed a latent bug: the
+  AT/BG pipeline had made geocode.js/seed.mjs country-aware but NEVER crawl.mjs — recrawl geocoded
+  BG addresses as AT. crawl.mjs now inherits src.country onto events (geocode + tag); seed.mjs no
+  longer clobbers source country back to AT. Verified: recrawled Община Русе → 6 events, all [BG],
+  all inside Bulgaria bbox. Sofia normalized София→Столична. Launcher scripts in session scratchpad.
 - **2026-07-12 localization:** English/German/Bulgarian now cover the map UI, legal pages,
   standalone event pages, metadata, and user-facing API errors. First-visit language uses Vercel's
   approximate IP-country header (BG→BG, AT/DE→DE, all other/unknown→EN); the three-option picker
