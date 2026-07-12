@@ -7,6 +7,7 @@ import { ArrowLeft, X, UserCircle, MagnifyingGlass, NavigationArrow, CalendarPlu
 import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
 import { STRINGS, detectLang } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
+import { track } from '../lib/analytics.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
@@ -138,26 +139,64 @@ function sameVenue(a, b) {
   if (a.geo_precision === 'town' || b.geo_precision === 'town') return false;
   return distKm(a, b) <= 0.03; // 30m
 }
-function makeIcs(ev) {
-  const dt = (iso) => iso.replace(/[-:]/g, '');
-  let dtLines;
+// Shared date math for all three calendar targets.
+// timed  → start "20260712T193000", end +2h if no ends_at (Vienna wall-clock)
+// all-day → start "20260712", end exclusive next day "20260713"
+function calDates(ev) {
+  const compact = (iso) => iso.replace(/[-:]/g, '');
   if (ev.all_day) {
     const lastDay = (ev.ends_at || ev.starts_at).slice(0, 10);
-    const end = new Intl.DateTimeFormat('en-CA').format(new Date(new Date(lastDay + 'T12:00').getTime() + 86400000)).replace(/-/g, '');
-    dtLines = [`DTSTART;VALUE=DATE:${ev.starts_at.slice(0, 10).replace(/-/g, '')}`, `DTEND;VALUE=DATE:${end}`];
-  } else {
-    const end = ev.ends_at || `${ev.starts_at.slice(0, 11)}${String(Math.min(23, +ev.starts_at.slice(11, 13) + 2)).padStart(2, '0')}${ev.starts_at.slice(13, 16)}`;
-    dtLines = [`DTSTART;TZID=Europe/Vienna:${dt(ev.starts_at)}00`, `DTEND;TZID=Europe/Vienna:${dt(end)}00`];
+    const endExcl = new Intl.DateTimeFormat('en-CA').format(new Date(new Date(lastDay + 'T12:00').getTime() + 86400000)).replace(/-/g, '');
+    return { allDay: true, start: ev.starts_at.slice(0, 10).replace(/-/g, ''), end: endExcl, startIso: ev.starts_at.slice(0, 10), endIso: lastDay };
   }
+  const end = ev.ends_at || `${ev.starts_at.slice(0, 11)}${String(Math.min(23, +ev.starts_at.slice(11, 13) + 2)).padStart(2, '0')}${ev.starts_at.slice(13, 16)}`;
+  return { allDay: false, start: `${compact(ev.starts_at)}00`, end: `${compact(end)}00`, startIso: `${ev.starts_at}:00`, endIso: `${end}:00` };
+}
+function calLocation(ev) {
+  return [ev.venue, ev.address, ev.town].filter(Boolean).join(', ');
+}
+function calDetails(ev) {
+  const src = ev.source_url ? `\n\nQuelle: ${ev.source_url}` : '';
+  return `${ev.description || ''}${src}`.trim();
+}
+
+// "Add to Google Calendar" — opens a prefilled event, no file download (the
+// download path never worked reliably on mobile / for Google).
+function googleCalUrl(ev) {
+  const d = calDates(ev);
+  const p = new URLSearchParams({ action: 'TEMPLATE', text: ev.title, dates: `${d.start}/${d.end}`, location: calLocation(ev), details: calDetails(ev) });
+  if (!d.allDay) p.set('ctz', 'Europe/Vienna');
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
+}
+// Outlook.com / Microsoft 365 web compose.
+function outlookCalUrl(ev) {
+  const d = calDates(ev);
+  const p = new URLSearchParams({
+    path: '/calendar/action/compose', rru: 'addevent', subject: ev.title,
+    startdt: d.startIso, enddt: d.endIso, location: calLocation(ev), body: calDetails(ev),
+    allday: String(d.allDay),
+  });
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${p.toString()}`;
+}
+// .ics download (Apple Calendar, Thunderbird, anything else). RFC-5545 TEXT
+// values must escape \\ ; , and newlines — unescaped commas in LOCATION were
+// why imports mis-parsed.
+function makeIcs(ev) {
+  const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+  const d = calDates(ev);
+  const dtLines = d.allDay
+    ? [`DTSTART;VALUE=DATE:${d.start}`, `DTEND;VALUE=DATE:${d.end}`]
+    : [`DTSTART;TZID=Europe/Vienna:${d.start}`, `DTEND;TZID=Europe/Vienna:${d.end}`];
   const body = [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//umkreis//DE', 'BEGIN:VEVENT',
-    `UID:umkreis-${ev.id}@local`, ...dtLines,
-    `SUMMARY:${ev.title}`,
-    `LOCATION:${[ev.venue, ev.address, ev.town].filter(Boolean).join(', ')}`,
-    ev.description ? `DESCRIPTION:${ev.description}` : null,
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//okolo//events//DE', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+    `UID:okolo-${ev.id}@okolo.events`, ...dtLines,
+    `SUMMARY:${esc(ev.title)}`,
+    `LOCATION:${esc(calLocation(ev))}`,
+    ev.description || ev.source_url ? `DESCRIPTION:${esc(calDetails(ev))}` : null,
+    ev.source_url ? `URL:${esc(ev.source_url)}` : null,
     'END:VEVENT', 'END:VCALENDAR',
   ].filter(Boolean).join('\r\n');
-  const url = URL.createObjectURL(new Blob([body], { type: 'text/calendar' }));
+  const url = URL.createObjectURL(new Blob([body], { type: 'text/calendar;charset=utf-8' }));
   const a = document.createElement('a');
   a.href = url;
   a.download = `${ev.title.slice(0, 40).replace(/[^\wäöüÄÖÜß -]/g, '')}.ics`;
@@ -412,6 +451,8 @@ export default function Home() {
   const [sheetContent, setSheetContent] = useState('list'); // list | filters
   const [selected, setSelected] = useState(null);
   const [detailFull, setDetailFull] = useState(false);
+  const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
+  const [nl, setNl] = useState({ open: false, email: '', busy: false, done: false, err: '' });
   const [toast, setToast] = useState('');
   const toastT = useRef(null);
 
@@ -457,6 +498,26 @@ export default function Home() {
     setDraft((d) => ({ ...d, address: s.label, lat: s.lat, lng: s.lng }));
     setAddrSuggestions([]);
     setAddrSuggestOpen(false);
+  }
+
+  async function submitNewsletter(e) {
+    e.preventDefault();
+    const email = nl.email.trim();
+    if (!email) return;
+    setNl((s) => ({ ...s, busy: true, err: '' }));
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, lang }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Fehler');
+      track('newsletter_signup');
+      setNl((s) => ({ ...s, busy: false, done: true }));
+    } catch (err) {
+      setNl((s) => ({ ...s, busy: false, err: String(err.message || err) }));
+    }
   }
 
   function showToast(msg) {
@@ -586,6 +647,7 @@ export default function Home() {
     setSelected(ev);
     setDetailFull(false);
     if (ev) {
+      track('open_detail', { kind: ev.kind, cat: primaryCat(ev), town: ev.town });
       for (const [id, rec] of markers.current) rec.el.classList.toggle('selected', id === ev.id);
       if (fly && mapObj.current) {
         mapObj.current.flyTo({
@@ -907,6 +969,7 @@ export default function Home() {
     }
   }
   async function finishPublish() {
+    track('contribution_published', { kind: draft.kind === 'place' ? 'place' : 'event', via: photoPath ? 'scan' : 'form' });
     setCapture(false);
     setManualEntry(false);
     setRefine(null);
@@ -1052,9 +1115,17 @@ export default function Home() {
                 <button className="menuitem" onClick={() => { setMenuOpen(false); openManualPlace(); }}>
                   <span className="ic">📍</span>{t.addPlace}
                 </button>
+                <button className="menuitem" onClick={() => { setMenuOpen(false); setNl({ open: true, email: '', busy: false, done: false, err: '' }); }}>
+                  <span className="ic">✉️</span>{t.newsletter}
+                </button>
                 <button className="menuitem" onClick={() => { switchLang(); setMenuOpen(false); }}>
                   <span className="ic">🌐</span>{lang === 'de' ? 'English' : 'Deutsch'}
                 </button>
+                <div className="menu-legal">
+                  <a href="/impressum" target="_blank" rel="noreferrer">{t.imprint}</a>
+                  <span>·</span>
+                  <a href="/datenschutz" target="_blank" rel="noreferrer">{t.privacyLink}</a>
+                </div>
                 {/* Future: Account / Login entry goes here — add one more <button className="menuitem"> */}
               </div>
             </>
@@ -1341,19 +1412,38 @@ export default function Home() {
             </span>
           </div>
           <div className="dactions2">
-            <a className="daction" href={`https://www.google.com/maps/dir/?api=1&destination=${ev.lat},${ev.lng}`} target="_blank" rel="noreferrer">
+            <a className="daction" href={`https://www.google.com/maps/dir/?api=1&destination=${ev.lat},${ev.lng}`} target="_blank" rel="noreferrer" onClick={() => track('directions', { kind: ev.kind, id: ev.id })}>
               <span className="daction-ic"><NavigationArrow size={19} weight="fill" /></span>
               <span className="daction-lab">{t.route}</span>
             </a>
             {!place && (
-              <button className="daction" onClick={() => makeIcs(ev)}>
-                <span className="daction-ic"><CalendarPlus size={19} weight="bold" /></span>
-                <span className="daction-lab">{t.calendar}</span>
-              </button>
+              <div className="daction-wrap">
+                <button className="daction" onClick={() => setCalMenu(calMenu === ev.id ? false : ev.id)} aria-haspopup="true" aria-expanded={calMenu === ev.id}>
+                  <span className="daction-ic"><CalendarPlus size={19} weight="bold" /></span>
+                  <span className="daction-lab">{t.calendar}</span>
+                </button>
+                {calMenu === ev.id && (
+                  <>
+                    <div className="menu-scrim" onClick={() => setCalMenu(false)} />
+                    <div className="calmenu">
+                      <a className="calmenu-item" href={googleCalUrl(ev)} target="_blank" rel="noreferrer" onClick={() => { track('calendar_add', { target: 'google', id: ev.id }); setCalMenu(false); }}>
+                        <span className="ic">📅</span>{t.calGoogle}
+                      </a>
+                      <a className="calmenu-item" href={outlookCalUrl(ev)} target="_blank" rel="noreferrer" onClick={() => { track('calendar_add', { target: 'outlook', id: ev.id }); setCalMenu(false); }}>
+                        <span className="ic">📆</span>{t.calOutlook}
+                      </a>
+                      <button className="calmenu-item" onClick={() => { track('calendar_add', { target: 'ics', id: ev.id }); makeIcs(ev); setCalMenu(false); }}>
+                        <span className="ic">🍏</span>{t.calIcs}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
             <button
               className="daction"
               onClick={() => {
+                track('share', { kind: ev.kind, id: ev.id });
                 const url = `${location.origin}/event/${ev.id}`;
                 if (navigator.share) navigator.share({ title: ev.title, url }).catch(() => {});
                 else navigator.clipboard.writeText(url).then(() => showToast(t.copied));
@@ -1728,6 +1818,37 @@ export default function Home() {
               setDpOpen(false);
             }}
           />
+        </div>
+      )}
+
+      {nl.open && (
+        <div className="nl-scrim" onClick={() => setNl((s) => ({ ...s, open: false }))}>
+          <div className="nl-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="nl-close" onClick={() => setNl((s) => ({ ...s, open: false }))} aria-label={t.close}><X size={16} weight="bold" /></button>
+            <div className="nl-icon">✉️</div>
+            <h3>{t.nlTitle}</h3>
+            {nl.done ? (
+              <p className="nl-done">{t.nlThanks}</p>
+            ) : (
+              <>
+                <p className="nl-blurb">{t.nlBlurb}</p>
+                <form onSubmit={submitNewsletter}>
+                  <input
+                    type="email"
+                    className="nl-input"
+                    value={nl.email}
+                    onChange={(e) => setNl((s) => ({ ...s, email: e.target.value }))}
+                    placeholder={t.nlPlaceholder}
+                    autoFocus
+                    required
+                  />
+                  <button type="submit" className="nl-submit" disabled={nl.busy}>{nl.busy ? t.nlSending : t.nlSubmit}</button>
+                </form>
+                {nl.err && <p className="nl-err">{nl.err}</p>}
+                <p className="nl-fine">{t.nlConsent} <a href="/datenschutz" target="_blank" rel="noreferrer">{t.privacyLink}</a></p>
+              </>
+            )}
+          </div>
         </div>
       )}
 

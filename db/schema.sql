@@ -66,3 +66,24 @@ create table if not exists geocache (
   label text,
   hit   boolean default true
 );
+
+-- newsletter signups (no accounts; just an email + when)
+create table if not exists subscribers (
+  id             bigint generated always as identity primary key,
+  email          text unique not null,
+  source         text,               -- e.g. 'newsletter_popup'
+  lang           text,
+  created_at     timestamptz default now(),
+  unsubscribed_at timestamptz
+);
+
+-- durable, IP-hash-keyed rate limiting for anonymous writes (scan + submit).
+-- The old in-memory Map is useless on serverless (each invocation is isolated).
+create table if not exists rate_hits (
+  id       bigint generated always as identity primary key,
+  ip_hash  text not null,
+  action   text not null,            -- 'scan' | 'submit'
+  at       timestamptz default now()
+);
+create index if not exists rate_hits_lookup on rate_hits(action, ip_hash, at);
+create index if not exists rate_hits_at on rate_hits(at);

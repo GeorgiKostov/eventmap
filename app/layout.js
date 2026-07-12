@@ -1,5 +1,6 @@
 import './globals.css';
 import SWRegister from './sw-register.js';
+import Analytics from './analytics.js';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
 const TITLE = 'Okolo — Events rund um Linz';
@@ -53,7 +54,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="de">
-      <body>{children}<SWRegister /></body>
+      <body>{children}<SWRegister /><Analytics /></body>
     </html>
   );
 }

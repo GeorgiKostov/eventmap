@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { publishedEvents, upsertEvent, updateEventFields } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
+import { limit } from '../../../lib/ratelimit.js';
+import { spamReason } from '../../../lib/moderation.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,20 +11,11 @@ export async function GET() {
   return NextResponse.json({ events: await publishedEvents() });
 }
 
-// Anonymous event creation from the scan confirm screen.
-// Very light validation + naive in-memory rate limit (prototype-grade).
-const hits = new Map();
-function rateLimited(key) {
-  const now = Date.now();
-  const arr = (hits.get(key) || []).filter((t) => now - t < 3600_000);
-  arr.push(now);
-  hits.set(key, arr);
-  return arr.length > 10;
-}
-
 export async function POST(req) {
-  const ip = req.headers.get('x-forwarded-for') || 'local';
-  if (rateLimited(ip)) {
+  // Durable per-IP-hash rate limit (the old in-memory Map didn't survive
+  // serverless isolation). Anonymous submissions: 10/hour, 30/day.
+  const rl = await limit(req, 'submit', { perHour: 10, perDay: 30 });
+  if (rl) {
     return NextResponse.json({ error: 'Zu viele Einträge — bitte später wieder.' }, { status: 429 });
   }
   const body = await req.json();
@@ -30,6 +23,11 @@ export async function POST(req) {
   // Places are evergreen (no date); events still require starts_at.
   if (!body.title || (kind === 'event' && !body.starts_at)) {
     return NextResponse.json({ error: kind === 'place' ? 'Titel ist Pflicht.' : 'Titel und Datum sind Pflicht.' }, { status: 400 });
+  }
+  // Basic spam/abuse guard for anonymous content.
+  const spam = spamReason(body.title, body.description);
+  if (spam) {
+    return NextResponse.json({ error: 'Eintrag wurde als möglicher Spam abgelehnt.' }, { status: 422 });
   }
 
   let lat = body.lat, lng = body.lng, geo_precision = body.geo_precision || 'venue';

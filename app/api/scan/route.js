@@ -4,6 +4,7 @@ import path from 'path';
 import { extractFromImage } from '../../../lib/extract.js';
 import { publishedEvents } from '../../../lib/db.js';
 import { findDuplicate } from '../../../lib/dedup.js';
+import { limit } from '../../../lib/ratelimit.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -13,6 +14,15 @@ const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(process.cwd()
 const ALLOWED = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
 
 export async function POST(req) {
+  // Each scan calls an LLM ($$), so cap it hard: 6/hour + 20/day per IP hash,
+  // and a global 400/day circuit-breaker to bound worst-case cost/abuse.
+  const rl = await limit(req, 'scan', { perHour: 6, perDay: 20, globalPerDay: 400 });
+  if (rl) {
+    const msg = rl.scope === 'global'
+      ? 'Das Scan-Limit für heute ist erreicht — bitte morgen wieder.'
+      : 'Zu viele Scans — bitte in einer Stunde wieder.';
+    return NextResponse.json({ error: msg }, { status: 429 });
+  }
   const form = await req.formData();
   const file = form.get('image');
   if (!file || typeof file === 'string') {
