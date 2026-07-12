@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { addSubscriber } from '../../../lib/db.js';
 import { limit } from '../../../lib/ratelimit.js';
+import { notifyNewSubscriber } from '../../../lib/mail.js';
 
 export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,5 +16,6 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Bitte eine gültige E-Mail-Adresse eingeben.' }, { status: 400 });
   }
   const { inserted } = await addSubscriber(email, { source: 'newsletter_popup', lang: body.lang || null });
+  if (inserted) await notifyNewSubscriber(email, { lang: body.lang || null, source: 'newsletter_popup' });
   return NextResponse.json({ ok: true, inserted });
 }
