@@ -39,9 +39,12 @@
       "time_end": null,
       "venue": "Езеро Панчарево",
       "address_text": "Езеро Панчарево / до Национална гребна база „Средец“, кв. „Панчарево“, бул. „Самоковско шосе“ 223, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["music", "culture"],
+      "categories": [
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -61,9 +64,12 @@
       "time_end": null,
       "venue": "Езеро Панчарево",
       "address_text": "Езеро Панчарево / до Национална гребна база „Средец“, кв. „Панчарево“, бул. „Самоковско шосе“ 223, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["music", "culture"],
+      "categories": [
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -83,9 +89,12 @@
       "time_end": null,
       "venue": "Езеро Панчарево",
       "address_text": "Езеро Панчарево / до Национална гребна база „Средец“, кв. „Панчарево“, бул. „Самоковско шосе“ 223, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["music", "culture"],
+      "categories": [
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -105,9 +114,12 @@
       "time_end": null,
       "venue": "Площад \"Св. Александър Невски\"",
       "address_text": "Площад \"Св. Александър Невски\", 1000 София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["music", "culture"],
+      "categories": [
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -127,9 +139,12 @@
       "time_end": null,
       "venue": "Площад \"Св. Александър Невски\"",
       "address_text": "Площад \"Св. Александър Невски\", 1000 София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["music", "culture"],
+      "categories": [
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -149,9 +164,12 @@
       "time_end": null,
       "venue": "Площад \"Св. Александър Невски\"",
       "address_text": "Площад \"Св. Александър Невски\", 1000 София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["music", "culture"],
+      "categories": [
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -171,9 +189,12 @@
       "time_end": null,
       "venue": "Площад \"Св. Александър Невски\"",
       "address_text": "Площад \"Св. Александър Невски\", 1000 София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["music", "culture"],
+      "categories": [
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -193,9 +214,13 @@
       "time_end": null,
       "venue": "Площад \"Св. Александър Невски\"",
       "address_text": "Площад \"Св. Александър Невски\", София център, 1000 София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "music", "culture"],
+      "categories": [
+        "festival",
+        "music",
+        "culture"
+      ],
       "is_free": false,
       "age_min": null,
       "age_max": null,
@@ -215,9 +240,11 @@
       "time_end": null,
       "venue": "Национална галерия / Двореца",
       "address_text": "пл. „Княз Александър I“ №1, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["culture"],
+      "categories": [
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -237,9 +264,11 @@
       "time_end": null,
       "venue": "Национална галерия",
       "address_text": "София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["culture"],
+      "categories": [
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -259,9 +288,11 @@
       "time_end": null,
       "venue": "Художествена галерия „Дечко Узунов“",
       "address_text": "София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["culture"],
+      "categories": [
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -281,9 +312,12 @@
       "time_end": null,
       "venue": "Зала „България“ и други",
       "address_text": "София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "music"],
+      "categories": [
+        "festival",
+        "music"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -303,9 +337,13 @@
       "time_end": "13:00",
       "venue": "ОКИ ДК „ИСКЪР“",
       "address_text": "Северен вход на ОКИ ДК „ИСКЪР“, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["family", "workshop", "culture"],
+      "categories": [
+        "family",
+        "workshop",
+        "culture"
+      ],
       "is_free": true,
       "age_min": 5,
       "age_max": null,
@@ -325,9 +363,12 @@
       "time_end": null,
       "venue": "Президентство",
       "address_text": "София център, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "culture"],
+      "categories": [
+        "festival",
+        "culture"
+      ],
       "is_free": true,
       "age_min": null,
       "age_max": null,
@@ -347,9 +388,12 @@
       "time_end": null,
       "venue": "Хижа Момина скала, Витоша",
       "address_text": "Пред хижа „Момина скала“, Витоша, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["sport", "festival"],
+      "categories": [
+        "sport",
+        "festival"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -369,9 +413,12 @@
       "time_end": null,
       "venue": "Кремиковци, Доброславци, Желява, Железница и Кокаляне",
       "address_text": "Кремиковци, Доброславци, Желява, Железница, Кокаляне, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["family", "culture"],
+      "categories": [
+        "family",
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -391,9 +438,13 @@
       "time_end": null,
       "venue": "София",
       "address_text": "София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "music", "culture"],
+      "categories": [
+        "festival",
+        "music",
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -413,9 +464,11 @@
       "time_end": null,
       "venue": "Галерия \"Васка Емануилова\"",
       "address_text": "София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["culture"],
+      "categories": [
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -435,9 +488,13 @@
       "time_end": null,
       "venue": "Парк на Военна академия \"Г. С. Раковски\"",
       "address_text": "Парк на Военна академия, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "music", "culture"],
+      "categories": [
+        "festival",
+        "music",
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -457,9 +514,13 @@
       "time_end": null,
       "venue": "Открита сцена до езерото Панчарево",
       "address_text": "Езеро Панчарево, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "music", "culture"],
+      "categories": [
+        "festival",
+        "music",
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
@@ -479,9 +540,12 @@
       "time_end": null,
       "venue": "Банкя",
       "address_text": "Район Банкя, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "culture"],
+      "categories": [
+        "festival",
+        "culture"
+      ],
       "is_free": true,
       "age_min": null,
       "age_max": null,
@@ -501,9 +565,12 @@
       "time_end": null,
       "venue": "Различни локации в София и Витоша",
       "address_text": "София и Витоша",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["culture", "workshop"],
+      "categories": [
+        "culture",
+        "workshop"
+      ],
       "is_free": true,
       "age_min": null,
       "age_max": null,
@@ -523,9 +590,13 @@
       "time_end": null,
       "venue": "Детски отдел, Американски център, ТийнЛаб и др.",
       "address_text": "Централна библиотека и филиали, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["family", "culture", "workshop"],
+      "categories": [
+        "family",
+        "culture",
+        "workshop"
+      ],
       "is_free": true,
       "age_min": 3,
       "age_max": null,
@@ -545,9 +616,13 @@
       "time_end": null,
       "venue": "Парк край езерото в кв. Дружба",
       "address_text": "кв. Дружба, до езерото, София",
-      "town": "София",
+      "town": "Столична",
       "oblast": "София-град",
-      "categories": ["festival", "music", "culture"],
+      "categories": [
+        "festival",
+        "music",
+        "culture"
+      ],
       "is_free": null,
       "age_min": null,
       "age_max": null,
