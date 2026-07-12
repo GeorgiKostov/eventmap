@@ -603,7 +603,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 
 /* ================= locate-me control (standard map control, not an action FAB) ================= */
 .locate-btn {
-  position: absolute; right: 14px; bottom: calc(70px + env(safe-area-inset-bottom)); z-index: 14;
+  /* mobile: sit above the three-row filter chip bar (.m-bottombar) so the button
+     is not hidden behind it; desktop override below drops it to the map corner. */
+  position: absolute; right: 14px; bottom: calc(150px + env(safe-area-inset-bottom)); z-index: 14;
   width: 44px; height: 44px; border-radius: 50%;
   background: var(--panel); border: 1px solid var(--line); color: #5f6b68;
   display: grid; place-items: center;
