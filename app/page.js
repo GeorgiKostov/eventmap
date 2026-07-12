@@ -1016,6 +1016,7 @@ export default function Home() {
           photo_path: photoPath,
           ...coordsPatch,
         };
+    body.website = draft.website || ''; // honeypot — server rejects if filled
     try {
       const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const data = await res.json();
@@ -1527,6 +1528,17 @@ export default function Home() {
           <>
             {scanImg && <div className="preview" style={{ maxHeight: 120 }}><img src={scanImg} alt="" style={{ maxHeight: 120 }} /></div>}
             {dupNotice && <div className="dupnotice">ℹ️ {t.dupNotice}</div>}
+            {/* honeypot — invisible to humans, form-filling bots populate it */}
+            <input
+              type="text"
+              name="website"
+              value={draft.website || ''}
+              onChange={(e) => setDraft({ ...draft, website: e.target.value })}
+              className="hp-field"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+            />
             <div className="xfield">
               <div className="lab">{t.fTitle} {confChip(conf?.title)}</div>
               <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />

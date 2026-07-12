@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { publishedEvents, upsertEvent, updateEventFields } from '../../../lib/db.js';
+import { publishedEvents, upsertEvent, updateEventFields, viennaNow } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
 import { limit } from '../../../lib/ratelimit.js';
-import { spamReason } from '../../../lib/moderation.js';
+import { spamReason, sanitizeText, submissionProblem } from '../../../lib/moderation.js';
+import { notifyOperator } from '../../../lib/mail.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,16 +14,41 @@ export async function GET() {
 
 export async function POST(req) {
   // Durable per-IP-hash rate limit (the old in-memory Map didn't survive
-  // serverless isolation). Anonymous submissions: 10/hour, 30/day.
-  const rl = await limit(req, 'submit', { perHour: 10, perDay: 30 });
+  // serverless isolation). Anonymous submissions: 5/hour, 15/day per IP,
+  // 150/day across everyone (a flood of "valid" entries is itself abuse).
+  const rl = await limit(req, 'submit', { perHour: 5, perDay: 15, globalPerDay: 150 });
   if (rl) {
     return NextResponse.json({ error: 'Zu viele Einträge — bitte später wieder.' }, { status: 429 });
   }
-  const body = await req.json();
+  const raw = await req.json();
+  // Honeypot: a hidden "website" field humans never see. Bots that fill it get
+  // a fake success (no row written) so they don't adapt.
+  if (raw.website) return NextResponse.json({ ok: true, id: null });
+
+  // Sanitize every free-text field (strip tags/control chars) before anything
+  // else looks at it.
+  const body = {
+    ...raw,
+    title: sanitizeText(raw.title, 200),
+    description: sanitizeText(raw.description, 500),
+    venue: sanitizeText(raw.venue, 120),
+    address: sanitizeText(raw.address, 200),
+    town: sanitizeText(raw.town, 80),
+  };
   const kind = body.kind === 'place' ? 'place' : 'event';
   // Places are evergreen (no date); events still require starts_at.
   if (!body.title || (kind === 'event' && !body.starts_at)) {
     return NextResponse.json({ error: kind === 'place' ? 'Titel ist Pflicht.' : 'Titel und Datum sind Pflicht.' }, { status: 400 });
+  }
+  // Plausibility: date format + range (nothing far past/future), coords in Austria.
+  const problem = submissionProblem(body, kind, viennaNow().slice(0, 10));
+  if (problem) {
+    const msg = problem === 'coords_outside_austria'
+      ? 'Der Ort liegt außerhalb Österreichs.'
+      : problem.startsWith('date') || problem.startsWith('bad_date')
+        ? 'Bitte ein gültiges Datum (nicht vergangen, max. ~1 Jahr voraus) angeben.'
+        : 'Bitte einen aussagekräftigen Titel angeben.';
+    return NextResponse.json({ error: msg }, { status: 422 });
   }
   // Basic spam/abuse guard for anonymous content.
   const spam = spamReason(body.title, body.description);
@@ -87,5 +113,27 @@ export async function POST(req) {
     source_name: null,
     source_url: null,
   });
+
+  // Every community submission goes live immediately — so tell the operator,
+  // with a one-click remove link (see /api/admin/remove).
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
+  const removeUrl = process.env.ADMIN_TOKEN
+    ? `${base}/api/admin/remove?id=${res.id}&token=${process.env.ADMIN_TOKEN}`
+    : '(ADMIN_TOKEN nicht gesetzt — Eintrag in Supabase entfernen)';
+  await notifyOperator(
+    `Neuer Community-Eintrag: ${body.title}`,
+    [
+      `${kind === 'place' ? 'Ort' : 'Event'} von einem Nutzer veröffentlicht:`,
+      '',
+      `Titel: ${body.title}`,
+      kind === 'event' ? `Datum: ${body.starts_at}` : null,
+      `Ort: ${[body.venue, body.address, body.town].filter(Boolean).join(', ') || '—'}`,
+      body.description ? `Beschreibung: ${body.description}` : null,
+      `Quelle: ${body.photo_path ? 'Poster-Scan' : 'Formular'}`,
+      '',
+      `Ansehen: ${base}/event/${res.id}`,
+      `Entfernen: ${removeUrl}`,
+    ].filter(Boolean).join('\n')
+  );
   return NextResponse.json({ ok: true, id: res.id, updated: res.updated, lat, lng, geo_precision });
 }

@@ -179,6 +179,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .legalpage li { margin: 4px 0; }
 .legalpage .updated { margin-top: 36px; font-size: 12px; color: var(--muted); }
 
+/* honeypot: visually gone but present in the DOM for form-filling bots */
+.hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
 /* ================= newsletter popup ================= */
 .nl-scrim { position: fixed; inset: 0; z-index: 70; background: rgba(20, 26, 24, 0.45); display: grid; place-items: center; padding: 20px; }
 .nl-modal {
