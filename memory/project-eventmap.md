@@ -61,7 +61,15 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   them up so `npm run crawl` refreshes BG. **Seeded + registered to Supabase (2026-07-12):** 329 BG
   published events (Sofia deepened 23→50 off the visitsofia.bg / Столична община jevents calendar,
   which holds ~176 entries — LLM pulls a slice; no iCal export (403); dedicated jevents parser is the
-  real fix, see todo). ~31 vetted sources works=true
+  real fix, see todo). **2026-07-13 continue-crawl (batch 2):** 12 summer-hotspot deep crawls (Black
+  Sea coast Sozopol/Apollonia 51, Pomorie 50, Balchik, Nesebar; resorts Velingrad 61-from-PDF,
+  Bansko, Sandanski; + Gabrovo/Kazanlak/Pazardzhik/Kyustendil/Haskovo). **BG now ~979 distinct
+  events (1070 rows incl. 91 legit recurring dates) across 42 towns, 177 active recrawl sources
+  (76-source curated catalog).** Top: Burgas ~323 (real, gotoburgas aggregator), Varna 117,
+  Blagoevgrad 88, Stara Zagora 55, Sofia 75. OPEN ISSUES: (a) 197 events un-geocodable last seed =
+  Nominatim rate-limit, recover via re-seed after cooldown; (b) Kyustendil 16 events weak-linkback
+  (kyustendil.bg homepage); (c) Velingrad 61 from a PDF (medium confidence). Sofia labels unified
+  (София/Sofia→Столична, 80 DB rows). ~31 vetted sources works=true
   (65 single-event permalinks deactivated but on record), all country=BG. Fixed a latent bug: the
   AT/BG pipeline had made geocode.js/seed.mjs country-aware but NEVER crawl.mjs — recrawl geocoded
   BG addresses as AT. crawl.mjs now inherits src.country onto events (geocode + tag); seed.mjs no
