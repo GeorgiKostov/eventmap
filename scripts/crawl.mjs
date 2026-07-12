@@ -664,30 +664,36 @@ async function crawlSource(src, { force } = {}) {
 
   let ok = 0;
   for (const raw of events) {
-    if (!raw.title || !raw.date_start) continue;
-    const time = /^\d{2}:\d{2}$/.test(raw.time_start || '') ? raw.time_start : null;
-    const starts_at = `${raw.date_start}T${time || '09:00'}`;
-    let ends_at = raw.time_end && /^\d{2}:\d{2}$/.test(raw.time_end)
-      ? `${raw.date_end || raw.date_start}T${raw.time_end}` : null;
-    if (ends_at && ends_at <= starts_at) ends_at = null; // overnight/garbled end times
-    const ev = {
-      title: raw.title,
-      description: raw.description || null,
-      starts_at,
-      ends_at,
-      all_day: time ? 0 : 1,
-      venue: raw.venue, address: raw.address, town: raw.town || src.town,
-      categories: (raw.categories || []).filter((c) => CAT_EMOJI[c]),
-      is_free: raw.is_free, age_min: raw.age_min, age_max: raw.age_max, indoor: raw.indoor,
-      emoji: CAT_EMOJI[(raw.categories || [])[0]] || '📌',
-      src_kind: 'crawl',
-      source_name: src.name,
-      source_url: raw.source_url || src.url,
-    };
-    const geo = await geocodeEvent(ev);
-    if (!geo) continue;
-    await upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
-    ok++;
+    try {
+      if (!raw.title || !raw.date_start) continue;
+      const time = /^\d{2}:\d{2}$/.test(raw.time_start || '') ? raw.time_start : null;
+      const starts_at = `${raw.date_start}T${time || '09:00'}`;
+      let ends_at = raw.time_end && /^\d{2}:\d{2}$/.test(raw.time_end)
+        ? `${raw.date_end || raw.date_start}T${raw.time_end}` : null;
+      if (ends_at && ends_at <= starts_at) ends_at = null; // overnight/garbled end times
+      const ev = {
+        title: raw.title,
+        description: raw.description || null,
+        starts_at,
+        ends_at,
+        all_day: time ? 0 : 1,
+        venue: raw.venue, address: raw.address, town: raw.town || src.town,
+        categories: (raw.categories || []).filter((c) => CAT_EMOJI[c]),
+        is_free: raw.is_free, age_min: raw.age_min, age_max: raw.age_max, indoor: raw.indoor,
+        emoji: CAT_EMOJI[(raw.categories || [])[0]] || '📌',
+        src_kind: 'crawl',
+        source_name: src.name,
+        source_url: raw.source_url || src.url,
+      };
+      const geo = await geocodeEvent(ev);
+      if (!geo) continue;
+      await upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
+      ok++;
+    } catch (e) {
+      // One malformed event (bad types, unexpected DB constraint, etc.) must
+      // never take down the whole national batch — log and move to the next.
+      console.log(`  ! skip event "${raw.title || '(untitled)'}" (${src.name}): ${e.code || e.message}`);
+    }
   }
   console.log(`  ${ok}/${events.length} events upserted (route: ${route})`);
   await updateSourceMeta(src.id, { page_hash: hash, feed_kind: route });
@@ -748,10 +754,17 @@ async function main() {
   let total = 0;
   const tierCounts = { active: 0, slow: 0, dormant: 0, dead: 0 };
   await runHostPool(groups, async (src) => {
-    const { ok, tier } = await crawlSource(src, { force });
-    total += ok;
-    if (tier) tierCounts[tier] = (tierCounts[tier] || 0) + 1;
-    await markSourceCrawled(src.id);
+    // A crash anywhere in one source's processing (fetch, extraction, stats,
+    // an upsert that slipped past the per-event guard) must not abort the
+    // rest of the batch — log and move on to the next source.
+    try {
+      const { ok, tier } = await crawlSource(src, { force });
+      total += ok;
+      if (tier) tierCounts[tier] = (tierCounts[tier] || 0) + 1;
+      await markSourceCrawled(src.id);
+    } catch (e) {
+      console.log(`! skip source "${src.name}" (${src.url}): ${e.code || e.message}`);
+    }
   });
 
   const expired = await expireFinished();

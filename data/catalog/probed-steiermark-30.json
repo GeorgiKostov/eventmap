@@ -1,0 +1,359 @@
+{
+  "_meta": {
+    "region": "Steiermark",
+    "probed_at": "2026-07-12T13:39:10.287Z",
+    "count": 30,
+    "elapsed_ms": 30526,
+    "cms_distribution": {
+      "gem2go": 2,
+      "unknown": 12,
+      "other": 4,
+      "none": 11,
+      "ris": 1
+    },
+    "confidence_distribution": {
+      "high": 4,
+      "medium": 14,
+      "low": 12
+    },
+    "note": "Proposed registrations — NOT written to the DB. Review, then wire a --write path onto upsertSource() (which currently has no `region` param — see docs/design/data-pipeline.md §2/§11 gap)."
+  },
+  "proposed": [
+    {
+      "name": "Admont",
+      "region": "Steiermark",
+      "town": "Admont",
+      "url": "https://www.admont.at/Veranstaltungen",
+      "cms": "gem2go",
+      "confidence": "high",
+      "notes": [
+        "CMS fingerprint: veranstaltungcmsliste container"
+      ],
+      "homepage": "https://www.admont.at/"
+    },
+    {
+      "name": "Aflenz",
+      "region": "Steiermark",
+      "town": "Aflenz",
+      "url": "https://www.aflenz.gv.at/konzerte-und-veranstaltungen/",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.aflenz.gv.at/"
+    },
+    {
+      "name": "Aich (Steiermark)",
+      "region": "Steiermark",
+      "town": "Aich (Steiermark)",
+      "url": "https://www.aich.at/index.php/informatives/termine-veranstaltungen/month.calendar/2026/07/12/-.html",
+      "cms": "other",
+      "confidence": "medium",
+      "notes": [
+        "RSS/Atom feed link present"
+      ],
+      "homepage": "https://www.aich.at/"
+    },
+    {
+      "name": "Aigen im Ennstal",
+      "region": "Steiermark",
+      "town": "Aigen im Ennstal",
+      "url": "https://www.aigen.at/buergerservice/formulare/steiermaerkisches-veranstaltungsgesetz-2012",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.aigen.at/"
+    },
+    {
+      "name": "Albersdorf-Prebuch",
+      "region": "Steiermark",
+      "town": "Albersdorf-Prebuch",
+      "url": "https://www.albersdorf.at/Gemeinde/Veranstaltungen",
+      "cms": "gem2go",
+      "confidence": "high",
+      "notes": [
+        "CMS fingerprint: veranstaltungcmsliste container"
+      ],
+      "homepage": "https://www.albersdorf.at/"
+    },
+    {
+      "name": "Allerheiligen bei Wildon",
+      "region": "Steiermark",
+      "town": "Allerheiligen bei Wildon",
+      "url": "https://www.allerheiligen-wildon.at/gemeinde-verwaltung/kalender/",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.allerheiligen-wildon.at/"
+    },
+    {
+      "name": "Altaussee",
+      "region": "Steiermark",
+      "town": "Altaussee",
+      "url": "https://altaussee.at/kultur-veranstaltungen/",
+      "cms": "other",
+      "confidence": "high",
+      "notes": [
+        "iCal link present",
+        "RSS/Atom feed link present"
+      ],
+      "homepage": "https://altaussee.at/"
+    },
+    {
+      "name": "Altenmarkt bei Sankt Gallen",
+      "region": "Steiermark",
+      "town": "Altenmarkt bei Sankt Gallen",
+      "url": "https://www.istsuper.com/termine-veranstaltungen",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.altenmarkt-enns.at/"
+    },
+    {
+      "name": "Anger (Steiermark)",
+      "region": "Steiermark",
+      "town": "Anger (Steiermark)",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://www.anger.gv.at/"
+    },
+    {
+      "name": "Ardning",
+      "region": "Steiermark",
+      "town": "Ardning",
+      "url": "https://www.ardning.at/de/veranstaltungen/",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.ardning.at/"
+    },
+    {
+      "name": "Arnfels",
+      "region": "Steiermark",
+      "town": "Arnfels",
+      "url": "https://www.arnfels.gv.at/veranstaltungen/",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.arnfels.gv.at/"
+    },
+    {
+      "name": "Bad Aussee",
+      "region": "Steiermark",
+      "town": "Bad Aussee",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://www.badaussee.at/system/web/default.aspx"
+    },
+    {
+      "name": "Bad Blumau",
+      "region": "Steiermark",
+      "town": "Bad Blumau",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://nicsell.com/en/domain/bad-blumau-gemeinde.at"
+    },
+    {
+      "name": "Bad Gleichenberg",
+      "region": "Steiermark",
+      "town": "Bad Gleichenberg",
+      "url": "https://www.steiermark.com/de/Thermen-Vulkanland/Urlaub-planen/Veranstaltungen?community=841504",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.bad-gleichenberg.gv.at/"
+    },
+    {
+      "name": "Bad Loipersdorf",
+      "region": "Steiermark",
+      "town": "Bad Loipersdorf",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://gemeinde.loipersdorf.at/"
+    },
+    {
+      "name": "Bad Mitterndorf",
+      "region": "Steiermark",
+      "town": "Bad Mitterndorf",
+      "url": "https://gemeinde.bad-mitterndorf.at/veranstaltungen",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://gemeinde.bad-mitterndorf.at/"
+    },
+    {
+      "name": "Bad Radkersburg",
+      "region": "Steiermark",
+      "town": "Bad Radkersburg",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no working site found (tried 1: http://www.bad-radkersburg.gv.at/)"
+      ]
+    },
+    {
+      "name": "Bad Schwanberg",
+      "region": "Steiermark",
+      "town": "Bad Schwanberg",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no working site found (tried 1: https://www.schwanberg.gv.at/)"
+      ]
+    },
+    {
+      "name": "Bad Waltersdorf",
+      "region": "Steiermark",
+      "town": "Bad Waltersdorf",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no working site found (tried 1: https://www.bad-waltersdorf.gv.at/home/)"
+      ]
+    },
+    {
+      "name": "Birkfeld",
+      "region": "Steiermark",
+      "town": "Birkfeld",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no working site found (tried 1: https://birkfeld.at/)"
+      ]
+    },
+    {
+      "name": "Breitenau am Hochlantsch",
+      "region": "Steiermark",
+      "town": "Breitenau am Hochlantsch",
+      "url": "https://www.breitenau-hochlantsch.at/veranstaltung-anmelden",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.breitenau-hochlantsch.at/"
+    },
+    {
+      "name": "Bruck an der Mur",
+      "region": "Steiermark",
+      "town": "Bruck an der Mur",
+      "url": "https://citiesapps.com/cities/bruckmur/events",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.bruckmur.at/"
+    },
+    {
+      "name": "Buch-St. Magdalena",
+      "region": "Steiermark",
+      "town": "Buch-St. Magdalena",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://www.buch-stmagdalena.at/"
+    },
+    {
+      "name": "Burgau (Steiermark)",
+      "region": "Steiermark",
+      "town": "Burgau (Steiermark)",
+      "url": null,
+      "cms": "other",
+      "confidence": "low",
+      "notes": [
+        "iCal link present",
+        "RSS/Atom feed link present",
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://www.burgau.info/"
+    },
+    {
+      "name": "Bärnbach",
+      "region": "Steiermark",
+      "town": "Bärnbach",
+      "url": "https://www.baernbach.at/index.php/stadtgemeinde-baernbach/veranstaltungen-termine",
+      "cms": "other",
+      "confidence": "medium",
+      "notes": [
+        "RSS/Atom feed link present"
+      ],
+      "homepage": "https://www.baernbach.at/"
+    },
+    {
+      "name": "Dechantskirchen",
+      "region": "Steiermark",
+      "town": "Dechantskirchen",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://dechantskirchen.gv.at/"
+    },
+    {
+      "name": "Deutsch Goritz",
+      "region": "Steiermark",
+      "town": "Deutsch Goritz",
+      "url": null,
+      "cms": null,
+      "confidence": "low",
+      "notes": [
+        "no events-calendar page found on homepage or common paths"
+      ],
+      "homepage": "https://www.deutsch-goritz.at/"
+    },
+    {
+      "name": "Deutschfeistritz",
+      "region": "Steiermark",
+      "town": "Deutschfeistritz",
+      "url": "https://www.deutschfeistritz.gv.at/veranstaltungen/",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.deutschfeistritz.gv.at/"
+    },
+    {
+      "name": "Deutschlandsberg",
+      "region": "Steiermark",
+      "town": "Deutschlandsberg",
+      "url": "https://www.deutschlandsberg.at/system/web/veranstaltung.aspx?detailonr=225378696&sprache=1&menuonr=225283888",
+      "cms": "ris",
+      "confidence": "high",
+      "notes": [
+        "CMS fingerprint: system/web/*.aspx?menuonr= URL pattern",
+        "JSON-LD Event block present"
+      ],
+      "homepage": "https://www.deutschlandsberg.at/67-impressum"
+    },
+    {
+      "name": "Dobl-Zwaring",
+      "region": "Steiermark",
+      "town": "Dobl-Zwaring",
+      "url": "https://www.dobl-zwaring.gv.at/sites/veranstaltungskalender",
+      "cms": "unknown",
+      "confidence": "medium",
+      "notes": [],
+      "homepage": "https://www.dobl-zwaring.gv.at/"
+    }
+  ]
+}
