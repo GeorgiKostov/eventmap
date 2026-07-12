@@ -40,6 +40,10 @@ function normalizeEvent(raw) {
     age_min: Number.isInteger(raw.age_min) ? raw.age_min : null,
     age_max: Number.isInteger(raw.age_max) ? raw.age_max : null,
     indoor: raw.indoor ?? null,
+    // Source-extracted coordinates (miner read them off the page — map embed /
+    // JSON-LD geo). When present we trust them over geocoding; never fabricated.
+    lat: Number.isFinite(raw.lat) ? raw.lat : null,
+    lng: Number.isFinite(raw.lng) ? raw.lng : null,
     emoji: CAT_EMOJI[cats[0]] || '📌',
     src_kind: raw.src_kind || 'crawl',
     source_name: raw.source_name || null,
@@ -60,7 +64,10 @@ async function main() {
     for (const raw of data.events || []) {
       const ev = normalizeEvent(raw);
       if (!ev) { skipped++; continue; }
-      const geo = await geocodeEvent(ev);
+      // Prefer coordinates the miner extracted from the source; else geocode.
+      const geo = (ev.lat != null && ev.lng != null)
+        ? { lat: ev.lat, lng: ev.lng, geo_precision: 'venue' }
+        : await geocodeEvent(ev);
       if (!geo) { geoFail++; continue; }
       const res = await upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
       res.updated ? updated++ : ok++;

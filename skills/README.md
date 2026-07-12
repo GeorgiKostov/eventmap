@@ -6,6 +6,7 @@ relevant skill in a brief; check here before starting a task.
 
 | File | Used by | Purpose |
 |------|---------|---------|
+| `crawl-doctrine.md` | Any crawl (Grok/`crawl.mjs`/manual) | Enforced standard for every mining run — engine, hard rules, seed-compatible shape, validation |
 | `verification-loop.md` | Developer, Architect | Quality gate — build, run the flow, review the diff before "done" |
 | `git-workflow.md` | All (Architect runs it) | Branch/commit convention, safe-push guardrails |
 | `model-hierarchy.md` | Architect | Cost-optimized model routing — cheap subagents vs. escalate to Opus |

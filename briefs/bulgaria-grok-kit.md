@@ -47,7 +47,14 @@ Schema (array of objects):
 ### 3. events-bg-<batch>.json (e.g. events-bg-2026-07-12.json)
 Event records ready for ingest.
 
-**Exact shape** (array of objects):
+> **Ingest shape gotcha:** `scripts/seed.mjs` reads `data.source_registry` and `data.events`, so the
+> file it seeds from must be an **object** `{ source_registry, events }` — a bare array is silently
+> ignored (0 events). It also expects `description_short` (not `description`) and `address_text`
+> (not `address`). The `/crawl-bg` command emits the seed-ready object shape directly; use it rather
+> than hand-shaping a bare array. The per-event fields below are correct; just nest them under
+> `events` and rename those two fields.
+
+**Per-event fields** (each object inside `events`):
 ```json
 {
   "title": "string (Bulgarian Cyrillic)",
@@ -100,16 +107,18 @@ Event records ready for ingest.
 
 ## Ingest Commands (after Grok returns files)
 
+Preferred path: run `/crawl-bg` — it drives the Grok miner, validates the output, and prints the
+exact ingest commands. Manual equivalent (note: these are the scripts that actually exist):
+
 ```bash
-# 1. Review CMS allowlist in scripts/crawl.mjs or equivalent
-# 2. Register sources (review before bulk insert)
-node scripts/register-sources.js data/catalog/municipalities-bg.json
+# 1. Register town sources (dry run prints counts + samples; add --write to commit)
+node --env-file=.env.local scripts/register-probed.mjs --file data/catalog/probed-bg.json
 
-# 3. Seed events
-npm run seed -- --country=BG --batch=events-bg-2026-07-12.json
+# 2. Seed events — reads ALL data/mined/*.json (there is no --country/--batch flag;
+#    events are tagged BG by their own country field). Requires the object shape above.
+npm run seed
 
-# 4. Verify
-node scripts/verify-bg.js --per-oblast
+# 3. Verify — spot-check Bulgarian pins on the map (no dedicated verify-bg script yet)
 ```
 
 **Legal note**: Facts-with-linkback posture applies (Bulgaria is EU). Re-verify terms before any public launch.

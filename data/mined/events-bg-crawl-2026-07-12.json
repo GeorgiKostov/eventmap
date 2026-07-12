@@ -1,0 +1,345 @@
+{
+  "source_registry": [
+    {
+      "name": "Визит Чепеларе",
+      "url": "https://visitchepelare.bg/bg/",
+      "kind": "crawl",
+      "town": "Чепеларе",
+      "works": true,
+      "notes": "Home page lists 5 real upcoming 2026 events with dates and venues; cultural calendar and upcoming pages provide context and one detail page fetched"
+    },
+    {
+      "name": "Визит Чепеларе",
+      "url": "https://visitchepelare.bg/en/cultural-calendar",
+      "kind": "crawl",
+      "town": "Чепеларе",
+      "works": false,
+      "notes": "English cultural calendar page has only static intro text, no dated events listed in fetched content"
+    },
+    {
+      "name": "Визит Чепеларе",
+      "url": "https://visitchepelare.bg/bg/kulturen-kalendar",
+      "kind": "crawl",
+      "town": "Чепеларе",
+      "works": false,
+      "notes": "Bulgarian cultural calendar page has only static intro text, no dated events"
+    },
+    {
+      "name": "Визит Чепеларе",
+      "url": "https://visitchepelare.bg/bg/predstoyashti-sabitiya",
+      "kind": "crawl",
+      "town": "Чепеларе",
+      "works": false,
+      "notes": "Upcoming events page fetch returned primarily navigation; no event list extracted (possible JS rendering)"
+    },
+    {
+      "name": "Визит Чепеларе",
+      "url": "https://visitchepelare.bg/bg/predstoyashti-sabitiya/chepelare-shte-e-domakin-na-tridneven-ikonomicheski-festival",
+      "kind": "crawl",
+      "town": "Чепеларе",
+      "works": true,
+      "notes": "Detail page for Ex Ante Fest with dates, venue, free entry confirmation"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/en/events-calendar",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": true,
+      "notes": "Events calendar lists multi-day exhibitions and single-day events with 2026 dates overlapping the target window"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": true,
+      "notes": "Bulgarian home page lists specific daily events for 12+ July 2026 with titles and categories"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/календар-на-събитията/cat.listevents/2026/07/12/-",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": true,
+      "notes": "Calendar listing page for July 2026; confirms ongoing exhibitions and daily events"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/15/24778/-/весела-ваканция-безплатни-летни-занимания-на-открито-за-деца-над-5-години?Itemid=330",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": true,
+      "notes": "Detail page for free summer kids activities with schedule, location and is_free confirmation"
+    },
+    {
+      "name": "Визит Пловдив",
+      "url": "https://www.visitplovdiv.com/en/events",
+      "kind": "crawl",
+      "town": "Пловдив",
+      "works": true,
+      "notes": "Event listing pages fetched; individual event pages show dates outside the 2026-07-12 to 2026-09-10 window (e.g. December)"
+    },
+    {
+      "name": "Визит Пловдив",
+      "url": "https://www.visitplovdiv.com/bg/events",
+      "kind": "crawl",
+      "town": "Пловдив",
+      "works": true,
+      "notes": "Bulgarian events listing; same as English, no target window matches"
+    },
+    {
+      "name": "Визит Пловдив",
+      "url": "https://www.visitplovdiv.com/en/node/15949",
+      "kind": "crawl",
+      "town": "Пловдив",
+      "works": true,
+      "notes": "Sample event detail (Michele Morrone) dated December 2025, outside window"
+    },
+    {
+      "name": "Визит Бургас",
+      "url": "https://www.burgas.bg/en/events",
+      "kind": "crawl",
+      "town": "Бургас",
+      "works": false,
+      "notes": "Fetch failed to retrieve page content"
+    },
+    {
+      "name": "Визит Бургас",
+      "url": "https://www.burgas.bg/bg/",
+      "kind": "crawl",
+      "town": "Бургас",
+      "works": false,
+      "notes": "Bulgarian root fetch failed to retrieve page content"
+    },
+    {
+      "name": "Визит Бургас",
+      "url": "https://www.burgas.bg/en/",
+      "kind": "crawl",
+      "town": "Бургас",
+      "works": false,
+      "notes": "English root fetch failed to retrieve page content"
+    },
+    {
+      "name": "Столична община",
+      "url": "https://www.sofia.bg",
+      "kind": "crawl",
+      "town": "Столична",
+      "works": false,
+      "notes": "Main municipal site root has limited event listings; primary calendar is on visitsofia.bg"
+    }
+  ],
+  "failed_urls": [
+    "https://www.burgas.bg/en/events (fetch failed to retrieve content)",
+    "https://www.burgas.bg/bg/ (fetch failed to retrieve content)",
+    "https://www.burgas.bg/en/ (fetch failed to retrieve content)",
+    "https://visitchepelare.bg/en/cultural-calendar (no specific dated events; only intro text)",
+    "https://visitchepelare.bg/bg/predstoyashti-sabitiya (no event list extracted from fetch; possible dynamic content)",
+    "https://visitchepelare.bg/bg/kulturen-kalendar (no specific dated events; only intro text)"
+  ],
+  "events": [
+    {
+      "title": "Пампорово Байк Фест 2026",
+      "description_short": "Велосипеден фестивал в Пампорово с надпревари и съпътстващи събития на открито.",
+      "date_start": "2026-07-16",
+      "time_start": null,
+      "date_end": "2026-07-19",
+      "time_end": null,
+      "venue": "Пампорово",
+      "address_text": null,
+      "town": "Чепеларе",
+      "oblast": "Смолян",
+      "categories": [
+        "sport",
+        "festival"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": null,
+      "source_url": "https://visitchepelare.bg/bg/",
+      "source_name": "Визит Чепеларе",
+      "country": "BG"
+    },
+    {
+      "title": "Ex Ante Fest 2026",
+      "description_short": "Тридневен икономически и образователен фестивал с фокус върху математиката и Кан Академия в градския парк.",
+      "date_start": "2026-07-24",
+      "time_start": "10:30",
+      "date_end": "2026-07-26",
+      "time_end": null,
+      "venue": "Градски парк",
+      "address_text": "Градски парк, Чепеларе",
+      "town": "Чепеларе",
+      "oblast": "Смолян",
+      "categories": [
+        "festival",
+        "workshop"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": null,
+      "source_url": "https://visitchepelare.bg/bg/predstoyashti-sabitiya/chepelare-shte-e-domakin-na-tridneven-ikonomicheski-festival",
+      "source_name": "Визит Чепеларе",
+      "country": "BG"
+    },
+    {
+      "title": "Тука е така Фест",
+      "description_short": "Младежки фестивал с разнообразна програма в градския парк на Чепеларе.",
+      "date_start": "2026-07-31",
+      "time_start": null,
+      "date_end": "2026-08-02",
+      "time_end": null,
+      "venue": "Градски парк",
+      "address_text": "Градски парк, Чепеларе",
+      "town": "Чепеларе",
+      "oblast": "Смолян",
+      "categories": [
+        "festival"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": null,
+      "source_url": "https://visitchepelare.bg/bg/",
+      "source_name": "Визит Чепеларе",
+      "country": "BG"
+    },
+    {
+      "title": "Green Heart Half Ultra Chepelare",
+      "description_short": "Състезание по бягане от българската серия Half Ultra Challenge на площад Олимпийски.",
+      "date_start": "2026-08-01",
+      "time_start": null,
+      "date_end": null,
+      "time_end": null,
+      "venue": "Площад „Олимпийски“",
+      "address_text": "Площад „Олимпийски“, Чепеларе",
+      "town": "Чепеларе",
+      "oblast": "Смолян",
+      "categories": [
+        "sport"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": null,
+      "source_url": "https://visitchepelare.bg/bg/",
+      "source_name": "Визит Чепеларе",
+      "country": "BG"
+    },
+    {
+      "title": "Официална смяна на караула пред Президентството",
+      "description_short": "Церемониална смяна на караула пред Президентството по случай национални празници.",
+      "date_start": "2026-07-12",
+      "time_start": "12:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Пред Президентството",
+      "address_text": null,
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": false,
+      "source_url": "https://visitsofia.bg/en/events-calendar",
+      "source_name": "Визит София",
+      "country": "BG"
+    },
+    {
+      "title": "Софийски фестивал на изкуствата и музиката: Музикални пейзажи",
+      "description_short": "Концерт на Софийската филхармония с международни диригенти и солист в България Концертна зала.",
+      "date_start": "2026-07-12",
+      "time_start": null,
+      "date_end": null,
+      "time_end": null,
+      "venue": "България Концертна зала",
+      "address_text": null,
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "music",
+        "festival"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": null,
+      "source_url": "https://visitsofia.bg/en/events-calendar",
+      "source_name": "Визит София",
+      "country": "BG"
+    },
+    {
+      "title": "ВЕСЕЛА ВАКАНЦИЯ - безплатни летни занимания на открито за деца над 5 години",
+      "description_short": "Безплатни летни занимания с театър, танци, изкуство и творчески ателиета пред ОКИ ДК Искър.",
+      "date_start": "2026-07-13",
+      "time_start": "11:00",
+      "date_end": "2026-08-14",
+      "time_end": null,
+      "venue": "пред северен вход на ОКИ ДК „ИСКЪР“",
+      "address_text": "пред северен вход на ОКИ ДК „ИСКЪР“, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "family",
+        "workshop"
+      ],
+      "is_free": true,
+      "age_min": 5,
+      "age_max": null,
+      "indoor": false,
+      "source_url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/15/24778/-/весела-ваканция-безплатни-летни-занимания-на-открито-за-деца-над-5-години?Itemid=330",
+      "source_name": "Визит София",
+      "country": "BG"
+    },
+    {
+      "title": "LIKA YANKO - Пътуване към образа",
+      "description_short": "Изложба с ранни творби на Лика Янко във фокус в Националната галерия - Двореца.",
+      "date_start": "2026-04-29",
+      "time_start": null,
+      "date_end": "2026-09-05",
+      "time_end": null,
+      "venue": "Национална галерия / Двореца",
+      "address_text": null,
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "culture"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "source_url": "https://visitsofia.bg/en/events-calendar",
+      "source_name": "Визит София",
+      "country": "BG"
+    },
+    {
+      "title": "REFORMS: Creative Design Laboratory",
+      "description_short": "Изложба с проекти на студенти от Националната художествена академия в партньорство с IKEA България.",
+      "date_start": "2026-06-10",
+      "time_start": null,
+      "date_end": "2026-07-26",
+      "time_end": null,
+      "venue": "Национална художествена академия",
+      "address_text": null,
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "culture",
+        "workshop"
+      ],
+      "is_free": null,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "source_url": "https://visitsofia.bg/en/events-calendar",
+      "source_name": "Визит София",
+      "country": "BG"
+    }
+  ]
+}
