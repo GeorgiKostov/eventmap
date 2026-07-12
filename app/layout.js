@@ -1,4 +1,5 @@
 import './globals.css';
+import SWRegister from './sw-register.js';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
 const TITLE = 'Okolo — Events rund um Linz';
@@ -15,6 +16,18 @@ export const metadata = {
   applicationName: 'Okolo',
   keywords: ['Events', 'Linz', 'Oberösterreich', 'Familie', 'Veranstaltungen', 'Karte', 'Umkreis'],
   alternates: { canonical: '/' },
+  manifest: '/manifest.webmanifest',
+  // iOS "Add to Home Screen" → launch standalone with the Okolo name + status bar.
+  appleWebApp: {
+    capable: true,
+    title: 'Okolo',
+    statusBarStyle: 'default',
+  },
+  // Next emits the modern `mobile-web-app-capable`; add the legacy Apple tag too
+  // so older iOS Safari also launches Okolo full-screen from the home screen.
+  other: {
+    'apple-mobile-web-app-capable': 'yes',
+  },
   openGraph: {
     type: 'website',
     locale: 'de_AT',
@@ -40,7 +53,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="de">
-      <body>{children}</body>
+      <body>{children}<SWRegister /></body>
     </html>
   );
 }
