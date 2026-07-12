@@ -1,0 +1,30 @@
+{
+  "_meta": {
+    "generated": "2026-07-12",
+    "purpose": "Stub for the complete official municipality (община) list for Bulgaria, for deterministic source discovery — mirrors the shape of data/catalog/municipalities-at.json. NOT populated yet: this file only carries the header/shape + a couple of hand-filled example rows so the ingest scripts (register-probed.mjs-equivalent, seed.mjs) have something to validate against. Grok fills in all 265 rows per docs/playbooks/country-mining-playbook.md + briefs/bulgaria-grok-kit.md.",
+    "official_source": "National Statistical Institute (NSI) of Bulgaria — 'Administrative-territorial and territorial division of the Republic of Bulgaria', as of 31 December 2025: https://www.nsi.bg/en/press-release/administrative-territorial-and-territorial-division-of-the-republic-of-bulgaria-9010",
+    "official_total_municipalities": 265,
+    "official_total_districts": 28,
+    "note_on_count": "265 общини (municipalities) grouped into 28 области (districts/oblasts), which in turn aggregate into 6 NUTS-2 statistical regions. 'region' in each row below should be the област (district), matching the district/region tier used throughout this catalog and in sources.region.",
+    "total_municipalities": 2,
+    "gap": 263,
+    "row_shape": {
+      "name": "string — official Bulgarian name (Cyrillic, as published by NSI/the municipality itself — never transliterate)",
+      "region": "string — област (district), e.g. 'Пловдив' | 'София-град' | 'Смолян'",
+      "website": "string|null — official municipality (община) website if known, else null (prober guesses canonical patterns)",
+      "population_tier": "optional, if useful for prioritization — not required"
+    }
+  },
+  "municipalities": [
+    {
+      "name": "Столична община",
+      "region": "София-град",
+      "website": "https://www.sofia.bg"
+    },
+    {
+      "name": "Община Пловдив",
+      "region": "Пловдив",
+      "website": "https://www.plovdiv.bg"
+    }
+  ]
+}

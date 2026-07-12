@@ -12,6 +12,7 @@ create table if not exists sources (
   last_crawled  timestamptz,
   cms           text,               -- ris | gem2go | other | unknown | null (not yet classified)
   region        text,               -- Bundesland, e.g. 'Oberösterreich' | 'Salzburg' | 'Wien' ...
+  country       text not null default 'AT', -- ISO 3166-1 alpha-2, e.g. 'AT' | 'BG'
   discovered_at timestamptz default now(),
   page_hash     text,               -- sha256 of stripped page text; unchanged → skip extraction
   feed_kind     text,               -- jsonld | ical | rss | gem2go | llm | null (which route won last crawl)
@@ -38,6 +39,7 @@ create table if not exists events (
   venue         text,
   address       text,
   town          text,
+  country       text not null default 'AT', -- ISO 3166-1 alpha-2; drives timezone + geocode bounds
   categories    text[] not null default '{}',
   is_free       boolean,
   age_min       int,

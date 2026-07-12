@@ -34,6 +34,7 @@ function normalizeEvent(raw) {
     venue: raw.venue || null,
     address: raw.address_text || raw.address || null,
     town: raw.town || null,
+    country: raw.country || 'AT',
     categories: cats.length ? cats : ['other'],
     is_free: raw.is_free ?? null,
     age_min: Number.isInteger(raw.age_min) ? raw.age_min : null,
