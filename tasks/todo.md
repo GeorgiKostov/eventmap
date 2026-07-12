@@ -51,6 +51,11 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       picking on the MAIN map (two-way address↔map, reverse geocode on settle, PinDropPicker + locMode
       toggle removed from form); menu triplet → one Add item. Also answers the FB-channel item below
       for the organizer-submission path.
+- [ ] **Sofia jevents parser** (2026-07-12): visitsofia.bg (Столична община) runs a Joomla *jevents*
+      calendar listing ~176 events; LLM crawl only pulls a slice per pass and no iCal export exists
+      (403). Write a dedicated parser (enumerate `component/jevents/month.calendar/YYYY/MM/..` →
+      `icalrepeat.detail` links → detail pages) like the GEM2GO one, cms-gated in crawl.mjs, to pull
+      the full Sofia calendar reliably on every recrawl. Same pattern reusable for other jevents BG sites.
 - [ ] **Bulgaria Facebook-events channel** (George 2026-07-12): BG events live heavily on FB, which
       the municipal crawler misses — see memory `bg-facebook-events`. Evaluate Graph API / organizer-
       submission / manual Page seeding (NOT scraping); keep facts+linkback. Do before judging BG coverage.
