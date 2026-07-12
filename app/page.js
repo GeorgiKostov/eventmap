@@ -530,6 +530,7 @@ export default function Home() {
   const [detailFull, setDetailFull] = useState(false);
   const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
   const [nl, setNl] = useState({ open: false, email: '', busy: false, done: false, err: '' });
+  const [advertiseOpen, setAdvertiseOpen] = useState(false);
   const [toast, setToast] = useState('');
   const toastT = useRef(null);
 
@@ -1376,6 +1377,9 @@ export default function Home() {
                 <button className="menuitem" onClick={() => { setMenuOpen(false); setNl({ open: true, email: '', busy: false, done: false, err: '' }); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>
+                <button className="menuitem" onClick={() => { setMenuOpen(false); setAdvertiseOpen(true); }}>
+                  <span className="ic">📣</span>{t.advertise}
+                </button>
                 <div className="language-picker">
                   <div className="language-label"><span className="ic">🌐</span>{t.language}</div>
                   <div className="language-options" role="radiogroup" aria-label={t.language}>
@@ -2213,6 +2217,24 @@ export default function Home() {
                 <p className="nl-fine">{t.nlConsent} <a href="/datenschutz" target="_blank" rel="noreferrer">{t.privacyLink}</a></p>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {advertiseOpen && (
+        <div className="nl-scrim" onClick={() => setAdvertiseOpen(false)}>
+          <div className="nl-modal advertise-modal" role="dialog" aria-modal="true" aria-labelledby="advertise-title" onClick={(e) => e.stopPropagation()}>
+            <button className="nl-close" onClick={() => setAdvertiseOpen(false)} aria-label={t.close}><X size={16} weight="bold" /></button>
+            <div className="nl-icon">📣</div>
+            <h3 id="advertise-title">{t.adTitle}</h3>
+            <p className="nl-blurb">{t.adBlurb}</p>
+            <div className="ad-benefits">
+              <p><span aria-hidden="true">✦</span>{t.adBenefitVisual}</p>
+              <p><span aria-hidden="true">↑</span>{t.adBenefitRanking}</p>
+            </div>
+            <p className="ad-disclosure">{t.adDisclosure}</p>
+            <a className="nl-submit ad-contact" href={`mailto:hello@okolo.events?subject=${encodeURIComponent(t.adEmailSubject)}`}>{t.adContact}</a>
+            <p className="nl-fine">{t.adPartnerships}</p>
           </div>
         </div>
       )}

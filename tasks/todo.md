@@ -178,6 +178,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] **Anti-spam/scam filters** for user-contributed events (basic heuristics + review queue)
       — prerequisite for opening submissions.
 - [ ] **Business tier**: paid event highlighting (special pin visuals, ranked-first placement).
+      Advertising/partnership enquiry modal is shipped; actual boosts still need per-placement
+      “Anzeige/Sponsored” labels, payer identity, ranking disclosure and advertiser terms.
 - [ ] **Newsletter**: "nice family events in your area this weekend" digest by location; advertiser
       slots (sponsored top placement) as the monetization hook.
 - [ ] More extraction fields: ticket links, prices, organizer, recurring schedules, opening hours.

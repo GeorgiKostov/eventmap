@@ -10,6 +10,10 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
 ## Where things stand (2026-07-12 late — AUSTRIA NATIONAL)
+- **Advertising intake:** the account menu now offers a localized Advertising & partnerships
+  enquiry window with a `hello@okolo.events` quote CTA. It promises clearly labelled paid
+  prominence only; the actual business-tier ranking/visual treatment remains unbuilt and legally
+  gated on per-listing ad labels, payer identity, ranking disclosure and advertiser terms.
 - **Unified contribution + series map shipped:** one Add FAB accepts poster/photo, pasted image,
   public URL, or manual entry; URL extraction cascades JSON-LD → OG → provider-routed AI with SSRF
   guards and screenshot fallback. Event|Place shares one confirm form; address autocomplete and the

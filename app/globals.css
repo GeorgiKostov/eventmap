@@ -206,6 +206,15 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .nl-done { margin: 8px 0 6px; font-size: 15px; font-weight: 650; color: var(--good); }
 .nl-fine { margin: 14px 0 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
 .nl-fine a { color: var(--accent); text-decoration: underline; }
+.advertise-modal { max-width: 390px; }
+.ad-benefits { display: grid; gap: 8px; margin: 16px 0 12px; text-align: left; }
+.ad-benefits p {
+  display: flex; align-items: flex-start; gap: 9px; margin: 0; padding: 10px 12px;
+  border-radius: 12px; background: var(--panel2); font-size: 12.5px; line-height: 1.45; color: var(--ink);
+}
+.ad-benefits span { flex: 0 0 18px; color: var(--accent); font-size: 15px; font-weight: 800; text-align: center; }
+.ad-disclosure { margin: 0 0 16px; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+.ad-contact { display: block; text-decoration: none; }
 .dp-anchor { position: relative; }
 .dp-float { position: absolute; top: 42px; left: 0; z-index: 50; }
 
