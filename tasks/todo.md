@@ -44,6 +44,11 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Now / next — Austria build-out (George 2026-07-11: "build for Austria, politely by design")
+- [x] **Mobile quick-preview relayout** (2026-07-12, branch claude/mobile-event-preview-layout):
+      moved the selected event/place preview from a truncated bottom mini-card to a card docked
+      under the search bar — full wrapping title, time/status, venue+distance, 2-line short
+      description, caret icon to expand (was "learn more" text); bottom filter bar stays visible;
+      mobile flyTo re-padded (top 200 / bottom 150) so the pin sits between card and filters.
 - [x] **EN/DE/BG localization** (2026-07-12): proper language picker; BG UI, legal, metadata,
       standalone event pages, and API errors; first visit uses IP country (BG→BG, AT/DE→DE,
       elsewhere→EN) while a manual choice persists and always wins.
