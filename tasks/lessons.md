@@ -2,6 +2,21 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-12 — SSRF IP-pinning: node's `lookup` callback has two call forms; and `undici` isn't importable
+
+Hardening extract-url against DNS-rebinding, I pinned the connection IP via the
+node http/https `lookup` option. Two traps, both caught by actually driving the
+route (not just building): (1) `import { Agent } from 'undici'` fails to bundle —
+undici backs global fetch but isn't an importable module without adding the dep;
+use node `http`/`https` built-ins instead, which accept `lookup` and keep Host/SNI
+correct. (2) node calls `lookup(host, opts, cb)` as **either** `cb(null, address,
+family)` **or**, when `opts.all` is set (https/tls does), `cb(null, [{address,
+family}])`. A callback that only handles the scalar form throws "Invalid IP
+address: undefined" and every fetch fails — the error paths (bad URL, blocked)
+still passed, so a build-only check would have shipped a totally broken happy
+path. **Lesson:** support both `lookup` callback shapes, and for any route that
+makes outbound requests, smoke-test a real success, not just the guard/error branches.
+
 ## 2026-07-12 — Don't recompute a map layer's data on every gesture frame
 
 Fixing the cluster↔pin zoom handoff, the first cut synced the viewport (and so

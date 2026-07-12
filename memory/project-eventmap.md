@@ -9,6 +9,22 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-12 latest — review-fix pass)
+- **Reviewed tonight's commits + fixed everything found (5 commits efa8ef6, 4c485af,
+  790eaa7, d2e0b54, dcf4bca).** Highlights: map cluster↔pin zoom handoff no longer drifts/flickers
+  (cross-fade + hysteresis + marker set frozen mid-gesture, re-culled on moveend only — the WebGL
+  map can't render in the in-app preview browser, so map QA must be done in a real browser).
+  Newsletter now has proper **double opt-in** (token + /api/subscribe/confirm + /unsubscribe routes +
+  confirmation mail via existing Migadu SMTP; migration applied to Supabase; full lifecycle verified
+  live) and an honest DE/EN/BG privacy policy. extract-url: fixed a Vienna-time UTC-millis bug, pinned
+  the SSRF connection IP (node http/https `lookup`, no undici dep) to close DNS-rebinding, listing-page
+  guard, image/rate-limit fixes. Big-city series now split by venue (multi-venue events no longer hide
+  behind one pin). All committed to main; build + 6 map-groups tests green.
+- **Growth plan delivered** (users / advertisers / partners) with Austria pricing benchmarks —
+  anchor: promoted pin €20–50/event/wk, newsletter slot €50–150, category sponsorship €150–400/mo;
+  best partner move = Linztermine eventExport XML (CC-BY 4.0, free-for-linkback) + OÖ Familienkarte
+  distribution. Aligns with briefs/outreach-emails-de.md (George sends).
+
 ## Where things stand (2026-07-12 late — AUSTRIA NATIONAL)
 - **Advertising intake:** the account menu now offers a localized Advertising & partnerships
   enquiry window with a `hello@okolo.events` quote CTA. It promises clearly labelled paid
