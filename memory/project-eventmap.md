@@ -126,7 +126,7 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   seeded (museum 287 / park 157 / pool+aquapark 124 / zoo 67 / climbing 25). Research (docs/research/
   bg-event-sources.md): NO clean licensed BG feed exists, NO reusable open-source project (only a
   cinema scraper) — confirms crawl-first thesis; clubcheta/sofia.plays.bg/programata.bg are the
-  family unlocks. Reusable Grok brief: briefs/bg-family-kids-crawl.md (programata.bg kids = TODO).
+  family unlocks. Reusable Grok brief: briefs/bg-family-kids-crawl.md (programata.bg kids done 2026-07-13: 10 events extracted from articles across Столична/Пловдив/Стара Загора; kids.programata.bg blocked, facts+linkback, own Cyrillic descriptions, ages where stated).
   Sofia deepened 75→121 via 3 parallel clusters (visitsofia jevents calendar + state venues
   NDK/Opera/Nat.Theatre/Philharmonic + galleries/culture). The jump 1070→1637 = a **full `npm run
   crawl` over the 191 registered BG sources ran (last_crawled 2026-07-12 23:38) and pulled events

@@ -15,7 +15,7 @@ with the one field that matters most for a families-first map: **age ranges**.
 |---|---|---|
 | `clubcheta.com` | Kids-events calendar, ~6 cities, structured (date/time, age, venue, category) | ✅ done (99 events) — re-run to refresh |
 | `sofia.plays.bg` ("София играе") | Sofia kids events **+ family places** (soft-play, museums), age bands, map | ✅ done (15 events) — go deeper; capture places too |
-| `programata.bg` (Kids/Деца section, 8 cities) | Broad city culture guide, kids filter | ⬜ TODO — footer is "all rights reserved" → **facts + linkback only**, never copy prose |
+| `programata.bg` (Kids/Деца section, 8 cities) | Broad city culture guide, kids filter | ✅ done (10 events from accessible articles — Sofia, Plovdiv, Стара Загора; kids.programata.bg subdomain blocked by protection) |
 | `roditeli.bg`, `az-deteto.bg`, детски театри (e.g. `puppet-*`, куклени театри) | Parent portals / kids theatre programmes | ⬜ discover + crawl |
 | City "какво да правим с децата" listings | Per-city kids-activity roundups | ⬜ discover via web_search |
 
