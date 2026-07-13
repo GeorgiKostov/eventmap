@@ -102,6 +102,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] **Bulgaria Facebook-events channel** (George 2026-07-12): BG events live heavily on FB, which
       the municipal crawler misses — see memory `bg-facebook-events`. Evaluate Graph API / organizer-
       submission / manual Page seeding (NOT scraping); keep facts+linkback. Do before judging BG coverage.
+- [x] **Abuse filter mistuned for scans + BG** (2026-07-13): substring blocklist ('sex'→"Sextet"),
+      Cyrillic-blind caps/keyword checks, and phone/caps/link heuristics were rejecting legit scanned
+      FB posters; geo check still Austria-only. Now token-boundary (Unicode) blocklist, script-agnostic
+      caps, heuristics skipped for AI-vetted scan/link submissions, inServiceArea covers AT+BG. lib/moderation.js.
 - [x] **Bulgaria deep crawl + recrawl sources** (2026-07-12): 322 events / 13 municipalities seeded;
       36 fingerprinted listing sources in data/catalog/probed-bg.json, 26 registered (country=BG) so
       `npm run crawl` refreshes BG like AT. Tooling: /crawl-bg, scripts/build-bg-sources.mjs, skills/crawl-doctrine.md.
