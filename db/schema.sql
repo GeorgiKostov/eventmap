@@ -40,6 +40,9 @@ create table if not exists events (
   address       text,
   town          text,
   country       text not null default 'AT', -- ISO 3166-1 alpha-2; drives timezone + geocode bounds
+  tz            text,              -- IANA zone for THIS event's coords (lib/geocode.js tzForEvent);
+                                    -- multi-timezone countries (US, RU, CA, AU, BR...) need per-row
+                                    -- zone, not a single per-country one — see expireFinished()
   categories    text[] not null default '{}',
   is_free       boolean,
   age_min       int,
