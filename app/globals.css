@@ -444,6 +444,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   padding: 8px 6px calc(10px + env(safe-area-inset-bottom));
   background: linear-gradient(transparent, rgba(242, 242, 238, 0.6) 30%, rgba(242, 242, 238, 0.95));
 }
+/* The Add FAB (52px + 14px right) floats at the height of the top row, so reserve
+   a gutter there and let the full-width kind toggle notch cleanly around it. */
+.m-bottombar .chiprow:first-child { padding-right: 72px; }
 @media (max-width: 899px) {
   .map-legend { left: 10px; bottom: calc(164px + env(safe-area-inset-bottom)); }
 }
