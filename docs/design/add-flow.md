@@ -4,6 +4,11 @@
 can't be crawled (API dead, scraping ToS/anti-bot), so paste-a-link + scan + manual become one
 first-class contribute funnel. No paid scraping services — free-tier fetching only.*
 
+*2026-07-13 — pasted **public** FB event links now resolve directly (no scan fallback needed):
+`extract-url` requests FB hosts as the `facebookexternalhit` link-preview crawler, which beats FB's
+UA-gated login wall and returns full og metadata. Private/group-restricted events still fall back to
+the poster-scan nudge. See memory `bg-facebook-events`.*
+
 ## Goal
 
 Scan / link / manual / place are one add-flow with different inputs. One **"+ Add" FAB** on the
