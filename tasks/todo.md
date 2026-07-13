@@ -127,9 +127,19 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       VHS Wien robots.txt names ClaudeBot in an AI-bot blocklist — we honor named-AI blocks even
       though UmkreisBot isn't literally listed (George to confirm this policy). wien.info JS-only;
       ZOOM redirect-broken; Kinderfreunde/Wien Museum = follow-up candidates.
-- [ ] **Steiermark + Kärnten depth**: thin (457/124 events) — CMS landscape not GEM2GO-dominated;
-      identify their dominant CMS from the probe's 'unknown' fingerprints, add a parser or route
-      the residue through the LLM waterfall in a targeted batch.
+- [x] **National coverage finalized 2026-07-13**: 22,298 events / 1,418 towns / 1,519 working
+      sources, all 9 Länder (NÖ 7.6k / OÖ 4.4k / Stmk 2.6k / T 2.0k / S 1.4k / V 1.1k / W 958 /
+      B 490 / K 154). Big cities filled via per-city aggregators (Vienna treatment): Wien 958,
+      Graz 242, Salzburg 218, Wr.Neustadt 201. Gap-fill added 453 municipal sources (Stmk/Bgld/Ktn
+      lifted). 16 stray null-region sources backfilled from catalog. Single-crawl rule enforced
+      (Nominatim per-IP lesson).
+- [ ] **JS-SPA big-city portals return 0** (Bregenz, Dornbirn, Eisenstadt, Feldkirch, St. Pölten,
+      + thin Innsbruck 3/Villach 1/Kufstein 2): their event pages are client-rendered SPAs, so the
+      LLM route extracts nothing from static HTML (same class as wien.info). Follow-up: per-city
+      custom parser / official API / headless render, or find their JSON/iCal feed. Deep-mining
+      agents (a2b6b7bc SW, a36c894e E) flagged custom-parser candidates — resume post-token-reset.
+- [ ] **Kärnten still thin (154)**: fewest gap-fill sources registered; re-probe Kärnten municipal
+      catalog with a broader policy.
 - [ ] **Wien erleben API watch**: the dataset page says a new official API "is in preparation" —
       check quarterly; an API beats our two-hop parse.
 - [x] **Dedup + merge system** (shipped 2026-07-12): lib/dedup.js fuzzy match (same Vienna day +
