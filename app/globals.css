@@ -315,13 +315,15 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .pin2 {
   position: relative;
   width: 32px; height: 32px; border-radius: 50% 50% 50% 4px;
-  transform: rotate(0deg);
   background: var(--cc); color: #fff;
   display: grid; place-items: center;
   border: 2px solid #fff;
   box-shadow: 0 2px 6px rgba(23, 32, 28, 0.35);
   cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.12s;
+  /* NEVER transition `transform`: MapLibre writes the marker's positioning
+     transform inline every frame onto this same element, so animating it makes
+     pins lag/drift behind the map while panning/zooming. Only box-shadow here. */
+  transition: box-shadow 0.12s;
   isolation: isolate;
   /* fade in as GL clusters fade out across the zoom handoff band */
   animation: pin-fade-in 0.18s ease-out;

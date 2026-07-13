@@ -2,6 +2,25 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-13 — Never CSS-`transition: transform` a MapLibre custom marker element
+
+Pins lagged/drifted/mis-placed while panning or zooming (a regression). Root cause:
+MapLibre writes the marker's positioning transform **inline, every frame, onto the
+exact element you pass** to `new Marker({element})` (`this._element.style.transform =
+translate(...)`; its own `.maplibregl-marker` CSS is deliberately `transition: opacity`,
+never transform). Our `.pin2` rule had `transition: transform 0.12s` (for a hover/scale
+that never even applied — the inline transform overrides a stylesheet `transform:scale`).
+`.pin2` and `.maplibregl-marker` are the **same element with equal specificity**, so
+which `transition` wins is pure **load-order** — and Next.js chunk ordering (globals.css
+imported in layout.js vs maplibre-gl.css in page.js) flipped between builds, so ours
+started winning and animating MapLibre's per-frame reposition → visible drift. **Lesson:**
+a custom map-marker element must never CSS-transition `transform` (or `all`); MapLibre owns
+that property. Put any hover/select scale on an *inner* wrapper, not the positioned root.
+Beware equal-specificity class collisions between your CSS and a vendor's on the same node —
+the winner is load-order-dependent and silently fragile across builds. (The WebGL map still
+can't be driven in the in-app preview browser; this was diagnosed from the MapLibre source +
+a synthetic two-class element's computed `transitionProperty`, then verified in a real browser.)
+
 ## 2026-07-12 — SSRF IP-pinning: node's `lookup` callback has two call forms; and `undici` isn't importable
 
 Hardening extract-url against DNS-rebinding, I pinned the connection IP via the
