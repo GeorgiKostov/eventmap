@@ -1,0 +1,42 @@
+name: Weekly crawl
+
+# Refreshes all Austrian event sources once a week. The crawl is a single
+# long-running process ON PURPOSE — Nominatim (geocoding) rate-limits per IP,
+# not per host, so two overlapping crawls throttle each other (see
+# tasks/lessons.md 2026-07-12). The `concurrency` block below guarantees only
+# one run at a time even if a manual run and the schedule coincide.
+#
+# Setup + cost details: docs/ops/crawl-cron.md
+
+on:
+  schedule:
+    # Mondays 04:00 UTC (~06:00 Vienna) — off-peak, polite to source servers.
+    - cron: '0 4 * * 1'
+  workflow_dispatch: {} # lets you run it on demand from the Actions tab
+
+concurrency:
+  group: crawl
+  cancel-in-progress: false # a running crawl is never killed; a new trigger queues
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180 # generous cap; a full pass is ~30–90 min, mostly hash-skips
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Secrets are passed as env vars (masked in logs, never written to disk),
+      # so we call the script directly instead of the `--env-file=.env.local`
+      # npm script, which has no .env.local in CI.
+      - name: Run crawl
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/crawl.mjs
