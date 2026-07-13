@@ -4,7 +4,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, LinkSimple, PencilSimple, CaretRight } from '@phosphor-icons/react';
-import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS } from '../lib/icons.js';
+import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
 import { groupEventSeries } from '../lib/map-groups.js';
@@ -566,6 +566,7 @@ export default function Home() {
   const [cats, setCats] = useState([]);
   const [freeOnly, setFreeOnly] = useState(false);
   const [kidsOnly, setKidsOnly] = useState(false);
+  const [communityOnly, setCommunityOnly] = useState(false); // only events added by users (src_kind user_*)
   const [inOut, setInOut] = useState('any'); // any | in | out
   const [tod, setTod] = useState([]); // morning | afternoon | evening
 
@@ -984,6 +985,7 @@ export default function Home() {
       if (cats.length && !ev.categories.some((c) => cats.includes(c))) return false;
       if (freeOnly && ev.is_free !== 1) return false;
       if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
+      if (communityOnly && !isCommunitySubmitted(ev)) return false;
       if (inOut === 'in' && ev.indoor !== 1) return false;
       if (inOut === 'out' && ev.indoor !== 0) return false;
       if (searchQuery.trim()) {
@@ -994,7 +996,7 @@ export default function Home() {
       }
       return true;
     });
-  }, [events, deferredRadius, cats, freeOnly, kidsOnly, inOut, refPoint, searchQuery, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [events, deferredRadius, cats, freeOnly, kidsOnly, communityOnly, inOut, refPoint, searchQuery, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredEvents = useMemo(() => {
     if (kindFilter === 'place') return [];
@@ -1216,9 +1218,9 @@ export default function Home() {
   }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const advancedFilterCount = (radius !== 20 ? 1 : 0) + cats.length + (inOut === 'out' ? 1 : 0) + tod.length;
-  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (inOut === 'in' ? 1 : 0);
+  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (communityOnly ? 1 : 0) + (inOut === 'in' ? 1 : 0);
   function resetFilters() {
-    setRadius(20); setCats([]); setFreeOnly(false); setKidsOnly(false); setInOut('any'); setTod([]);
+    setRadius(20); setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setInOut('any'); setTod([]);
   }
 
   /* ---------------- scan flow ---------------- */
@@ -1641,6 +1643,7 @@ export default function Home() {
       <button className={`chip ${kidsOnly ? 'on' : ''}`} onClick={() => setKidsOnly(!kidsOnly)}>{t.forKids}</button>
       <button className={`chip ${inOut === 'in' ? 'on' : ''}`} onClick={() => setInOut(inOut === 'in' ? 'any' : 'in')}>{t.indoor}</button>
       <button className={`chip ${freeOnly ? 'on' : ''}`} onClick={() => setFreeOnly(!freeOnly)}>{t.freeOnly}</button>
+      <button className={`chip ${communityOnly ? 'on' : ''}`} onClick={() => setCommunityOnly(!communityOnly)}>{t.communityOnly}</button>
     </>
   );
 
