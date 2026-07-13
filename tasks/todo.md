@@ -43,6 +43,15 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] opening_hours semantics fixed: `{"always":true}` = always open, null = unknown (renders
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
+## Map backbone (2026-07-13, George: "markers shift on zoom/pan — truly broken")
+- [ ] **All-GL pins rewrite** (brief: briefs/gl-pins-brief.md, Opus agent dispatched 2026-07-13):
+      replace DOM `.pin2` markers with GL symbol/circle layers (sprites from CATS/P, one GeoJSON
+      source, feature-state selection, icon-allow-overlap everywhere, all-GL zoom crossfade) and
+      DELETE the DOM-marker lifecycle (syncDetailMarkerViewport, bounds culling, hysteresis).
+      Pins pixel-fixed to coordinates by construction — the drift class of bugs ends here.
+      Must-verify: projected-position ±2px after pan/zoom/flyTo, no-vanish counts, click→detail,
+      handoff opacity complementarity. George confirms in a real browser before we call it fixed.
+
 ## Design-system consolidation (2026-07-13, brief: design map review) — SHIPPED
 - [x] **Design system doc** `docs/design/design-system.md` = source of truth for tokens / marker
       grammar / control vocabulary; design-doc §9 links to it. Any new UI must cite it.

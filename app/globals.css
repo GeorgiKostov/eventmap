@@ -312,56 +312,13 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
 .empty button { color: var(--accent); font-weight: 700; margin-top: 6px; }
 
 /* ================= map pins ================= */
-.pin2 {
-  position: relative;
-  width: 32px; height: 32px; border-radius: 50% 50% 50% 4px;
-  background: var(--cc); color: #fff;
-  display: grid; place-items: center;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(23, 32, 28, 0.35);
-  cursor: pointer;
-  /* NEVER transition `transform`: MapLibre writes the marker's positioning
-     transform inline every frame onto this same element, so animating it makes
-     pins lag/drift behind the map while panning/zooming. Only box-shadow here. */
-  transition: box-shadow 0.12s;
-  isolation: isolate;
-  /* fade in as GL clusters fade out across the zoom handoff band */
-  animation: pin-fade-in 0.18s ease-out;
-}
-@keyframes pin-fade-in { from { opacity: 0; } to { opacity: 1; } }
-.pin2:hover { transform: scale(1.12); z-index: 5; }
-.pin2:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; z-index: 7; }
-.pin2.approx-precision::before {
-  content: ""; position: absolute; inset: -6px; z-index: -1; pointer-events: none;
-  border: 2px dashed rgba(33, 43, 40, 0.62); border-radius: inherit;
-  background: rgba(255, 255, 255, 0.42);
-}
-/* places: evergreen locations get a plain circle vs the event teardrop — subtle,
-   consistent distinction that still reads as "same family of pin". Shape carries
-   exactly two values (event teardrop / place circle); "many" is the count badge,
-   never a third silhouette (design-system.md marker grammar). */
-.pin2.pin-place { border-radius: 50%; }
-/* Selection is the ONLY thing allowed to add a ring/scale to a pin. */
-.pin2.selected {
-  transform: scale(1.3);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cc) 30%, transparent), 0 4px 14px rgba(23, 32, 28, 0.4);
-  z-index: 6;
-}
-/* count badge — carries both venue groups and same-title series ("many here"). */
-.pin-badge {
-  position: absolute; top: -5px; right: -5px; z-index: 1;
-  min-width: 16px; height: 16px; padding: 0 3px; border-radius: 99px;
-  background: var(--ink); color: #fff; font-size: 9.5px; font-weight: 800;
-  display: grid; place-items: center; line-height: 1; border: 1.5px solid #fff;
-}
-/* community (genuinely user-submitted) trust: one small corner badge in
-   --community — the same token the list .source-tag.community and the legend
-   use. Top-left, so it never collides with the top-right count badge. */
-.pin-community {
-  position: absolute; top: -4px; left: -4px; z-index: 1;
-  width: 12px; height: 12px; border-radius: 99px;
-  background: var(--community); border: 1.5px solid #fff;
-}
+/* The category pins are GL symbol/circle layers (rasterized from CATS + P into
+   sprites, rendered on the map's own GPU surface) — see app/page.js. There is no
+   DOM `.pin2` anymore: DOM markers were repositioned per frame from JS and drifted
+   relative to the tiles (lessons.md 2026-07-13). The marker grammar (teardrop vs
+   circle, count badge, community dot, approx halo, selection halo/scale) now lives
+   in GL paint/layout expressions. Only the legend, me-marker and search-marker
+   below remain DOM (single, non-drift-prone elements). */
 
 /* Compact, collapsible marker grammar. Category color remains on the pin only;
    shape, badge, halo, and count carry the other meanings. */
