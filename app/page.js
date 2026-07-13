@@ -3,7 +3,7 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, LinkSimple, PencilSimple, CaretRight } from '@phosphor-icons/react';
+import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, ImageSquare, LinkSimple, PencilSimple, CaretRight } from '@phosphor-icons/react';
 import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
@@ -469,6 +469,7 @@ export default function Home() {
   const pinIndexRef = useRef({ itemById: new Map(), memberToRep: new Map() });
   const pinSelRef = useRef(null); // feature id currently carrying feature-state selected
   const fileInput = useRef(null);
+  const cameraInput = useRef(null);
 
   const { lang, t, chooseLanguage } = useLanguage();
   useEffect(() => {
@@ -1469,8 +1470,27 @@ export default function Home() {
       const res = await fetch('/api/scan', { method: 'POST', headers: { 'X-Okolo-Lang': lang }, body: fd });
       const data = await res.json();
       if (handleContributionLimit(res, data, 'ai_intake', 'pick')) return;
-      if (!res.ok) throw new Error(data.error || t.extractionFailed);
+      // A failed read (unparseable model output, provider down, garbled poster)
+      // must never dead-end: keep the photo, drop into the same confirm form
+      // pre-seeded empty, and tell the user to fill it in by hand. The scan is a
+      // shortcut, not a gate — the only hard requirements land at publish time.
+      if (!res.ok || !data.extraction) {
+        setScanErr(t.scanFallbackManual);
+        setPhotoPath(data.photo_path || null);
+        setDupNotice(null);
+        setManualEntry(true);
+        setDraft({
+          kind: 'event', title: '', date_start: '', time_start: '', date_end: '', time_end: '',
+          venue: '', address: '', town: '', lat: null, lng: null,
+          categories: [], is_free: false, description: '', confidence: {},
+          always_open: false, hours: {}, seasonal: '',
+        });
+        setScanState('confirm');
+        return;
+      }
       const x = data.extraction;
+      // Partial or non-event reads are expected, not errors — surface a soft
+      // nudge and let the user complete whatever the AI couldn't read.
       if (!x.is_event) setScanErr(t.noEventDetected);
       setPhotoPath(data.photo_path);
       setDupNotice(data.duplicate || null);
@@ -1492,8 +1512,18 @@ export default function Home() {
       });
       setScanState('confirm');
     } catch (e) {
-      setScanErr(String(e.message || e));
-      setScanState('pick');
+      // Network/JSON failure before we even got a response — same principle:
+      // fall through to the manual form rather than bouncing back to the start.
+      setScanErr(t.scanFallbackManual);
+      setPhotoPath(null);
+      setManualEntry(true);
+      setDraft({
+        kind: 'event', title: '', date_start: '', time_start: '', date_end: '', time_end: '',
+        venue: '', address: '', town: '', lat: null, lng: null,
+        categories: [], is_free: false, description: '', confidence: {},
+        always_open: false, hours: {}, seasonal: '',
+      });
+      setScanState('confirm');
     }
   }
   // Link pipeline: server-side fetch + JSON-LD/OG/AI cascade (/api/extract-url),
@@ -2161,26 +2191,13 @@ export default function Home() {
         {scanErr && <div className="errbox">⚠️ {scanErr}</div>}
         {scanState === 'pick' && (
           <>
+            {/* Gallery/file picker (all devices) + a camera-only input (mobile).
+                capture="environment" makes the phone open the rear camera
+                straight away instead of the file browser. */}
             <input ref={fileInput} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
+            <input ref={cameraInput} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
             <div className="intake-card">
-              <button
-                type="button"
-              className="droparea"
-              onClick={() => fileInput.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); }}
-              onDragLeave={(e) => e.currentTarget.classList.remove('dragover')}
-              onDrop={(e) => {
-                e.preventDefault();
-                e.currentTarget.classList.remove('dragover');
-                const file = e.dataTransfer?.files?.[0];
-                if (file) handleFile(file);
-              }}
-            >
-                <span className="intake-icon primary"><Camera size={23} weight="bold" /></span>
-                <span className="intake-copy"><b>{t.scanPrompt}</b><small>{t.scanPromptSub}</small></span>
-                <CaretRight className="intake-chevron" size={18} weight="bold" />
-              </button>
-
+              {/* Order (George's call): link first, then photo, then manual. */}
               <div className="intake-url">
                 <LinkSimple className="intake-url-icon" size={20} weight="bold" />
                 <input
@@ -2196,6 +2213,39 @@ export default function Home() {
                   {t.intakeReadLink}
                 </button>
               </div>
+
+              {isDesktop ? (
+                <button
+                  type="button"
+                  className="droparea"
+                  onClick={() => fileInput.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); }}
+                  onDragLeave={(e) => e.currentTarget.classList.remove('dragover')}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove('dragover');
+                    const file = e.dataTransfer?.files?.[0];
+                    if (file) handleFile(file);
+                  }}
+                >
+                  <span className="intake-icon primary"><ImageSquare size={23} weight="bold" /></span>
+                  <span className="intake-copy"><b>{t.scanUploadImage}</b><small>{t.scanPromptSub}</small></span>
+                  <CaretRight className="intake-chevron" size={18} weight="bold" />
+                </button>
+              ) : (
+                <>
+                  <button type="button" className="intake-photo" onClick={() => cameraInput.current?.click()}>
+                    <span className="intake-icon primary"><Camera size={21} weight="bold" /></span>
+                    <span className="intake-copy"><b>{t.scanTakePhoto}</b><small>{t.scanPromptSub}</small></span>
+                    <CaretRight className="intake-chevron" size={18} weight="bold" />
+                  </button>
+                  <button type="button" className="intake-photo" onClick={() => fileInput.current?.click()}>
+                    <span className="intake-icon"><ImageSquare size={21} weight="bold" /></span>
+                    <span>{t.scanUploadImage}</span>
+                    <CaretRight className="intake-chevron" size={18} weight="bold" />
+                  </button>
+                </>
+              )}
 
               <button type="button" className="intake-manual" onClick={openManualAdd}>
                 <span className="intake-icon"><PencilSimple size={21} weight="bold" /></span>

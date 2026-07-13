@@ -715,12 +715,24 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: 20px;
   box-shadow: var(--shadow-sm);
 }
+/* Rows are divider-separated; the first one (the link) never carries a top rule. */
+.intake-card > * + * { border-top: 1px solid var(--line); }
+.intake-card > :first-child { border-top: 0; }
 .droparea {
   width: 100%; min-height: 126px; border: 0; border-radius: 0; background: var(--panel);
   display: grid; grid-template-columns: 48px minmax(0, 1fr) 20px; align-items: center;
   gap: 14px; padding: 20px; text-align: left; cursor: pointer;
   transition: background 0.15s, box-shadow 0.15s;
 }
+/* Mobile photo rows: "Take a photo" (camera) + "Upload image" (gallery). */
+.intake-photo {
+  width: 100%; padding: 14px 20px; background: var(--panel);
+  display: grid; grid-template-columns: 44px minmax(0, 1fr) 20px; align-items: center; gap: 14px;
+  color: var(--ink); font-size: 13.5px; font-weight: 700; text-align: left;
+  transition: background 0.15s;
+}
+.intake-photo:hover { background: var(--panel2); }
+.intake-photo .intake-icon.primary { width: 44px; height: 44px; }
 .droparea:hover { background: var(--panel2); }
 .droparea.dragover {
   background: color-mix(in srgb, var(--accent) 7%, var(--panel));
