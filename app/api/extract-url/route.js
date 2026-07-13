@@ -21,6 +21,13 @@ const MESSAGES = {
 };
 
 const BROWSER_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
+// Facebook serves a UA-gated login wall (400, no metadata) to normal browsers,
+// but serves the full public-event og tags — title, a natural-language
+// date/place/organizer description, cover image — to its own link-preview
+// crawler. Requesting AS that crawler is how a pasted public FB event resolves;
+// private/group-restricted events still don't unfurl (they fall back to scan).
+const CRAWLER_UA = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)';
+const FB_HOST = /(^|\.)(facebook\.com|fb\.me|fb\.com|fb\.watch)$/i;
 const MAX_BYTES = 2 * 1024 * 1024;
 const FETCH_TIMEOUT = 10000;
 
@@ -76,13 +83,13 @@ async function resolvePublicAddr(hostname) {
 // connection lands on the exact IP we validated — the URL still carries the
 // real hostname, so Host header and TLS SNI stay correct. Returns the
 // IncomingMessage stream.
-function rawGet(urlObj, lookup) {
+function rawGet(urlObj, lookup, ua) {
   return new Promise((resolve, reject) => {
     const lib = urlObj.protocol === 'https:' ? https : http;
     const req = lib.request(urlObj, {
       method: 'GET',
       lookup,
-      headers: { 'User-Agent': BROWSER_UA, Accept: 'text/html,application/xhtml+xml,image/*;q=0.8,*/*;q=0.5', 'Accept-Language': 'de,en;q=0.8' },
+      headers: { 'User-Agent': ua, Accept: 'text/html,application/xhtml+xml,image/*;q=0.8,*/*;q=0.5', 'Accept-Language': 'de,en;q=0.8' },
     }, resolve);
     req.setTimeout(FETCH_TIMEOUT, () => req.destroy(new Error('timeout')));
     req.on('error', reject);
@@ -98,6 +105,9 @@ function rawGet(urlObj, lookup) {
 async function safeFetch(rawUrl) {
   let current;
   try { current = new URL(rawUrl); } catch { throw new Error('badUrl'); }
+  // Pick the UA off the ORIGINAL host: an fb.me short link 30x's to
+  // facebook.com, so the whole redirect chain must speak as the crawler.
+  const ua = FB_HOST.test(current.hostname) ? CRAWLER_UA : BROWSER_UA;
   for (let hop = 0; hop < 5; hop++) {
     if (current.protocol !== 'http:' && current.protocol !== 'https:') throw new Error('badUrl');
     const pinned = await resolvePublicAddr(current.hostname);
@@ -106,7 +116,7 @@ async function safeFetch(rawUrl) {
     // set, as (err, [{address, family}]) — support both forms.
     const lookup = (_host, opts, cb) => (opts && opts.all ? cb(null, [{ address: pinned, family }]) : cb(null, pinned, family));
     let res;
-    try { res = await rawGet(current, lookup); } catch { throw new Error('failed'); }
+    try { res = await rawGet(current, lookup, ua); } catch { throw new Error('failed'); }
     const status = res.statusCode;
     const location = res.headers.location;
     if (status >= 300 && status < 400 && location) {
