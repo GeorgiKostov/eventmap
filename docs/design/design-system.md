@@ -57,16 +57,23 @@ A pin encodes **at most**: color = category · shape = kind · one optional trus
 approx halo. **Selection is the only thing allowed to add a ring/scale.**
 
 - **Color = category**, from `CATS`. One job only. White glyph (see contrast rule).
-- **Shape = kind**, two values only: event = teardrop (`50% 50% 50% 4px`), place = circle
-  (`.pin-place`). **No third shape.** "Many" — a venue group *or* a same-title series — is the ink
-  **count badge** (`.pin-badge`, top-right), never a new silhouette. (The old rounded-rect
-  `.pin-series` shape was retired.)
-- **Trust = one small corner badge** (`.pin-community`, top-left, `--community` fill) for genuinely
-  user-submitted pins. The *same* `--community` token identifies community items in the list
-  (`.source-tag.community` dashed border) and the legend (`.legend-pin.community` corner dot). One
-  representation across pin + list + legend. (The old whole-pin community ring was retired.)
-- **Precision = dashed halo** (`.approx-precision`) for town-level positions only.
-- **Selected = scale + soft halo** (`.pin2.selected`). Nothing else may use a full-pin ring/halo.
+- Pins render as **GL layers** (sprites rasterized from `CATS` + the icon paths in `lib/icons.js`,
+  registered via `map.addImage`), never DOM markers — DOM markers reposition per frame in JS and
+  drift against the map (see lessons.md 2026-07-13). Map QA of anything below needs a real browser.
+- **Shape = kind**, two values only: event = teardrop, place = circle (baked into the per-category
+  sprite — the sets are disjoint). **No third shape.** "Many" — a venue group *or* a same-title
+  series — is the ink **count badge** (`pin-badges`/`pin-badge-counts` layers, top-right), never a
+  new silhouette. (The old rounded-rect series shape was retired.)
+- **Trust = one small corner badge** (`pin-community` layer, top-left, `--community` fill) for
+  genuinely user-submitted pins. The *same* `--community` token identifies community items in the
+  list (`.source-tag.community` dashed border) and the legend (`.legend-pin.community` corner dot).
+  One representation across pin + list + legend. (The old whole-pin community ring was retired.)
+- **Precision = dashed outline** for town-level positions only — a sprite that **follows the pin's
+  silhouette** (`approx-event` teardrop / `approx-place` circle), not a generic circle.
+- **Selected = scale + soft halo** (a 1.28× overlay + a per-category `halo-<cat>` silhouette sprite
+  at 30% — again shape-matched, teardrop on events). Nothing else may use a full-pin ring/halo.
+- **Halo/outline sprites must always match the pin silhouette.** A circular ring around a teardrop
+  pin reads as a different marker (George, 2026-07-13).
 - The count badge (top-right) and community badge (top-left) never collide.
 - **Every signal in use must appear in the collapsible `.map-legend`.** Legend rows: event, place,
   community, approximate, more-at-venue (count), cluster.

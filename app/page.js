@@ -149,11 +149,17 @@ function isCommunitySubmitted(ev) {
  * the SAME tokens the DOM uses: CATS[cat].color + the P glyph paths + #fff
  * border/glyph (design-system.md marker grammar). One sprite per category (16);
  * shape = kind is baked in (event = teardrop, place = circle) since event/place
- * category sets are disjoint. Everything else (selection halo/scale, count badge,
- * community dot, zoom cross-fade) is a layer over one source, not a sprite. */
+ * category sets are disjoint. The selection halo and approx dashed ring are ALSO
+ * sprites (per-cat halos + 2 approx shapes) so they follow the pin's silhouette —
+ * a GL circle layer around a teardrop pin reads as the wrong shape (George,
+ * 2026-07-13). Badges/community dots/cross-fade stay plain layers. */
 const PIN_S = 28;                     // pin body box (DOM .pin2 was 32; sprite adds pad)
 const PIN_PAD = 3;                    // room for the 2px white border
 const PIN_BOX = PIN_S + PIN_PAD * 2;  // 34px shown at icon-size 1
+const HALO_S = 44;                    // selection halo silhouette — rings the 1.28× selected pin
+const HALO_BOX = 46;
+const APPROX_S = 40;                  // approx dashed outline (DOM was pin+6px inset each side)
+const APPROX_BOX = 44;
 const SPRITE_RATIO = 3;               // supersample so pins stay crisp on hidpi
 
 // Teardrop (event) = circle with a sharp-ish bottom-left corner, matching the CSS
@@ -175,11 +181,21 @@ function pinSpriteSvg(cat) {
     + `<g transform="translate(${g} ${g}) scale(${glyph / 24})" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths}</g>`
     + `</svg>`;
 }
-// Town-level (approx) precision = neutral dashed ring. GL circles can't dash, so
-// it's a baked sprite drawn under the pin (design-system.md .approx-precision).
-function approxHaloSvg() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">`
-    + `<circle cx="24" cy="24" r="20" fill="rgba(255,255,255,0.42)" stroke="rgba(33,43,40,0.62)" stroke-width="2" stroke-dasharray="4 4"/></svg>`;
+// Selection halo: the pin's own silhouette, enlarged, in the category color —
+// shape-matched (teardrop halo on a teardrop pin), opacity applied by the layer.
+function haloSpriteSvg(cat) {
+  const place = PLACE_CATS.includes(cat);
+  const pad = (HALO_BOX - HALO_S) / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${HALO_BOX}" height="${HALO_BOX}" viewBox="0 0 ${HALO_BOX} ${HALO_BOX}">`
+    + `<g transform="translate(${pad} ${pad})"><path d="${pinSilhouette(HALO_S, place)}" fill="${CATS[cat].color}"/></g></svg>`;
+}
+// Town-level (approx) precision = neutral dashed outline following the pin shape
+// (the DOM ::before used border-radius:inherit — a circle ring on a teardrop pin
+// reads wrong). GL can't dash, so it's a baked sprite drawn under the pin.
+function approxHaloSvg(place) {
+  const pad = (APPROX_BOX - APPROX_S) / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${APPROX_BOX}" height="${APPROX_BOX}" viewBox="0 0 ${APPROX_BOX} ${APPROX_BOX}">`
+    + `<g transform="translate(${pad} ${pad})"><path d="${pinSilhouette(APPROX_S, place)}" fill="rgba(255,255,255,0.42)" stroke="rgba(33,43,40,0.62)" stroke-width="2" stroke-dasharray="4 4"/></g></svg>`;
 }
 // Rasterize an SVG string to ImageData at SPRITE_RATIO for map.addImage.
 function rasterizeSprite(svg, cssW, cssH) {
@@ -206,7 +222,9 @@ async function registerPinSprites(map) {
   };
   await Promise.all([
     ...Object.keys(CATS).map((cat) => add(`pin-${cat}`, pinSpriteSvg(cat), PIN_BOX, PIN_BOX)),
-    add('pin-approx-halo', approxHaloSvg(), 48, 48),
+    ...Object.keys(CATS).map((cat) => add(`halo-${cat}`, haloSpriteSvg(cat), HALO_BOX, HALO_BOX)),
+    add('approx-event', approxHaloSvg(false), APPROX_BOX, APPROX_BOX),
+    add('approx-place', approxHaloSvg(true), APPROX_BOX, APPROX_BOX),
   ]);
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
@@ -875,9 +893,12 @@ export default function Home() {
     // Safety net: if a sprite ever isn't registered when a layer references it,
     // rasterize it on demand so a pin never renders as a blank box.
     map.on('styleimagemissing', (e) => {
-      const cat = e.id.startsWith('pin-') ? e.id.slice(4) : null;
-      if (cat && CATS[cat]) rasterizeSprite(pinSpriteSvg(cat), PIN_BOX, PIN_BOX).then((d) => { if (!map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: SPRITE_RATIO }); });
-      else if (e.id === 'pin-approx-halo') rasterizeSprite(approxHaloSvg(), 48, 48).then((d) => { if (!map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: SPRITE_RATIO }); });
+      const put = (svg, w, h) => rasterizeSprite(svg, w, h).then((d) => { if (!map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: SPRITE_RATIO }); });
+      const pinCat = e.id.startsWith('pin-') ? e.id.slice(4) : null;
+      const haloCat = e.id.startsWith('halo-') ? e.id.slice(5) : null;
+      if (pinCat && CATS[pinCat]) put(pinSpriteSvg(pinCat), PIN_BOX, PIN_BOX);
+      else if (haloCat && CATS[haloCat]) put(haloSpriteSvg(haloCat), HALO_BOX, HALO_BOX);
+      else if (e.id === 'approx-event' || e.id === 'approx-place') put(approxHaloSvg(e.id === 'approx-place'), APPROX_BOX, APPROX_BOX);
     });
     // One click handler: hit-test the pin layer (with a few-px tolerance box) →
     // select that grouped item; a miss deselects. No per-frame 'move' work at all
@@ -1154,6 +1175,7 @@ export default function Home() {
           id: ev.id,
           cat,
           color: CATS[cat].color, // token: CATS[cat].color (GL paint can't read --cc)
+          shape: ev.kind === 'place' ? 'place' : 'event', // → shape-matched approx sprite
           approx: ev.geo_precision === 'town',
           community: isCommunitySubmitted(ev),
           count,
@@ -1251,22 +1273,26 @@ export default function Home() {
       map.addSource('result-pins', { type: 'geojson', data: pinData.collection, promoteId: 'id' });
       const SEL = ['boolean', ['feature-state', 'selected'], false];
       // Selection halo — only ring/scale may signal selection (design-system.md).
+      // A per-category silhouette sprite, so the halo is teardrop-shaped on event
+      // pins and circular on places (a circle halo on a teardrop reads wrong).
       map.addLayer({
-        id: 'pin-selected-halo', type: 'circle', source: 'result-pins', minzoom: HANDOFF_LOW,
+        id: 'pin-selected-halo', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        layout: {
+          'icon-image': ['concat', 'halo-', ['get', 'cat']],
+          'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center',
+        },
         paint: {
-          'circle-color': ['get', 'color'], 'circle-radius': 22,
           // ramps with the handoff band like the base pin ('zoom' must be the
           // top-level interpolate — a ['*', …, PIN_FADE_IN] product is invalid GL)
-          'circle-opacity': ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, ['case', SEL, 0.3, 0]],
-          'circle-stroke-width': 0,
-          'circle-pitch-alignment': 'map',
+          'icon-opacity': ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, ['case', SEL, 0.3, 0]],
         },
       });
-      // Town-level precision: dashed ring sprite under the pin.
+      // Town-level precision: dashed outline sprite under the pin, matching its
+      // shape (approx-event teardrop / approx-place circle).
       map.addLayer({
         id: 'pin-approx-halo', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
         filter: ['==', ['get', 'approx'], true],
-        layout: { 'icon-image': 'pin-approx-halo', 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center' },
+        layout: { 'icon-image': ['concat', 'approx-', ['get', 'shape']], 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center' },
         paint: { 'icon-opacity': PIN_FADE_IN },
       });
       // Base pins.
