@@ -1356,8 +1356,10 @@ export default function Home() {
     if (selected && !visible.has(selected.id)) selectEvent(null, { fly: false });
   }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const advancedFilterCount = (radius !== 20 ? 1 : 0) + cats.length + (inOut === 'out' ? 1 : 0) + tod.length;
-  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (communityOnly ? 1 : 0) + (inOut === 'in' ? 1 : 0);
+  // advancedFilterCount = filters that live INSIDE the panel (drives the ⚙ badge).
+  // inOut is now a quick chip (Indoor/Outdoor), so it counts as active, not advanced.
+  const advancedFilterCount = (radius !== 20 ? 1 : 0) + cats.length + tod.length;
+  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (communityOnly ? 1 : 0) + (inOut !== 'any' ? 1 : 0);
   function resetFilters() {
     setRadius(20); setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setInOut('any'); setTod([]);
   }
@@ -1751,14 +1753,17 @@ export default function Home() {
     );
   }
 
+  // Kind is single-select (mutually exclusive), so it wears the segmented-
+  // control vocabulary — visually distinct from the multi-select toggle chips
+  // below, per the design system's two grammars (.seg vs .chip).
   const kindToggle = (
-    <>
+    <div className="seg" style={{ width: '100%' }}>
       {[['all', t.kindAll], ['event', t.kindEvents], ['place', t.kindPlaces]].map(([k, label]) => (
-        <button key={k} className={`chip ${kindFilter === k ? 'on' : ''}`} onClick={() => setKindFilter(k)}>
+        <button key={k} className={kindFilter === k ? 'on' : ''} onClick={() => setKindFilter(k)}>
           {label}
         </button>
       ))}
-    </>
+    </div>
   );
 
   const dateChips = (
@@ -1780,8 +1785,9 @@ export default function Home() {
   const quickFilters = (
     <>
       <button className={`chip ${kidsOnly ? 'on' : ''}`} onClick={() => setKidsOnly(!kidsOnly)}>{t.forKids}</button>
-      <button className={`chip ${inOut === 'in' ? 'on' : ''}`} onClick={() => setInOut(inOut === 'in' ? 'any' : 'in')}>{t.indoor}</button>
       <button className={`chip ${freeOnly ? 'on' : ''}`} onClick={() => setFreeOnly(!freeOnly)}>{t.freeOnly}</button>
+      <button className={`chip ${inOut === 'in' ? 'on' : ''}`} onClick={() => setInOut(inOut === 'in' ? 'any' : 'in')}>{t.indoor}</button>
+      <button className={`chip ${inOut === 'out' ? 'on' : ''}`} onClick={() => setInOut(inOut === 'out' ? 'any' : 'out')}>{t.outdoor}</button>
       <button className={`chip ${communityOnly ? 'on' : ''}`} onClick={() => setCommunityOnly(!communityOnly)}>{t.communityOnly}</button>
     </>
   );
@@ -1791,14 +1797,6 @@ export default function Home() {
       <div className="fgroup">
         <h4>{t.radius} <output>{radius} km</output></h4>
         <input type="range" min="3" max="40" step="1" value={radius} onChange={(e) => setRadius(+e.target.value)} aria-label={t.radius} />
-      </div>
-      <div className="fgroup">
-        <h4>{t.place}</h4>
-        <div className="seg">
-          {[['any', t.inOutAny], ['in', t.indoor], ['out', t.outdoor]].map(([k, label]) => (
-            <button key={k} className={inOut === k ? 'on' : ''} onClick={() => setInOut(k)}>{label}</button>
-          ))}
-        </div>
       </div>
       <div className="fgroup">
         <h4>{t.timeOfDay}</h4>
