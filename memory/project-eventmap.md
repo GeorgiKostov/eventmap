@@ -78,10 +78,17 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   Bansko, Sandanski; + Gabrovo/Kazanlak/Pazardzhik/Kyustendil/Haskovo). **BG now ~979 distinct
   events (1070 rows incl. 91 legit recurring dates) across 42 towns, 177 active recrawl sources
   (76-source curated catalog).** Top: Burgas ~323 (real, gotoburgas aggregator), Varna 117,
-  Blagoevgrad 88, Stara Zagora 55, Sofia 75. OPEN ISSUES: (a) 197 events un-geocodable last seed =
-  Nominatim rate-limit, recover via re-seed after cooldown; (b) Kyustendil 16 events weak-linkback
-  (kyustendil.bg homepage); (c) Velingrad 61 from a PDF (medium confidence). Sofia labels unified
-  (София/Sofia→Столична, 80 DB rows). ~31 vetted sources works=true
+  Blagoevgrad 88, Stara Zagora 55, Sofia 75. **2026-07-13 FINALIZED: BG = 1637 published events /
+  1511 distinct across 62 towns, 191 active recrawl sources, all live on okolo.events (verified).**
+  Sofia deepened 75→121 via 3 parallel clusters (visitsofia jevents calendar + state venues
+  NDK/Opera/Nat.Theatre/Philharmonic + galleries/culture). The jump 1070→1637 = a **full `npm run
+  crawl` over the 191 registered BG sources ran (last_crawled 2026-07-12 23:38) and pulled events
+  live from listing pages via the Gemini waterfall — recrawl loop confirmed working AT SCALE**, not
+  just the 1-source test. Re-seed recovered ALL previously un-geocodable (0 now). CAVEAT: Grok-mined
+  + Gemini-recrawled the same events with different title phrasings → exact title|date|town dedup
+  misses cross-source near-dups, so true-unique <1511; run scripts/merge-dups.mjs (fuzzy) to clean —
+  deferred (concurrent session active). Weak spots: Kyustendil homepage-linkback, Velingrad PDF.
+  Sofia labels unified (София/Sofia→Столична). ~31 vetted sources works=true
   (65 single-event permalinks deactivated but on record), all country=BG. Fixed a latent bug: the
   AT/BG pipeline had made geocode.js/seed.mjs country-aware but NEVER crawl.mjs — recrawl geocoded
   BG addresses as AT. crawl.mjs now inherits src.country onto events (geocode + tag); seed.mjs no
