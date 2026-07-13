@@ -118,8 +118,15 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   Bansko, Sandanski; + Gabrovo/Kazanlak/Pazardzhik/Kyustendil/Haskovo). **BG now ~979 distinct
   events (1070 rows incl. 91 legit recurring dates) across 42 towns, 177 active recrawl sources
   (76-source curated catalog).** Top: Burgas ~323 (real, gotoburgas aggregator), Varna 117,
-  Blagoevgrad 88, Stara Zagora 55, Sofia 75. **2026-07-13 FINALIZED: BG = 1637 published events /
-  1511 distinct across 62 towns, 191 active recrawl sources, all live on okolo.events (verified).**
+  Blagoevgrad 88, Stara Zagora 55, Sofia 75. **2026-07-13 FINALIZED: BG = 1859 events + 661 family
+  PLACES (2520 total), all live on okolo.events (verified).** Family/kids gap closed: kids events via
+  Grok crawl of clubcheta.com (99) + sofia.plays.bg (15), 167 BG events now carry an age range;
+  evergreen family PLACES via `scripts/mine-bg-places.mjs` (OSM/Overpass ODbL, curated — always-keep
+  zoo/aquapark/pool/climbing, museum/park notable-only via wikidata, nearest-city town ≤30km): 661
+  seeded (museum 287 / park 157 / pool+aquapark 124 / zoo 67 / climbing 25). Research (docs/research/
+  bg-event-sources.md): NO clean licensed BG feed exists, NO reusable open-source project (only a
+  cinema scraper) — confirms crawl-first thesis; clubcheta/sofia.plays.bg/programata.bg are the
+  family unlocks. Reusable Grok brief: briefs/bg-family-kids-crawl.md (programata.bg kids = TODO).
   Sofia deepened 75→121 via 3 parallel clusters (visitsofia jevents calendar + state venues
   NDK/Opera/Nat.Theatre/Philharmonic + galleries/culture). The jump 1070→1637 = a **full `npm run
   crawl` over the 191 registered BG sources ran (last_crawled 2026-07-12 23:38) and pulled events
