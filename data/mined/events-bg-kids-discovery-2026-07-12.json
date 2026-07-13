@@ -1,0 +1,173 @@
+{
+  "source_registry": [
+    {
+      "name": "София играе",
+      "url": "https://sofia.plays.bg",
+      "kind": "crawl",
+      "town": "Столична",
+      "oblast": "София-град",
+      "works": true,
+      "notes": "Открити допълнителни събития от началната страница и детайлни изгледи: летни работилници „Изобретатели“, шоу „Весела ваканция в Kaufland“, „Арт аниматори“ на Sofia Summer Fest и програма „Лято в библиотеката“ (четения, работилници, прожекции) с дати юли 2026."
+    }
+  ],
+  "failed_urls": [
+    "https://www.muzeiko.bg/events.html (и датирани подстраници) — динамично зареждане, извлечени само почивни дни и общи споменавания; конкретни работилници не се визуализират в текст",
+    "https://programata.bg/kino/za-detsa/ и /stsena/zadetsa/ — предимно списъци с филми и постановки без конкретни дати на изпълнения в прозореца",
+    "https://pptheatre.com/bg/schedule — описва рекурентен график (събота/неделя), без конкретни заглавия и дати в извлечения текст",
+    "https://www.sofiapuppet.com/programa.php — програма не се визуализира в текстова форма при извличане",
+    "https://sdeteto.com/events/profesiia-pod-lupa-dar-ot-prirodata/2026-07-11 — неуспешно извличане на детайлна страница",
+    "https://mlt.bg/programa.php?year=2026&month=07 — показани дати предимно преди 12 юли в извлечения текст; не са включени събития извън прозореца"
+  ],
+  "events": [
+    {
+      "title": "Весела ваканция в Kaufland",
+      "description_short": "Безплатно детско шоу с игри, музика и интерактивни уроци за балансирано хранене и сезонни плодове и зеленчуци.",
+      "date_start": "2026-07-14",
+      "time_start": "18:30",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Kaufland Младост 3",
+      "address_text": "ул. „Филип Аврамов“ 3, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "family"
+      ],
+      "is_free": true,
+      "age_min": 2,
+      "age_max": 12,
+      "indoor": false,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://sofia.plays.bg/events/view/20173/13/Jul/Mon/2026",
+      "source_name": "София играе",
+      "country": "BG"
+    },
+    {
+      "title": "Летни работилници „Изобретатели“",
+      "description_short": "Тематични летни работилници с проекти по електроника, бионика, 3D моделиране, музикални инструменти и други в Академия „Никола Тесла“.",
+      "date_start": "2026-07-13",
+      "time_start": null,
+      "date_end": "2026-09-06",
+      "time_end": null,
+      "venue": "Академия „Никола Тесла“",
+      "address_text": "бул. Цариградско шосе 17, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "family",
+        "workshop"
+      ],
+      "is_free": false,
+      "age_min": 5,
+      "age_max": 12,
+      "indoor": null,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://sofia.plays.bg/courses/view/6361",
+      "source_name": "София играе",
+      "country": "BG"
+    },
+    {
+      "title": "Арт аниматори – Създай своето анимирано приключение",
+      "description_short": "Лятно STEAM приключение с анимация, наука и технологии на Sofia Summer Fest за бъдещи млади лидери.",
+      "date_start": "2026-07-13",
+      "time_start": null,
+      "date_end": "2026-07-17",
+      "time_end": null,
+      "venue": "Sofia Summer Fest",
+      "address_text": "Sofia Summer Fest, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "family",
+        "workshop"
+      ],
+      "is_free": null,
+      "age_min": 5,
+      "age_max": 12,
+      "indoor": null,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://sofia.plays.bg/events/view/20140/13/Jul/Mon/2026",
+      "source_name": "София играе",
+      "country": "BG"
+    },
+    {
+      "title": "Лято в библиотеката: Реставрация на снимки",
+      "description_short": "Практическо занимание по реставрация на снимки в ТийнЛаб на Столична библиотека.",
+      "date_start": "2026-07-13",
+      "time_start": "13:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "ТийнЛаб (Столична библиотека)",
+      "address_text": "Столична библиотека - Дигитален и информационен център, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "family",
+        "workshop"
+      ],
+      "is_free": true,
+      "age_min": null,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://sofia.plays.bg/events/view/20161/13/Jul/Mon/2026",
+      "source_name": "София играе",
+      "country": "BG"
+    },
+    {
+      "title": "Лято в библиотеката: Четене за насекомите",
+      "description_short": "Четене на „За насекомите с уважение“ и други книги за деца над 7 години в Детския отдел.",
+      "date_start": "2026-07-14",
+      "time_start": "11:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Столична библиотека - Детски отдел",
+      "address_text": "Столична библиотека - Детски отдел, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "family",
+        "culture"
+      ],
+      "is_free": true,
+      "age_min": 7,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://sofia.plays.bg/events/view/20161/13/Jul/Mon/2026",
+      "source_name": "София играе",
+      "country": "BG"
+    },
+    {
+      "title": "Лято в библиотеката: Четене и 3D моделиране",
+      "description_short": "Четене на книги и занимания по 3D моделиране с Tinkercad и OBS в Детския отдел и ТийнЛаб.",
+      "date_start": "2026-07-15",
+      "time_start": "11:00",
+      "date_end": null,
+      "time_end": null,
+      "venue": "Столична библиотека - Детски отдел и ТийнЛаб",
+      "address_text": "Столична библиотека, София",
+      "town": "Столична",
+      "oblast": "София-град",
+      "categories": [
+        "family",
+        "workshop",
+        "culture"
+      ],
+      "is_free": true,
+      "age_min": 5,
+      "age_max": null,
+      "indoor": true,
+      "lat": null,
+      "lng": null,
+      "source_url": "https://sofia.plays.bg/events/view/20161/13/Jul/Mon/2026",
+      "source_name": "София играе",
+      "country": "BG"
+    }
+  ]
+}
