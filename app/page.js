@@ -636,6 +636,9 @@ export default function Home() {
   const [dpDraft, setDpDraft] = useState({ from: null, to: null });
   const [radius, setRadius] = useState(20);
   const deferredRadius = useDeferredValue(radius);
+  // Search re-runs the whole grouping pipeline + rewrites both GeoJSON sources —
+  // defer it like radius so per-keystroke work can't jank the map at scale.
+  const deferredSearch = useDeferredValue(searchQuery);
   const [cats, setCats] = useState([]);
   const [freeOnly, setFreeOnly] = useState(false);
   const [kidsOnly, setKidsOnly] = useState(false);
@@ -672,6 +675,8 @@ export default function Home() {
   const [dupNotice, setDupNotice] = useState(null); // {id,title,starts_at} — scan matched an already-published event
   const mapPickProgrammatic = useRef(false); // guard: our own flyTo must not trigger a reverse-geocode overwrite
   const mapPickSnapshot = useRef(null); // draft location before entering map-pick, for cancel
+  const addFlowActiveRef = useRef(false); // map click handler is bound once → read this ref, not state
+  addFlowActiveRef.current = capture || mapPick;
   const reverseDebounce = useRef(null);
   const reverseReqId = useRef(0); // latest-wins guard for reverse-geocode responses
   const urlBusy = useRef(false); // in-flight guard for the link-extraction pipeline
@@ -870,12 +875,24 @@ export default function Home() {
     // select that grouped item; a miss deselects. No per-frame 'move' work at all
     // now — pins are projected on the GPU each frame, so nothing to sync in JS.
     map.on('click', (e) => {
+      // During the add-flow (capture form / map-pick) a pin tap must NOT select +
+      // flyTo — the resulting moveend would silently overwrite the location the
+      // user is placing (review finding, 2026-07-13).
+      if (addFlowActiveRef.current) return;
       let item = null;
       if (map.getLayer('pins')) {
         const pad = 6;
         const box = [[e.point.x - pad, e.point.y - pad], [e.point.x + pad, e.point.y + pad]];
-        const hit = map.queryRenderedFeatures(box, { layers: ['pins'] })[0];
-        if (hit) item = pinIndexRef.current.itemById.get(hit.properties.id);
+        // Nearest hit to the tap, not [0] — query order follows source order, so
+        // with overlapping pins the first entry can be an occluded pin.
+        const hits = map.queryRenderedFeatures(box, { layers: ['pins'] });
+        let best = null; let bestD = Infinity;
+        for (const h of hits) {
+          const p = map.project(h.geometry.coordinates);
+          const d = (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
+          if (d < bestD) { bestD = d; best = h; }
+        }
+        if (best) item = pinIndexRef.current.itemById.get(best.properties.id);
       }
       if (item) selectRef.current(item);
       else { selectRef.current(null, { fly: false }); setMenuOpen(false); }
@@ -884,7 +901,6 @@ export default function Home() {
     meEl.className = 'me-marker hidden';
     meMarker.current = new maplibregl.Marker({ element: meEl }).setLngLat([HOME.lng, HOME.lat]).addTo(map);
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
-    if (typeof window !== 'undefined') window.__umkreisMap = map;
     mapObj.current = map;
     return () => {
       map.remove();
@@ -1025,15 +1041,15 @@ export default function Home() {
       if (communityOnly && !isCommunitySubmitted(ev)) return false;
       if (inOut === 'in' && ev.indoor !== 1) return false;
       if (inOut === 'out' && ev.indoor !== 0) return false;
-      if (searchQuery.trim()) {
-        const q = searchQuery.trim().toLowerCase();
+      if (deferredSearch.trim()) {
+        const q = deferredSearch.trim().toLowerCase();
         const catLabels = (ev.categories || []).map((c) => t.cats[c] || c).join(' ');
         const hay = `${ev.title} ${ev.venue || ''} ${ev.town || ''} ${catLabels}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [events, deferredRadius, cats, freeOnly, kidsOnly, communityOnly, inOut, refPoint, searchQuery, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [events, deferredRadius, cats, freeOnly, kidsOnly, communityOnly, inOut, refPoint, deferredSearch, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredEvents = useMemo(() => {
     if (kindFilter === 'place') return [];
@@ -1188,6 +1204,10 @@ export default function Home() {
         },
       });
       const zoomToFeature = (e) => {
+        // Inside the cluster↔pin cross-fade band, pins are live and co-located
+        // with the fading overview dots — let the pin click handler own the tap,
+        // or one click fires two competing camera moves (review, 2026-07-13).
+        if (map.getZoom() >= HANDOFF_LOW) return;
         const feature = e.features?.[0];
         if (!feature) return;
         map.easeTo({ center: feature.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
@@ -1225,7 +1245,10 @@ export default function Home() {
         id: 'pin-selected-halo', type: 'circle', source: 'result-pins', minzoom: HANDOFF_LOW,
         paint: {
           'circle-color': ['get', 'color'], 'circle-radius': 22,
-          'circle-opacity': ['case', SEL, 0.3, 0], 'circle-stroke-width': 0,
+          // ramps with the handoff band like the base pin ('zoom' must be the
+          // top-level interpolate — a ['*', …, PIN_FADE_IN] product is invalid GL)
+          'circle-opacity': ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, ['case', SEL, 0.3, 0]],
+          'circle-stroke-width': 0,
           'circle-pitch-alignment': 'map',
         },
       });
@@ -1254,7 +1277,7 @@ export default function Home() {
           'icon-image': ['concat', 'pin-', ['get', 'cat']], 'icon-size': 1.28,
           'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center',
         },
-        paint: { 'icon-opacity': ['case', SEL, 1, 0] },
+        paint: { 'icon-opacity': ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, ['case', SEL, 1, 0]] },
       });
       // Count badge (venue group or same-title series), ink, top-right. Circle +
       // text; translate in viewport space so it stays top-right of the pin.
@@ -1272,11 +1295,17 @@ export default function Home() {
         id: 'pin-badge-counts', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
         filter: ['>', ['get', 'count'], 1],
         layout: {
-          'text-field': ['to-string', ['get', 'count']], 'text-size': 10, 'text-font': ['Noto Sans Bold'],
+          'text-field': ['case', ['>', ['get', 'count'], 99], '99+', ['to-string', ['get', 'count']]],
+          'text-size': 10, 'text-font': ['Noto Sans Bold'],
           'text-allow-overlap': true, 'text-ignore-placement': true,
-          'text-offset': [1.0, -1.0], 'text-anchor': 'center',
+          'text-anchor': 'center',
         },
-        paint: { 'text-color': '#ffffff', 'text-opacity': PIN_FADE_IN },
+        paint: {
+          'text-color': '#ffffff', 'text-opacity': PIN_FADE_IN,
+          // px translate matching the badge circle exactly — text-offset is in ems
+          // (×text-size), which put the digit ~4px off the circle centre.
+          'text-translate': [13, -13], 'text-translate-anchor': 'viewport',
+        },
       });
       // Community (genuinely user-submitted) trust dot, --community, top-left.
       map.addLayer({

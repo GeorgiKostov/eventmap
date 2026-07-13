@@ -44,13 +44,21 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       nothing) — museums no longer falsely "Immer geöffnet"; 2-row migration applied.
 
 ## Map backbone (2026-07-13, George: "markers shift on zoom/pan — truly broken")
-- [ ] **All-GL pins rewrite** (brief: briefs/gl-pins-brief.md, Opus agent dispatched 2026-07-13):
-      replace DOM `.pin2` markers with GL symbol/circle layers (sprites from CATS/P, one GeoJSON
-      source, feature-state selection, icon-allow-overlap everywhere, all-GL zoom crossfade) and
-      DELETE the DOM-marker lifecycle (syncDetailMarkerViewport, bounds culling, hysteresis).
-      Pins pixel-fixed to coordinates by construction — the drift class of bugs ends here.
-      Must-verify: projected-position ±2px after pan/zoom/flyTo, no-vanish counts, click→detail,
-      handoff opacity complementarity. George confirms in a real browser before we call it fixed.
+- [x] **All-GL pins rewrite SHIPPED** (brief: briefs/gl-pins-brief.md; Opus implement + Opus
+      adversarial review): DOM `.pin2` markers → GL symbol/circle layers (16 sprites @3× from
+      CATS/P, `result-pins` source promoteId, feature-state selection, icon-allow-overlap
+      everywhere, all-GL 12.0→12.6 crossfade); DOM-marker lifecycle DELETED (syncDetailMarker-
+      Viewport, bounds culling, hysteresis, rAF move handler). Drift impossible by construction.
+      Review verdict SHIP-AFTER-FIXES → all 7 findings fixed: add-flow click guard (pin tap no
+      longer corrupts a location being placed), handoff double-camera race, nearest-hit tap
+      resolution, badge digit centering (px translate, not ems), deferred search (no per-keystroke
+      source rewrite), 99+ badge cap, selection layers fade with the band (validator caught that
+      ['*',…,zoom-interp] is invalid GL — top-level interpolate required). Build green, 6/6 tests,
+      style-spec valid. NOTE: commits entangled with a concurrent session (43f4ccf/35dd854 swept
+      partial work; b7efd7d restored green HEAD).
+- [ ] **George: confirm in a real browser** — pan/zoom smoothness, pins pixel-fixed, click→detail,
+      handoff band ~z12.0–12.6 (in-app preview can't run WebGL; env-blocked checks: ±2px projection
+      assert, no-vanish queryRenderedFeatures counts).
 
 ## Design-system consolidation (2026-07-13, brief: design map review) — SHIPPED
 - [x] **Design system doc** `docs/design/design-system.md` = source of truth for tokens / marker
