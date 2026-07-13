@@ -2,6 +2,21 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-13 — `map.isStyleLoaded()` + `once('load')` is a dead-end gate for late layer installs
+
+The GL pins shipped and George saw an EMPTY map past cluster zoom: the pin layers were never
+installed. The install effect used `if (map.isStyleLoaded()) install(); else map.once('load',
+install)`. Both branches fail for anything that runs *after* map 'load': `isStyleLoaded()` flips
+false whenever the style is dirty (`addImage` during sprite registration, `setData`, tiles still
+streaming) — so it was ~always false at that moment — and `'load'` fires **once per map lifetime**,
+so a `once('load')` registered after the real 'load' never fires. Result: install silently never
+ran. Clusters "worked" only by luck of ordering (their effect ran pre-load). **Lesson:** gate layer
+installs on a `mapLoaded` flag set in the 'load' handler (or a dependency that can only be true
+post-load, like spritesReady) and then call install directly — `addSource`/`addLayer` are safe any
+time after 'load'. Never use `isStyleLoaded()` as an install gate. Also: the agent env can't fire
+MapLibre 'load' at all, so this whole class is invisible to agent QA — post-'load' lifecycle paths
+need explicit real-browser confirmation.
+
 ## 2026-07-13 — Concurrent sessions + `git add -A` entangle commits; and GL zoom expressions must be top-level
 
 Two from the GL-pins rewrite. (1) A second Claude session working the same repo ran `git add -A`

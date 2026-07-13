@@ -1226,10 +1226,11 @@ export default function Home() {
         map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
       }
     };
-    if (map.isStyleLoaded()) install();
-    else map.once('load', install);
-    return () => map.off('load', install);
-  }, [clusterData]);
+    // Gate on 'load' having fired (mapLoaded), NOT map.isStyleLoaded() — that
+    // flag is false whenever the style is dirty, and a once('load') fallback
+    // after the real 'load' never fires. addSource/addLayer are safe post-load.
+    if (mapLoaded) install();
+  }, [clusterData, mapLoaded]);
 
   // Detail pins — the all-GL replacement for the old DOM markers. One non-clustered
   // source with promoteId:'id' (feature-state selection needs stable ids; a
@@ -1328,9 +1329,12 @@ export default function Home() {
       map.on('mouseenter', 'pins', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'pins', () => { map.getCanvas().style.cursor = ''; });
     };
-    if (map.isStyleLoaded()) install();
-    else map.once('load', install);
-    return () => map.off('load', install);
+    // spritesReady only flips after 'load' has fired (registration runs in the
+    // load handler), so install can run directly. The old isStyleLoaded() check
+    // was ~always false here — addImage dirties the style — and its once('load')
+    // fallback never fired ('load' already happened), so the pin layers were
+    // never installed at all: zooming past the clusters showed an empty map.
+    install();
   }, [pinData, spritesReady]);
 
   // Selection → feature-state. React `selected` is the driver; a list row that's a
