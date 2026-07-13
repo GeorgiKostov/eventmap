@@ -6,8 +6,14 @@ Keeps the map fresh without anyone remembering to run it. The workflow
 
 ## What it does
 
-- **Schedule:** every **Monday 04:00 UTC** (~06:00 Vienna) — off-peak, polite to
-  municipal servers.
+- **Schedule:** every **Thursday 04:00 UTC** (~06:00 Vienna) — off-peak and polite
+  to municipal servers, and the best day for a *weekly* cadence: organizers enter
+  and change events during the work week, and families plan the weekend Wed–Fri,
+  so a Thursday run captures the week's updates and lands fresh for the weekend
+  with a day of buffer. (Monday is the worst weekly slot — furthest from the next
+  weekend, so a mid-week cancellation for "this weekend" wouldn't be caught until
+  after the event passed.) Once there are users, the next step is *tiered* cadence
+  (daily on aggregators, weekly on villages), which makes the day-of-week moot.
 - **Also on demand:** the `workflow_dispatch` trigger means you can run it any
   time from the repo's **Actions → Weekly crawl → Run workflow** button.
 - **One run at a time:** the `concurrency` group prevents two crawls overlapping.

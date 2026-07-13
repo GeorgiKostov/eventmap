@@ -10,8 +10,12 @@ name: Weekly crawl
 
 on:
   schedule:
-    # Mondays 04:00 UTC (~06:00 Vienna) — off-peak, polite to source servers.
-    - cron: '0 4 * * 1'
+    # Thursdays 04:00 UTC (~06:00 Vienna). Organizers enter/change events during
+    # the work week, and families plan the weekend Wed–Fri — so a Thursday run
+    # captures the week's updates and lands fresh for the weekend, with a day of
+    # buffer before it. (Monday, the furthest point from the weekend, is the
+    # worst weekly slot.) See docs/ops/crawl-cron.md.
+    - cron: '0 4 * * 4'
   workflow_dispatch: {} # lets you run it on demand from the Actions tab
 
 concurrency:
