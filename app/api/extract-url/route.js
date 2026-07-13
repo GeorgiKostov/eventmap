@@ -289,13 +289,14 @@ export async function POST(req) {
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
 
-  console.log(`[intake] extract-url: start url=${url.trim().slice(0, 200)}`);
+  const isFb = (() => { try { return FB_HOST.test(new URL(url.trim()).hostname); } catch { return false; } })();
+  console.log(`[intake] extract-url: start${isFb ? ' [FB]' : ''} url=${url.trim().slice(0, 200)}`);
   let res, finalUrl;
   try {
     ({ res, finalUrl } = await safeFetch(url.trim()));
   } catch (err) {
     const code = err?.message;
-    console.warn(`[intake] extract-url: fetch failed (${code}) url=${url.trim().slice(0, 200)}`);
+    console.warn(`[intake] extract-url: fetch failed (${code})${isFb ? ' [FB]' : ''} url=${url.trim().slice(0, 200)}`);
     if (code === 'badUrl') return NextResponse.json({ error: messages.badUrl }, { status: 400 });
     if (code === 'blocked') return NextResponse.json({ error: messages.blocked, fallback: true }, { status: 422 });
     return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
@@ -329,11 +330,22 @@ export async function POST(req) {
 
   if (res.statusCode >= 400) {
     res.destroy();
-    console.warn(`[intake] extract-url: upstream ${res.statusCode} (blocked) url=${finalUrl.slice(0, 200)}`);
+    console.warn(`[intake] extract-url: upstream ${res.statusCode} (blocked)${isFb ? ' [FB wall/err]' : ''} url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.blocked, fallback: true }, { status: 422 });
   }
 
   const html = (await readCapped(res)).buf.toString('utf-8');
+
+  // FB is the intermittent one: log EXACTLY what FB served the crawler this time
+  // (real event page vs UA-gated wall vs a partial), so a failure that "sometimes
+  // works" is diagnosable by comparing a good vs bad fetch. og:description is where
+  // FB puts the date/place; if it's missing, FB gave us a wall, not the event.
+  if (isFb) {
+    const ogTitle = metaContent(html, 'og:title');
+    const ogDesc = metaContent(html, 'og:description') || metaContent(html, 'description');
+    const ogImage = metaContent(html, 'og:image');
+    console.log(`[intake] extract-url FB: status=${res.statusCode} htmlBytes=${html.length} ogTitle=${ogTitle ? 'Y' : 'N'} ogImage=${ogImage ? 'Y' : 'N'} textLen=${htmlToText(html).length} ogDesc=${ogDesc ? `"${ogDesc.slice(0, 120)}"` : 'MISSING(wall?)'} final=${finalUrl.slice(0, 160)}`);
+  }
 
   // 1. JSON-LD schema.org Event / Place — exact fields, zero AI cost.
   const nodes = parseJsonLd(html);
@@ -361,9 +373,16 @@ export async function POST(req) {
     }
   }
 
-  // 3. AI fallback: stripped page text → one structured event.
+  // 3. AI fallback: stripped page text → one structured event. Include
+  // og/twitter DESCRIPTION, not just the title: FB (and many event pages) render
+  // almost nothing in the body — the date/place live ONLY in og:description
+  // ("Veranstaltung in … am Samstag, August 15 2026"). Feeding title-only left
+  // the model with no date, so it either failed or guessed — the FB
+  // "sometimes works, sometimes not". htmlToText strips <meta>, so this is the
+  // only path that surface those facts.
   const ogTitle = metaContent(html, 'og:title') || metaContent(html, 'twitter:title');
-  const text = [ogTitle, htmlToText(html)].filter(Boolean).join('\n\n').slice(0, 60000);
+  const ogDesc = metaContent(html, 'og:description') || metaContent(html, 'twitter:description') || metaContent(html, 'description');
+  const text = [ogTitle, ogDesc, htmlToText(html)].filter(Boolean).join('\n\n').slice(0, 60000);
   if (text.length < 40) {
     console.warn(`[intake] extract-url: too little readable text (${text.length} chars, likely walled) url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.blocked, fallback: true }, { status: 422 });
