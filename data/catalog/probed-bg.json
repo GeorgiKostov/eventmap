@@ -93,6 +93,24 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Софийска опера и балет",
+      "url": "https://www.operasofia.bg/calendar/2026-07",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 21,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 21 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "Държавен културен институт „Културен център „Двореца“ Балчик",
       "url": "https://dvoreca.com/bg/kulturen-kalendar.html",
       "town": "Балчик",
@@ -216,6 +234,24 @@
       "events_seen": 13,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 13 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Bilet.bg",
+      "url": "https://bilet.bg/bg/calendar",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 11,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 11 events seen; fp=custom",
       "probed_at": "2026-07-12"
     },
     {
@@ -349,6 +385,24 @@
       "url": "https://operaplovdiv.bg/bg/site/program",
       "town": "Пловдив",
       "region": "Пловдив",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 9,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 9 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Народен театър „Иван Вазов“",
+      "url": "https://nationaltheatre.bg/bg/programa",
+      "town": "Столична",
+      "region": "София-град",
       "country": "BG",
       "cms": "custom",
       "structured_data": {
@@ -687,6 +741,24 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Софийска опера и балет",
+      "url": "https://www.operasofia.bg/repertoire/1010",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 5,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 5 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "sozopol.org",
       "url": "https://sozopol.org/%D1%81%D1%8A%D0%B1%D0%B8%D1%82%D0%B8%D1%8F-%D0%B2-%D1%81%D0%BE%D0%B7%D0%BE%D0%BF%D0%BE%D0%BB-2026-15365.html",
       "town": "Созопол",
@@ -867,6 +939,42 @@
       "probed_at": "2026-07-12"
     },
     {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 4,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Софийска филхармония",
+      "url": "https://sofiaphilharmonic.com/sofiiska-filharmonia/koncerti",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 4,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 4 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
       "name": "ММФ „Варненско лято“",
       "url": "https://varnasummerfest.org/%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0",
       "town": "Варна",
@@ -975,8 +1083,8 @@
       "probed_at": "2026-07-12"
     },
     {
-      "name": "Визит София",
-      "url": "https://visitsofia.bg/bg/component",
+      "name": "Софийска опера и балет",
+      "url": "https://www.operasofia.bg/repertoire/995",
       "town": "Столична",
       "region": "София-град",
       "country": "BG",
@@ -990,6 +1098,42 @@
       "events_seen": 3,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 3 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Визит София",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/05/24/24484/-/57-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%D0%BD%D0%B0%D1%80%D0%BE%D0%B4%D0%B5%D0%BD-%D0%BC%D1%83%D0%B7%D0%B8%D0%BA%D0%B0%D0%BB%D0%B5%D0%BD-%D1%84%D0%B5%D1%81%D1%82%D0%B8%D0%B2%D0%B0%D0%BB",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jevents-ical",
+      "structured_data": {
+        "json_ld": false,
+        "ical": true,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 3,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 3 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "НДК",
+      "url": "https://www.eventim.bg/city/%D1%81%D0%BE%D1%84%D0%B8%D1%8F-7510/venue/ndk-94137",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "unknown",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 3,
+      "reachable": false,
+      "notes": "discovered via Grok crawl 2026-07-12; 3 events seen; probe timeout",
       "probed_at": "2026-07-12"
     },
     {
@@ -1264,7 +1408,7 @@
     },
     {
       "name": "Визит София",
-      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/05/24/24484/-/57-%D0%BC%D0%B5%D0%B6%D0%B4%D1%83%D0%BD%D0%B0%D1%80%D0%BE%D0%B4%D0%B5%D0%BD-%D0%BC%D1%83%D0%B7%D0%B8%D0%BA%D0%B0%D0%BB%D0%B5%D0%BD-%D1%84%D0%B5%D1%81%D1%82%D0%B8%D0%B2%D0%B0%D0%BB",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/14/24843/-/%D0%B3%D0%B0%D0%BB%D0%B5%D1%80%D0%B8%D1%8F-%D0%B2%D0%B0%D1%81%D0%BA%D0%B0-%D0%B5%D0%BC%D0%B0%D0%BD%D1%83%D0%B8%D0%BB%D0%BE%D0%B2%D0%B0-%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0-%D0%BC%D1%8F%D1%81%D1%82%D0%BE-%D0%B7%D0%B0-%D1%81%D1%80%D0%B5%D1%89%D0%B8-%D0%BF%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D1%8F-%D1%81%D0%BB%D0%B5%D0%B4-%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B0-%E2%80%93-%D1%81%D0%B0%D0%BC%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D1%82%D0%B5%D0%BB%D0%BD%D0%B0-%D0%B8%D0%B7%D0%BB%D0%BE%D0%B6%D0%B1%D0%B0-%D0%BD%D0%B0-%D0%B9%D0%BE%D0%B0%D0%BD%D0%B0-%D1%82%D1%83%D0%B6%D0%B0%D1%80%D0%BE%D0%B2%D0%B0",
       "town": "Столична",
       "region": "София-град",
       "country": "BG",
@@ -1282,7 +1426,7 @@
     },
     {
       "name": "Визит София",
-      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/14/24843/-/%D0%B3%D0%B0%D0%BB%D0%B5%D1%80%D0%B8%D1%8F-%D0%B2%D0%B0%D1%81%D0%BA%D0%B0-%D0%B5%D0%BC%D0%B0%D0%BD%D1%83%D0%B8%D0%BB%D0%BE%D0%B2%D0%B0-%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0-%D0%BC%D1%8F%D1%81%D1%82%D0%BE-%D0%B7%D0%B0-%D1%81%D1%80%D0%B5%D1%89%D0%B8-%D0%BF%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D1%8F-%D1%81%D0%BB%D0%B5%D0%B4-%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B0-%E2%80%93-%D1%81%D0%B0%D0%BC%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D1%82%D0%B5%D0%BB%D0%BD%D0%B0-%D0%B8%D0%B7%D0%BB%D0%BE%D0%B6%D0%B1%D0%B0-%D0%BD%D0%B0-%D0%B9%D0%BE%D0%B0%D0%BD%D0%B0-%D1%82%D1%83%D0%B6%D0%B0%D1%80%D0%BE%D0%B2%D0%B0",
+      "url": "https://visitsofia.bg/bg/component/jevents/icalrepeat.detail/2026/07/01/24771/-",
       "town": "Столична",
       "region": "София-град",
       "country": "BG",
@@ -1296,6 +1440,60 @@
       "events_seen": 2,
       "reachable": true,
       "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jevents-ical",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Софийска опера и балет",
+      "url": "https://www.operasofia.bg/calendar/2026-08",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "custom",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "medium",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=custom",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "София Съмър Фест",
+      "url": "https://sofiasummerfest.bg",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "rss",
+      "structured_data": {
+        "json_ld": false,
+        "ical": false,
+        "rss": true
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=rss",
+      "probed_at": "2026-07-12"
+    },
+    {
+      "name": "Програма на театрите",
+      "url": "https://theatre.art.bg/teatri-sofia-programa______2026-07-13______20",
+      "town": "Столична",
+      "region": "София-град",
+      "country": "BG",
+      "cms": "jsonld",
+      "structured_data": {
+        "json_ld": true,
+        "ical": false,
+        "rss": false
+      },
+      "confidence": "high",
+      "events_seen": 2,
+      "reachable": true,
+      "notes": "discovered via Grok crawl 2026-07-12; 2 events seen; fp=jsonld",
       "probed_at": "2026-07-12"
     },
     {
