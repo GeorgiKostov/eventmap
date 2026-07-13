@@ -212,9 +212,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       $0/cron-able, covers 64/97 OÖ + hundreds nationally), `tier` rating so dead/empty sources stop
       getting rescanned, parallelize across hosts (per-host ≥1s intact). The real cost lever, not Grok.
 - [ ] Poster uploads → Supabase Storage (currently `/tmp` on serverless, ephemeral).
-- [ ] **REVERT testing rate limits before launch** (2026-07-13, a07e7e0): intake buckets were
-      bumped to 50/hr · 200/day · 500/day-global for George's testing — restore extract-url/scan to
-      4/hr·10/day·100 and events/publish to 5/hr·15/day·150. The `[intake]` diagnostic logs can stay.
+- [~] **Rate limits after launch** (2026-07-13, a07e7e0): page is advertised. Dropped all intake
+      buckets (events/publish + scan + extract-url) from the 50/hr testing bump to **20/hr** per IP
+      (perDay 200, globalPerDay 500 kept) while monitoring for abuse today. `[intake]` diagnostic
+      logs stay. Revisit: tighten further toward the original 4-5/hr if abuse shows up, or hold at 20.
 
 ## Growth & go-to-market (strategy: docs/strategy/growth-and-social.md, 2026-07-13)
 - [ ] **Newsletter unsubscribe/consent gaps — remaining** (double opt-in + unsubscribe shipped

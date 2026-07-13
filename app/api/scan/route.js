@@ -33,8 +33,9 @@ export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
   // Each scan calls an LLM ($$), so cap it hard: 4/hour + 10/day per IP hash,
   // and a global 100/day circuit-breaker to bound worst-case cost/abuse.
-  // TESTING: limits temporarily raised to 50/hr (was 4/hr, 10/day) — revert before launch.
-  const rl = await limit(req, 'scan', { perHour: 50, perDay: 200, globalPerDay: 500 });
+  // POST-LAUNCH (advertised 2026-07-13): cap at 20/hr per IP while monitoring for
+  // abuse; was 50/hr during testing, 4/hr originally.
+  const rl = await limit(req, 'scan', { perHour: 20, perDay: 200, globalPerDay: 500 });
   if (rl) {
     console.warn(`[intake] scan: rate-limited (scope=${rl.scope} window=${rl.window})`);
     const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
@@ -43,7 +44,7 @@ export async function POST(req) {
       code: 'RATE_LIMITED',
       rateLimit: {
         action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 50, perDay: 200,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 20, perDay: 200,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }

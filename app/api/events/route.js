@@ -31,8 +31,9 @@ export async function POST(req) {
   // Durable per-IP-hash rate limit (the old in-memory Map didn't survive
   // serverless isolation). Anonymous submissions: 5/hour, 15/day per IP,
   // 150/day across everyone (a flood of "valid" entries is itself abuse).
-  // TESTING: limits temporarily raised to 50/hr (was 5/hr, 15/day) — revert before launch.
-  const rl = await limit(req, 'submit', { perHour: 50, perDay: 200, globalPerDay: 500 });
+  // POST-LAUNCH (advertised 2026-07-13): cap at 20/hr per IP while monitoring for
+  // abuse; was 50/hr during testing, 5/hr originally.
+  const rl = await limit(req, 'submit', { perHour: 20, perDay: 200, globalPerDay: 500 });
   if (rl) {
     console.warn(`[intake] publish: rate-limited (scope=${rl.scope} window=${rl.window})`);
     return NextResponse.json({
@@ -40,7 +41,7 @@ export async function POST(req) {
       code: 'RATE_LIMITED',
       rateLimit: {
         action: 'publish', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 50, perDay: 200,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 20, perDay: 200,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
