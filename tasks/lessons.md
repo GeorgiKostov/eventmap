@@ -213,3 +213,18 @@ AI-intake flows on serverless need to absorb transient flake, not surface it. Wr
 `withRetry` (transient errors only — 429/5xx/overload/network/timeout; rethrow auth/bad-content
 immediately) and keep the page-fetch timeout generous (20s, well under maxDuration). A provider
 fallback (Gemini→Claude) alone doesn't cover a cold-start socket stall or a double transient.
+
+## 2026-07-13 — FB link "sometimes works": the date was never in the AI input
+
+The pasted-FB-link flow failed intermittently. Adding FB diagnostic logs
+(`[intake] extract-url FB:` — status / ogTitle / ogDesc / textLen) surfaced it in
+one fetch: FB serves ~71 chars of body text; the event's **date/place live only in
+`og:description`**. But the AI fallback fed the model `[og:title, htmlToText(body)]`
+— and `htmlToText` strips `<meta>`, so og:description never reached the model. With
+no date, the model either returned null (the visible failures) or **guessed a plausible
+date/time** — a silent hard-rule-#5 fabrication (a phantom `20:00` that FB never
+stated). **Lesson:** for any og-driven page (FB/IG/many event pages) the machine-readable
+facts are in `<meta>`, not the body — always feed `og:description`/`twitter:description`
+to the extractor, not just the title. And when an extractor "succeeds" with a field the
+source doesn't actually contain, suspect fabrication, not competence — verify against the
+raw input. Logs that print the exact model input are how you catch both.
