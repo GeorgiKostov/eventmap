@@ -29,7 +29,11 @@ const BROWSER_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 const CRAWLER_UA = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)';
 const FB_HOST = /(^|\.)(facebook\.com|fb\.me|fb\.com|fb\.watch)$/i;
 const MAX_BYTES = 2 * 1024 * 1024;
-const FETCH_TIMEOUT = 10000;
+// Socket inactivity timeout for the page fetch. 20s (not 10s) so a cold
+// serverless container that stalls the socket before the event loop services
+// it doesn't spuriously fail a fetch that is otherwise ~1s — the first-tap
+// flake. Still well under the route's 60s maxDuration.
+const FETCH_TIMEOUT = 20000;
 
 // Reject anything that isn't a routable public address — the core SSRF guard.
 // Covers loopback, RFC1918 private, link-local (incl. IPv6 fe80::/10 and
