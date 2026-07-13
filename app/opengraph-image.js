@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'Okolo — Events around Linz';
+export const alt = 'Okolo — Events around you';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -39,7 +39,7 @@ export default function OpengraphImage() {
             okolo
           </div>
           <div style={{ fontSize: 40, color: INK, opacity: 0.72, marginTop: 8 }}>
-            Events around Linz
+            Events around you
           </div>
           <div style={{ fontSize: 26, color: ACCENT, fontWeight: 700, marginTop: 26, letterSpacing: 1 }}>
             okolo.events
