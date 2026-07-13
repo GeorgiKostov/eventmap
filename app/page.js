@@ -900,14 +900,27 @@ export default function Home() {
       else if (haloCat && CATS[haloCat]) put(haloSpriteSvg(haloCat), HALO_BOX, HALO_BOX);
       else if (e.id === 'approx-event' || e.id === 'approx-place') put(approxHaloSvg(e.id === 'approx-place'), APPROX_BOX, APPROX_BOX);
     });
-    // One click handler: hit-test the pin layer (with a few-px tolerance box) →
-    // select that grouped item; a miss deselects. No per-frame 'move' work at all
-    // now — pins are projected on the GPU each frame, so nothing to sync in JS.
+    // ONE click handler routes every map tap with explicit priority — cluster
+    // bubble → pin → overview point → deselect. Layer-specific on('click', layer)
+    // handlers are deliberately NOT used for actions: they fire in registration
+    // order relative to this one, so split routing races (a bubble tap in the
+    // crossfade band used to fall through to an arbitrary nearby pin).
     map.on('click', (e) => {
       // During the add-flow (capture form / map-pick) a pin tap must NOT select +
       // flyTo — the resulting moveend would silently overwrite the location the
       // user is placing (review finding, 2026-07-13).
       if (addFlowActiveRef.current) return;
+      const top = (layer) => (map.getLayer(layer) ? map.queryRenderedFeatures(e.point, { layers: [layer] })[0] : null);
+      // 1. Cluster bubbles expand for as long as they render (clusters exist up
+      //    to clusterMaxZoom 12 and stay visible, fading, through the band —
+      //    their centroids are NOT co-located with any pin, so a bubble tap must
+      //    never fall through to pin/deselect handling).
+      const bubble = top('result-cluster-bubbles');
+      if (bubble) {
+        map.easeTo({ center: bubble.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
+        return;
+      }
+      // 2. Pins (rendered from HANDOFF_LOW up), with a few-px tolerance box.
       let item = null;
       if (map.getLayer('pins')) {
         const pad = 6;
@@ -923,8 +936,18 @@ export default function Home() {
         }
         if (best) item = pinIndexRef.current.itemById.get(best.properties.id);
       }
-      if (item) selectRef.current(item);
-      else { selectRef.current(null, { fly: false }); setMenuOpen(false); }
+      if (item) { selectRef.current(item); return; }
+      // 3. Below the band pins don't render yet — an overview dot tap zooms in.
+      if (map.getZoom() < HANDOFF_LOW) {
+        const pt = top('result-overview-points');
+        if (pt) {
+          map.easeTo({ center: pt.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
+          return;
+        }
+      }
+      // 4. Empty map → deselect.
+      selectRef.current(null, { fly: false });
+      setMenuOpen(false);
     });
     const meEl = document.createElement('div');
     meEl.className = 'me-marker hidden';
@@ -1234,17 +1257,8 @@ export default function Home() {
           'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': CLUSTER_FADE_OUT(1),
         },
       });
-      const zoomToFeature = (e) => {
-        // Inside the cluster↔pin cross-fade band, pins are live and co-located
-        // with the fading overview dots — let the pin click handler own the tap,
-        // or one click fires two competing camera moves (review, 2026-07-13).
-        if (map.getZoom() >= HANDOFF_LOW) return;
-        const feature = e.features?.[0];
-        if (!feature) return;
-        map.easeTo({ center: feature.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
-      };
-      map.on('click', 'result-cluster-bubbles', zoomToFeature);
-      map.on('click', 'result-overview-points', zoomToFeature);
+      // Clicks are routed by the single map-level handler (bubble → pin →
+      // overview point → deselect) — layer click handlers would race it.
       for (const layer of ['result-cluster-bubbles', 'result-overview-points']) {
         map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
@@ -1324,6 +1338,9 @@ export default function Home() {
           'circle-color': '#212b28', 'circle-radius': 8, // token: --ink #212b28
           'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff',
           'circle-translate': [13, -13], 'circle-translate-anchor': 'viewport',
+          // viewport pitch behavior to match the symbol pins — default 'map'
+          // pitch-scale resizes circles on a tilted map while icons/text don't
+          'circle-pitch-alignment': 'viewport', 'circle-pitch-scale': 'viewport',
           'circle-opacity': PIN_FADE_IN, 'circle-stroke-opacity': PIN_FADE_IN,
         },
       });
@@ -1351,6 +1368,7 @@ export default function Home() {
           'circle-color': '#e59500', 'circle-radius': 5.5, // token: --community #e59500
           'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff',
           'circle-translate': [-12, -12], 'circle-translate-anchor': 'viewport',
+          'circle-pitch-alignment': 'viewport', 'circle-pitch-scale': 'viewport',
           'circle-opacity': PIN_FADE_IN, 'circle-stroke-opacity': PIN_FADE_IN,
         },
       });

@@ -6,16 +6,17 @@ Mistakes made and reusable lessons from George's feedback. Append-only; newest a
 
 The GL pins shipped and George saw an EMPTY map past cluster zoom: the pin layers were never
 installed. The install effect used `if (map.isStyleLoaded()) install(); else map.once('load',
-install)`. Both branches fail for anything that runs *after* map 'load': `isStyleLoaded()` flips
-false whenever the style is dirty (`addImage` during sprite registration, `setData`, tiles still
-streaming) — so it was ~always false at that moment — and `'load'` fires **once per map lifetime**,
-so a `once('load')` registered after the real 'load' never fires. Result: install silently never
-ran. Clusters "worked" only by luck of ordering (their effect ran pre-load). **Lesson:** gate layer
-installs on a `mapLoaded` flag set in the 'load' handler (or a dependency that can only be true
-post-load, like spritesReady) and then call install directly — `addSource`/`addLayer` are safe any
-time after 'load'. Never use `isStyleLoaded()` as an install gate. Also: the agent env can't fire
-MapLibre 'load' at all, so this whole class is invisible to agent QA — post-'load' lifecycle paths
-need explicit real-browser confirmation.
+install)`. Both branches fail for anything that runs *after* map 'load': `isStyleLoaded()` returns
+false whenever style work is pending — chiefly sources still loading tiles / pending source
+updates, which is the normal state right after 'load' — and `'load'` fires **once per map
+lifetime**, so a `once('load')` registered after the real 'load' never fires. Result: install
+silently never ran. Clusters "worked" only by luck of ordering (their effect ran pre-load).
+**Lesson:** gate layer installs on a `mapLoaded` flag set in the 'load' handler (or a dependency
+that can only be true post-load, like spritesReady) and then call install directly —
+`addSource`/`addLayer` are safe any time after 'load'. Never use `isStyleLoaded()` as an install
+gate. (Whether the in-app agent browser fires MapLibre 'load' varies by session/environment — one
+review run drove the map fine, earlier runs never got 'load'. So treat agent-side map QA as
+best-effort, and post-'load' lifecycle paths as needing real-browser confirmation when it fails.)
 
 ## 2026-07-13 — Concurrent sessions + `git add -A` entangle commits; and GL zoom expressions must be top-level
 

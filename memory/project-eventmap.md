@@ -36,9 +36,18 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   source (promoteId), feature-state selection (halo + 1.28× overlay), count/community/approx as
   GL layers, all icon-allow-overlap, cluster↔pin crossfade 12.0→12.6 all-GL. Whole DOM lifecycle
   deleted (syncDetailMarkerViewport, bounds culling, hysteresis). Drift now impossible by
-  construction. Pushed 118c2c4. **Awaiting George's real-browser confirm** (in-app preview can't
-  run WebGL). Caution: a concurrent session's `git add -A` entangled the implementation commits
-  (43f4ccf/35dd854/b7efd7d) — see lessons.
+  construction. Caution: a concurrent session's `git add -A` entangled the implementation commits
+  (43f4ccf/35dd854/b7efd7d) — see lessons; it recurred (28fe888 carried the mapLoaded lines that
+  2a919be depends on), so those commits don't revert/cherry-pick independently.
+- **Post-ship regression + fixes (same night):** the initial ship showed an EMPTY map past cluster
+  zoom — pin layers never installed (dead `isStyleLoaded()/once('load')` gate; fixed 2a919be with a
+  mapLoaded flag; lesson recorded). Follow-up review browser-confirmed the fix: pins render after
+  zoom, click→detail works, filter-to-zero-and-back repopulates, add-flow guard works. Selection
+  halo + approx ring made shape-matched sprites (teardrop on events — George flagged circles,
+  5ec84b5). Review round 2 fixes: cluster-bubble taps now route with priority in ONE click handler
+  (bubble → pin → overview → deselect; bubbles kept expanding through the crossfade band), and
+  badge/community circles got viewport pitch-alignment/scale so decorations don't tilt/resize
+  independently on a pitched map.
 
 ## Where things stand (2026-07-13 — design-system consolidation)
 - **Landed `docs/design/design-system.md`** as the binding source of truth (tokens / marker grammar /
