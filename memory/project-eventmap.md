@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-13 late — ALL-GL MAP PINS, the backbone fix)
+- **DOM map markers are GONE — pins now render as GL layers** (George: markers shifted on every
+  zoom/pan, "truly broken"). briefs/gl-pins-brief.md → Opus implement + Opus adversarial review
+  (verdict SHIP-AFTER-FIXES, all 7 findings fixed, incl. an add-flow click guard that stopped pin
+  taps corrupting a location being placed, and invalid nested-zoom GL expressions the style-spec
+  validator caught). Architecture: 16 category sprites @3× from CATS/P, one `result-pins` GeoJSON
+  source (promoteId), feature-state selection (halo + 1.28× overlay), count/community/approx as
+  GL layers, all icon-allow-overlap, cluster↔pin crossfade 12.0→12.6 all-GL. Whole DOM lifecycle
+  deleted (syncDetailMarkerViewport, bounds culling, hysteresis). Drift now impossible by
+  construction. Pushed 118c2c4. **Awaiting George's real-browser confirm** (in-app preview can't
+  run WebGL). Caution: a concurrent session's `git add -A` entangled the implementation commits
+  (43f4ccf/35dd854/b7efd7d) — see lessons.
+
 ## Where things stand (2026-07-13 — design-system consolidation)
 - **Landed `docs/design/design-system.md`** as the binding source of truth (tokens / marker grammar /
   control vocabulary); design-doc §9 links to it. Fixed the design-drift issues: marker hard cap

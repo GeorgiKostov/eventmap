@@ -2,6 +2,20 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-13 — Concurrent sessions + `git add -A` entangle commits; and GL zoom expressions must be top-level
+
+Two from the GL-pins rewrite. (1) A second Claude session working the same repo ran `git add -A`
+commits that **swept another agent's in-progress `page.js`/`i18n.js` edits into its own commits**,
+briefly leaving HEAD non-building (committed code imported an export that only existed in the
+other agent's uncommitted file). **Lesson:** when two sessions share a repo, `git add -A` is a
+foot-gun — stage explicit paths only; and an agent whose files got swept should commit its
+remaining files to restore a green HEAD rather than rewrite the tree under the other session.
+(2) The style-spec validator rejected `['*', ['case', feature-state…], zoom-interpolate]`:
+**a `zoom` expression may only be input to a top-level `step`/`interpolate`**. To combine
+feature-state with a zoom ramp, invert it — top-level interpolate whose *output* is the
+feature-state `case`. This never fails at build time; validate GL expressions with
+`@maplibre/maplibre-gl-style-spec` (runtime `error` events are the only other signal).
+
 ## 2026-07-13 — Never CSS-`transition: transform` a MapLibre custom marker element
 
 Pins lagged/drifted/mis-placed while panning or zooming (a regression). Root cause:
