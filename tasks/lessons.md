@@ -172,3 +172,14 @@ Ran `rm -rf .next && npm run build` while the preview dev server (`next dev`) sh
 of webpack-runtime error usually means a corrupt/half-written `.next`, not your diff. Don't delete
 `.next` while `next dev`/`next build` is touching it. To confirm the code is fine: stop the dev
 server, `rm -rf .next`, and do one clean `npm run build`. Only bisect the diff if the *clean* build fails.
+
+## 2026-07-13 — "first tap fails, second works" on AI intake = serverless cold start
+
+A pasted FB link (and any poster scan) sometimes failed on the first submit, then succeeded on the
+retry. Not FB, not our fetch (both stable ~1s). Cause: the first request after idle lands on a cold
+Vercel container — the model call transiently 429/5xx/overloads, or the page-fetch socket stalls past
+the (then 10s) inactivity timeout — while the warm second request sails through. **Lesson:** first-tap
+AI-intake flows on serverless need to absorb transient flake, not surface it. Wrap intake in a bounded
+`withRetry` (transient errors only — 429/5xx/overload/network/timeout; rethrow auth/bad-content
+immediately) and keep the page-fetch timeout generous (20s, well under maxDuration). A provider
+fallback (Gemini→Claude) alone doesn't cover a cold-start socket stall or a double transient.
