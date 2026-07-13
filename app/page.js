@@ -1854,7 +1854,10 @@ export default function Home() {
       <div className="fgroup">
         <h4>{t.categories}</h4>
         <div className="catgrid">
-          {(kindFilter === 'event' ? EVENT_CATS : kindFilter === 'place' ? PLACE_CATS : [...EVENT_CATS, ...PLACE_CATS]).map((key) => (
+          {(kindFilter === 'event' ? EVENT_CATS : kindFilter === 'place' ? PLACE_CATS : [...EVENT_CATS, ...PLACE_CATS])
+            .slice()
+            .sort((a, b) => (t.cats[a] || a).localeCompare(t.cats[b] || b, lang))
+            .map((key) => (
             <button
               key={key}
               className={`cat ${cats.includes(key) ? 'on' : ''}`}
