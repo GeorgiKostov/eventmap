@@ -643,6 +643,7 @@ export default function Home() {
   const [freeOnly, setFreeOnly] = useState(false);
   const [kidsOnly, setKidsOnly] = useState(false);
   const [communityOnly, setCommunityOnly] = useState(false); // only events added by users (src_kind user_*)
+  const [partyOnly, setPartyOnly] = useState(false); // only events with the 'party' category (nightlife)
   const [inOut, setInOut] = useState('any'); // any | in | out
   const [tod, setTod] = useState([]); // morning | afternoon | evening
 
@@ -1046,6 +1047,7 @@ export default function Home() {
       if (freeOnly && ev.is_free !== 1) return false;
       if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
       if (communityOnly && !isCommunitySubmitted(ev)) return false;
+      if (partyOnly && !(ev.categories || []).includes('party')) return false;
       if (inOut === 'in' && ev.indoor !== 1) return false;
       if (inOut === 'out' && ev.indoor !== 0) return false;
       if (deferredSearch.trim()) {
@@ -1056,7 +1058,7 @@ export default function Home() {
       }
       return true;
     });
-  }, [events, deferredRadius, cats, freeOnly, kidsOnly, communityOnly, inOut, refPoint, deferredSearch, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [events, deferredRadius, cats, freeOnly, kidsOnly, communityOnly, partyOnly, inOut, refPoint, deferredSearch, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredEvents = useMemo(() => {
     if (kindFilter === 'place') return [];
@@ -1359,9 +1361,9 @@ export default function Home() {
   // advancedFilterCount = filters that live INSIDE the panel (drives the ⚙ badge).
   // inOut is now a quick chip (Indoor/Outdoor), so it counts as active, not advanced.
   const advancedFilterCount = (radius !== 20 ? 1 : 0) + cats.length + tod.length;
-  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (communityOnly ? 1 : 0) + (inOut !== 'any' ? 1 : 0);
+  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (communityOnly ? 1 : 0) + (partyOnly ? 1 : 0) + (inOut !== 'any' ? 1 : 0);
   function resetFilters() {
-    setRadius(20); setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setInOut('any'); setTod([]);
+    setRadius(20); setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setPartyOnly(false); setInOut('any'); setTod([]);
   }
 
   /* ---------------- scan flow ---------------- */
@@ -1788,6 +1790,7 @@ export default function Home() {
       <button className={`chip ${freeOnly ? 'on' : ''}`} onClick={() => setFreeOnly(!freeOnly)}>{t.freeOnly}</button>
       <button className={`chip ${inOut === 'in' ? 'on' : ''}`} onClick={() => setInOut(inOut === 'in' ? 'any' : 'in')}>{t.indoor}</button>
       <button className={`chip ${inOut === 'out' ? 'on' : ''}`} onClick={() => setInOut(inOut === 'out' ? 'any' : 'out')}>{t.outdoor}</button>
+      <button className={`chip ${partyOnly ? 'on' : ''}`} onClick={() => setPartyOnly(!partyOnly)}>{t.cats.party}</button>
       <button className={`chip ${communityOnly ? 'on' : ''}`} onClick={() => setCommunityOnly(!communityOnly)}>{t.communityOnly}</button>
     </>
   );
@@ -1811,7 +1814,7 @@ export default function Home() {
       <div className="fgroup">
         <h4>{t.categories}</h4>
         <div className="catgrid">
-          {(kindFilter === 'event' ? EVENT_CATS : kindFilter === 'place' ? PLACE_CATS : [...EVENT_CATS, ...PLACE_CATS]).map((key) => (
+          {(kindFilter === 'event' ? EVENT_CATS : kindFilter === 'place' ? PLACE_CATS : [...EVENT_CATS, ...PLACE_CATS]).filter((key) => key !== 'party').map((key) => (
             <button
               key={key}
               className={`cat ${cats.includes(key) ? 'on' : ''}`}
