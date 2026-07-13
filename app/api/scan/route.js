@@ -33,31 +33,39 @@ export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
   // Each scan calls an LLM ($$), so cap it hard: 4/hour + 10/day per IP hash,
   // and a global 100/day circuit-breaker to bound worst-case cost/abuse.
-  const rl = await limit(req, 'scan', { perHour: 4, perDay: 10, globalPerDay: 100 });
+  // TESTING: limits temporarily raised to 50/hr (was 4/hr, 10/day) — revert before launch.
+  const rl = await limit(req, 'scan', { perHour: 50, perDay: 200, globalPerDay: 500 });
   if (rl) {
+    console.warn(`[intake] scan: rate-limited (scope=${rl.scope} window=${rl.window})`);
     const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
     return NextResponse.json({
       error: msg,
       code: 'RATE_LIMITED',
       rateLimit: {
         action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 4, perDay: 10,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 50, perDay: 200,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
   const form = await req.formData();
   const file = form.get('image');
   if (!file || typeof file === 'string') {
+    console.warn('[intake] scan: no image in request');
     return NextResponse.json({ error: messages.noImage }, { status: 400 });
   }
   const ext = ALLOWED[file.type];
-  if (!ext) return NextResponse.json({ error: messages.format }, { status: 415 });
+  if (!ext) {
+    console.warn(`[intake] scan: unsupported type ${file.type}`);
+    return NextResponse.json({ error: messages.format }, { status: 415 });
+  }
   if (file.size > 8 * 1024 * 1024) {
+    console.warn(`[intake] scan: file too large (${file.size}b)`);
     return NextResponse.json({ error: messages.size }, { status: 413 });
   }
 
   const buf = Buffer.from(await file.arrayBuffer());
   if (sniffImage(buf) !== file.type) {
+    console.warn(`[intake] scan: content-type mismatch (claimed ${file.type}, sniffed ${sniffImage(buf)})`);
     return NextResponse.json({ error: messages.invalid }, { status: 415 });
   }
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -91,9 +99,10 @@ export async function POST(req) {
       if (match) duplicate = { id: match.id, title: match.title, starts_at: match.starts_at };
     }
 
+    console.log(`[intake] scan: OK is_event=${extraction?.is_event} title=${(extraction?.title || '').slice(0, 60)}${duplicate ? ' (dup of ' + duplicate.id + ')' : ''}`);
     return NextResponse.json({ extraction, photo_path: name, duplicate });
   } catch (err) {
-    console.error('scan extraction failed:', err);
+    console.error(`[intake] scan: extraction threw (${err?.message || err})`);
     return NextResponse.json(
       { error: messages.extraction, detail: String(err?.message || err) },
       { status: 502 }

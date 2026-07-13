@@ -31,21 +31,23 @@ export async function POST(req) {
   // Durable per-IP-hash rate limit (the old in-memory Map didn't survive
   // serverless isolation). Anonymous submissions: 5/hour, 15/day per IP,
   // 150/day across everyone (a flood of "valid" entries is itself abuse).
-  const rl = await limit(req, 'submit', { perHour: 5, perDay: 15, globalPerDay: 150 });
+  // TESTING: limits temporarily raised to 50/hr (was 5/hr, 15/day) — revert before launch.
+  const rl = await limit(req, 'submit', { perHour: 50, perDay: 200, globalPerDay: 500 });
   if (rl) {
+    console.warn(`[intake] publish: rate-limited (scope=${rl.scope} window=${rl.window})`);
     return NextResponse.json({
       error: messages.limited,
       code: 'RATE_LIMITED',
       rateLimit: {
         action: 'publish', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 5, perDay: 15,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 50, perDay: 200,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
   const raw = await req.json();
   // Honeypot: a hidden "website" field humans never see. Bots that fill it get
   // a fake success (no row written) so they don't adapt.
-  if (raw.website) return NextResponse.json({ ok: true, id: null });
+  if (raw.website) { console.warn('[intake] publish: honeypot tripped (silent fake-ok)'); return NextResponse.json({ ok: true, id: null }); }
 
   // Sanitize every free-text field (strip tags/control chars) before anything
   // else looks at it.
@@ -70,11 +72,13 @@ export async function POST(req) {
   const kind = body.kind === 'place' ? 'place' : 'event';
   // Places are evergreen (no date); events still require starts_at.
   if (!body.title || (kind === 'event' && !body.starts_at)) {
+    console.warn(`[intake] publish: rejected — missing ${!body.title ? 'title' : 'date'} (kind=${kind})`);
     return NextResponse.json({ error: kind === 'place' ? messages.title : messages.titleDate }, { status: 400 });
   }
   // Plausibility: date format + range (nothing far past/future), coords in Austria.
   const problem = submissionProblem(body, kind, viennaNow().slice(0, 10));
   if (problem) {
+    console.warn(`[intake] publish: rejected — ${problem} (title="${(body.title || '').slice(0, 60)}" start=${body.starts_at || null} lat=${body.lat} lng=${body.lng})`);
     const msg = problem === 'coords_outside_area'
       ? messages.outside
       : problem.startsWith('date') || problem.startsWith('bad_date')
@@ -88,13 +92,17 @@ export async function POST(req) {
   const strict = !body.photo_path && !sourceUrl;
   const spam = spamReason(body.title, body.description, { strict });
   if (spam) {
+    console.warn(`[intake] publish: rejected — spam (${spam}, strict=${strict}) title="${(body.title || '').slice(0, 60)}"`);
     return NextResponse.json({ error: messages.spam }, { status: 422 });
   }
 
   let lat = body.lat, lng = body.lng, geo_precision = body.geo_precision || 'venue';
   if (typeof lat !== 'number' || typeof lng !== 'number') {
     const geo = await geocodeEvent(body);
-    if (!geo) return NextResponse.json({ error: messages.location }, { status: 422 });
+    if (!geo) {
+      console.warn(`[intake] publish: rejected — geocode failed (town="${body.town || ''}" venue="${body.venue || ''}" address="${body.address || ''}")`);
+      return NextResponse.json({ error: messages.location }, { status: 422 });
+    }
     ({ lat, lng } = geo);
     geo_precision = geo.geo_precision;
   }
@@ -117,6 +125,7 @@ export async function POST(req) {
     if (match) {
       const patch = mergePlan(match, candidate);
       await updateEventFields(match.id, patch);
+      console.log(`[intake] publish: MERGED into ${match.id} (fields: ${Object.keys(patch).join(',') || 'none'}) title="${(body.title || '').slice(0, 60)}"`);
       return NextResponse.json({ ok: true, merged: true, id: match.id, lat: match.lat, lng: match.lng });
     }
   }
@@ -170,5 +179,6 @@ export async function POST(req) {
       `Entfernen: ${removeUrl}`,
     ].filter(Boolean).join('\n')
   );
+  console.log(`[intake] publish: OK ${res.updated ? 'updated' : 'created'} ${res.id} (kind=${kind}, src=${body.photo_path ? 'user_photo' : sourceUrl ? 'user_link' : 'user_manual'}) title="${(body.title || '').slice(0, 60)}"`);
   return NextResponse.json({ ok: true, id: res.id, updated: res.updated, lat, lng, geo_precision });
 }

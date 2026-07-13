@@ -274,24 +274,28 @@ export async function POST(req) {
     return NextResponse.json({ error: messages.badUrl }, { status: 400 });
   }
 
-  const rl = await limit(req, 'scan', { perHour: 4, perDay: 10, globalPerDay: 100 });
+  // TESTING: limits temporarily raised to 50/hr (was 4/hr, 10/day) — revert before launch.
+  const rl = await limit(req, 'scan', { perHour: 50, perDay: 200, globalPerDay: 500 });
   if (rl) {
+    console.warn(`[intake] extract-url: rate-limited (scope=${rl.scope} window=${rl.window})`);
     const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
     return NextResponse.json({
       error: msg,
       code: 'RATE_LIMITED',
       rateLimit: {
         action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 4, perDay: 10,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 50, perDay: 200,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
 
+  console.log(`[intake] extract-url: start url=${url.trim().slice(0, 200)}`);
   let res, finalUrl;
   try {
     ({ res, finalUrl } = await safeFetch(url.trim()));
   } catch (err) {
     const code = err?.message;
+    console.warn(`[intake] extract-url: fetch failed (${code}) url=${url.trim().slice(0, 200)}`);
     if (code === 'badUrl') return NextResponse.json({ error: messages.badUrl }, { status: 400 });
     if (code === 'blocked') return NextResponse.json({ error: messages.blocked, fallback: true }, { status: 422 });
     return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
@@ -304,20 +308,28 @@ export async function POST(req) {
   if (contentType.startsWith('image/')) {
     const { buf, truncated } = await readCapped(res);
     // A truncated image is corrupt bytes — reject rather than feed it to the model.
-    if (truncated || !buf.length) return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
+    if (truncated || !buf.length) {
+      console.warn(`[intake] extract-url: image truncated/empty (${buf.length}b) url=${finalUrl.slice(0, 200)}`);
+      return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
+    }
     const mediaType = contentType.split(';')[0].trim();
     try {
       const extraction = await extractFromImage({ base64: buf.toString('base64'), mediaType, geoHint: null });
-      if (!extraction?.is_event) return NextResponse.json({ error: messages.noEvent, fallback: true }, { status: 422 });
+      if (!extraction?.is_event) {
+        console.warn(`[intake] extract-url: image had no event url=${finalUrl.slice(0, 200)}`);
+        return NextResponse.json({ error: messages.noEvent, fallback: true }, { status: 422 });
+      }
+      console.log(`[intake] extract-url: OK via image-scan url=${finalUrl.slice(0, 200)}`);
       return NextResponse.json({ extraction: { ...extraction, kind: 'event' }, source_url: finalUrl });
     } catch (err) {
-      console.error('extract-url image path failed:', err?.message);
+      console.error(`[intake] extract-url: image path threw (${err?.message}) url=${finalUrl.slice(0, 200)}`);
       return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
     }
   }
 
   if (res.statusCode >= 400) {
     res.destroy();
+    console.warn(`[intake] extract-url: upstream ${res.statusCode} (blocked) url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.blocked, fallback: true }, { status: 422 });
   }
 
@@ -335,6 +347,7 @@ export async function POST(req) {
     distinctEvents.set(`${firstString(n.name) || ''}|${n.startDate || ''}`.toLowerCase(), n);
   }
   if (distinctEvents.size > 1) {
+    console.warn(`[intake] extract-url: listing page (${distinctEvents.size} events) — need a single event url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.noEvent, fallback: true }, { status: 422 });
   }
   const ldEvent = eventNodes[0] || nodes.find(isPlaceType);
@@ -343,6 +356,7 @@ export async function POST(req) {
     // 2. OpenGraph title fill-in when JSON-LD omitted the name.
     if (!extraction.title) extraction.title = metaContent(html, 'og:title') || metaContent(html, 'twitter:title') || '';
     if (extraction.title && (extraction.kind === 'place' || extraction.date_start)) {
+      console.log(`[intake] extract-url: OK via JSON-LD url=${finalUrl.slice(0, 200)}`);
       return NextResponse.json({ extraction, source_url: finalUrl });
     }
   }
@@ -351,16 +365,19 @@ export async function POST(req) {
   const ogTitle = metaContent(html, 'og:title') || metaContent(html, 'twitter:title');
   const text = [ogTitle, htmlToText(html)].filter(Boolean).join('\n\n').slice(0, 60000);
   if (text.length < 40) {
+    console.warn(`[intake] extract-url: too little readable text (${text.length} chars, likely walled) url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.blocked, fallback: true }, { status: 422 });
   }
   try {
     const extraction = await extractSingleFromText({ text, contextUrl: finalUrl });
     if (!extraction?.is_event || !extraction.title || !extraction.date_start) {
+      console.warn(`[intake] extract-url: AI found no usable event (is_event=${extraction?.is_event} title=${!!extraction?.title} date=${extraction?.date_start || null}) url=${finalUrl.slice(0, 200)}`);
       return NextResponse.json({ error: messages.noEvent, fallback: true }, { status: 422 });
     }
+    console.log(`[intake] extract-url: OK via AI-text url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ extraction: { ...extraction, kind: 'event' }, source_url: finalUrl });
   } catch (err) {
-    console.error('extract-url text path failed:', err?.message);
+    console.error(`[intake] extract-url: AI text path threw (${err?.message}) url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
   }
 }
