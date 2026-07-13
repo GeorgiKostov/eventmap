@@ -136,3 +136,27 @@ lag. Everything else checked (Facebook, Meetup, Bandsintown, Ticketmaster, OpenA
 radar.squat.net, OpenEventDatabase) is either ToS-blocked, functionally closed, wrong content
 fit, or too small to matter — confirming rather than contradicting the current crawl-first
 strategy.
+
+## Legal posture — Facebook link unfurling (2026-07-13)
+
+We do **not** crawl or scrape Facebook. What we do: when a **user pastes a single public FB event
+link**, `extract-url` fetches that one URL as the `facebookexternalhit` link-preview crawler, reads
+the OpenGraph metadata FB deliberately exposes for previews, extracts the facts (title/date/place),
+writes our own description, and stores the FB permalink as `source_url`. Mechanically this is
+identical to what Slack, Signal, iMessage, and Twitter do when you paste a link — **link unfurling,
+user-initiated, one event at a time, rate-limited.** That is the framing we stand behind, in UX and
+internally.
+
+- **Copyright / EU database right:** clean and unchanged — facts only, own prose, linkback. No FB
+  content stored.
+- **ToS / access:** a genuine gray area (UA identification as FB's crawler; content sits behind a
+  UA-gated login wall). The unfurl framing is the mitigation; low volume and per-link user intent
+  keep it far from "automated data collection." Worth a short lawyer check on the login-wall/UA
+  point before FB is treated as a load-bearing coverage channel for the validation test.
+- **Hard line — do NOT cross:** no logged-in FB account automation, no computer-use/browser-agent
+  bot clicking through FB to harvest event links in bulk, no headless session farming. That would
+  convert a defensible link-unfurler into automated logged-in scraping against Meta's terms —
+  exactly the posture we've spent this project avoiding — and also violates the LLM providers' own
+  usage policies (both OpenAI and Anthropic prohibit using computer-use to breach a target site's
+  ToS or automate deceptive account activity). Growth of the FB channel comes from **users and
+  organizers submitting links**, not from us operating a bot. See memory `bg-facebook-events`.
