@@ -30,10 +30,20 @@ function photonLabel(props) {
   return parts.join(', ') || props.name || '';
 }
 
-async function photonSuggest(q) {
-  const key = q.toLowerCase();
+// The map covers both AT and BG, so suggest must too — otherwise a Bulgarian
+// user typing "Бургас"/"София" gets zero results (the events are on the map but
+// unreachable via search). Bias the ranking toward the user's country, but
+// accept both countries' hits. Photon has no 'bg' locale → 'en' for BG (it
+// still matches Cyrillic queries and returns local Cyrillic names).
+const SUGGEST_BIAS = {
+  AT: { lat: 48.3069, lon: 14.2858, lang: 'de' }, // Linz
+  BG: { lat: 42.6977, lon: 23.3219, lang: 'en' }, // Sofia
+};
+async function photonSuggest(q, country = 'AT') {
+  const bias = SUGGEST_BIAS[country] || SUGGEST_BIAS.AT;
+  const key = `${country}|${q.toLowerCase()}`;
   if (suggestCache.has(key)) return suggestCache.get(key);
-  const url = `https://photon.komoot.io/api?q=${encodeURIComponent(q)}&limit=6&lang=de&lat=48.3069&lon=14.2858`;
+  const url = `https://photon.komoot.io/api?q=${encodeURIComponent(q)}&limit=6&lang=${bias.lang}&lat=${bias.lat}&lon=${bias.lon}`;
   let results = [];
   try {
     const res = await fetch(url, {
@@ -43,7 +53,7 @@ async function photonSuggest(q) {
     if (res.ok) {
       const data = await res.json();
       results = (data.features || [])
-        .filter((f) => (f.properties?.countrycode || '').toUpperCase() === 'AT')
+        .filter((f) => ['AT', 'BG'].includes((f.properties?.countrycode || '').toUpperCase()))
         .map((f) => ({
           label: photonLabel(f.properties || {}),
           lat: f.geometry.coordinates[1],
@@ -69,7 +79,8 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   if (searchParams.get('suggest') === '1') {
     const sq = (searchParams.get('q') || '').trim();
-    const results = sq.length >= 2 ? await photonSuggest(sq) : [];
+    const country = searchParams.get('country') === 'BG' ? 'BG' : 'AT';
+    const results = sq.length >= 2 ? await photonSuggest(sq, country) : [];
     return NextResponse.json({ results });
   }
   const q = searchParams.get('q');
@@ -78,7 +89,11 @@ export async function GET(req) {
       return NextResponse.json({ result: null }, { status: 429 });
     }
     const country = searchParams.get('country') === 'BG' ? 'BG' : 'AT';
-    const result = q.trim().length >= 2 ? await forwardGeocode(q, country) : null;
+    let result = q.trim().length >= 2 ? await forwardGeocode(q, country) : null;
+    // The map covers AT+BG; if the requested country has no hit, try the other
+    // so a search-field submit ("Бургас", "Sozopol") resolves regardless of the
+    // caller's country default. (Autocomplete/suggest already spans both.)
+    if (!result && q.trim().length >= 2) result = await forwardGeocode(q, country === 'BG' ? 'AT' : 'BG');
     return NextResponse.json({ result });
   }
   const lat = parseFloat(searchParams.get('lat'));

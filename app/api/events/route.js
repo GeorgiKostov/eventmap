@@ -8,9 +8,9 @@ import { notifyOperator } from '../../../lib/mail.js';
 
 export const dynamic = 'force-dynamic';
 const MESSAGES = {
-  de: { limited: 'Zu viele Einträge — bitte später wieder.', title: 'Titel ist Pflicht.', titleDate: 'Titel und Datum sind Pflicht.', outside: 'Der Ort liegt außerhalb Österreichs.', date: 'Bitte ein gültiges Datum (nicht vergangen, max. ~1 Jahr voraus) angeben.', meaningful: 'Bitte einen aussagekräftigen Titel angeben.', spam: 'Eintrag wurde als möglicher Spam abgelehnt.', location: 'Ort nicht gefunden — bitte Pin setzen.' },
-  en: { limited: 'Too many submissions — please try again later.', title: 'Title is required.', titleDate: 'Title and date are required.', outside: 'The place is outside Austria.', date: 'Enter a valid date (not in the past and no more than about one year ahead).', meaningful: 'Enter a meaningful title.', spam: 'The listing was rejected as possible spam.', location: 'Place not found — please set a pin.' },
-  bg: { limited: 'Твърде много публикации — опитай отново по-късно.', title: 'Заглавието е задължително.', titleDate: 'Заглавието и датата са задължителни.', outside: 'Мястото е извън Австрия.', date: 'Въведи валидна дата (не в миналото и до около една година напред).', meaningful: 'Въведи смислено заглавие.', spam: 'Публикацията беше отхвърлена като възможен спам.', location: 'Мястото не е намерено — постави маркер на картата.' },
+  de: { limited: 'Zu viele Einträge — bitte später wieder.', title: 'Titel ist Pflicht.', titleDate: 'Titel und Datum sind Pflicht.', outside: 'Der Ort liegt außerhalb unseres Gebiets.', date: 'Bitte ein gültiges Datum (nicht vergangen, max. ~1 Jahr voraus) angeben.', meaningful: 'Bitte einen aussagekräftigen Titel angeben.', spam: 'Eintrag wurde als möglicher Spam abgelehnt.', location: 'Ort nicht gefunden — bitte Pin setzen.' },
+  en: { limited: 'Too many submissions — please try again later.', title: 'Title is required.', titleDate: 'Title and date are required.', outside: 'The place is outside our coverage area.', date: 'Enter a valid date (not in the past and no more than about one year ahead).', meaningful: 'Enter a meaningful title.', spam: 'The listing was rejected as possible spam.', location: 'Place not found — please set a pin.' },
+  bg: { limited: 'Твърде много публикации — опитай отново по-късно.', title: 'Заглавието е задължително.', titleDate: 'Заглавието и датата са задължителни.', outside: 'Мястото е извън обхванатия район.', date: 'Въведи валидна дата (не в миналото и до около една година напред).', meaningful: 'Въведи смислено заглавие.', spam: 'Публикацията беше отхвърлена като възможен спам.', location: 'Мястото не е намерено — постави маркер на картата.' },
 };
 
 export async function GET(req) {
@@ -75,15 +75,18 @@ export async function POST(req) {
   // Plausibility: date format + range (nothing far past/future), coords in Austria.
   const problem = submissionProblem(body, kind, viennaNow().slice(0, 10));
   if (problem) {
-    const msg = problem === 'coords_outside_austria'
+    const msg = problem === 'coords_outside_area'
       ? messages.outside
       : problem.startsWith('date') || problem.startsWith('bad_date')
         ? messages.date
         : messages.meaningful;
     return NextResponse.json({ error: msg }, { status: 422 });
   }
-  // Basic spam/abuse guard for anonymous content.
-  const spam = spamReason(body.title, body.description);
+  // Basic spam/abuse guard for anonymous content. Scan (photo_path) and link
+  // (source_url) submissions are AI-vetted, so only the keyword blocklist applies;
+  // hand-typed entries get the full heuristic pass (see spamReason).
+  const strict = !body.photo_path && !sourceUrl;
+  const spam = spamReason(body.title, body.description, { strict });
   if (spam) {
     return NextResponse.json({ error: messages.spam }, { status: 422 });
   }
