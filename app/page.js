@@ -838,6 +838,12 @@ export default function Home() {
   // Sprites register asynchronously after the style loads; the pin layers can't
   // be added until they're on the map, so this gates their install.
   const [spritesReady, setSpritesReady] = useState(false);
+  // 'load' has fired (once per map lifetime). Layer-install effects gate on THIS,
+  // never on map.isStyleLoaded(): that flag flips false again whenever the style
+  // is dirty (addImage, setData, tiles still streaming), and a once('load')
+  // fallback registered after the real 'load' already fired never fires — which
+  // silently skipped the pin install (bug: "zooming in shows nothing", 2026-07-13).
+  const [mapLoaded, setMapLoaded] = useState(false);
   const geoRef = useRef({ me: HOME, radius: 20 });
   geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
@@ -858,6 +864,7 @@ export default function Home() {
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('load', () => {
+      setMapLoaded(true);
       map.addSource('radius', { type: 'geojson', data: circleGeoJSON(geoRef.current.me, geoRef.current.radius) });
       map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius', paint: { 'fill-color': '#C93A5B', 'fill-opacity': 0.035 } });
       map.addLayer({ id: 'radius-line', type: 'line', source: 'radius', paint: { 'line-color': '#C93A5B', 'line-opacity': 0.5, 'line-width': 1.5, 'line-dasharray': [3, 3] } });
@@ -2353,7 +2360,7 @@ export default function Home() {
             </div>
             <div className="chiprow" style={{ padding: '0 18px 6px' }}>{kindToggle}</div>
             <div className="chiprow" style={{ padding: '0 18px 10px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>{dateChips}</div>
-            <div className="chiprow" style={{ padding: '0 18px 12px' }}>
+            <div className="chiprow" style={{ padding: '0 18px 12px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>
               <button className={`chip ${showFilters || advancedFilterCount > 0 ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
                 ⚙︎ {t.filters} {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
               </button>
