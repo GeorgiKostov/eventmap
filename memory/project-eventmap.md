@@ -9,6 +9,24 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-13 latest — FB link unfurl, filter UX, party category)
+- **Public Facebook events now resolve via a pasted link.** FB's login wall is UA-gated;
+  `app/api/extract-url` requests FB hosts (`facebook.com`/`fb.me`/…) as the `facebookexternalhit`
+  crawler → full og metadata (title/date/place/org + cover) → existing og/AI-text path → structured
+  event, FB permalink as source_url. Public only; private/group events fall back to poster scan.
+  Legal posture = **user-initiated link unfurl only, never bot/logged-in scraping** (recorded in
+  docs/research/open-event-sources.md + memory `bg-facebook-events`). AI intake hardened against
+  serverless cold-start flake (withRetry on transient errors + 20s fetch timeout).
+- **Filter UX overhauled:** Kind is now a segmented control (single-select) vs toggle chips
+  (multi-select); quick row = ⚙Filters · For kids · Free · Indoor · Outdoor · Community · Party;
+  a location stats line (N events · M places) sits above the list; Indoor/Outdoor moved out of the
+  panel (no redundancy). Community + Party are dedicated quick-filter flags.
+- **New `party` category** (nightlife) — full Route C (CATS fuchsia + martini glyph, EVENT_CATS,
+  i18n de/en/bg, extractor enum + PARTY_HINT in all 3 prompts incl. submitted content) + Route B
+  backfill (scripts/backfill-party.mjs, title-only curated match, 97 existing events tagged).
+  NB: backfill APPENDS party, so a party event that already had e.g. `music` keeps its music pin
+  colour — party-only events show fuchsia. Making party the primary/pin cat is an open choice.
+
 ## Where things stand (2026-07-13 late — ALL-GL MAP PINS, the backbone fix)
 - **DOM map markers are GONE — pins now render as GL layers** (George: markers shifted on every
   zoom/pan, "truly broken"). briefs/gl-pins-brief.md → Opus implement + Opus adversarial review
