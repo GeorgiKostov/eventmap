@@ -1,5 +1,5 @@
 // Recrawl registered sources every few days: fetch page → structured-data-first
-// extraction (JSON-LD / iCal / RSS / GEM2GO) with Claude/Gemini as the fallback →
+// extraction (JSON-LD / iCal / CMS-specific feeds / RSS) with Claude/Gemini as the fallback →
 // geocode → upsert (dedup by title+day+town) → expire finished events.
 // Sources are grouped by host and crawled with a bounded worker pool so different
 // hosts run in parallel — the per-host ≥1s politeness delay (politeFetch) is what
@@ -8,6 +8,7 @@
 //        npm run crawl -- --url https://... (single source, ignores tier/cadence)
 //        npm run crawl -- --force          (ignore page-hash change-detection)
 //        npm run crawl -- --all            (ignore tier/cadence gating — periodic deep sweep)
+//        npm run crawl -- --scope stuttgart-40km (only that registered scope)
 // Requires Claude API credentials (ANTHROPIC_API_KEY or `ant auth login`).
 import { createHash } from 'node:crypto';
 import {
@@ -16,6 +17,11 @@ import {
 } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { extractFromPage } from '../lib/extract.js';
+import { parseDvvEvents } from '../lib/dvv-events.js';
+import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
+import {
+  CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
+} from '../lib/crawl-scopes.js';
 
 const CAT_EMOJI = {
   family: '🎈', festival: '🎪', market: '🧺', music: '🎶',
@@ -49,10 +55,12 @@ function htmlToText(html) {
 const HOST_DELAY_MS = 1000;
 const lastFetchByHost = new Map();
 const robotsCache = new Map(); // origin -> parsed rule groups
+const robotsDelayByHost = new Map();
 
 async function politeFetch(url, opts = {}) {
   const u = new URL(url);
-  const wait = HOST_DELAY_MS - (Date.now() - (lastFetchByHost.get(u.host) || 0));
+  const delay = Math.max(HOST_DELAY_MS, robotsDelayByHost.get(u.host) || 0);
+  const wait = delay - (Date.now() - (lastFetchByHost.get(u.host) || 0));
   if (wait > 0) await new Promise((r) => setTimeout(r, wait));
   lastFetchByHost.set(u.host, Date.now());
   return fetch(url, {
@@ -79,19 +87,28 @@ function parseRobots(text) {
       if (current && current.disallow.length === 0 && !current.sawRule) {
         current.agents.push(value.toLowerCase());
       } else {
-        current = { agents: [value.toLowerCase()], disallow: [], sawRule: false };
+        current = { agents: [value.toLowerCase()], disallow: [], crawlDelayMs: null, sawRule: false };
         groups.push(current);
       }
     } else if (key === 'disallow' && current) {
       current.sawRule = true;
       if (value) current.disallow.push(value);
+    } else if (key === 'crawl-delay' && current) {
+      current.sawRule = true;
+      const seconds = Number(value);
+      if (Number.isFinite(seconds) && seconds > 0) current.crawlDelayMs = Math.min(seconds * 1000, 60000);
     }
   }
   return groups;
 }
 
-function isDisallowed(groups, pathname) {
-  const group = groups.find((g) => g.agents.some((a) => a.includes(BOT_TOKEN))) || groups.find((g) => g.agents.includes('*'));
+function matchingRobotsGroup(groups) {
+  return groups.find((g) => g.agents.some((a) => a.includes(BOT_TOKEN)))
+    || groups.find((g) => g.agents.includes('*'))
+    || null;
+}
+
+function isDisallowed(group, pathname) {
   if (!group) return false;
   return group.disallow.some((p) => p === '/' || (p && pathname.startsWith(p)));
 }
@@ -107,10 +124,12 @@ async function robotsAllowed(url) {
     } catch { /* no robots.txt / fetch failed → default allow */ }
     robotsCache.set(u.origin, groups);
   }
-  return !isDisallowed(groups, u.pathname);
+  const group = matchingRobotsGroup(groups);
+  if (group?.crawlDelayMs) robotsDelayByHost.set(u.host, group.crawlDelayMs);
+  return !isDisallowed(group, u.pathname);
 }
 
-// --- structured-data-first extraction: JSON-LD → iCal → RSS/Atom → (LLM fallback in crawlSource) ---
+// --- structured-data-first extraction; LLM fallback stays in crawlSource ---
 
 // Extracts a leading "YYYY-MM-DD" and optional "HH:MM" from any ISO-ish
 // datetime, discarding a trailing timezone offset/Z. Hard rule: storage is
@@ -583,7 +602,8 @@ async function parseWienErlebenEvents(html, src) {
 }
 
 // Waterfall: JSON-LD → iCal → wien-erleben (cms-gated, two-hop) → GEM2GO
-// (cms-gated) → RSS/Atom. First route that yields ≥1 valid event wins and
+// (cms-gated) → DVV hCalendar RSS (cms-gated) → generic RSS/Atom. First route
+// that yields ≥1 valid event wins and
 // the LLM call is skipped entirely.
 async function tryStructuredExtraction(html, src) {
   const jsonld = parseJsonLdEvents(html, src);
@@ -609,6 +629,25 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'gem2go') {
     const gem2goEvents = parseGem2goEvents(html, src);
     if (gem2goEvents.length) return { route: 'gem2go', events: gem2goEvents };
+  }
+
+  if (src.cms === 'dvv') {
+    const dvvEvents = parseDvvEvents(html, src);
+    if (dvvEvents.length) return { route: 'dvv', events: dvvEvents };
+  }
+
+  if (src.cms === 'sitepark-ical') {
+    const events = [];
+    for (const item of parseSiteparkRssItems(html)) {
+      try {
+        const icsUrl = siteparkIcalUrl(item.detailUrl);
+        if (!await robotsAllowed(icsUrl)) continue;
+        const res = await politeFetch(icsUrl);
+        if (!res.ok) continue;
+        events.push(...parseIcsEvents(await res.text(), src.town));
+      } catch { /* one broken calendar item must not abort the source */ }
+    }
+    if (events.length) return { route: 'ical', events };
   }
 
   const feedHref = findFeedLink(html, ['application/rss+xml', 'application/atom+xml']);
@@ -684,7 +723,8 @@ async function recordStats(src, outcome) {
   return tier;
 }
 
-async function crawlSource(src, { force } = {}) {
+async function crawlSource(src, { force, scope: requestedScope } = {}) {
+  const scope = requestedScope || scopeForSource(src);
   console.log(`\n→ ${src.name} (${src.url})`);
 
   try {
@@ -736,7 +776,7 @@ async function crawlSource(src, { force } = {}) {
     }
   }
 
-  let ok = 0;
+  let ok = 0, outsideScope = 0;
   for (const raw of events) {
     try {
       if (!raw.title || !raw.date_start) continue;
@@ -763,8 +803,14 @@ async function crawlSource(src, { force } = {}) {
         // event is tagged for its country. Sources default to 'AT'.
         country: src.country || 'AT',
       };
-      const geo = await geocodeEvent(ev);
+      // Town-pin jitter is useful on the map but not while enforcing an exact
+      // crawl boundary: use the real geocoder/centroid point for the decision.
+      const geo = await geocodeEvent(ev, { jitterTown: !scope });
       if (!geo) continue;
+      if (scope && !isWithinCrawlScope(geo, scope)) {
+        outsideScope++;
+        continue;
+      }
       await upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
       ok++;
     } catch (e) {
@@ -773,10 +819,11 @@ async function crawlSource(src, { force } = {}) {
       console.log(`  ! skip event "${raw.title || '(untitled)'}" (${src.name}): ${e.code || e.message}`);
     }
   }
-  console.log(`  ${ok}/${events.length} events upserted (route: ${route})`);
+  console.log(`  ${ok}/${events.length} events upserted (route: ${route})`
+    + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : ''));
   await updateSourceMeta(src.id, { page_hash: hash, feed_kind: route });
   const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
-  return { ok, fail: 0, tier };
+  return { ok, fail: 0, tier, outsideScope };
 }
 
 // --- sustainable speed: bounded worker pool across DIFFERENT hosts ---
@@ -812,6 +859,11 @@ async function main() {
   const urlArg = process.argv.indexOf('--url');
   const force = process.argv.includes('--force');
   const all = process.argv.includes('--all');
+  const scopeArg = process.argv.indexOf('--scope');
+  const requestedScope = scopeArg > -1 ? crawlScope(process.argv[scopeArg + 1]) : null;
+  if (scopeArg > -1 && !requestedScope) {
+    throw new Error(`Unknown crawl scope "${process.argv[scopeArg + 1]}". Known scopes: ${Object.keys(CRAWL_SCOPES).join(', ')}`);
+  }
 
   let sources, skippedCadence = 0;
   if (urlArg > -1) {
@@ -824,20 +876,26 @@ async function main() {
       return due;
     });
   }
+  if (requestedScope) {
+    sources = sources.filter((s) => (
+      s.country === requestedScope.country && s.region === requestedScope.sourceRegion
+    ));
+  }
 
   const groups = groupByHost(sources);
   console.log(`Crawling ${sources.length} source(s) across ${groups.length} host(s) (up to ${HOST_CONCURRENCY} in parallel)`
     + (skippedCadence ? `, ${skippedCadence} skipped (tier cadence not due)` : '') + ' …');
 
-  let total = 0;
+  let total = 0, totalOutsideScope = 0;
   const tierCounts = { active: 0, slow: 0, dormant: 0, dead: 0 };
   await runHostPool(groups, async (src) => {
     // A crash anywhere in one source's processing (fetch, extraction, stats,
     // an upsert that slipped past the per-event guard) must not abort the
     // rest of the batch — log and move on to the next source.
     try {
-      const { ok, tier } = await crawlSource(src, { force });
+      const { ok, tier, outsideScope = 0 } = await crawlSource(src, { force, scope: requestedScope });
       total += ok;
+      totalOutsideScope += outsideScope;
       if (tier) tierCounts[tier] = (tierCounts[tier] || 0) + 1;
       await markSourceCrawled(src.id);
     } catch (e) {
@@ -847,6 +905,7 @@ async function main() {
 
   const expired = await expireFinished();
   console.log(`\nCrawl done: ${total} events upserted, ${expired} expired.`);
+  if (totalOutsideScope) console.log(`Scope guard: ${totalOutsideScope} out-of-radius event(s) skipped.`);
   console.log(`Tiers — active: ${tierCounts.active}, slow: ${tierCounts.slow}, dormant: ${tierCounts.dormant}, `
     + `dead: ${tierCounts.dead}, skipped (not due): ${skippedCadence}`);
 }

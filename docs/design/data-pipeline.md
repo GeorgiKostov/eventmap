@@ -29,7 +29,7 @@ exact line numbers). Companion docs: [`docs/design/design-doc.md`](design-doc.md
                                                     │ no
                                                     ▼
                                    structured waterfall (deterministic, $0):
-                                   JSON-LD → iCal → GEM2GO parser (cms-gated)
+                                   JSON-LD → iCal → Sitepark / GEM2GO / DVV parsers (cms-gated)
                                    → RSS/Atom
                                                     │ nothing matched
                                                     ▼
@@ -84,13 +84,13 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 | Field | Meaning |
 |---|---|
 | `name`, `url` (unique), `kind` | Registry identity. `kind` here is the *source* kind (`municipal` default) — unrelated to `events.kind` (`event`\|`place`); same column name, different meaning, worth not confusing. |
-| `town`, `region` | `town` = Gemeinde; `region` = Bundesland (`Oberösterreich`\|`Salzburg`\|`Niederösterreich`\|…). |
+| `town`, `region` | `town` = Gemeinde; `region` is normally the Bundesland (`Oberösterreich`\|`Salzburg`\|…), with an exact named-scope token such as `Stuttgart 40km` while a country rollout is deliberately radius-limited. |
 | `works` | false = known-dead/unfetchable (JS-only SPA, TLS issue) — excluded from crawl candidates entirely. |
 | `notes` | Free text — quirks, why `works=false`, robots-block, etc. |
-| `cms` | `ris`\|`gem2go`\|`other`\|`unknown`\|null. Gates the GEM2GO parser in the waterfall. |
+| `cms` | `ris`\|`gem2go`\|`dvv`\|`sitepark-ical`\|`other`\|`unknown`\|null. Gates CMS-specific parsers in the waterfall. |
 | `discovered_at` | When first registered. |
 | `page_hash` | sha256 of the stripped page text from the last crawl — change-detection. |
-| `feed_kind` | Which route won the *last* crawl: `jsonld`\|`ical`\|`gem2go`\|`rss`\|`llm`\|null. |
+| `feed_kind` | Which route won the *last* crawl: `jsonld`\|`ical`\|`gem2go`\|`dvv`\|`rss`\|`llm`\|null. |
 | `crawl_count`, `events_last`, `events_sum`, `zero_streak`, `last_changed`, `tier` | Content-rating / tiering — **[in flight, uncommitted]**, see §3. |
 
 ### Tiering policy (`scripts/crawl.mjs`, **[in flight, uncommitted]**)
@@ -165,14 +165,24 @@ the LLM is skipped:
    grid, German long-form dates via a `DE_MONTHS` table), `parseGem2goCollapsible` (accordion list).
    Tried in that order, first to yield ≥1 event wins. Categories are best-effort German
    keyword-matching (`GEM2GO_CATEGORY_RULES`) — null if unsure, never a forced guess.
-4. **RSS/Atom** (`parseRssEvents`) — only treated as an event source if entries carry an explicit
+4. **DVV Zusatzmodule RSS** (`parseDvvEvents`, `cms='dvv'`) — municipal feeds whose CDATA exposes
+   hCalendar `dtstart`/`dtend`, time, venue, postal address, and exact detail link. Parsed as facts
+   with `description=null`; this covers the Stuttgart-area Esslingen/Ludwigsburg/Böblingen pattern
+   without an LLM call.
+5. **Sitepark RSS + per-event iCal** (`cms='sitepark-ical'`) — the filtered Stuttgart feed supplies
+   canonical detail links; each linked iCal supplies the factual date, time, location, categories,
+   and canonical URL. RSS descriptions and images are ignored.
+6. **RSS/Atom** (`parseRssEvents`) — only treated as an event source if entries carry an explicit
    event-date tag (`startdate`/`dtstart`/`eventdate`, …) beyond the ordinary publish date; otherwise
    it's a news feed, falls through.
 
-Note: the file's own top-of-file comment lists the waterfall as "JSON-LD / iCal / RSS / GEM2GO" but
-the actual `tryStructuredExtraction` order is **JSON-LD → iCal → GEM2GO → RSS** — the comment is
-stale relative to the code (flagged for the concurrent session, not fixed here per the no-touch
-constraint on `scripts/crawl.mjs`).
+Named regional scope guards run after geocoding and before `upsertEvent()`. The first is
+`stuttgart-40km`: sources are explicitly tagged `country='DE', region='Stuttgart 40km'`; event
+coordinates must be within 40 km of `48.7758,9.1829`. Town-pin jitter is disabled for this check so
+the boundary decision is deterministic. A scoped mined file declares `_meta.scope` and gets the same
+guard in `scripts/seed.mjs`; out-of-radius events are skipped, never moved inward.
+Per-host politeness is at least one second and increases to a parsed robots `Crawl-delay` (capped at
+60 seconds); the Stuttgart-area DVV hosts currently request 30 seconds.
 
 **LLM fallback** — only when nothing structured matched: `extractFromPage()` in
 [`lib/extract.js`](../../lib/extract.js), see §4.
@@ -261,18 +271,19 @@ default.
 **Two independent layers, deliberately not merged into one:**
 
 1. **Exact layer — `content_hash`** (`lib/db.js` `contentHash()`/`upsertEvent()`): normalized
-   title + day + town (events) or normalized title + town (places, no day — evergreen). A `unique`
+   title + day + time + town + venue/address (event occurrences) or normalized title + town (places, no day — evergreen). A `unique`
    DB constraint means an identical re-extraction of the same event *updates* the row instead of
    duplicating it. This is what makes recrawls idempotent, but it only catches byte-for-byte-same
    normalized keys — two sources describing the same real event with slightly different titles slip
-   through.
+   through. Legacy title+day+town rows are migrated lazily when the exact start and a non-conflicting
+   venue match, so introducing occurrence-aware hashes does not duplicate existing records.
 2. **Fuzzy layer — `lib/dedup.js`** (pure functions, no DB access — deliberately, to avoid pulling in
    the DB pool or racing concurrent edits to `lib/geocode.js`): `findDuplicate(candidate, existing)`
    matches on **all three**:
-   - `sameDay` — exact Vienna calendar-date match (not "same weekday", not "same series" — a
-     recurring event on different dates never clusters).
-   - `sameLocation` — same normalized `town` string, OR (only when **both** sides carry
-     better-than-town `geo_precision`) within 300m. Town-centroid coordinates are excluded from the
+   - `sameDay` plus occurrence time — exact local calendar-date match, and two explicit different
+     wall-clock starts never cluster. An all-day copy may still enrich a timed copy.
+   - `sameLocation` — when both sides carry better-than-town `geo_precision`, they must be within
+     300m; otherwise the normalized `town` fallback applies. Town-centroid coordinates are excluded from the
      distance branch entirely — they're a sentinel, not a position, and two unrelated events in the
      same town would otherwise share identical centroid coords (`tasks/lessons.md`, 2026-07-11 —
      the same bug class that hit the UI's venue-grouping).
@@ -404,9 +415,12 @@ the flag — treat the commands below as the correct form, not the bare `npm run
 | `node --env-file=.env.local scripts/crawl.mjs --url https://...` | Crawl one source, ignoring tier/cadence | Same write behavior |
 | `node --env-file=.env.local scripts/crawl.mjs --force` | Ignore page-hash change-detection | Same write behavior |
 | `node --env-file=.env.local scripts/crawl.mjs --all` | Ignore tier/cadence gating (periodic deep sweep, includes `dead`) | Same write behavior |
+| `node --env-file=.env.local scripts/crawl.mjs --scope stuttgart-40km` | Crawl only registered Stuttgart-scope sources | Enforces the 40 km post-geocode guard |
 | `EXTRACT_PROVIDER=grok node --env-file=.env.local scripts/crawl.mjs [flags]` | Same crawl, LLM fallback routed through the Grok CLI first | Bulk-backfill use, not steady state |
 | `node --env-file=.env.local scripts/seed.mjs` | Ingest `data/mined/*.json` (`events`+`source_registry`) | Writes directly, no dry-run flag |
+| `node --env-file=.env.local scripts/seed.mjs --scope stuttgart-40km` | Ingest only mined files explicitly tagged for the Stuttgart pilot | Writes with country + post-geocode 40 km guards |
 | `node --env-file=.env.local scripts/seed-places.mjs` | Ingest `data/mined/*.json` (`places`) | **Dry-run by default** — pass `--write` to apply |
+| `node --env-file=.env.local scripts/seed-places.mjs --scope stuttgart-40km [--write]` | Review/write only Stuttgart-scoped place files | Validates `DE`, exact coordinates, and 40 km radius |
 | `node --env-file=.env.local scripts/regeocode.mjs` | Purge negative geocache, re-check town/venue-precision rows, propose moves | **Dry-run by default** — pass `--write` to apply |
 | `node --env-file=.env.local scripts/merge-dups.mjs` | Fuzzy cross-source dedup sweep over published events | **Dry-run by default** — pass `--write` to apply |
 | `node --env-file=.env.local scripts/fix-always-open.mjs` | One-off `opening_hours` sentinel migration | Already applied; keep for reference, don't re-run blindly |

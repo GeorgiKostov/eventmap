@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "scope": "stuttgart-40km",
+    "built_at": "2026-07-13",
+    "center": { "lat": 48.7758, "lng": 9.1829 },
+    "radius_km": 40,
+    "notes": "Official municipal RSS feeds only. Source centroids establish registration eligibility; every event is geocoded and radius-checked again before upsert."
+  },
+  "country": "DE",
+  "proposed": [
+    {
+      "name": "Stadt Esslingen am Neckar Veranstaltungskalender",
+      "url": "https://www.esslingen.de/site/Esslingen_Layout_2022/zmrss/20307012/rss.xml",
+      "town": "Esslingen am Neckar",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.7407,
+      "centroid_lng": 9.3109,
+      "cms": "dvv",
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official DVV hCalendar RSS; exact event detail links; aggregate fetch must honor robots Crawl-delay: 30."
+    },
+    {
+      "name": "Stadt Ludwigsburg Veranstaltungskalender",
+      "url": "https://www.ludwigsburg.de/site/Ludwigsburg-Internet-2020/zmrss/16990284/rss.xml",
+      "town": "Ludwigsburg",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.897,
+      "centroid_lng": 9.1914,
+      "cms": "dvv",
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official DVV hCalendar RSS; exact event detail links; aggregate fetch must honor robots Crawl-delay: 30."
+    },
+    {
+      "name": "Stadt Böblingen Veranstaltungskalender",
+      "url": "https://www.boeblingen.de/site/Boeblingen-Internet/zmrss/24351308/rss.xml",
+      "town": "Böblingen",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.685,
+      "centroid_lng": 9.0113,
+      "cms": "dvv",
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official DVV hCalendar RSS; exact event detail links; aggregate fetch must honor robots Crawl-delay: 30."
+    },
+    {
+      "name": "Stadt Leinfelden-Echterdingen Veranstaltungskalender",
+      "url": "https://www.leinfelden-echterdingen.de/site/Leinfelden-Echterdingen-Internet/zmrss/6514092/rss.xml",
+      "town": "Leinfelden-Echterdingen",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.6928,
+      "centroid_lng": 9.1428,
+      "cms": "dvv",
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official DVV hCalendar RSS; exact event detail links; Kinder category available; aggregate fetch must honor robots Crawl-delay: 30."
+    },
+    {
+      "name": "Stadt Filderstadt Veranstaltungskalender",
+      "url": "https://www.filderstadt.de/site/Filderstadt-Internet-2019/zmrss/1373185/rss.xml",
+      "town": "Filderstadt",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.6604,
+      "centroid_lng": 9.2205,
+      "cms": "dvv",
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official DVV hCalendar RSS; exact event detail links; aggregate fetch must honor robots Crawl-delay: 30."
+    }
+  ]
+}

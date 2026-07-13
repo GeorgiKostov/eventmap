@@ -1,6 +1,7 @@
 // Turns scripts/probe-sources.mjs output into registered `sources` rows.
 // Registration policy (Architect-approved, 2026-07-12): confidence='high'
-// (any cms) + confidence='medium' with cms in ('gem2go','ris'). Everything
+// (any cms) + confidence='medium' with a verified structured CMS
+// ('gem2go','ris','dvv'). Everything
 // else (low/none/unknown-medium) is LLM-review residue, skipped for now.
 //
 // Usage: node --env-file=.env.local scripts/register-probed.mjs
@@ -9,6 +10,9 @@
 import fs from 'fs';
 import path from 'path';
 import { listSourcesForDedup, upsertSource, closeDb } from '../lib/db.js';
+import {
+  CRAWL_SCOPES, isWithinCrawlScope, scopeFromCatalog, sourceCatalogPoint,
+} from '../lib/crawl-scopes.js';
 
 function parseArgs(argv) {
   const args = { write: false, file: 'data/catalog/probed-all-1823.json' };
@@ -21,7 +25,7 @@ function parseArgs(argv) {
 
 function passesPolicy(r) {
   if (r.confidence === 'high') return true;
-  if (r.confidence === 'medium' && (r.cms === 'gem2go' || r.cms === 'ris')) return true;
+  if (r.confidence === 'medium' && ['gem2go', 'ris', 'dvv'].includes(r.cms)) return true;
   // BG has no gem2go/ris; its sources are confirmed-working listing pages from
   // the crawl, so accept medium there too (high is already covered above).
   if (r.country === 'BG' && r.confidence === 'medium') return true;
@@ -32,12 +36,33 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   const filePath = path.join(process.cwd(), args.file);
   const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  const proposed = data.proposed || [];
+  const scopeId = data?._meta?.scope || data?.scope || null;
+  const scope = scopeFromCatalog(data);
+  if (scopeId && !scope) {
+    throw new Error(`Unknown crawl scope "${scopeId}". Known scopes: ${Object.keys(CRAWL_SCOPES).join(', ')}`);
+  }
+  const proposed = (data.proposed || []).map((r) => ({
+    ...r,
+    country: r.country || data.country || scope?.country || 'AT',
+  }));
   console.log(`Loaded ${proposed.length} probed rows from ${args.file}`);
 
-  const selected = proposed.filter(passesPolicy);
+  let selected = proposed.filter(passesPolicy);
   console.log(`Policy-selected: ${selected.length} (high=${proposed.filter((r) => r.confidence === 'high').length}, `
-    + `medium+gem2go/ris=${proposed.filter((r) => r.confidence === 'medium' && (r.cms === 'gem2go' || r.cms === 'ris')).length})`);
+    + `medium+structured-cms=${proposed.filter((r) => r.confidence === 'medium' && ['gem2go', 'ris', 'dvv'].includes(r.cms)).length})`);
+
+  if (scope) {
+    const rejected = { country: 0, region: 0, coordinates: 0, radius: 0 };
+    selected = selected.filter((r) => {
+      if (r.country !== scope.country) { rejected.country++; return false; }
+      if (r.region !== scope.sourceRegion) { rejected.region++; return false; }
+      const point = sourceCatalogPoint(r);
+      if (!point) { rejected.coordinates++; return false; }
+      if (!isWithinCrawlScope(point, scope)) { rejected.radius++; return false; }
+      return true;
+    });
+    console.log(`Scope ${scope.id}: ${selected.length} source(s) within ${scope.radiusKm} km; rejected ${JSON.stringify(rejected)}`);
+  }
 
   // Dedup against already-registered sources (domain or name+region) — belt
   // and braces even though probe-sources.mjs already excluded these at
@@ -89,13 +114,13 @@ async function main() {
     await upsertSource({
       name: r.name,
       url: r.url,
-      kind: 'municipal',
+      kind: r.kind || 'municipal',
       town: r.town || null,
       works: true,
       cms: r.cms || null,
       region: r.region || null,
-      country: r.country || 'AT',
-      notes: `registered via register-probed.mjs (confidence=${r.confidence})`,
+      country: r.country,
+      notes: [r.notes, `registered via register-probed.mjs (confidence=${r.confidence})`].filter(Boolean).join('; '),
     });
     written++;
   }

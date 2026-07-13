@@ -10,12 +10,12 @@ create table if not exists sources (
   works         boolean default true,
   notes         text,
   last_crawled  timestamptz,
-  cms           text,               -- ris | gem2go | other | unknown | null (not yet classified)
+  cms           text,               -- ris | gem2go | dvv | sitepark-ical | other | unknown | null
   region        text,               -- Bundesland, e.g. 'Oberösterreich' | 'Salzburg' | 'Wien' ...
-  country       text not null default 'AT', -- ISO 3166-1 alpha-2, e.g. 'AT' | 'BG'
+  country       text not null default 'AT', -- ISO 3166-1 alpha-2, e.g. 'AT' | 'BG' | 'DE'
   discovered_at timestamptz default now(),
   page_hash     text,               -- sha256 of stripped page text; unchanged → skip extraction
-  feed_kind     text,               -- jsonld | ical | rss | gem2go | llm | null (which route won last crawl)
+  feed_kind     text,               -- jsonld | ical | gem2go | dvv | rss | llm | null
   -- content-rating / tiering (scripts/crawl.mjs) — see tier threshold comment there
   crawl_count   int default 0,      -- total crawl attempts (incl. hash-unchanged skips)
   events_last   int,                -- events found on the most recent extraction round
