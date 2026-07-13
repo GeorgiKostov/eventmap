@@ -4,7 +4,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, LinkSimple, PencilSimple, CaretRight } from '@phosphor-icons/react';
-import { CATS, CatIcon, catIconSvg, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
+import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
 import { groupEventSeries } from '../lib/map-groups.js';
@@ -13,14 +13,17 @@ import { useLanguage } from './language-provider.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
-const DETAIL_MARKER_ZOOM = 12.5;
-// Google-Maps-style handoff between GL cluster layers and rich DOM pins:
-// clusters fade out across a zoom band while pins fade in, both updating
-// continuously during the gesture, with hysteresis so the boundary never flickers.
-const DETAIL_MARKER_SHOW_ZOOM = 12.2; // pins appear here while zooming in
-const DETAIL_MARKER_HIDE_ZOOM = 12.05; // pins persist down to here while zooming out
-const OVERVIEW_FADE_START_ZOOM = 12.1; // clusters at full opacity below this
-const OVERVIEW_MARKER_MAX_ZOOM = 12.7; // clusters fully faded / culled here
+// All-GL pin handoff band: below LOW the clustered overview owns the map, above
+// HIGH the detail sprite pins do; across the band both cross-fade via a single
+// zoom-interpolated opacity expression MapLibre evaluates per frame on the GPU —
+// no JS visibility flags, no per-frame move work (the DOM-marker drift class is
+// gone by construction). Pick the band ends just inside each layer's minzoom/maxzoom.
+const HANDOFF_LOW = 12.0;
+const HANDOFF_HIGH = 12.6;
+// Pure top-level camera (zoom) expressions — the only form MapLibre precompiles
+// into a per-zoom ramp. Pins fade in, clusters fade out, across the same band.
+const PIN_FADE_IN = ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, 1];
+const CLUSTER_FADE_OUT = (peak) => ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, peak, HANDOFF_HIGH, 0];
 
 function mapLibreLocale(t) {
   return {
@@ -139,6 +142,72 @@ function primaryCat(ev) {
 // legacy 'manual' curator seeds) are NOT community — they come from public data.
 function isCommunitySubmitted(ev) {
   return ev.src_kind === 'user_photo' || ev.src_kind === 'user_manual' || ev.src_kind === 'user_link';
+}
+
+/* ---------------- GL pin sprites ----------------
+ * MapLibre paint/layout can't read CSS vars, so pin sprites are rasterized from
+ * the SAME tokens the DOM uses: CATS[cat].color + the P glyph paths + #fff
+ * border/glyph (design-system.md marker grammar). One sprite per category (16);
+ * shape = kind is baked in (event = teardrop, place = circle) since event/place
+ * category sets are disjoint. Everything else (selection halo/scale, count badge,
+ * community dot, zoom cross-fade) is a layer over one source, not a sprite. */
+const PIN_S = 28;                     // pin body box (DOM .pin2 was 32; sprite adds pad)
+const PIN_PAD = 3;                    // room for the 2px white border
+const PIN_BOX = PIN_S + PIN_PAD * 2;  // 34px shown at icon-size 1
+const SPRITE_RATIO = 3;               // supersample so pins stay crisp on hidpi
+
+// Teardrop (event) = circle with a sharp-ish bottom-left corner, matching the CSS
+// border-radius 50% 50% 50% 4px; place = full circle. r = s/2 so the top/right are
+// a semicircle and only the bottom-left corner changes with `place`.
+function pinSilhouette(s, place) {
+  const r = s / 2;
+  const bl = place ? r : 4;
+  return `M${r} 0A${r} ${r} 0 0 1 ${s} ${r}A${r} ${r} 0 0 1 ${r} ${s}L${bl} ${s}`
+    + `A${bl} ${bl} 0 0 1 0 ${s - bl}L0 ${r}A${r} ${r} 0 0 1 ${r} 0Z`;
+}
+function pinSpriteSvg(cat) {
+  const place = PLACE_CATS.includes(cat);
+  const color = CATS[cat].color;                       // token: CATS[cat].color
+  const glyph = 15, g = PIN_PAD + (PIN_S - glyph) / 2; // glyph centered on body
+  const paths = (ICON_PATHS[cat] || ICON_PATHS.family).map((d) => `<path d="${d}"/>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_BOX}" height="${PIN_BOX}" viewBox="0 0 ${PIN_BOX} ${PIN_BOX}">`
+    + `<g transform="translate(${PIN_PAD} ${PIN_PAD})"><path d="${pinSilhouette(PIN_S, place)}" fill="${color}" stroke="#fff" stroke-width="2"/></g>`
+    + `<g transform="translate(${g} ${g}) scale(${glyph / 24})" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths}</g>`
+    + `</svg>`;
+}
+// Town-level (approx) precision = neutral dashed ring. GL circles can't dash, so
+// it's a baked sprite drawn under the pin (design-system.md .approx-precision).
+function approxHaloSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">`
+    + `<circle cx="24" cy="24" r="20" fill="rgba(255,255,255,0.42)" stroke="rgba(33,43,40,0.62)" stroke-width="2" stroke-dasharray="4 4"/></svg>`;
+}
+// Rasterize an SVG string to ImageData at SPRITE_RATIO for map.addImage.
+function rasterizeSprite(svg, cssW, cssH) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = Math.round(cssW * SPRITE_RATIO);
+      c.height = Math.round(cssH * SPRITE_RATIO);
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      resolve(ctx.getImageData(0, 0, c.width, c.height));
+    };
+    img.onerror = reject;
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+// Build + register every pin sprite. Async (Image.onload), so callers gate layer
+// creation on the returned promise; addImage must run after the style has loaded.
+async function registerPinSprites(map) {
+  const add = async (name, svg, w, h) => {
+    const data = await rasterizeSprite(svg, w, h);
+    if (!map.hasImage(name)) map.addImage(name, data, { pixelRatio: SPRITE_RATIO });
+  };
+  await Promise.all([
+    ...Object.keys(CATS).map((cat) => add(`pin-${cat}`, pinSpriteSvg(cat), PIN_BOX, PIN_BOX)),
+    add('pin-approx-halo', approxHaloSvg(), 48, 48),
+  ]);
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
 // within ~30m. Used both to collapse event pins per venue and to list "more at
@@ -376,7 +445,11 @@ function PinDropPicker({ center, t, onConfirm }) {
 export default function Home() {
   const mapRef = useRef(null);
   const mapObj = useRef(null);
-  const markers = useRef(new Map());
+  // Pin lookups for the GL layers: id → grouped item (click/flyTo) and member id
+  // → representative id (a venue/series group is one pin; selecting any member
+  // lights its representative). Rebuilt with the pin source data.
+  const pinIndexRef = useRef({ itemById: new Map(), memberToRep: new Map() });
+  const pinSelRef = useRef(null); // feature id currently carrying feature-state selected
   const fileInput = useRef(null);
 
   const { lang, t, chooseLanguage } = useLanguage();
@@ -757,52 +830,12 @@ export default function Home() {
   }
 
   /* ---------------- map ---------------- */
-  const [detailMarkersVisible, setDetailMarkersVisible] = useState(false);
-  const [detailMarkerBounds, setDetailMarkerBounds] = useState(null);
-  const detailVisibleRef = useRef(false);
+  // Sprites register asynchronously after the style loads; the pin layers can't
+  // be added until they're on the map, so this gates their install.
+  const [spritesReady, setSpritesReady] = useState(false);
   const geoRef = useRef({ me: HOME, radius: 20 });
   geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
-
-  // `settle` = the gesture has ended (moveend). The marker SET is only ever
-  // recomputed on settle (or the first frame pins turn on) — never on every
-  // pan frame. Recomputing mid-pan is what made pins churn/flicker and appear
-  // to drift: MapLibre already repositions the existing DOM pins smoothly on
-  // its own, so we keep the set stable during the gesture and re-cull once it
-  // stops. During the gesture we only flip the visibility flag when the zoom
-  // threshold is crossed, so the GL-cluster→pin handoff still happens live.
-  function syncDetailMarkerViewport(map, settle) {
-    const zoom = map.getZoom();
-    // Hysteresis: pins appear at SHOW, persist down to HIDE, so a zoom that
-    // settles on the boundary can't toggle them on and off between frames.
-    const shouldShow = detailVisibleRef.current ? zoom >= DETAIL_MARKER_HIDE_ZOOM : zoom >= DETAIL_MARKER_SHOW_ZOOM;
-    if (shouldShow !== detailVisibleRef.current) {
-      detailVisibleRef.current = shouldShow;
-      setDetailMarkersVisible(shouldShow);
-    }
-    if (!shouldShow) {
-      setDetailMarkerBounds((current) => current == null ? current : null);
-      return;
-    }
-    setDetailMarkerBounds((current) => {
-      // Keep the existing set stable mid-gesture; only compute a fresh padded
-      // viewport when the gesture settles or when pins have just turned on
-      // (no set yet). The 20% pad gives the new set a little slack so a small
-      // settle nudge doesn't immediately recompute.
-      if (!settle && current != null) return current;
-      const bounds = map.getBounds();
-      const lngPad = (bounds.getEast() - bounds.getWest()) * 0.2;
-      const latPad = (bounds.getNorth() - bounds.getSouth()) * 0.2;
-      const next = [
-        bounds.getWest() - lngPad,
-        bounds.getSouth() - latPad,
-        bounds.getEast() + lngPad,
-        bounds.getNorth() + latPad,
-      ];
-      if (current && current.every((value, i) => Math.abs(value - next[i]) < 0.00001)) return current;
-      return next;
-    });
-  }
 
   useEffect(() => {
     if (mapObj.current || !mapRef.current) return;
@@ -823,33 +856,39 @@ export default function Home() {
       map.addSource('radius', { type: 'geojson', data: circleGeoJSON(geoRef.current.me, geoRef.current.radius) });
       map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius', paint: { 'fill-color': '#C93A5B', 'fill-opacity': 0.035 } });
       map.addLayer({ id: 'radius-line', type: 'line', source: 'radius', paint: { 'line-color': '#C93A5B', 'line-opacity': 0.5, 'line-width': 1.5, 'line-dasharray': [3, 3] } });
+      // Rasterize + register the category pin sprites, then let the pin layers install.
+      registerPinSprites(map).then(() => setSpritesReady(true)).catch((e) => console.error('[pins] sprite', e));
     });
-    // Sync during the gesture (rAF-coalesced), not just after it settles —
-    // 'move' fires throughout pans AND zoom animations, so the GL→DOM handoff
-    // flips the moment the zoom threshold is crossed instead of only on moveend
-    // (which left clusters gone and pins not-yet-shown mid-zoom). The mid-gesture
-    // call only touches the visibility flag; the marker set is recomputed on
-    // moveend (settle=true), keeping pins stable — not drifting — during the pan.
-    let syncRaf = null;
-    const scheduleViewportSync = () => {
-      if (syncRaf != null) return;
-      syncRaf = requestAnimationFrame(() => { syncRaf = null; syncDetailMarkerViewport(map, false); });
-    };
-    map.on('move', scheduleViewportSync);
-    map.on('moveend', () => syncDetailMarkerViewport(map, true));
-    map.on('click', () => { selectRef.current(null, { fly: false }); setMenuOpen(false); });
+    // Safety net: if a sprite ever isn't registered when a layer references it,
+    // rasterize it on demand so a pin never renders as a blank box.
+    map.on('styleimagemissing', (e) => {
+      const cat = e.id.startsWith('pin-') ? e.id.slice(4) : null;
+      if (cat && CATS[cat]) rasterizeSprite(pinSpriteSvg(cat), PIN_BOX, PIN_BOX).then((d) => { if (!map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: SPRITE_RATIO }); });
+      else if (e.id === 'pin-approx-halo') rasterizeSprite(approxHaloSvg(), 48, 48).then((d) => { if (!map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: SPRITE_RATIO }); });
+    });
+    // One click handler: hit-test the pin layer (with a few-px tolerance box) →
+    // select that grouped item; a miss deselects. No per-frame 'move' work at all
+    // now — pins are projected on the GPU each frame, so nothing to sync in JS.
+    map.on('click', (e) => {
+      let item = null;
+      if (map.getLayer('pins')) {
+        const pad = 6;
+        const box = [[e.point.x - pad, e.point.y - pad], [e.point.x + pad, e.point.y + pad]];
+        const hit = map.queryRenderedFeatures(box, { layers: ['pins'] })[0];
+        if (hit) item = pinIndexRef.current.itemById.get(hit.properties.id);
+      }
+      if (item) selectRef.current(item);
+      else { selectRef.current(null, { fly: false }); setMenuOpen(false); }
+    });
     const meEl = document.createElement('div');
     meEl.className = 'me-marker hidden';
     meMarker.current = new maplibregl.Marker({ element: meEl }).setLngLat([HOME.lng, HOME.lat]).addTo(map);
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
     if (typeof window !== 'undefined') window.__umkreisMap = map;
     mapObj.current = map;
-    syncDetailMarkerViewport(map, true);
     return () => {
-      if (syncRaf != null) cancelAnimationFrame(syncRaf);
       map.remove();
       mapObj.current = null;
-      markers.current.clear();
     };
   }, []);
 
@@ -942,22 +981,20 @@ export default function Home() {
           .catch(() => {});
       }
       track('open_detail', { kind: ev.kind, cat: primaryCat(ev), town: ev.town });
-      let groupedMarker = null;
-      for (const rec of markers.current.values()) {
-        const selectedHere = (rec.ev._venueIds || [rec.ev.id]).includes(ev.id);
-        rec.el.classList.toggle('selected', selectedHere);
-        if (selectedHere) groupedMarker = rec;
-      }
+      // Fly to the group's representative pin (selecting a list row that's a venue
+      // /series member centers on the single pin that stands for it). The visual
+      // selection (halo + scale) is driven off React `selected` via feature-state
+      // in a dedicated effect — no marker DOM to toggle here.
       if (fly && mapObj.current) {
+        const repId = pinIndexRef.current.memberToRep.get(ev.id) ?? ev.id;
+        const rep = pinIndexRef.current.itemById.get(repId);
         mapObj.current.flyTo({
-          center: [groupedMarker?.ev.lng ?? ev.lng, groupedMarker?.ev.lat ?? ev.lat],
+          center: [rep?.lng ?? ev.lng, rep?.lat ?? ev.lat],
           zoom: Math.max(mapObj.current.getZoom(), 12.5),
           padding: isDesktop ? { left: 0 } : { top: 200, bottom: 150 },
           duration: 700,
         });
       }
-    } else {
-      for (const rec of markers.current.values()) rec.el.classList.remove('selected');
     }
   }
   selectRef.current = selectEvent;
@@ -1069,90 +1106,49 @@ export default function Home() {
     return reps;
   }, [seriesCollapsedItems, venueGroups]);
 
-  // Rich DOM markers are useful only at neighborhood zoom. Build them solely
-  // from matching rows, so initial regional views do not allocate thousands of
-  // hidden elements and a venue badge never includes filtered-out events.
-  const markerItems = useMemo(() => {
-    if (!detailMarkersVisible || !detailMarkerBounds) return [];
-    const [west, south, east, north] = detailMarkerBounds;
-    return groupedMapItems.filter((ev) => ev.lng >= west && ev.lng <= east && ev.lat >= south && ev.lat <= north);
-  }, [detailMarkersVisible, detailMarkerBounds, groupedMapItems]);
-
-  useEffect(() => {
-    const map = mapObj.current;
-    if (!map) return;
-    const ids = new Set(markerItems.map((ev) => ev.id));
-    for (const [id, rec] of markers.current) {
-      if (!ids.has(id)) {
-        rec.marker.remove();
-        markers.current.delete(id);
-      }
-    }
-    for (const ev of markerItems) {
+  // One GeoJSON FeatureCollection over the FULL grouped set (no viewport culling —
+  // GL draws thousands of sprites for free, that's the whole point). Each feature
+  // carries everything the layers read: cat (→ sprite + color), approx/community
+  // (→ badge filters), count (venue/series "many here"). `id` is promoted for
+  // feature-state selection. itemById/memberToRep feed click + flyTo (built here
+  // so there's a single source of truth for the map's id→data lookups).
+  const pinData = useMemo(() => {
+    const itemById = new Map();
+    const memberToRep = new Map();
+    const features = groupedMapItems.map((ev) => {
       const cat = primaryCat(ev);
-      const color = CATS[cat].color;
-      const community = isCommunitySubmitted(ev);
-      const selectedHere = selected && (ev._venueIds || [ev.id]).includes(selected.id);
-      const pinClass = 'pin2' + (ev.geo_precision === 'town' ? ' approx-precision' : '') + (ev.kind === 'place' ? ' pin-place' : '') + (selectedHere ? ' selected' : '');
-      // count badge carries "many here" for both venue groups and same-title series
-      const groupCount = ev._venueCount > 1 ? ev._venueCount : (ev._seriesCount > 1 ? ev._seriesCount : 0);
-      const badgeHtml = groupCount > 1 ? `<span class="pin-badge">${groupCount}</span>` : '';
-      const communityHtml = community ? '<span class="pin-community" aria-hidden="true"></span>' : '';
-      const markerHtml = catIconSvg(cat, 15) + badgeHtml + communityHtml;
-      const ariaBits = [ev.kind === 'place' ? t.legendPlace : t.legendEvent, ev.title];
-      if (community) ariaBits.push(t.legendCommunity);
-      if (ev.geo_precision === 'town') ariaBits.push(t.markerApprox);
-      if (ev._seriesCount > 1) ariaBits.push(t.markerSeriesCount.replace('{count}', ev._seriesCount));
-      if (ev._venueCount > 1) ariaBits.push(t.markerVenueCount.replace('{count}', ev._venueCount));
-      const ariaLabel = ariaBits.join(', ');
-      const existing = markers.current.get(ev.id);
-      if (existing) {
-        if (existing.el.style.getPropertyValue('--cc') !== color) existing.el.style.setProperty('--cc', color);
-        if (existing.el.innerHTML !== markerHtml) existing.el.innerHTML = markerHtml;
-        if (existing.el.className !== pinClass) existing.el.className = pinClass;
-        if (existing.el.getAttribute('aria-label') !== ariaLabel) existing.el.setAttribute('aria-label', ariaLabel);
-        if (existing.ev.lat !== ev.lat || existing.ev.lng !== ev.lng) existing.marker.setLngLat([ev.lng, ev.lat]);
-        existing.ev = ev;
-        continue;
-      }
-      const el = document.createElement('div');
-      el.className = pinClass;
-      el.style.setProperty('--cc', color);
-      el.innerHTML = markerHtml;
-      el.setAttribute('role', 'button');
-      el.setAttribute('aria-label', ariaLabel);
-      el.tabIndex = 0;
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectRef.current(markers.current.get(ev.id)?.ev || ev);
-      });
-      el.addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        e.preventDefault();
-        selectRef.current(markers.current.get(ev.id)?.ev || ev);
-      });
-      const marker = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([ev.lng, ev.lat]).addTo(map);
-      markers.current.set(ev.id, { marker, el, ev });
-    }
-  }, [markerItems, lang]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    for (const { el, ev } of markers.current.values()) {
-      el.classList.toggle('selected', Boolean(selected && (ev._venueIds || [ev.id]).includes(selected.id)));
-    }
-  }, [selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Regional zoom uses MapLibre's native spatial clustering so hundreds of
-  // results remain scannable. At neighborhood zoom the richer DOM markers take
-  // over (category icon/color, event/place shape, provenance, precision, venue count).
-  const clusterData = useMemo(() => {
-    const features = groupedMapItems.map((ev) => ({
+      const count = ev._venueCount > 1 ? ev._venueCount : (ev._seriesCount > 1 ? ev._seriesCount : 0);
+      const members = ev._venueIds || [ev.id]; // _venueIds already flattens series ids
+      itemById.set(ev.id, ev);
+      for (const m of members) memberToRep.set(m, ev.id);
+      return {
         type: 'Feature',
+        id: ev.id,
         geometry: { type: 'Point', coordinates: [ev.lng, ev.lat] },
-        properties: { color: CATS[primaryCat(ev)].color },
-      }));
-    return { type: 'FeatureCollection', features };
+        properties: {
+          id: ev.id,
+          cat,
+          color: CATS[cat].color, // token: CATS[cat].color (GL paint can't read --cc)
+          approx: ev.geo_precision === 'town',
+          community: isCommunitySubmitted(ev),
+          count,
+        },
+      };
+    });
+    return { collection: { type: 'FeatureCollection', features }, itemById, memberToRep };
   }, [groupedMapItems]);
+  useEffect(() => { pinIndexRef.current = { itemById: pinData.itemById, memberToRep: pinData.memberToRep }; }, [pinData]);
+
+  // Overview clusters: MapLibre spatial clustering so a regional view of hundreds
+  // of results stays scannable. Same grouped set as the pins, minimal props.
+  const clusterData = useMemo(() => ({
+    type: 'FeatureCollection',
+    features: groupedMapItems.map((ev) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [ev.lng, ev.lat] },
+      properties: { color: CATS[primaryCat(ev)].color },
+    })),
+  }), [groupedMapItems]);
   const clusterDataRef = useRef(clusterData);
   clusterDataRef.current = clusterData;
 
@@ -1168,31 +1164,27 @@ export default function Home() {
       map.addSource('result-clusters', {
         type: 'geojson', data: clusterDataRef.current, cluster: true, clusterMaxZoom: 12, clusterRadius: 48,
       });
-      // Opacity ramps across the FADE_START→MAX_ZOOM band so clusters dissolve
-      // while the DOM pins (shown from DETAIL_MARKER_SHOW_ZOOM, inside the band)
-      // take over — a cross-fade instead of the old hard pop at one zoom level.
-      const clusterFade = (peak) => ['interpolate', ['linear'], ['zoom'], OVERVIEW_FADE_START_ZOOM, peak, OVERVIEW_MARKER_MAX_ZOOM, 0];
       map.addLayer({
-        id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
+        id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
         filter: ['has', 'point_count'],
         paint: {
-          'circle-color': '#26332f', 'circle-opacity': clusterFade(0.93),
+          'circle-color': '#26332f', 'circle-opacity': CLUSTER_FADE_OUT(0.93),
           'circle-radius': ['step', ['get', 'point_count'], 17, 25, 21, 100, 26],
-          'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': clusterFade(1),
+          'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': CLUSTER_FADE_OUT(1),
         },
       });
       map.addLayer({
-        id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
+        id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
         filter: ['has', 'point_count'],
         layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 11, 'text-font': ['Noto Sans Bold'] },
-        paint: { 'text-color': '#ffffff', 'text-opacity': clusterFade(1) },
+        paint: { 'text-color': '#ffffff', 'text-opacity': CLUSTER_FADE_OUT(1) },
       });
       map.addLayer({
-        id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: OVERVIEW_MARKER_MAX_ZOOM,
+        id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': clusterFade(0.94),
-          'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': clusterFade(1),
+          'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': CLUSTER_FADE_OUT(0.94),
+          'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': CLUSTER_FADE_OUT(1),
         },
       });
       const zoomToFeature = (e) => {
@@ -1211,6 +1203,113 @@ export default function Home() {
     else map.once('load', install);
     return () => map.off('load', install);
   }, [clusterData]);
+
+  // Detail pins — the all-GL replacement for the old DOM markers. One non-clustered
+  // source with promoteId:'id' (feature-state selection needs stable ids; a
+  // separate source, not the clustered one, because setFeatureState is unreliable
+  // on cluster:true sources). Every symbol layer is icon/text-allow-overlap:true —
+  // collision hiding is what made pins "randomly disappear", so it's forbidden.
+  // Selection = a soft halo (feature-state opacity) + a slightly larger pin drawn
+  // on top (feature-state opacity, a PAINT prop that re-evaluates per frame; a
+  // layout icon-size bump wouldn't, since symbol layout is computed in the worker).
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map || !spritesReady) return;
+    const install = () => {
+      const src = map.getSource('result-pins');
+      if (src) { src.setData(pinData.collection); return; }
+      map.addSource('result-pins', { type: 'geojson', data: pinData.collection, promoteId: 'id' });
+      const SEL = ['boolean', ['feature-state', 'selected'], false];
+      // Selection halo — only ring/scale may signal selection (design-system.md).
+      map.addLayer({
+        id: 'pin-selected-halo', type: 'circle', source: 'result-pins', minzoom: HANDOFF_LOW,
+        paint: {
+          'circle-color': ['get', 'color'], 'circle-radius': 22,
+          'circle-opacity': ['case', SEL, 0.3, 0], 'circle-stroke-width': 0,
+          'circle-pitch-alignment': 'map',
+        },
+      });
+      // Town-level precision: dashed ring sprite under the pin.
+      map.addLayer({
+        id: 'pin-approx-halo', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        filter: ['==', ['get', 'approx'], true],
+        layout: { 'icon-image': 'pin-approx-halo', 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center' },
+        paint: { 'icon-opacity': PIN_FADE_IN },
+      });
+      // Base pins.
+      map.addLayer({
+        id: 'pins', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        layout: {
+          'icon-image': ['concat', 'pin-', ['get', 'cat']],
+          'icon-allow-overlap': true, 'text-allow-overlap': true,
+          'icon-ignore-placement': true, 'icon-anchor': 'center',
+        },
+        paint: { 'icon-opacity': PIN_FADE_IN },
+      });
+      // Selected pin drawn on top at 1.28× — the scale bump. Fully opaque only for
+      // the selected feature, so it covers the base pin; invisible otherwise.
+      map.addLayer({
+        id: 'pins-selected', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        layout: {
+          'icon-image': ['concat', 'pin-', ['get', 'cat']], 'icon-size': 1.28,
+          'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center',
+        },
+        paint: { 'icon-opacity': ['case', SEL, 1, 0] },
+      });
+      // Count badge (venue group or same-title series), ink, top-right. Circle +
+      // text; translate in viewport space so it stays top-right of the pin.
+      map.addLayer({
+        id: 'pin-badges', type: 'circle', source: 'result-pins', minzoom: HANDOFF_LOW,
+        filter: ['>', ['get', 'count'], 1],
+        paint: {
+          'circle-color': '#212b28', 'circle-radius': 8, // token: --ink #212b28
+          'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff',
+          'circle-translate': [13, -13], 'circle-translate-anchor': 'viewport',
+          'circle-opacity': PIN_FADE_IN, 'circle-stroke-opacity': PIN_FADE_IN,
+        },
+      });
+      map.addLayer({
+        id: 'pin-badge-counts', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        filter: ['>', ['get', 'count'], 1],
+        layout: {
+          'text-field': ['to-string', ['get', 'count']], 'text-size': 10, 'text-font': ['Noto Sans Bold'],
+          'text-allow-overlap': true, 'text-ignore-placement': true,
+          'text-offset': [1.0, -1.0], 'text-anchor': 'center',
+        },
+        paint: { 'text-color': '#ffffff', 'text-opacity': PIN_FADE_IN },
+      });
+      // Community (genuinely user-submitted) trust dot, --community, top-left.
+      map.addLayer({
+        id: 'pin-community', type: 'circle', source: 'result-pins', minzoom: HANDOFF_LOW,
+        filter: ['==', ['get', 'community'], true],
+        paint: {
+          'circle-color': '#e59500', 'circle-radius': 5.5, // token: --community #e59500
+          'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff',
+          'circle-translate': [-12, -12], 'circle-translate-anchor': 'viewport',
+          'circle-opacity': PIN_FADE_IN, 'circle-stroke-opacity': PIN_FADE_IN,
+        },
+      });
+      map.on('mouseenter', 'pins', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'pins', () => { map.getCanvas().style.cursor = ''; });
+    };
+    if (map.isStyleLoaded()) install();
+    else map.once('load', install);
+    return () => map.off('load', install);
+  }, [pinData, spritesReady]);
+
+  // Selection → feature-state. React `selected` is the driver; a list row that's a
+  // group member lights its representative pin. Re-applied on pinData/spritesReady
+  // because GeoJSONSource.setData clears feature state.
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map || !map.getSource('result-pins')) return;
+    const prev = pinSelRef.current;
+    if (prev != null) { try { map.setFeatureState({ source: 'result-pins', id: prev }, { selected: false }); } catch {} }
+    let next = null;
+    if (selected) next = pinIndexRef.current.memberToRep.get(selected.id) ?? selected.id;
+    if (next != null) { try { map.setFeatureState({ source: 'result-pins', id: next }, { selected: true }); } catch {} }
+    pinSelRef.current = next;
+  }, [selected?.id, pinData, spritesReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const visible = new Set(filtered.map((e) => e.id));
@@ -2226,11 +2325,13 @@ export default function Home() {
             <div className="chiprow" style={{ padding: '0 18px 6px' }}>{kindToggle}</div>
             <div className="chiprow" style={{ padding: '0 18px 10px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>{dateChips}</div>
             <div className="chiprow" style={{ padding: '0 18px 12px' }}>
-              {quickFilters}
               <button className={`chip ${showFilters || advancedFilterCount > 0 ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
                 ⚙︎ {t.filters} {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
               </button>
-              <span style={{ fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>{filtered.length} {t.events}</span>
+              {quickFilters}
+            </div>
+            <div className="locstats" style={{ padding: '0 18px 10px', fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>
+              <strong style={{ color: 'var(--ink)' }}>{filteredEvents.length}</strong> {t.events} · <strong style={{ color: 'var(--ink)' }}>{filteredPlaces.length}</strong> {t.places}
             </div>
             <div className="sidebody">
               {showFilters && filterPanel}
