@@ -102,3 +102,22 @@ create table if not exists rate_hits (
 );
 create index if not exists rate_hits_lookup on rate_hits(action, ip_hash, at);
 create index if not exists rate_hits_at on rate_hits(at);
+
+-- Anonymous one-tap signals on an event/place. No accounts, no free text: `kind`
+-- is a closed enum, so the worst a bot can do is skew a counter — there is nothing
+-- here to moderate, defame with, or spam-link. Two families share the table
+-- because they have the same shape (entity + enum + dedupe key):
+--   'interest'                              — "I want to go" / saved (see docs/decisions)
+--   'cancelled'|'wrong_time'|'wrong_info'|'not_free'
+--                                           — data-quality reports (design doc hard rule 5)
+-- Dedupe is per hashed IP, so a household behind one NAT counts once. That
+-- undercounts rather than inflates — the right direction to be wrong in.
+create table if not exists reactions (
+  id       bigint generated always as identity primary key,
+  event_id bigint not null references events(id) on delete cascade,
+  kind     text not null check (kind in ('interest','cancelled','wrong_time','wrong_info','not_free')),
+  ip_hash  text not null,
+  at       timestamptz default now(),
+  unique (event_id, kind, ip_hash)
+);
+create index if not exists reactions_event_idx on reactions(event_id, kind);

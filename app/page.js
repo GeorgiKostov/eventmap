@@ -3,7 +3,7 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, ImageSquare, LinkSimple, PencilSimple, CaretRight } from '@phosphor-icons/react';
+import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, ImageSquare, LinkSimple, PencilSimple, CaretRight, BookmarkSimple, Flag, Warning } from '@phosphor-icons/react';
 import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
@@ -13,6 +13,12 @@ import { useLanguage } from './language-provider.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
+// "Interested" is personal-first: the save lives in localStorage (works at zero
+// traffic, no account), the server only keeps the aggregate counter. That counter
+// stays hidden until enough people agree — showing "1 interested" reads as an
+// empty room and is worse than showing nothing at all.
+const SAVED_KEY = 'okolo_saved';
+const INTEREST_SHOW_MIN = 3;
 // All-GL pin handoff band: below LOW the clustered overview owns the map, above
 // HIGH the detail sprite pins do; across the band both cross-fade via a single
 // zoom-interpolated opacity expression MapLibre evaluates per frame on the GPU —
@@ -825,6 +831,81 @@ export default function Home() {
     setToast(msg);
     clearTimeout(toastT.current);
     toastT.current = setTimeout(() => setToast(''), 2800);
+  }
+
+  /* ---------------- interested / save + data-quality reports ---------------- */
+  // saved = this device's list (localStorage, no account). interestCounts = optimistic
+  // overrides on top of the server counts that ride along with each row.
+  const [saved, setSaved] = useState([]);
+  const [interestCounts, setInterestCounts] = useState({});
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [reportMenu, setReportMenu] = useState(false); // event id whose reason menu is open
+  const [reported, setReported] = useState([]); // reported this session — don't offer twice
+
+  // Ids are Postgres bigints, which arrive as STRINGS ("373"), not numbers — so
+  // saved ids are normalized to strings on every path. A Number-typed guard here
+  // silently ate the whole saved list on reload.
+  useEffect(() => {
+    try {
+      const list = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
+      if (Array.isArray(list)) setSaved(list.map(String).filter((id) => /^\d+$/.test(id)));
+    } catch { /* corrupt/blocked storage — start empty */ }
+  }, []);
+
+  function persistSaved(next) {
+    setSaved(next);
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch { /* private mode */ }
+  }
+
+  // Drop saves whose event has expired or been removed, so the list can't rot.
+  // Only safe because /api/events returns every published row — a partial
+  // response here would silently eat the user's saves.
+  useEffect(() => {
+    if (!events || saved.length === 0) return;
+    const live = new Set(events.map((e) => String(e.id)));
+    const next = saved.filter((id) => live.has(id));
+    if (next.length !== saved.length) persistSaved(next);
+  }, [events]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const interestCount = (ev) => interestCounts[ev.id] ?? ev.interest_count ?? 0;
+
+  // Saved ids resolved against the loaded rows, in save order (newest last).
+  const savedItems = useMemo(() => {
+    if (!events) return [];
+    const byId = new Map(events.map((e) => [String(e.id), e]));
+    return saved.map((id) => byId.get(id)).filter(Boolean);
+  }, [events, saved]);
+
+  const isSaved = (ev) => saved.includes(String(ev.id));
+
+  function toggleSaved(ev) {
+    const id = String(ev.id);
+    const on = !isSaved(ev);
+    persistSaved(on ? [...saved, id] : saved.filter((s) => s !== id));
+    setInterestCounts((c) => ({ ...c, [ev.id]: Math.max(0, interestCount(ev) + (on ? 1 : -1)) }));
+    track('interest', { kind: ev.kind, id: ev.id, on });
+    // The save already happened locally; the counter is best-effort. A failed
+    // request must never cost the user their saved event.
+    fetch('/api/react', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-okolo-lang': lang },
+      body: JSON.stringify({ id: ev.id, kind: 'interest', on }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (typeof d.count === 'number') setInterestCounts((c) => ({ ...c, [ev.id]: d.count })); })
+      .catch(() => { /* keep the optimistic count */ });
+  }
+
+  function sendReport(ev, reason) {
+    setReportMenu(false);
+    setReported((r) => [...r, ev.id]);
+    track('report', { kind: ev.kind, id: ev.id, reason });
+    showToast(t.reportThanks);
+    fetch('/api/react', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-okolo-lang': lang },
+      body: JSON.stringify({ id: ev.id, kind: reason }),
+    }).catch(() => { /* fire-and-forget */ });
   }
 
   // One-time nudge so the drop-pin gesture is discoverable (it has no visible
@@ -1824,6 +1905,10 @@ export default function Home() {
             <>
               <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
               <div className="menudrop">
+                <button className="menuitem" onClick={() => { setMenuOpen(false); setSavedOpen(true); }}>
+                  <span className="ic">🔖</span>{t.savedMenu}
+                  {saved.length > 0 && <span className="menucount">{saved.length}</span>}
+                </button>
                 <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>
@@ -2118,6 +2203,15 @@ export default function Home() {
         </div>
         <div className="dbody">
           <h2>{ev.title}</h2>
+          {/* Crowd-sourced correction, surfaced only once REPORT_MIN independent
+              people agree (server-side). A wrong event destroys trust faster than
+              a missing one — so say so loudly, above the details themselves. */}
+          {ev.report_flag && t.reportFlags[ev.report_flag] && (
+            <div className="dflag" role="status">
+              <Warning size={17} weight="fill" />
+              <span>{t.reportFlags[ev.report_flag]}</span>
+            </div>
+          )}
           {place ? placeHoursBlock(ev) : <div className="dwhen">{fmtWhen(ev, lang, t)}</div>}
           <div className="dtags">
             {(ev.categories || []).filter((c) => CATS[c]).map((c) => (
@@ -2198,7 +2292,44 @@ export default function Home() {
               <span className="daction-ic"><ShareNetwork size={19} weight="bold" /></span>
               <span className="daction-lab">{t.share}</span>
             </button>
-            {/* Future: favorite/star action slot goes here */}
+            <button
+              className={`daction ${isSaved(ev) ? 'on' : ''}`}
+              onClick={() => toggleSaved(ev)}
+              aria-pressed={isSaved(ev)}
+            >
+              <span className="daction-ic">
+                <BookmarkSimple size={19} weight={isSaved(ev) ? 'fill' : 'bold'} />
+              </span>
+              <span className="daction-lab">
+                {t.interested}
+                {interestCount(ev) >= INTEREST_SHOW_MIN && <span className="daction-n">{interestCount(ev)}</span>}
+              </span>
+            </button>
+          </div>
+          {/* Enum-only, no free text: nothing here can be moderated, defamed with,
+              or spam-linked — which is exactly why it needs no login. */}
+          <div className="dreport">
+            {reported.includes(ev.id) ? (
+              <span className="dreport-done">{t.reportThanks}</span>
+            ) : (
+              <>
+                <button className="dreport-btn" onClick={() => setReportMenu(reportMenu === ev.id ? false : ev.id)} aria-haspopup="true" aria-expanded={reportMenu === ev.id}>
+                  <Flag size={14} weight="bold" /> {t.reportProblem}
+                </button>
+                {reportMenu === ev.id && (
+                  <>
+                    <div className="menu-scrim" onClick={() => setReportMenu(false)} />
+                    <div className="reportmenu">
+                      {['cancelled', 'wrong_time', 'wrong_info', 'not_free'].map((reason) => (
+                        <button key={reason} className="reportmenu-item" onClick={() => sendReport(ev, reason)}>
+                          {t.reportReasons[reason]}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
           </div>
           {seriesSiblings.length > 0 && (
             <div className="dvenue dseries">
@@ -2768,6 +2899,44 @@ export default function Home() {
                 <p className="nl-fine">{t.nlConsent} <a href="/datenschutz" target="_blank" rel="noreferrer">{t.privacyLink}</a></p>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {savedOpen && (
+        <div className="nl-scrim" onClick={() => setSavedOpen(false)}>
+          <div className="nl-modal saved-modal" role="dialog" aria-modal="true" aria-labelledby="saved-title" onClick={(e) => e.stopPropagation()}>
+            <button className="nl-close" onClick={() => setSavedOpen(false)} aria-label={t.close}><X size={16} weight="bold" /></button>
+            <div className="nl-icon">🔖</div>
+            <h3 id="saved-title">{t.savedTitle}</h3>
+            {savedItems.length === 0 ? (
+              <p className="nl-blurb">{t.savedEmpty}</p>
+            ) : (
+              <div className="saved-list">
+                {savedItems.map((s) => {
+                  const sCat = primaryCat(s);
+                  return (
+                    <button
+                      key={s.id}
+                      className="dvenue-row"
+                      style={{ '--cc': CATS[sCat].color }}
+                      onClick={() => { setSavedOpen(false); selectEvent(s); }}
+                    >
+                      <span className="thumb"><CatIcon cat={sCat} size={15} /></span>
+                      <span className="tx">
+                        <span className="t">{s.title}</span>
+                        <span className="m">
+                          {s.kind === 'place'
+                            ? [s.venue, s.town].filter(Boolean).join(', ')
+                            : fmtWhenShort(s, lang, t)}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <p className="nl-fine">{t.savedFine}</p>
           </div>
         </div>
       )}
