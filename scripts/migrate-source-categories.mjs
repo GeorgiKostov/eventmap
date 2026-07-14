@@ -42,8 +42,15 @@ for (const [url, cats] of DEFAULTS) {
 
 // Backfill: existing events from those sources are missing the tag the source
 // implies. Append (never replace) — an event already tagged 'workshop' keeps it.
+//
+// Joined on source_NAME, not source_url: every adapter that emits per-event
+// permalinks (JSON-LD, siteswift, Naturfreunde, Kinderfreunde) stores the
+// EVENT's URL in source_url, never the listing URL, so a url-join silently
+// matches only the minority of sources whose events happen to carry the listing
+// link — it found FRida's 144 and missed OÖ Familienbund entirely. `source_name`
+// is set from src.name on every write path, so it's the reliable key.
 const [{ n }] = await sql`
-  select count(*)::int as n from events e join sources s on s.url = e.source_url
+  select count(*)::int as n from events e join sources s on s.name = e.source_name
   where s.default_categories <> '{}' and e.status='published'
     and not (s.default_categories <@ e.categories)`;
 console.log(`\n${n} published events missing their source's default categories`);
@@ -54,7 +61,7 @@ if (WRITE) {
       select array(select distinct unnest(e.categories || s.default_categories))
     ), updated_at = now()
     from sources s
-    where s.url = e.source_url and s.default_categories <> '{}'
+    where s.name = e.source_name and s.default_categories <> '{}'
       and e.status='published' and not (s.default_categories <@ e.categories)`;
   console.log(`backfilled ${res.count} events`);
 } else {
