@@ -17,6 +17,32 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-14 latest+8 — adversarial review of the latest features, all cleaned)
+- **Four Sonnet agents reviewed crawl / map / growth / admin-auth; architect verified every
+  Critical/Major against the code and fixed all.** Shipped 96ce8c4 (pipeline/map/search) + cddd1ee
+  (admin/newsletter security). Build green, 52 tests (+3 new), DB smoke-tested against prod.
+- **The one that mattered most: multi-day events silently expired after day one.** Every adapter
+  dropped `ends_at` unless an end TIME was present, so a known end DATE (Kinderfreunde 28.02–31.12,
+  any GEM2GO/kalkalpen/JSON-LD range) was thrown away and expireFinished fell back to end-of-START-day.
+  `makeEndsAt()` now keeps a date-only end (same shape rule as `makeStartsAt`); expireFinished reads a
+  10-char `ends_at` as end-of-day. PRE-EXISTING, not a regression — it became visible once the end side
+  was looked at.
+- **New auth work had a CSRF hole** (GET /api/admin/remove accepted the Lax cookie → crafted-link event
+  deletion) and its brute-force protection was bypassable (leftmost-XFF spoof, no global cap). Both
+  fixed: token-only remove, platform-IP trust + globalPerDay. The auth FEATURE itself was committed by
+  a concurrent session (8bdb5f8) while I worked; my fixes are clean deltas on top.
+- **weekendPicks ranked with an additive sum** — free+community+precise (5) beat family (4), so a
+  non-family event could headline the family digest. Now a lexicographic tuple (family strictly
+  dominant). "Community" was `!= 'crawl'` (caught bulk osm_mined); now the user-submitted
+  COMMUNITY_KINDS set shared with commonFilters. Digest window is now overlap not start-only.
+- **Unauth /api/social/card used to build+freeze the weekly digest** (stale picks locked in + a paid
+  LLM call) — now reads the frozen snapshot only. Digest **send** now tracks per-recipient so a
+  60s-timeout/partial failure can't double-mail on retry.
+- **Search folds diacritics** (`unaccent`, both sides; migrate-unaccent.mjs applied to prod) and ranks
+  title-prefix first. Cross-SCRIPT (Latin→Cyrillic) still unsolved (needs transliteration). Complements
+  the concurrent session's gazetteer work below. Registry geocode rung now town-bounded (prod already
+  clean). Concurrent-session note: my db/schema.sql edit got swept into their docs commit c8dcc79.
+
 ## Where things stand (2026-07-14 latest+7 — search finds cities, not just streets)
 - **`lib/places.js` = the search gazetteer** (~33 AT + ~25 BG cities + aliases people type:
   Vienna→Wien, Sofia/софи→София). Prefix > word-start > substring, population as tiebreaker;

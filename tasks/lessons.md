@@ -2,6 +2,39 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — An anti-fabrication rule dropped a real fact; and additive scores aren't priorities
+
+Adversarial review (four Sonnet agents over crawl/map/growth/admin) surfaced a CRITICAL that had been
+live for a long time: **multi-day events expired after their first day.** Every adapter built
+`ends_at = time_end ? \`${date_end}T${time_end}\` : null` — so a range that published an end DATE but no
+end TIME ("28.02.2026–31.12.2026", the normal shape for a Ferienprogramm) stored `ends_at=null`, and
+`expireFinished` then fell back to end-of-START-day. A ten-month program vanished after ~24h. The
+irony: this lived right next to the *start*-time work (lib/event-time.js) whose whole point was "a
+missing time is not a reason to fabricate OR to drop a fact" — and the end side did exactly the drop.
+**A rule you apply on one field (starts_at: keep the date, drop only the unknown time) has a twin on
+the sibling field (ends_at) that nobody wired up.** Fixed with `makeEndsAt()` as the single definition,
+mirroring `makeStartsAt`, and expireFinished reads a date-only end as end-of-day. This is the
+"grep every consumer / apply the invariant on all twins" lesson again (ends-after-starts, dedup,
+geocode-fallback) — the twin here was starts_at↔ends_at.
+
+**Second, from the same review: an additive score is not a priority order.** `weekendPicks` ranked with
+`family*4 + free*2 + community*2 + precise*1`, and `free+community+precise = 5 > family = 4` — so a
+non-family event could headline the *family* digest, exactly contradicting the "family fit first"
+comment one line above. **When you mean "A dominates, ties broken by B, then C", write a lexicographic
+tuple, not a weighted sum — a sum lets enough small signals outvote the one that's supposed to be
+non-negotiable.** (Same review: a predicate meant to be "community-submitted" was written `!= 'crawl'`,
+which also matched bulk `osm_mined` places — a negation is a leaky way to name a positive set; use the
+closed set, and share it, as commonFilters already did.)
+
+**Process notes worth keeping.** (1) The four findings I ranked highest were all confirmed by *reading
+the code the agent pointed at*, not by trusting the agent — one "CRITICAL" (card route freezing the
+digest) was real but recoverable, so verifying downgraded my own alarm. (2) A concurrent session
+advanced HEAD and its `git add -A` swept my `db/schema.sql` edit into *its* docs commit while my other
+15 files stayed unstaged — the lessons.md entanglement, live. The defense worked: I staged explicit
+paths only, and the swept file's content was correct anyway. (3) Under Supavisor transaction pooling a
+*session*-level advisory lock is unsafe (unlock can land on a different backend); use a *transaction*-
+scoped `pg_try_advisory_xact_lock` that releases at commit.
+
 ## 2026-07-14 — A default is a claim. Two of them, and I got my own bug report's headline wrong
 
 `crawl.mjs` and `seed.mjs` both did `starts_at = date + 'T' + (time || '09:00')` **and**

@@ -2,6 +2,34 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Adversarial review (2026-07-14, George: "adversarial review of all the latest features… sonnet agents and review" → "clean all") — SHIPPED (96ce8c4, cddd1ee)
+Four Sonnet agents (crawl · map · growth · admin-auth security), architect-verified every
+Critical/Major against the code, then fixed all. Build green, 52 tests pass (+3 new), DB smoke-tested.
+- [x] **CRITICAL — multi-day events expired after day one.** Adapters dropped `ends_at` unless an end
+      TIME was present, so a known end DATE (Kinderfreunde 28.02–31.12, GEM2GO/kalkalpen/JSON-LD
+      ranges) was lost and expireFinished fell back to end-of-START-day. New `makeEndsAt()`
+      (lib/event-time.js) keeps a date-only end; expireFinished reads a 10-char ends_at as end-of-day.
+      crawl.mjs (generic+naturfreunde) + seed.mjs (stopped fabricating 23:59).
+- [x] **CRITICAL — CSRF on GET /api/admin/remove** (new in the uncommitted auth work): accepted the
+      SameSite=Lax cookie on a mutating GET. Now token-only.
+- [x] **MAJOR ×6:** login brute-force (leftmost XFF spoof + no global cap → trusted platform IP +
+      globalPerDay); unauth /api/social/card built+froze the digest & burned an LLM call (→ loadDigest
+      only); digest send double-mailed on timeout/partial (→ per-recipient ledger); weekendPicks
+      additive ranking let non-family outrank family (→ lexicographic tuple) + "community" predicate
+      caught osm_mined (→ COMMUNITY_KINDS); venues registry rung unbounded (→ town-bounded; prod
+      already 0 rows beyond 15km); search no diacritic fold (→ unaccent, migrate-unaccent.mjs applied).
+- [x] **MINORs:** crossfade-band town-bubble tap ambiguity; digest all_day vs time-unknown drift;
+      drop recompute + regenerate-un-drop; mapPins places-can-starve-events reserved cap; publish-merge
+      dedup decoded first; robots `*`/`$` glob + strictest-delay merge; expireIfStale advisory lock;
+      parseBbox empty-component; search relevance ranking; entity decode-to-stable; stale comments/copy.
+- [ ] **George: real-browser check of the crossfade-band tap fix** — town bubble vs cluster bubble at
+      z≈12.3 (WebGL not drivable in the agent pane, same caveat as the other bubble-tap items).
+- Deliberately NOT changed: GET /api/admin/login `configured` flag (needed by the desk UI, rated
+  non-exploitable); anonymous-submission validator still rejects a date-only `ends_at` (stricter UGC
+  policy than the crawl path, on purpose); HMAC session key = ADMIN_PASSWORD (deliberate per its own
+  comment — a leaked session shouldn't equal a leaked master credential, but rotating the pw is the
+  only kill-switch; flagged, not changed).
+
 ## Search: city/town before events (2026-07-14, George: "type vie or wie, always vienna/wien shows up")
 - [x] **Three letters of a city now find the city.** `lib/places.js` — search-only gazetteer (~33 AT
       + ~25 BG cities with the aliases people type: Vienna→Wien, Sofia/софи→София), ranked prefix >
