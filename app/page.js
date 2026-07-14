@@ -647,6 +647,26 @@ export default function Home() {
     mapObj.current?.flyTo({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current.getZoom(), 12), duration: 700 });
   }
 
+  // Long-press / right-click on the map drops the reference point right where the
+  // user pressed — no typing, no flyTo (the pin stays under the finger). The label
+  // starts as a neutral fallback and is filled in by a latest-wins reverse-geocode.
+  const dropReverseReqId = useRef(0);
+  function dropLocationPin(lng, lat) {
+    setSearchCenter({ lat, lng, label: t.droppedPinLabel });
+    setSelected(null);
+    setMenuOpen(false);
+    const reqId = ++dropReverseReqId.current;
+    fetch(`/api/geocode?reverse=1&lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (reqId !== dropReverseReqId.current) return;
+        const a = data.address;
+        const label = a?.town || a?.address;
+        if (label) setSearchCenter((s) => (s ? { ...s, label } : s));
+      })
+      .catch(() => { /* keep the fallback label */ });
+  }
+
   // filters
   const [kindFilter, setKindFilter] = useState('all'); // all | event | place
   const [whenMode, setWhenMode] = useState('weekend'); // all | today | tomorrow | weekend | next7 | range
@@ -807,6 +827,19 @@ export default function Home() {
     toastT.current = setTimeout(() => setToast(''), 2800);
   }
 
+  // One-time nudge so the drop-pin gesture is discoverable (it has no visible
+  // affordance). Shown a few seconds after load, once per browser.
+  useEffect(() => {
+    if (typeof localStorage === 'undefined' || localStorage.getItem('umkreis_droppin_hint')) return;
+    const id = setTimeout(() => {
+      setToast(t.dropPinHint);
+      clearTimeout(toastT.current);
+      toastT.current = setTimeout(() => setToast(''), 6000);
+      try { localStorage.setItem('umkreis_droppin_hint', '1'); } catch { /* private mode */ }
+    }, 3500);
+    return () => clearTimeout(id);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function loadEvents() {
     const res = await fetch('/api/events?view=map');
     const data = await res.json();
@@ -866,6 +899,8 @@ export default function Home() {
   const geoRef = useRef({ me: HOME, radius: 20 });
   geoRef.current = { me: refPoint, radius };
   const selectRef = useRef(() => {});
+  const dropPinRef = useRef(() => {}); // latest dropLocationPin closure for the once-bound map listeners
+  const longPress = useRef({ timer: null, fired: false, touch: false, x: 0, y: 0 });
 
   useEffect(() => {
     if (mapObj.current || !mapRef.current) return;
@@ -910,6 +945,9 @@ export default function Home() {
       // flyTo — the resulting moveend would silently overwrite the location the
       // user is placing (review finding, 2026-07-13).
       if (addFlowActiveRef.current) return;
+      // A long-press that just dropped the location pin also emits a trailing
+      // click on touchend — swallow it so it can't immediately deselect.
+      if (longPress.current.fired) { longPress.current.fired = false; return; }
       const top = (layer) => (map.getLayer(layer) ? map.queryRenderedFeatures(e.point, { layers: [layer] })[0] : null);
       // 1. Cluster bubbles expand for as long as they render (clusters exist up
       //    to clusterMaxZoom 12 and stay visible, fading, through the band —
@@ -949,6 +987,27 @@ export default function Home() {
       selectRef.current(null, { fly: false });
       setMenuOpen(false);
     });
+    // Drop the reference point where the user long-presses (touch) or right-clicks
+    // (desktop) — the fast, no-typing way to ask "what's on around here?".
+    const dropAt = (lngLat) => { if (!addFlowActiveRef.current) dropPinRef.current(lngLat.lng, lngLat.lat); };
+    map.on('contextmenu', (e) => {
+      if (longPress.current.touch) return; // touch long-press already handled it
+      dropAt(e.lngLat);
+    });
+    const cancelLongPress = () => { clearTimeout(longPress.current.timer); longPress.current.timer = null; };
+    map.on('touchstart', (e) => {
+      if (e.points.length !== 1) { cancelLongPress(); return; } // pinch/multi-touch isn't a press
+      const lp = longPress.current;
+      lp.touch = true; lp.x = e.point.x; lp.y = e.point.y;
+      cancelLongPress();
+      lp.timer = setTimeout(() => { lp.fired = true; dropAt(e.lngLat); }, 500);
+    });
+    map.on('touchmove', (e) => {
+      const lp = longPress.current;
+      if (lp.timer && Math.hypot(e.point.x - lp.x, e.point.y - lp.y) > 10) cancelLongPress(); // a pan, not a press
+    });
+    map.on('touchend', cancelLongPress);
+    map.on('touchcancel', cancelLongPress);
     const meEl = document.createElement('div');
     meEl.className = 'me-marker hidden';
     meMarker.current = new maplibregl.Marker({ element: meEl }).setLngLat([HOME.lng, HOME.lat]).addTo(map);
@@ -979,11 +1038,20 @@ export default function Home() {
   useEffect(() => {
     const map = mapObj.current;
     if (!map) return;
-    if (searchMarker.current) { searchMarker.current.remove(); searchMarker.current = null; }
-    if (searchCenter) {
+    if (!searchCenter) {
+      if (searchMarker.current) { searchMarker.current.remove(); searchMarker.current = null; }
+      return;
+    }
+    // Create once; afterwards just move it — recreating on every label/coord
+    // update would tear the marker out from under a drag.
+    if (!searchMarker.current) {
       const el = document.createElement('div');
       el.className = 'search-marker';
-      searchMarker.current = new maplibregl.Marker({ element: el }).setLngLat([searchCenter.lng, searchCenter.lat]).addTo(map);
+      const m = new maplibregl.Marker({ element: el, draggable: true }).setLngLat([searchCenter.lng, searchCenter.lat]).addTo(map);
+      m.on('dragend', () => { const p = m.getLngLat(); dropPinRef.current(p.lng, p.lat); });
+      searchMarker.current = m;
+    } else {
+      searchMarker.current.setLngLat([searchCenter.lng, searchCenter.lat]);
     }
   }, [searchCenter]);
 
@@ -1066,6 +1134,7 @@ export default function Home() {
     }
   }
   selectRef.current = selectEvent;
+  dropPinRef.current = dropLocationPin;
 
   /* ---------------- filtering ---------------- */
   const [dFrom, dTo] = useMemo(() => {
