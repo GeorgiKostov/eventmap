@@ -2,6 +2,17 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Search: city/town before events (2026-07-14, George: "type vie or wie, always vienna/wien shows up")
+- [x] **Three letters of a city now find the city.** `lib/places.js` — search-only gazetteer (~33 AT
+      + ~25 BG cities with the aliases people type: Vienna→Wien, Sofia/софи→София), ranked prefix >
+      word-start > substring, population as tiebreaker; merged with the towns of loaded events.
+      Photon stays as the long tail (villages/addresses) but now tags localities (`osm_key=place`)
+      so they sort above streets/POIs, deduped against gazetteer names *and* aliases. Locations
+      always render above events; Enter picks the top location. Kept out of `lib/towns.js` on
+      purpose — `townCentroid()` fuzzy-matches that list when pinning events. (59d03c4)
+- [ ] **Standing rule (CLAUDE.md hard rule 8): expanding coverage = updating `lib/places.js`** in the
+      same change. A crawled city nobody can type their way to is invisible. Docs: data-pipeline §5b.
+
 ## Viewport-native rebuild (2026-07-14, George: "best for performance and scale... dispatch sonnet opus agents") — SHIPPED
 - [x] **Radius model retired; viewport = the spatial filter** (decision doc
       2026-07-14-viewport-data-loading.md, brief briefs/viewport-rebuild-brief.md). PostGIS geom +

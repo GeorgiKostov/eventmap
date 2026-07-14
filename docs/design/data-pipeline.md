@@ -270,6 +270,41 @@ self-applying), then re-runs `geocodeEvent()` for every row at `geo_precision='t
 `venue`, and reports/applies any move ≥150m or any town→better-than-town precision upgrade. Dry-run by
 default.
 
+## 5b. The search bar (`lib/places.js`, `app/page.js`)
+
+Typing in the search pill runs **two independent searches** whose results are shown as two sections,
+locations always above events:
+
+1. **Locations** — where do you want the map to look? Picking one flies there and becomes the
+   distance reference point ("Around X" chip).
+2. **Events** — the global server text search (`GET /api/events?q=`, ILIKE over title/venue/town,
+   debounced 400ms). Independent of the viewport, so an event in another country is findable.
+
+Locations resolve in two tiers:
+
+**Tier 1 — `lib/places.js`, a static gazetteer (instant, offline).** ~33 AT + ~25 BG cities/towns,
+each with the alternate spellings people actually type (`Vienna`→Wien, `Sofia`/`софи`→София,
+`St. Pölten`/`St Poelten`). Ranking is **prefix > word-start > substring**, with population as the
+tiebreaker; the towns of currently-loaded events are merged in as extra candidates. This exists
+because a remote geocoder structurally *cannot* answer a three-letter query well: Photon biases to
+the map centre, so "vie" near Linz returns *Vielguthstraße* and a heating-systems shop long before
+Vienna, and Nominatim (one-shot, no autocomplete) needs a full correctly-spelled name. Three letters
+of a capital must return the capital.
+
+**Tier 2 — Photon suggest** (`/api/geocode?suggest=1`, debounced 300ms, ≥3 chars): the long tail the
+gazetteer doesn't carry — villages, hamlets, addresses. Results are tagged `place` (OSM `osm_key=place`)
+so **localities sort above streets and POIs**, deduped against the gazetteer's names *and aliases*
+(otherwise Photon's "Sofia" repeats our "София").
+
+> **`lib/places.js` is NOT `lib/towns.js`.** `towns.js` is the geocoding fallback for *pinning
+> events* and `townCentroid()` fuzzy-substring-matches against it — putting Vienna or Sofia in
+> there would start dragging event pins to the wrong city. The gazetteer is search-only and never
+> touches geocoding. Keep them separate.
+
+**When coverage expands, the gazetteer expands with it** (see CLAUDE.md hard rule 8): a new region's
+cities must be searchable by prefix on day one, or the events we just crawled are on the map but
+unreachable by the only tool a user has to get there.
+
 ## 6. Dedup & merge
 
 **Two independent layers, deliberately not merged into one:**

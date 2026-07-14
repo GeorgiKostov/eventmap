@@ -66,6 +66,14 @@ If a file is missing, skip it and continue. Do not stop.
    Kreativregion sources, fixed 2026-07-14). If a source genuinely cannot be re-crawled (one-off
    PDF, static OSM venue set), say so in `notes` and flag it to George rather than leaving it to
    look scheduled when it isn't.
+8. **New coverage is not live until it's searchable.** Whenever we expand into a region/city (new
+   sources, a mining run, a new country), add its cities/towns to the search gazetteer
+   `lib/places.js` — name, the alternate spellings people type (`Vienna`→Wien, `Sofia`→София),
+   coords, population — in the same change. The search bar is the only way a user reaches a place
+   off-screen; a city we crawled but can't find by typing three letters of its name is invisible.
+   Do **not** put these in `lib/towns.js`: `townCentroid()` fuzzy-matches that list when *pinning
+   events*, so a big city in there drags pins to the wrong place. Rationale + ranking rules:
+   `docs/design/data-pipeline.md` §5b.
 
 ## Git convention
 

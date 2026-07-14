@@ -17,7 +17,14 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
-## Where things stand (2026-07-14 latest+6 — the fabricated start time is GONE)
+## Where things stand (2026-07-14 latest+7 — search finds cities, not just streets)
+- **`lib/places.js` = the search gazetteer** (~33 AT + ~25 BG cities + aliases people type:
+  Vienna→Wien, Sofia/софи→София). Prefix > word-start > substring, population as tiebreaker;
+  locations always above events in the dropdown; Photon is the long tail (villages/addresses) with
+  localities sorted above streets. **Standing rule (CLAUDE.md #8): new coverage ⇒ add its cities
+  here in the same change** — a crawled city nobody can type their way to is invisible. Never put
+  them in `lib/towns.js` (that list drags event *pins* via `townCentroid()`). Docs: data-pipeline §5b.
+
 - **`lib/event-time.js` is the one definition of how a start time is encoded.** A date-only
   `starts_at` ("2026-07-19") means **the source published no time**; 16 chars means it did. Replaces
   `T${time || '09:00'}` + `all_day: time ? 0 : 1` in crawl.mjs and seed.mjs — one missing fact was
