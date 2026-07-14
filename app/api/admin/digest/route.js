@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getChannel, CHANNELS, channelForPoint } from '../../../../lib/city-channels.js';
-import { loadOrBuildDigest, saveDigest, renderNewsletter, renderCaption } from '../../../../lib/digest.js';
+import { loadOrBuildDigest, saveDigest, applyDrop, renderNewsletter, renderCaption } from '../../../../lib/digest.js';
 import { confirmedSubscribers, metaGet, metaSet } from '../../../../lib/db.js';
 import { sendNewsletter } from '../../../../lib/mail.js';
 import { isAdmin } from '../../../../lib/admin-auth.js';
@@ -73,8 +73,7 @@ export async function POST(req) {
 
   if (body.action === 'drop') {
     const digest = await loadOrBuildDigest(channel);
-    digest.items = digest.items.filter((it) => it.id !== String(body.id));
-    await saveDigest(digest);
+    await saveDigest(applyDrop(digest, body.id));
     return NextResponse.json(await snapshot(channel));
   }
 
@@ -105,23 +104,42 @@ export async function POST(req) {
       return NextResponse.json({ test: true, to, sent: ok ? 1 : 0, audience: audience.length });
     }
 
+    // Per-recipient ledger, persisted after EACH success. A 60s timeout or a
+    // crash mid-loop must never let a retry re-mail someone who already got it,
+    // and a partial failure (60/100 sent) must resend only the 40 that failed —
+    // not the whole list. The set survives across requests in `meta`.
+    const doneKey = `${key}:to`;
+    // force = a deliberate full resend (e.g. a corrected pick): wipe the
+    // per-recipient ledger so everyone is mailed again. Without force, the set is
+    // honoured so retries only fill the gaps.
+    if (body.force) await metaSet(doneKey, '[]');
+    const done = new Set(JSON.parse((body.force ? '[]' : await metaGet(doneKey)) || '[]'));
+
     let sent = 0;
+    let skipped = 0;
     const failed = [];
     for (const sub of audience) {
+      if (done.has(String(sub.id))) { skipped++; continue; }
       const url = unsubUrl(sub);
       const mail = renderNewsletter(digest, { unsubscribeUrl: url });
       try {
-        if (await sendNewsletter({ to: sub.email, ...mail, unsubscribeUrl: url })) sent++;
-        else failed.push(sub.email);
+        if (await sendNewsletter({ to: sub.email, ...mail, unsubscribeUrl: url })) {
+          sent++;
+          done.add(String(sub.id));
+          await metaSet(doneKey, JSON.stringify([...done])); // durable before the next send
+        } else {
+          failed.push(sub.email);
+        }
       } catch (err) {
         failed.push(sub.email);
         console.error('[digest] send failed:', sub.email, err?.message);
       }
     }
-    // Only ledger a send that actually happened — otherwise a failed run would
-    // lock the weekend and George would have to --force past his own ghost.
-    if (sent > 0) await metaSet(key, new Date().toISOString());
-    return NextResponse.json({ sent, failed: failed.length, audience: audience.length });
+    // Mark the weekend "done" only when everyone in the audience has been sent to
+    // (nothing left to retry). A partial run leaves the 409 guard open so a plain
+    // resend finishes the remainder without re-mailing the done recipients.
+    if (failed.length === 0 && audience.length > 0) await metaSet(key, new Date().toISOString());
+    return NextResponse.json({ sent, skipped, failed: failed.length, audience: audience.length });
   }
 
   return NextResponse.json({ error: 'unknown action' }, { status: 400 });

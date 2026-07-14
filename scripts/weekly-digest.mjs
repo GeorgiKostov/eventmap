@@ -114,7 +114,7 @@ if (flag('notify')) {
   const lines = results.map((r) => `${r.channel.label}: ${r.digest.items.length} picks — ${r.digest.label}`);
   await notifyOperator(
     `Okolo Thursday: ${results.reduce((n, r) => n + r.digest.items.length, 0)} picks ready`,
-    `${lines.join('\n')}\n\nDesk: ${BASE}/admin/thursday?token=<ADMIN_TOKEN>\n\nThe picks and the AI copy are prepared. Review, download the carousel, post, then hit Send.`,
+    `${lines.join('\n')}\n\nDesk: ${BASE}/admin/thursday (log in with your admin password)\n\nThe picks and the AI copy are prepared. Review, download the carousel, post, then hit Send.`,
   );
   console.log('\nnotified operator.');
 }

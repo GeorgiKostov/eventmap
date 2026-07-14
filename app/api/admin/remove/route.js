@@ -12,12 +12,15 @@ export const dynamic = 'force-dynamic';
 // a bad event from your phone in one tap. A logged-in admin session works too.
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const id = Number(searchParams.get('id'));
-  if (!isAdmin(req, { allowToken: true })) return new NextResponse('Nicht erlaubt.', { status: 403 });
-  if (!Number.isInteger(id) || id <= 0) return new NextResponse('Ungültige ID.', { status: 400 });
+  const idRaw = searchParams.get('id') || '';
+  // Token-only: never accept the session cookie on this state-mutating GET
+  // (SameSite=Lax sends it on a crafted cross-site link → CSRF).
+  if (!isAdmin(req, { allowToken: true, tokenOnly: true })) return new NextResponse('Nicht erlaubt.', { status: 403 });
+  // ids are bigint (string in JS); validate the raw digits, don't Number()-coerce.
+  if (!/^\d+$/.test(idRaw) || idRaw === '0') return new NextResponse('Ungültige ID.', { status: 400 });
 
-  const row = await setEventStatus(id, 'removed');
-  if (!row) return new NextResponse(`Eintrag ${id} nicht gefunden.`, { status: 404 });
+  const row = await setEventStatus(idRaw, 'removed');
+  if (!row) return new NextResponse(`Eintrag ${idRaw} nicht gefunden.`, { status: 404 });
   return new NextResponse(`Entfernt: „${row.title}" (ID ${row.id}). Der Eintrag ist nicht mehr auf der Karte.`, {
     status: 200,
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

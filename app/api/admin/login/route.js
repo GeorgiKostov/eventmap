@@ -23,7 +23,9 @@ export async function POST(req) {
   if (!(process.env.ADMIN_PASSWORD || '').length) {
     return NextResponse.json({ error: 'No ADMIN_PASSWORD is set on this deployment.' }, { status: 503 });
   }
-  const rl = await limit(req, 'admin_login', { perHour: 10, perDay: 30 });
+  // globalPerDay is the backstop if per-IP is ever defeated (spoofed/rotated
+  // source): the password can be guessed at most 200×/day across ALL callers.
+  const rl = await limit(req, 'admin_login', { perHour: 10, perDay: 30, globalPerDay: 200 });
   if (rl) return NextResponse.json({ error: 'Too many attempts — try again later.' }, { status: 429 });
 
   const { password } = await req.json().catch(() => ({}));
