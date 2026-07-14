@@ -9,11 +9,13 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## DEPLOY POLICY (do not forget)
+## DEPLOY POLICY (do not forget — also in CLAUDE.md §Deploying)
 - **Pushing to main does NOT deploy.** vercel.json sets `git.deploymentEnabled=false`
   (b73a855, "manual deployments only") — a deliberate guard against concurrent sessions
-  shipping half-finished states. Production ships only via `vercel deploy --prod --yes`
-  (CLI is authenticated as georgikostov). Verify the live API after every deploy.
+  shipping half-finished states, and builds cost money.
+- **George deploys by default** (his rule, 2026-07-14): finish work → commit/push → tell him it's
+  ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
+  announce it and verify the live API after.
 
 ## Where things stand (2026-07-14 latest+3 — VIEWPORT-NATIVE MAP SHIPPED, radius retired)
 - **Deployed to production 2026-07-14 ~14:30Z** (dpl_B2sLnRFxTTF31g5NZPZCAbD3imrt → www.okolo.events)

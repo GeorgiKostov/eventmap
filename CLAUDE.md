@@ -74,6 +74,16 @@ If a file is missing, skip it and continue. Do not stop.
 - Commit format: `area: short imperative — detail`. End messages with the Co-Authored-By trailer.
 - Optional topic branches (`dev/…`, `design/…`) for large/risky changes.
 
+## Deploying (George, 2026-07-14)
+
+- **Vercel git auto-deploy is OFF** (`vercel.json` → `git.deploymentEnabled: false`). Pushing to
+  `main` is free and deploys NOTHING — never assume a push went live.
+- **Default: George deploys.** Do not run `vercel deploy` after finishing work; commit, push, and
+  tell him it's ready to ship. Builds cost money — this is deliberate.
+- **Exception:** deploy manually (`vercel deploy --prod --yes`, CLI is authenticated) only when the
+  task genuinely requires verifying something on live prod (e.g. prod-only env/infra behavior).
+  Say so when you do, and verify the live API afterwards.
+
 ## Post-commit housekeeping (after every commit)
 
 1. `tasks/todo.md` — flip completed `[x]`, add newly-surfaced items.
