@@ -1,0 +1,127 @@
+# Partnerships & data cooperation — tracker
+
+One place for every organisation we want a data relationship with, in every country. **George
+sends all of these** — nothing here is sent by an agent. Update the Status column when you send or
+hear back; that is the whole point of the file.
+
+Full ready-to-send drafts for the first four targets already exist in
+[`briefs/outreach-emails-de.md`](../../briefs/outreach-emails-de.md) (verified contacts, German,
+Sie-Form). New targets found on 2026-07-14 have their drafts in §4 below.
+
+## 1. The two rules that govern every message here
+
+1. **No invented numbers.** Okolo is pre-launch: no user counts, no traffic, no growth claims.
+   The value we offer is real without them (linkback, discoverability, zero work for them).
+2. **We are asking for a cleaner path, not for permission to exist.** We already index event
+   *facts* (title, date, place) with a link back to the source — facts aren't copyrightable and
+   this isn't new activity we're disclosing. Every mail asks for cooperation or a feed. None of
+   them read as an admission.
+
+## 2. The boilerplate (reuse verbatim; keep it this short)
+
+**Who we are.** Okolo (okolo.events) is a free, family-focused event map for Austria: parents open
+one map and see what's on around them this weekend. We index event facts — title, date, venue —
+and always link back to the organiser's own page.
+
+**What we ask.** Access to your event data in a machine-readable form (API, XML/JSON feed, iCal) so
+we display it correctly and always up to date, instead of reading your public web pages.
+
+**What you get.** Every event carries your name and a link back to your page. Your events become
+findable in Google and in AI assistants through our structured data (schema.org/JSON-LD). No work
+on your side beyond granting access. No cost, no exclusivity, and we drop any source on request.
+
+## 3. Status tracker
+
+| # | Country | Partner | What we want | Contact | Status | Next step |
+|---|---|---|---|---|---|---|
+| 1 | AT | **Stadt Linz — Linztermine** | `eventExport` XML API (CC-BY-4.0, has `properforchildren` + `freeofcharge`). Replaces an HTML scrape that breaks on every month rollover. **Highest value: a licensed feed for our most important city.** | `open.commons@linz.at`, cc `komm@mag.linz.at` | ✉️ Draft ready ([briefs](../../briefs/outreach-emails-de.md#1-stadt-linz--linztermine--api-access)) | George sends |
+| 2 | AT | **Österreich Werbung** | ContentDB / LTO API key (CC-BY-4.0 aggregate of Austrian tourism boards; skews family/seasonal) | `martin.reichhart@austria.info`, cc `api@austria.info` | ✉️ Draft ready ([briefs](../../briefs/outreach-emails-de.md)) | George sends |
+| 3 | AT | **Land OÖ — Familienkarte** | Event feed + cooperation. **Exactly our audience.** Their site only returns today's listings without a POST. | `familienreferat@ooe.gv.at`, cc `anna.jachs@ooe.gv.at` | ✉️ Draft ready ([briefs](../../briefs/outreach-emails-de.md)) | George sends |
+| 4 | AT | **tips.at** | Regional media content partnership (lowest priority, value-exchange framing) | see briefs | ✉️ Draft ready | Optional |
+| 5 | AT | **feratel Deskline** | Data interface (**Deskline 3.0 Standard Interface**, XML/SOAP, partner agreement) **or** their free **Open Data Platform** registration. Deskline powers a large share of Austrian Tourismusverbände — their event widget is a Shadow-DOM SPA we deliberately do **not** scrape, so a feed is the only route. **One agreement ≈ many regions.** | `servicecenter@feratel.com` | ✉️ Draft below (§4.1) | George sends |
+| 6 | AT | **RiS GmbH (GEM2GO)** | Ask whether a sanctioned central feed exists for the ~1,300 municipalities on their platform. We already crawl member sites legally and politely; a feed would be cheaper for *their* servers too. **No public API is documented — this is a question, not a demand.** | `office@ris.at` | ✉️ Draft below (§4.2) | George sends (low expectation) |
+| 7 | AT | **Land NÖ — Veranstaltungsdatenbank NÖ** | An official Lower-Austria event database that GEM2GO itself consumes via an existing interface. If it's open to third parties it covers NÖ (our largest region: 7.6k events) in one integration. **Contact UNVERIFIED — needs a 10-minute look before sending.** | *to find* | 🔍 Research first | Find the responsible Land NÖ department |
+| — | DE | ~~Stadt Stuttgart~~ | ~~Permission for a robots-blocked RSS path~~ | — | ✅ **Not needed** — the "block" was a bug in our own robots parser. Stuttgart now yields 92 events via the adapter we already had. | Closed 2026-07-14 |
+| 8 | BG | *(no target yet)* | Research found **no clean licensed BG event feed** and no reusable open-source project. Bulgarian supply stays crawl-first; the real BG gap is Facebook events, which is a product decision, not a partnership. | — | ⏸️ None | Revisit post-Linz |
+
+**Explicitly not partnership targets** (closed data, commercial aggregators — we neither scrape nor
+ask): alpenvereinaktiv (Outdooractive), bergfex, komoot, Mamilade. If any of them ever becomes
+interesting it is a *commercial licensing* conversation, not a data-cooperation one.
+
+## 4. Drafts for the new targets
+
+### 4.1 feratel — Deskline data interface
+
+> **An:** servicecenter@feratel.com
+> **Betreff:** Anfrage Datenschnittstelle Deskline / Open Data Platform — Veranstaltungsdaten
+>
+> Sehr geehrte Damen und Herren,
+>
+> ich betreibe **Okolo** (okolo.events), eine kostenlose, familienorientierte Veranstaltungskarte
+> für Österreich: Eltern öffnen eine Karte und sehen, was am Wochenende in ihrer Umgebung
+> stattfindet. Wir zeigen ausschließlich Veranstaltungs-*Fakten* (Titel, Datum, Ort) und verlinken
+> immer zurück auf die Seite des Veranstalters.
+>
+> Zahlreiche österreichische Tourismusverbände verwalten ihre Veranstaltungen über Deskline. Wir
+> möchten diese Daten korrekt und aktuell darstellen — und zwar über eine offizielle Schnittstelle
+> statt über das Auslesen von Webseiten.
+>
+> Konkret zwei Fragen:
+> 1. Unter welchen Bedingungen ist ein Zugang zum **Deskline 3.0 Standard Interface** für
+>    Veranstaltungsdaten möglich (pro Region bzw. TVB)?
+> 2. Ist die **feratel Open Data Platform** für unseren Anwendungsfall der geeignetere Weg, und
+>    wie erfolgt dort die Registrierung?
+>
+> Was die Verbände davon haben: Jede Veranstaltung nennt die Quelle und verlinkt zurück; durch
+> unsere strukturierten Daten (schema.org/JSON-LD) werden die Veranstaltungen zusätzlich in Google
+> und in KI-Assistenten auffindbar. Aufwand entsteht keiner, Kosten ebenfalls nicht, und wir
+> entfernen jede Quelle auf Wunsch wieder.
+>
+> Für ein kurzes Gespräch stehe ich gerne zur Verfügung.
+>
+> Mit freundlichen Grüßen
+> Georgi Kostov · Okolo · okolo.events · hello@okolo.events
+
+### 4.2 RiS GmbH (GEM2GO) — sanctioned feed?
+
+> **An:** office@ris.at
+> **Betreff:** Frage zu einer offiziellen Veranstaltungs-Schnittstelle (GEM2GO-Gemeinden)
+>
+> Sehr geehrte Damen und Herren,
+>
+> ich betreibe **Okolo** (okolo.events), eine kostenlose Veranstaltungskarte für Familien in
+> Österreich. Wir indexieren Veranstaltungs-Fakten (Titel, Datum, Ort) und verlinken immer zurück
+> auf die jeweilige Gemeindeseite.
+>
+> Viele Gemeinden veröffentlichen ihre Veranstaltungen über GEM2GO. Wir lesen diese öffentlichen
+> Seiten derzeit rücksichtsvoll aus (identifizierender User-Agent, robots.txt wird eingehalten,
+> maximal eine Anfrage pro Sekunde und Host).
+>
+> Meine Frage: **Gibt es eine offizielle Schnittstelle oder einen Datenfeed**, über den
+> Veranstaltungsdaten teilnehmender Gemeinden bezogen werden können? Das wäre für beide Seiten
+> effizienter — insbesondere für Ihre Server — und für uns die verlässlichere Quelle.
+>
+> Falls eine solche Schnittstelle nicht existiert oder nicht für Dritte vorgesehen ist, richten wir
+> uns selbstverständlich danach.
+>
+> Mit freundlichen Grüßen
+> Georgi Kostov · Okolo · okolo.events · hello@okolo.events
+
+### 4.3 Land NÖ — Veranstaltungsdatenbank NÖ
+
+**Do not send yet — the contact is unverified.** GEM2GO's own materials mention a
+"Schnittstelle zur Veranstaltungsdatenbank NÖ", i.e. Lower Austria appears to run an official event
+database that third parties already consume. NÖ is our largest region (7.6k events), so one
+integration would be worth more than a dozen municipal parsers. **Next step:** identify the
+responsible department at Amt der NÖ Landesregierung (likely the culture/tourism or the open-data
+office via data.gv.at), then reuse the §4.1 structure verbatim.
+
+## 5. When a reply lands
+
+- **Yes / here's a key** → note it here, then implement the feed as a normal `sources` row with its
+  own adapter (hard rule 7: it must be reachable by `scripts/crawl.mjs`, not a one-off import).
+- **No** → record it here so nobody re-asks in six months. Keep crawling the public pages if that
+  was already allowed; a declined *cooperation* is not a withdrawal of permission to read public
+  facts, and we never treat it as one.
+- **"Please stop"** → we stop, immediately, and mark the source `works=false` with the reason. Our
+  legal posture is worth more than any single source.
