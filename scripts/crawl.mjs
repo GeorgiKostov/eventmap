@@ -21,6 +21,8 @@ import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
 import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfingen-events.js';
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
+import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderfreunde-events.js';
+import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
@@ -532,6 +534,24 @@ async function parseHwVeranstaltungEvents(html, src) {
   return events;
 }
 
+// Kinderfreunde Österreich events listing (server-rendered HTML cards,
+// paginated 10/page via "?partial=0&pe=N"). Page 1 is the registered source
+// URL, already fetched; walk the rest politely.
+async function parseKinderfreundeSource(html, src) {
+  const events = parseKinderfreundeEvents(html, src.url);
+  const pages = Math.min(kinderfreundePageCount(html), 50);
+  for (let page = 2; page <= pages; page++) {
+    const url = `${src.url}?partial=0&pe=${page}`;
+    try {
+      if (!await robotsAllowed(url)) break;
+      const res = await politeFetch(url);
+      if (!res.ok) break;
+      events.push(...parseKinderfreundeEvents(await res.text(), src.url));
+    } catch { break; } // a broken page N must not discard pages 1..N-1
+  }
+  return events;
+}
+
 // WordPress `dmwpevents` post type + per-event iCal export (Kreativregion
 // Stuttgart). The registered source URL is the REST collection; each record's
 // canonical link is the linkback and its iCal export carries the dated facts.
@@ -573,8 +593,12 @@ async function parseWordpressIcalEvents(src) {
 
 // Waterfall: JSON-LD → iCal → wien-erleben (cms-gated, two-hop) → GEM2GO
 // (cms-gated) → DVV hCalendar RSS (cms-gated) → sitepark/hwveranstaltung/
-// wordpress-ical (cms-gated) → generic RSS/Atom. First route that yields ≥1
-// valid event wins and the LLM call is skipped entirely.
+// wordpress-ical/kinderfreunde (cms-gated) → generic RSS/Atom. First route
+// that yields ≥1 valid event wins and the LLM call is skipped entirely.
+// (Naturfreunde is not in this waterfall — its registered source URL is a
+// POST-only JSON API that returns nothing meaningful on a plain GET, so it's
+// special-cased at the top of crawlSource() instead, see
+// crawlNaturfreundeSource() below.)
 async function tryStructuredExtraction(html, src) {
   const jsonld = parseJsonLdEvents(html, src);
   if (jsonld.length) return { route: 'jsonld', events: jsonld };
@@ -623,6 +647,11 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'typo3-hwveranstaltung') {
     const events = await parseHwVeranstaltungEvents(html, src);
     if (events.length) return { route: 'hwveranstaltung', events: events.map(fromMinedShape) };
+  }
+
+  if (src.cms === 'kinderfreunde') {
+    const events = await parseKinderfreundeSource(html, src);
+    if (events.length) return { route: 'kinderfreunde', events };
   }
 
   if (src.cms === 'wordpress-ical') {
@@ -703,7 +732,117 @@ async function recordStats(src, outcome) {
   return tier;
 }
 
+// --- Naturfreunde Österreich (cms='naturfreunde') ---
+// A hidden JSON API (POST /events/ng_items), not an HTML page: a plain GET on
+// the registered source URL returns a content-free `{"status":"ok"}` stub, so
+// this source can't flow through crawlSource()'s generic GET → thin-page →
+// hash-compare → tryStructuredExtraction() shell like every other source —
+// there is no meaningful "page" to hash there, and a hash of that stub would
+// never change, permanently wedging change-detection on the wrong signal.
+// Special-cased end-to-end instead: own fetch/pagination, own hash (over the
+// fetched item set, not a page), own upsert loop. Filtered server-side to the
+// two family-relevant target groups (ids discovered via POST /events/ng_basedata
+// — "Angebote für Familien" / "Angebote für Kinder & Jugendliche"; the plain
+// `ng_items` response ignores a leading underscore on these ids, e.g.
+// targetgroupid must be "1956" not "_1956") rather than the full ~2,491-event,
+// 312-page catalog across all Bundesländer.
+const NF_TARGET_GROUPS = [
+  { id: '1956', label: 'Familien' },
+  { id: '9000', label: 'Kinder & Jugendliche' },
+];
+const NF_PAGE_CAP = 60; // safety cap per target group (well above the ~26 pages each currently yields)
+
+async function fetchNaturfreundeEvents(src) {
+  const seen = new Map(); // ev_id -> event; the two target-group queries can overlap
+  const hashParts = [];
+  for (const tg of NF_TARGET_GROUPS) {
+    let page = 1, totalPages = 1;
+    do {
+      const res = await politeFetch(src.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetgroupid: tg.id, page }),
+      });
+      if (!res.ok) break;
+      const data = await res.json();
+      if (data.status !== 'ok') break;
+      totalPages = Math.min(data.items_pagination?.total_pages || 1, NF_PAGE_CAP);
+      for (const item of data.items || []) {
+        hashParts.push(`${item.ev_id}|${item.date_str}|${item.lat ?? ''}|${item.lon ?? ''}`);
+        if (seen.has(item.ev_id)) continue;
+        const ev = parseNaturfreundeItem(item, src.url);
+        if (ev) seen.set(item.ev_id, ev);
+      }
+      page += 1;
+    } while (page <= totalPages);
+  }
+  return { events: [...seen.values()], hashParts };
+}
+
+async function crawlNaturfreundeSource(src, { force } = {}) {
+  console.log(`\n→ ${src.name} (${src.url})`);
+  try {
+    if (!(await robotsAllowed(src.url))) {
+      console.log('  robots.txt disallows this path, skipping');
+      await setSourceNote(src.id, 'skipped: disallowed by robots.txt');
+      const tier = await recordStats(src, { type: 'noContent' });
+      return { ok: 0, fail: 0, tier };
+    }
+  } catch { /* robots check itself failed → default allow, proceed */ }
+
+  let events, hashParts;
+  try {
+    ({ events, hashParts } = await fetchNaturfreundeEvents(src));
+  } catch (e) {
+    console.log(`  fetch failed: ${e.message}`);
+    const tier = await recordStats(src, { type: 'noContent' });
+    return { ok: 0, fail: 0, fetchError: true, tier };
+  }
+
+  const hash = createHash('sha256').update(hashParts.slice().sort().join('\n')).digest('hex');
+  if (!force && src.page_hash && src.page_hash === hash) {
+    console.log('  unchanged, skipped');
+    const tier = await recordStats(src, { type: 'unchanged' });
+    return { ok: 0, fail: 0, tier };
+  }
+
+  let ok = 0;
+  for (const raw of events) {
+    try {
+      const cats = raw.categories.filter((c) => CAT_EMOJI[c]);
+      const ev = {
+        title: raw.title,
+        description: null,
+        starts_at: `${raw.date_start}T09:00`,
+        ends_at: null, // source gives no time-of-day; date_end alone doesn't fill ends_at anywhere else in this pipeline either
+        all_day: 1,
+        venue: raw.venue, address: raw.address, town: raw.town,
+        categories: cats,
+        is_free: raw.is_free, age_min: raw.age_min, age_max: raw.age_max, indoor: raw.indoor,
+        emoji: CAT_EMOJI[cats[0]] || '📌',
+        src_kind: 'crawl',
+        source_name: src.name,
+        source_url: raw.source_url,
+        country: 'AT',
+      };
+      // Coordinates come straight from the source (parser-supplied, verified
+      // per-item in parseNaturfreundeItem) — skip geocoding entirely, mirroring
+      // how scripts/seed.mjs honors mined lat/lng.
+      await upsertEvent({ ...ev, lat: raw.lat, lng: raw.lng, geo_precision: 'venue' });
+      ok++;
+    } catch (e) {
+      console.log(`  ! skip event "${raw.title || '(untitled)'}" (${src.name}): ${e.code || e.message}`);
+    }
+  }
+  console.log(`  ${ok}/${events.length} events upserted (route: naturfreunde)`);
+  await updateSourceMeta(src.id, { page_hash: hash, feed_kind: 'naturfreunde' });
+  const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
+  return { ok, fail: 0, tier };
+}
+
 async function crawlSource(src, { force, scope: requestedScope } = {}) {
+  if (src.cms === 'naturfreunde') return crawlNaturfreundeSource(src, { force });
+
   const scope = requestedScope || scopeForSource(src);
   console.log(`\n→ ${src.name} (${src.url})`);
 
