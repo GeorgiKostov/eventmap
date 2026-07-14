@@ -1862,6 +1862,9 @@ export default function Home() {
             {t.searchCenterChip.replace('{ort}', searchCenter.label)} <span className="x">✕</span>
           </button>
         )}
+        {/* Shown the moment search opens — i.e. exactly when the user is about to
+            type a location. The cheapest place to teach the drop-pin gesture. */}
+        {searchOpen && <div className="search-hint">📍 {t.dropPinHint}</div>}
         {searchOpen && searchQuery.trim() && (
           <div className="search-results">
             {showOrte && (

@@ -430,6 +430,13 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   margin-top: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
   box-shadow: var(--shadow-lg); overflow: hidden; max-width: 280px;
 }
+/* Drop-pin nudge, shown while the location search is open. */
+.search-hint {
+  margin-top: 6px; max-width: 280px; display: flex; gap: 6px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow-sm); padding: 8px 11px;
+  font-size: 11.5px; line-height: 1.35; font-weight: 550; color: var(--muted);
+}
 .search-section + .search-section { border-top: 1px solid var(--line); }
 .search-sechead {
   font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
