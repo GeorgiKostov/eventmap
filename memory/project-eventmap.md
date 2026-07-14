@@ -19,6 +19,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   `addFlowActiveRef` so it never fires during event/place intake. All in `app/page.js`
   (`dropLocationPin`, gesture listeners in map-init effect); i18n keys `droppedPinLabel`/`dropPinHint`
   in de/en/bg. Build green, browser-verified. (f046f83)
+- **Discoverability rule learned:** a hidden gesture needs its hint at the *moment of intent*, not in
+  a reference panel. The tip now renders the instant the location search opens — the exact second the
+  user is reaching for the friction the gesture removes. The legend was rejected on purpose: it's a
+  pin-symbol key (event/place/community/approx/cluster), collapsed by default, and a user reading it
+  is not mid-task. (0ca7ace)
 
 ## Where things stand (2026-07-13 latest — FB link unfurl, filter UX, party category)
 - **Public Facebook events now resolve via a pasted link.** FB's login wall is UA-gated;

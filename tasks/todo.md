@@ -8,6 +8,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       radius filter / radius circle. Dropped pin draggable to fine-tune. One-time hint toast for
       discoverability. Gated by `addFlowActiveRef`; trailing synthetic click swallowed so it never
       fights tap-to-select. (f046f83)
+- [x] **Discoverability: hint at the moment of intent** — the drop-pin tip renders the instant the
+      location search opens (i.e. as the user is about to type a location, the very friction the
+      gesture removes). Reuses `dropPinHint`. Explicitly NOT in the legend: that's a pin-symbol key,
+      collapsed by default, nobody opens it mid-task. (0ca7ace)
 
 ## Shipped (prototype v1 → v2, 2026-07-10)
 - [x] Scaffold Next.js + SQLite (Supabase-portable schema); MapLibre + OSM map.
