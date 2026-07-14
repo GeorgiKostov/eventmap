@@ -324,10 +324,31 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       merged extract → Europe later; systemd timer; NEVER run box cron + GH Actions cron together).
 - [ ] `blocked_reason` column + monthly recheck + rot-report section (robots|ai_bot_policy|js_spa|
       login_wall|tos) — blocked ≠ dead; feeds the outreach queue instead of rotting to tier=dead.
-- [ ] **Naturfreunde JSON adapter** — POST naturfreunde.at/events/ng_items: 2,491 events, all 9
-      Länder, WITH lat/lng; Crawl-delay 10. Filter by family target group. + **Kinderfreunde**
-      HTML parser (age-tagged, robots-open). Then: FRida&freD Graz, city libraries (not Wien),
-      Naturpark Attersee-Traunsee; Donau-Auen/Kalkalpen are js_spa — need their AJAX endpoints.
+- [x] **Naturfreunde adapter SHIPPED + verified** (c19a6bc): cms='naturfreunde', family+kids
+      target groups server-side (ids via ng_basedata; leading "_" silently no-ops the filter!),
+      source lat/lon used directly, own item-set hash (GET returns a 14-byte stub). 77 events live.
+- [x] **Kinderfreunde adapter SHIPPED + verified**: cms='kinderfreunde', 65 events live (14 dropped
+      on geocode — some cards carry street-as-town; never fabricated).
+- [x] **13 small family sources registered + verified** (scripts/register-family-sources.mjs):
+      FRida&freD, Stadtbibliotheken Graz/Innsbruck/Linz+VHS, Naturpark Attersee-Traunsee, ASVÖ,
+      OÖ Familienbund (JSON-LD, 10/10, $0), Donau-Auen (Livewire SSR — NOT a SPA, brief was wrong),
+      4 Alpenverein section pages. Skipped on evidence: Stadtbibliothek Salzburg (PDF/stale),
+      Alpenverein Wien (0 events). First cron crawl picks them all up.
+- [x] **Diocese "siteswift" cluster SHIPPED** (d8285c8) — the second GEM2GO: one adapter, five
+      markup skins, 6 of 9 dioceses run it; 5 registered (Linz/Wien/Graz-Seckau/Eisenstadt/
+      Salzburg; Feldkirch = JS-only via robots-blocked .siteswift path). Parish-level family
+      events (MuKi, Jungschar, Kinderchor). Listing = rolling ~20-event window, no compliant
+      pagination → coverage accumulates by recrawl cadence. Diözese Linz verified live (8 upserted
+      first pass). Request-rate N/S robots directive now parsed (1/30 → 30s host delay).
+- [x] **Kalkalpen sitemap two-hop SHIPPED + verified**: 104 occurrences upserted (incl. kids
+      Nationalpark tours), town per occurrence from map-marker text, never defaulted.
+- [x] **Conditional GET SHIPPED**: sources.etag/last_modified, If-None-Match/If-Modified-Since on
+      the generic shell, 304 → unchanged path (live-demoed). Most nightly fetches become free.
+- [ ] **Cluster follow-ups from research**: feratel Deskline = partnership email (DSI interface /
+      Open Data Platform, servicecenter@feratel.com) — JS-only widget, not crawlable politely;
+      Gem2Go central API = none documented, partnership email to office@ris.at if wanted;
+      **Veranstaltungsdatenbank NÖ** (Gem2Go consumes it — an official Land-NÖ event DB) = worth
+      a direct look, unverified.
 - [ ] Zone-scoped CMS sniff of the 1,027 unsniffed probe skips — Graz ring thinnest (63 sources,
       ≥51 candidates); Stmk 12%/Ktn 13%/Bgld 15% pass rates hide a cluster. (Merges with the
       fingerprint item below.)

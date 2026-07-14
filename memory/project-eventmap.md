@@ -9,7 +9,29 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-07-14 latest+1 — enrichment ladder stages 0–2 SHIPPED)
+## Where things stand (2026-07-14 latest+2 — source wave + enrichment run DONE)
+- **Enrichment run 1 (deterministic) finished: 537/4,573 zone events upgraded** (registry 146 /
+  JSON-LD 191 / iCal 102 / table 98), 33 distance-guarded, 186 sentinels. Remainder: 2,264
+  fetched-but-unstructured (→ --llm rung, run 2 in flight on paid Gemini key) + 1,577 listing-only
+  linkbacks (→ Grok CLI venue-search backfill, still to run).
+- **All researched sources are now LIVE adapters, verified end-to-end** (hard rule 7): Naturfreunde
+  77 ev / Kinderfreunde 65 / Diözese-Linz siteswift 8-per-window / Kalkalpen 104 occurrences /
+  Familienbund 10 (JSON-LD $0) + 13 registered small sources + 4 more dioceses on tomorrow's cron.
+  Diocese "siteswift" platform = the second GEM2GO (6/9 dioceses, 5 registered, parish-level
+  family events). feratel Deskline + Gem2Go = partnership emails only; lead: Veranstaltungsdatenbank
+  NÖ (official Land event DB Gem2Go consumes).
+- **Conditional GET live** (etag/last_modified + 304 path), **Request-rate** robots directive
+  parsed, **embedding dedup infra committed** (report-only; 11,740 rows embedded; wiring needs
+  similarity ≥0.90 AND same-town — day-only is drowned by templated municipal content).
+- **NEAR-MISS: my crawl-net refactor swallowed htmlToText** → every generic crawl silently
+  zero; caught by a reviewing agent before any cron ran, fixed + spot-checked (Pottendorf 99/99).
+  Lesson recorded. NB George clicked the spawned fix-chip → a duplicate session may exist; its PR
+  should be declined (fix is on main, d8285c8).
+- **CAUTION: concurrent viewport session** owns uncommitted changes in lib/db.js / db/schema.sql /
+  app/api/events/route.js (PostGIS geom, expireIfStale, mapPins). My commits staged those two
+  files hunk-selectively. Don't sweep their work.
+
+## Where things stand (2026-07-14 — enrichment ladder stages 0–2 SHIPPED)
 - **Venues registry live**: `venues` table seeded with 4,216 resolved venues (events+places);
   `geocodeEvent()` consults it before Nominatim and writes POI hits back. Sentinel venues
   (Online/Sonstige/онлайн…) never geocode. `NOMINATIM_URL` env → self-hosted instance, no throttle.

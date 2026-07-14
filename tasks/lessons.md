@@ -2,6 +2,26 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — A marker-bounded block-slice refactor swallowed a function; green checks proved nothing
+
+Extracting the politeness layer from crawl.mjs into lib/crawl-net.js, I removed "everything from
+the UA comment to the extraction-section comment" with a Python string slice — and `htmlToText`
+lived between those markers. Result: every generic-shell crawl silently extracted ZERO events
+(the ReferenceError was swallowed by the per-source try/catch and logged as an ordinary source
+skip). `node --check` passed (undefined identifiers are runtime errors), `npm run build` was
+irrelevant (scripts aren't bundled), and my own post-refactor verifications happened to exercise
+only the two paths that bypass the shell (Stuttgart ran pre-refactor; Naturfreunde is
+special-cased). A later agent reading the file cold found it before the first cron ran with it.
+**Lessons:** (1) when slicing code out by textual landmarks, diff what you REMOVED against what
+you meant to move — a marker-bounded cut takes everything in between, not just what you were
+thinking about; (2) after refactoring a shared layer, re-run the *most common* consumer path
+(one plain GEM2GO crawl here), not whichever path is conveniently already running; (3) a
+per-item try/catch that logs-and-continues converts a total outage into N identical "skip" lines
+— when every item in a batch fails with the same message, treat it as one systemic failure, not
+N item failures (worth a failure-rate assert in crawl summaries); (4) fresh eyes reading a file
+beat the author re-checking their own cut — the reviewing agent caught in minutes what three
+green checks missed.
+
 ## 2026-07-14 — Your own politeness layer can manufacture a block; verify "blocked" against the raw file
 
 Stuttgart (the biggest DE-scope city) sat at 0 events for days with `notes="skipped: disallowed
