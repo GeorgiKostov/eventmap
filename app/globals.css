@@ -313,6 +313,16 @@ a { color: inherit; }
 .source-tag.community { border-style: dashed; border-color: color-mix(in srgb, var(--community) 60%, var(--line)); color: var(--ink); }
 .empty { padding: 30px 20px; text-align: center; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
 .empty button { color: var(--accent); font-weight: 700; margin-top: 6px; }
+/* Header chip for a town-group-scoped list (tapped a dashed town bubble on the
+   map) — dashed border echoes the bubble's own "approximate" grammar. */
+.town-group-header {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin: 6px 8px 8px; padding: 10px 12px; border-radius: 14px;
+  background: var(--panel2); border: 1px dashed var(--line);
+}
+.town-group-header .tx { flex: 1 1 auto; min-width: 0; }
+.town-group-header b { display: block; font-size: 13.5px; color: var(--ink); }
+.town-group-header span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
 
 /* ================= map pins ================= */
 /* The category pins are GL symbol/circle layers (rasterized from CATS + P into
@@ -347,8 +357,16 @@ a { color: inherit; }
   content: ""; position: absolute; top: -3px; left: -3px; width: 8px; height: 8px;
   border-radius: 99px; background: var(--community); border: 1px solid #fff;
 }
-.legend-pin.approximate::before { content: ""; position: absolute; inset: -5px; border: 1.5px dashed var(--muted); border-radius: inherit; }
 .legend-pin.count::after { content: "3"; position: absolute; top: -6px; right: -6px; min-width: 11px; height: 11px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: #fff; border: 1px solid #fff; font-size: 7px; line-height: 10px; text-align: center; }
+/* Dashed neutral bubble — the town-group marker (map-legend row + the
+   'town-bubble' GL sprite share this look: pale fill, dashed border, count
+   inside). Distinct from the solid dark .legend-cluster ("zoom in") — this one
+   means "somewhere in this town", zooming in won't resolve it further. */
+.legend-town-group {
+  width: 23px; height: 23px; flex: 0 0 auto; display: grid; place-items: center;
+  border-radius: 50%; background: var(--panel2); color: var(--ink);
+  border: 1.5px dashed var(--muted); font-size: 8px; font-weight: 800; font-style: normal;
+}
 .legend-cluster {
   width: 23px; height: 23px; flex: 0 0 auto; display: grid; place-items: center;
   border-radius: 50%; background: var(--ink); color: #fff; border: 2px solid #fff;

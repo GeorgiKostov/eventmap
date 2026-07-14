@@ -776,6 +776,9 @@ export default function Home() {
   const [sheet, setSheet] = useState('closed'); // mobile: closed | half | full
   const [sheetContent, setSheetContent] = useState('list'); // list | filters
   const [selected, setSelected] = useState(null);
+  // Tapping a town-group bubble opens the list scoped to that town, never the
+  // single-event detail (a town group isn't one event to drill into).
+  const [selectedTown, setSelectedTown] = useState(null); // { town, country } | null
   const [detailFull, setDetailFull] = useState(false);
   const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
   const [nl, setNl] = useState({
@@ -1126,6 +1129,31 @@ export default function Home() {
         map.easeTo({ center: bubble.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
         return;
       }
+      // 1b. Town-group bubbles render in the SAME zoom band as pins (never a
+      // solid cluster, never an individual pin — design-system.md marker
+      // grammar), so they need their own tolerance box like pins do just
+      // below — but must still be checked BEFORE pins, same reasoning as the
+      // cluster bubble above: a bubble tap must never fall through to a pin.
+      // Opens the list scoped to that town, never the single-event detail.
+      if (map.getLayer('town-group-bubbles')) {
+        const pad = 8;
+        const box = [[e.point.x - pad, e.point.y - pad], [e.point.x + pad, e.point.y + pad]];
+        const hits = map.queryRenderedFeatures(box, { layers: ['town-group-bubbles'] });
+        let best = null; let bestD = Infinity;
+        for (const h of hits) {
+          const p = map.project(h.geometry.coordinates);
+          const d = (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
+          if (d < bestD) { bestD = d; best = h; }
+        }
+        if (best) {
+          setSelected(null);
+          setDetailFull(false);
+          setSelectedTown({ town: best.properties.town, country: best.properties.country });
+          setSheetContent('list');
+          setSheet('full');
+          return;
+        }
+      }
       // 2. Pins (rendered from HANDOFF_LOW up), with a few-px tolerance box.
       let item = null;
       if (map.getLayer('pins')) {
@@ -1151,8 +1179,9 @@ export default function Home() {
           return;
         }
       }
-      // 4. Empty map → deselect.
+      // 4. Empty map → deselect (and drop any town-group scoping).
       selectRef.current(null, { fly: false });
+      setSelectedTown(null);
       setMenuOpen(false);
     });
     // Viewport-native fetch: refetch on every settle, debounced so a drag/zoom
@@ -1470,16 +1499,26 @@ export default function Home() {
     return reps;
   }, [seriesCollapsedItems, venueGroups]);
 
-  // One GeoJSON FeatureCollection over the FULL grouped set (no viewport culling —
+  // Map grammar split (design-system.md "the hard cap"): a pin claims "a venue
+  // is here" — town-level positions (geo_precision:'town') can't support that
+  // claim, so they never become individual pins, only the one dashed town-group
+  // bubble per town (townGroupData below). Online/placeholder venues have no
+  // physical place at all and never reach the map in any form — list/search only
+  // (they stay in `filtered`/`groupedMapItems`, just excluded here).
+  const mapEligible = useMemo(() => groupedMapItems.filter((ev) => !isOnlineVenue(ev)), [groupedMapItems]);
+  const precisePinItems = useMemo(() => mapEligible.filter((ev) => ev.geo_precision !== 'town'), [mapEligible]);
+  const townLevelItems = useMemo(() => mapEligible.filter((ev) => ev.geo_precision === 'town'), [mapEligible]);
+
+  // One GeoJSON FeatureCollection over precise items only (no viewport culling —
   // GL draws thousands of sprites for free, that's the whole point). Each feature
-  // carries everything the layers read: cat (→ sprite + color), approx/community
-  // (→ badge filters), count (venue/series "many here"). `id` is promoted for
+  // carries everything the layers read: cat (→ sprite + color), community
+  // (→ badge filter), count (venue/series "many here"). `id` is promoted for
   // feature-state selection. itemById/memberToRep feed click + flyTo (built here
   // so there's a single source of truth for the map's id→data lookups).
   const pinData = useMemo(() => {
     const itemById = new Map();
     const memberToRep = new Map();
-    const features = groupedMapItems.map((ev) => {
+    const features = precisePinItems.map((ev) => {
       const cat = primaryCat(ev);
       const count = ev._venueCount > 1 ? ev._venueCount : (ev._seriesCount > 1 ? ev._seriesCount : 0);
       const members = ev._venueIds || [ev.id]; // _venueIds already flattens series ids
@@ -1493,27 +1532,56 @@ export default function Home() {
           id: ev.id,
           cat,
           color: CATS[cat].color, // token: CATS[cat].color (GL paint can't read --cc)
-          shape: ev.kind === 'place' ? 'place' : 'event', // → shape-matched approx sprite
-          approx: ev.geo_precision === 'town',
           community: isCommunitySubmitted(ev),
           count,
         },
       };
     });
     return { collection: { type: 'FeatureCollection', features }, itemById, memberToRep };
-  }, [groupedMapItems]);
+  }, [precisePinItems]);
   useEffect(() => { pinIndexRef.current = { itemById: pinData.itemById, memberToRep: pinData.memberToRep }; }, [pinData]);
 
+  // One dashed bubble per (town, country) — the honest composition of "many"
+  // (bubble + count, like the cluster bubbles) and "approximate" (dashed
+  // outline, like the old per-pin halo), with the town NAME as a text label so
+  // it never reads as a venue. count sums each representative's own already-
+  // deduped venue/series count, so "12 events in X" stays a true count of
+  // individual events, not of collapsed representatives.
+  const townGroupData = useMemo(() => {
+    const byKey = new Map();
+    for (const ev of townLevelItems) {
+      const key = `${(ev.town || '').toLowerCase()}|${ev.country || 'AT'}`;
+      const count = ev._venueCount > 1 ? ev._venueCount : (ev._seriesCount > 1 ? ev._seriesCount : 1);
+      let g = byKey.get(key);
+      if (!g) { g = { town: ev.town, country: ev.country || 'AT', lat: ev.lat, lng: ev.lng, count: 0 }; byKey.set(key, g); }
+      g.count += count;
+    }
+    const groups = [...byKey.values()];
+    return {
+      type: 'FeatureCollection',
+      features: groups.map((g, i) => ({
+        type: 'Feature',
+        id: i,
+        geometry: { type: 'Point', coordinates: [g.lng, g.lat] },
+        properties: { town: g.town, country: g.country, count: g.count, label: abbreviateCount(g.count) },
+      })),
+    };
+  }, [townLevelItems]);
+  const townGroupDataRef = useRef(townGroupData);
+  townGroupDataRef.current = townGroupData;
+
   // Overview clusters: MapLibre spatial clustering so a regional view of hundreds
-  // of results stays scannable. Same grouped set as the pins, minimal props.
+  // of results stays scannable. Feeds from mapEligible (precise + town-level, no
+  // online) rather than the town-collapsed set — a town group of 12 must still
+  // count as 12 points here, not 1, or zooming out would understate the total.
   const clusterData = useMemo(() => ({
     type: 'FeatureCollection',
-    features: groupedMapItems.map((ev) => ({
+    features: mapEligible.map((ev) => ({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [ev.lng, ev.lat] },
       properties: { color: CATS[primaryCat(ev)].color },
     })),
-  }), [groupedMapItems]);
+  }), [mapEligible]);
   const clusterDataRef = useRef(clusterData);
   clusterDataRef.current = clusterData;
 
@@ -1638,14 +1706,6 @@ export default function Home() {
           'icon-opacity': ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, ['case', SEL, 0.3, 0]],
         },
       });
-      // Town-level precision: dashed outline sprite under the pin, matching its
-      // shape (approx-event teardrop / approx-place circle).
-      map.addLayer({
-        id: 'pin-approx-halo', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
-        filter: ['==', ['get', 'approx'], true],
-        layout: { 'icon-image': ['concat', 'approx-', ['get', 'shape']], 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center' },
-        paint: { 'icon-opacity': PIN_FADE_IN },
-      });
       // Base pins.
       map.addLayer({
         id: 'pins', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
@@ -1719,6 +1779,50 @@ export default function Home() {
     // never installed at all: zooming past the clusters showed an empty map.
     install();
   }, [pinData, spritesReady]);
+
+  // Town-group bubbles — one dashed neutral marker per town standing in for
+  // every town-level item there (never individual pins, see mapEligible split
+  // above). Same minzoom/fade band as `pins` so it crossfades with the overview
+  // clusters exactly like pins do, instead of popping in on its own schedule.
+  useEffect(() => {
+    const map = mapObj.current;
+    if (!map || !spritesReady) return;
+    const install = () => {
+      const src = map.getSource('result-town-groups');
+      if (src) { src.setData(townGroupDataRef.current); return; }
+      map.addSource('result-town-groups', { type: 'geojson', data: townGroupDataRef.current });
+      map.addLayer({
+        id: 'town-group-bubbles', type: 'symbol', source: 'result-town-groups', minzoom: HANDOFF_LOW,
+        layout: { 'icon-image': 'town-bubble', 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center' },
+        paint: { 'icon-opacity': PIN_FADE_IN },
+      });
+      // Count, centered inside the bubble — ink text on the bubble's pale fill.
+      map.addLayer({
+        id: 'town-group-counts', type: 'symbol', source: 'result-town-groups', minzoom: HANDOFF_LOW,
+        layout: {
+          'text-field': ['get', 'label'], 'text-size': 10.5, 'text-font': ['Noto Sans Bold'],
+          'text-allow-overlap': true, 'text-ignore-placement': true, 'text-anchor': 'center',
+        },
+        paint: { 'text-color': '#212b28', 'text-opacity': PIN_FADE_IN }, // token: --ink
+      });
+      // Town name, below the bubble — the label that stops this reading as a venue.
+      map.addLayer({
+        id: 'town-group-labels', type: 'symbol', source: 'result-town-groups', minzoom: HANDOFF_LOW,
+        layout: {
+          'text-field': ['get', 'town'], 'text-size': 11, 'text-font': ['Noto Sans Bold'],
+          'text-allow-overlap': true, 'text-ignore-placement': true,
+          'text-anchor': 'top', 'text-offset': [0, 1.3], 'text-max-width': 8,
+        },
+        paint: {
+          'text-color': '#212b28', 'text-halo-color': '#ffffff', 'text-halo-width': 1.4, // token: --ink
+          'text-opacity': PIN_FADE_IN,
+        },
+      });
+      map.on('mouseenter', 'town-group-bubbles', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'town-group-bubbles', () => { map.getCanvas().style.cursor = ''; });
+    };
+    install();
+  }, [townGroupData, spritesReady]);
 
   // Selection → feature-state. React `selected` is the driver; a list row that's a
   // group member lights its representative pin. Re-applied on pinData/spritesReady
@@ -2254,28 +2358,61 @@ export default function Home() {
     </div>
   );
 
+  // Location/distance tail shared by event + place rows: online has neither (no
+  // physical place to point to, see isOnlineVenue); town-level shows the honest
+  // "in {town}" instead of a fabricated venue name, and an "≈" distance instead
+  // of a precise one (the coordinate is a centroid, not where the event is).
+  function locDistMeta(ev) {
+    if (isOnlineVenue(ev)) return null;
+    const km = distKm(refPoint, ev).toFixed(1).replace('.', ',');
+    if (ev.geo_precision === 'town') return <> · {t.inTown.replace('{town}', ev.town)} · ≈{km} km</>;
+    return <> · {ev.town || ev.venue} · {km} km</>;
+  }
+
   function eventList(onPick) {
+    // A tapped town-group bubble scopes the list to exactly that town's
+    // town-level items (Task 2: never the single-event detail).
+    const scoped = selectedTown
+      ? filtered.filter((ev) => ev.geo_precision === 'town' && ev.town === selectedTown.town
+          && (ev.country || 'AT') === selectedTown.country && !isOnlineVenue(ev))
+      : null;
+    const evs = scoped ? scoped.filter((ev) => ev.kind !== 'place') : filteredEvents;
+    const pls = scoped ? scoped.filter((ev) => ev.kind === 'place') : filteredPlaces;
     let lastDay = null;
-    if (filteredEvents.length === 0 && filteredPlaces.length === 0) {
+    const header = selectedTown && (
+      <div className="town-group-header">
+        <span className="tx">
+          <b>{t.townGroupTitle.replace('{n}', scoped.length).replace('{town}', selectedTown.town)}</b>
+          <span>{t.townGroupHint}</span>
+        </span>
+        <button className="m-close" onClick={() => setSelectedTown(null)} aria-label={t.close}><X size={14} weight="bold" /></button>
+      </div>
+    );
+    if (evs.length === 0 && pls.length === 0) {
       return (
-        <div className="empty">
-          {t.emptyTitle}
-          <br />
-          <button onClick={() => mapObj.current?.easeTo({ zoom: Math.max(0, mapObj.current.getZoom() - 2) })}>{t.zoomOut}</button>
-          <br />
-          <span>{t.knowOne} 📷</span>
+        <div className="list">
+          {header}
+          <div className="empty">
+            {t.emptyTitle}
+            <br />
+            <button onClick={() => mapObj.current?.easeTo({ zoom: Math.max(0, mapObj.current.getZoom() - 2) })}>{t.zoomOut}</button>
+            <br />
+            <span>{t.knowOne} 📷</span>
+          </div>
         </div>
       );
     }
     return (
       <div className="list">
-        {filteredEvents.map((ev) => {
+        {header}
+        {evs.map((ev) => {
           const d = ev.starts_at.slice(0, 10);
           const groupDay = d < dFrom ? 'ongoing' : d;
           const head = groupDay !== lastDay ? <div className="dayhead">{groupDay === 'ongoing' ? t.ongoing : fmtDayLong(d, lang, t)}</div> : null;
           lastDay = groupDay;
           const cat = primaryCat(ev);
           const community = isCommunitySubmitted(ev);
+          const online = isOnlineVenue(ev);
           return (
             <div key={ev.id}>
               {head}
@@ -2284,35 +2421,38 @@ export default function Home() {
                 <span className="tx">
                   <span className="t">{ev.title}</span>
                   <span className="m">
-                    {ev.all_day ? t.allDay : hasTime(ev.starts_at) ? ev.starts_at.slice(11, 16) : t.timeTbd} · {ev.town || ev.venue} · {distKm(refPoint, ev).toFixed(1).replace('.', ',')} km
+                    {ev.all_day ? t.allDay : hasTime(ev.starts_at) ? ev.starts_at.slice(11, 16) : t.timeTbd}{locDistMeta(ev)}
                   </span>
                 </span>
-                {(community || ev.is_free === 1) && <span className="rowbadges">
+                {(community || online || ev.is_free === 1) && <span className="rowbadges">
                   {community && <span className="source-tag community">{t.communitySource}</span>}
+                  {online && <span className="source-tag">{t.onlineBadge}</span>}
                   {ev.is_free === 1 && <span className="tag">{t.freeTag}</span>}
                 </span>}
               </button>
             </div>
           );
         })}
-        {filteredPlaces.length > 0 && (
+        {pls.length > 0 && (
           <>
-            {filteredEvents.length > 0 && <div className="dayhead">{t.kindPlaces}</div>}
-            {filteredPlaces.map((pl) => {
+            {evs.length > 0 && <div className="dayhead">{t.kindPlaces}</div>}
+            {pls.map((pl) => {
               const cat = primaryCat(pl);
               const st = openStatus(pl.opening_hours);
               const community = isCommunitySubmitted(pl);
+              const online = isOnlineVenue(pl);
               return (
                 <button key={pl.id} className={`row ${selected?.id === pl.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(pl)}>
                   <span className="thumb"><CatIcon cat={cat} size={17} /></span>
                   <span className="tx">
                     <span className="t">{pl.title}</span>
                     <span className="m">
-                      {t.cats[cat]} · {pl.town || pl.venue} · {distKm(refPoint, pl).toFixed(1).replace('.', ',')} km
+                      {t.cats[cat]}{locDistMeta(pl)}
                     </span>
                   </span>
-                  {(community || (!st.always && !st.unknown)) && <span className="rowbadges">
+                  {(community || online || (!st.always && !st.unknown)) && <span className="rowbadges">
                     {community && <span className="source-tag community">{t.communitySource}</span>}
+                    {online && <span className="source-tag">{t.onlineBadge}</span>}
                     {!st.always && !st.unknown && <span className={`tag ${st.open ? '' : 'closed'}`}>{st.open ? t.openNow : t.closedNow}</span>}
                   </span>}
                 </button>
@@ -2407,7 +2547,13 @@ export default function Home() {
             {ev.indoor === 0 && <span className="dtag" style={{ '--cc': 'var(--muted)' }}>{t.outdoorTag}</span>}
           </div>
           <div className="dmeta">
-            <div><span className="k">📍</span><span>{[ev.venue, ev.address, ev.town].filter(Boolean).join(', ') || '—'}</span></div>
+            {/* Town-level: never print the fabricated-looking venue/address join —
+                the coordinate is a town centroid, not a place. Say so plainly. */}
+            <div><span className="k">📍</span><span>
+              {ev.geo_precision === 'town'
+                ? <>{ev.town}<br /><span className="mutedt">{t.townGroupHint}</span></>
+                : [ev.venue, ev.address, ev.town].filter(Boolean).join(', ') || '—'}
+            </span></div>
             <div><span className="k">🚗</span><span className="mutedt">{distKm(refPoint, ev).toFixed(1).replace('.', ',')} km {t.away}</span></div>
             {!place && ev.age_min != null && (
               <div><span className="k">👨‍👩‍👧</span><span className="mutedt">{t.ageRec.replace('{min}', ev.age_min).replace('{max}', ev.age_max ?? '99')}</span></div>
@@ -2431,7 +2577,6 @@ export default function Home() {
               ) : (
                 <b>{ev.source_name || t.uploadSource}</b>
               )}
-              {ev.geo_precision === 'town' && <> · {t.posApprox}</>}
             </span>
           </div>
           <div className="dactions2">
@@ -2928,8 +3073,8 @@ export default function Home() {
             <span><i className="legend-pin event" />{t.legendEvent}</span>
             <span><i className="legend-pin place" />{t.legendPlace}</span>
             <span><i className="legend-pin event community" />{t.legendCommunity}</span>
-            <span><i className="legend-pin event approximate" />{t.legendApprox}</span>
             <span><i className="legend-pin event count" />{t.moreAtVenue}</span>
+            <span><i className="legend-town-group">5</i>{t.legendTownGroup}</span>
             <span><i className="legend-cluster">12</i>{t.legendCluster}</span>
           </div>
         </details>
