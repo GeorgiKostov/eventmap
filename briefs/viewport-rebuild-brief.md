@@ -72,6 +72,22 @@ feels instant (optimistic) while the debounced refetch replaces the data.
    search finds a Bulgarian event; `EXPLAIN` on the pins query shows the gist index. Run the
    migration against the real DB (it is idempotent). `npm run build` green at the end.
 
+## Contract corrections (Agent A, as implemented — B builds against THIS)
+
+- **`from`/`to` are date-only `YYYY-MM-DD`** (the client's real memos compare
+  `starts_at.slice(0,10)`; the brief's `THH:MM` spec was wrong). Server validates
+  `/^\d{4}-\d{2}-\d{2}$/`, must be sent as a pair; SQL compares `left(starts_at,10)`.
+- `?q=` blank → `{results:[]}` with 200 (not 400). Results projection:
+  `{id,kind,title,starts_at,venue,town,lat,lng}`, ≤20.
+- `?ids=` accepts ≤100 comma-separated integers, else 400. Not bbox-scoped.
+- `view=map` REQUIRES valid bbox + zoom (0–22); bbox span >20° → 400; enum params
+  whitelisted; booleans lenient (`free=1` true, else false).
+- Pins mode returns `{mode:'pins', events, total, truncated}`; LIMIT 800. Cells:
+  `{mode:'cells', cells:[{lat,lng,n}], total}`.
+- `publishedMapEvents()` is now dead code — Agent B must NOT re-adopt it; C decides removal.
+- KNOWN BROKEN INTERMEDIATE STATE: old `page.js` calls `?view=map` without bbox → 400.
+  Nothing deploys until B lands. Do not commit the server half alone.
+
 ## Client (Agent B — after A lands)
 
 `app/page.js` (+ `app/globals.css`, `lib/i18n.js`). Surgical: the GL sprite/grouping/selection

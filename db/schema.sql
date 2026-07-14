@@ -66,6 +66,20 @@ create index if not exists events_starts_idx on events(starts_at);
 create index if not exists events_status_idx on events(status);
 create index if not exists events_kind_idx on events(kind);
 
+-- Viewport rebuild (briefs/viewport-rebuild-brief.md, scripts/migrate-viewport.mjs):
+-- generated PostGIS point + GiST index so the map's bbox query
+-- (`geom && ST_MakeEnvelope(...)`) replaces "ship every event, filter by radius
+-- client-side". Supabase convention: extensions live in the `extensions` schema.
+create extension if not exists postgis with schema extensions;
+alter table events add column if not exists geom extensions.geometry(Point,4326)
+  generated always as (extensions.st_setsrid(extensions.st_makepoint(lng,lat),4326)) stored;
+create index if not exists events_geom_idx on events using gist (geom);
+
+-- Small key/value store; today just a throttle for the read-path
+-- expire-finished-events sweep (expireIfStale in lib/db.js) so reads don't
+-- also write on every request.
+create table if not exists meta (key text primary key, value text);
+
 -- Venues registry (docs/design/big-city-quality.md §1): resolved venue name +
 -- town → coordinates, with provenance. Consulted by geocodeEvent() before the
 -- Nominatim waterfall; written back by every enrichment path. Distinct from

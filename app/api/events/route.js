@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getEvent, publishedEvents, publishedMapEvents, upsertEvent, updateEventFields, viennaNow } from '../../../lib/db.js';
+import {
+  getEvent, publishedEvents, upsertEvent, updateEventFields, viennaNow,
+  mapPins, mapCells, searchEvents, eventsByIds,
+} from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
 import { limit } from '../../../lib/ratelimit.js';
@@ -13,16 +16,118 @@ const MESSAGES = {
   bg: { limited: 'Твърде много публикации — опитай отново по-късно.', title: 'Заглавието е задължително.', titleDate: 'Заглавието и датата са задължителни.', outside: 'Мястото е извън обхванатия район.', date: 'Въведи валидна дата (не в миналото и до около една година напред).', meaningful: 'Въведи смислено заглавие.', spam: 'Публикацията беше отхвърлена като възможен спам.', location: 'Мястото не е намерено — постави маркер на картата.' },
 };
 
+// Server-side whitelists — kept as plain string constants (not imported from
+// lib/icons.js, a React/JSX module) so this route stays server-only. Must
+// track EVENT_CATS + PLACE_CATS in lib/icons.js.
+const ALL_CATS = new Set([
+  'family', 'festival', 'market', 'music', 'party', 'culture', 'food', 'sport', 'workshop',
+  'playground', 'pool', 'park', 'trail', 'indoor_play', 'museum', 'zoo', 'climbing',
+]);
+const KIND_ENUM = new Set(['event', 'place']);
+const INOUT_ENUM = new Set(['in', 'out', 'any']);
+const TOD_ENUM = new Set(['morning', 'afternoon', 'evening']);
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const ZOOM_TIER = 11.5; // >= pins, < cells (HANDOFF 12.0-12.6 crossfade band)
+
+function bad(msg) {
+  return NextResponse.json({ error: msg }, { status: 400 });
+}
+
+// Returns [minLng,minLat,maxLng,maxLat] | undefined (missing) | null (invalid).
+function parseBbox(raw) {
+  if (!raw) return undefined;
+  const parts = raw.split(',').map(Number);
+  if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) return null;
+  const [minLng, minLat, maxLng, maxLat] = parts;
+  if (minLng >= maxLng || minLat >= maxLat) return null;
+  if (minLng < -180 || maxLng > 180 || minLat < -90 || maxLat > 90) return null;
+  if (maxLng - minLng > 20 || maxLat - minLat > 20) return null; // brief: bbox span >20° -> 400
+  return [minLng, minLat, maxLng, maxLat];
+}
+
+// Shared toggle-filter parsing for the pins/cells modes. Returns null on any
+// invalid enum value (route responds 400); booleans degrade to false on
+// anything other than '1' rather than erroring (low-risk, no SQL surface).
+function parseFilters(sp) {
+  const kind = sp.get('kind') || null;
+  if (kind && !KIND_ENUM.has(kind)) return null;
+
+  const catsRaw = sp.get('cats');
+  const cats = catsRaw ? catsRaw.split(',').map((c) => c.trim()).filter(Boolean) : [];
+  if (cats.some((c) => !ALL_CATS.has(c))) return null;
+
+  const inout = sp.get('inout') || 'any';
+  if (!INOUT_ENUM.has(inout)) return null;
+
+  const todRaw = sp.get('tod');
+  const tod = todRaw ? todRaw.split(',').map((s) => s.trim()).filter(Boolean) : [];
+  if (tod.some((s) => !TOD_ENUM.has(s))) return null;
+
+  const from = sp.get('from');
+  const to = sp.get('to');
+  if ((from && !DATE_RE.test(from)) || (to && !DATE_RE.test(to))) return null;
+  if (!!from !== !!to) return null; // from/to travel as a pair or not at all
+
+  return {
+    kind, cats, inout, tod,
+    free: sp.get('free') === '1',
+    kids: sp.get('kids') === '1',
+    community: sp.get('community') === '1',
+    when: from && to ? { from, to } : null,
+  };
+}
+
 export async function GET(req) {
-  const id = req.nextUrl.searchParams.get('id');
+  const sp = req.nextUrl.searchParams;
+
+  const id = sp.get('id');
   if (id) return NextResponse.json({ event: await getEvent(id) });
 
-  // The map/list does not need descriptions and source links for all rows up
-  // front. Keep the public default response unchanged; the homepage opts into
-  // this compact view and fetches the full row only when a detail is opened.
-  if (req.nextUrl.searchParams.get('view') === 'map') {
-    return NextResponse.json({ events: await publishedMapEvents() });
+  // Saved-list resolution: usually NOT in the current viewport, so this is a
+  // plain id lookup, never bbox-scoped (brief: don't prune ids that are just
+  // off-screen).
+  const idsRaw = sp.get('ids');
+  if (idsRaw !== null) {
+    const ids = idsRaw.split(',').map((s) => s.trim()).filter(Boolean);
+    if (!ids.length || ids.length > 100 || ids.some((s) => !/^\d+$/.test(s))) {
+      return bad('ids must be 1-100 comma-separated integers');
+    }
+    return NextResponse.json({ events: await eventsByIds(ids) });
   }
+
+  // Global text search — independent of the viewport.
+  const q = sp.get('q');
+  if (q !== null) {
+    const trimmed = q.trim();
+    if (!trimmed) return NextResponse.json({ results: [] });
+    return NextResponse.json({ results: await searchEvents(trimmed) });
+  }
+
+  const view = sp.get('view');
+  if (view === 'map') {
+    const bbox = parseBbox(sp.get('bbox'));
+    if (bbox === undefined) return bad('bbox is required for view=map');
+    if (bbox === null) return bad('bbox is invalid');
+
+    const zoom = Number(sp.get('zoom'));
+    if (!Number.isFinite(zoom) || zoom < 0 || zoom > 22) return bad('zoom is required and must be 0-22');
+
+    const filters = parseFilters(sp);
+    if (!filters) return bad('invalid filter parameter');
+
+    if (zoom >= ZOOM_TIER) {
+      const { events, total, truncated } = await mapPins({ bbox, ...filters });
+      return NextResponse.json({ mode: 'pins', events, total, truncated });
+    }
+    // ~64px cells at the given zoom: 360deg / 2^zoom tiles, quartered.
+    const cellDeg = 360 / Math.pow(2, Math.round(zoom)) / 4;
+    const { cells, total } = await mapCells({ bbox, cellDeg, ...filters });
+    return NextResponse.json({ mode: 'cells', cells, total });
+  }
+  if (view) return bad('unknown view');
+
+  // Legacy no-param path: unbounded, unfiltered. MCP server / sitemap /
+  // JSON-LD depend on this exact shape — left untouched.
   return NextResponse.json({ events: await publishedEvents() });
 }
 

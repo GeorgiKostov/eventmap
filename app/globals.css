@@ -104,8 +104,6 @@ a { color: inherit; }
   letter-spacing: 0.11em; text-transform: uppercase; color: var(--muted);
   display: flex; justify-content: space-between; align-items: baseline;
 }
-.fgroup h4 output { font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--ink); font-weight: 700; font-variant-numeric: tabular-nums; }
-input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; margin: 0; }
 
 .catgrid { display: flex; flex-wrap: wrap; gap: 7px; }
 .cat {

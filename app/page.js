@@ -26,6 +26,10 @@ const INTEREST_SHOW_MIN = 3;
 // gone by construction). Pick the band ends just inside each layer's minzoom/maxzoom.
 const HANDOFF_LOW = 12.0;
 const HANDOFF_HIGH = 12.6;
+// The viewport is the spatial filter now (briefs/viewport-rebuild-brief.md):
+// >= this zoom the server returns per-event rows ("pins" mode); below it,
+// pre-aggregated cells. Must match ZOOM_TIER in app/api/events/route.js.
+const ZOOM_TIER = 11.5;
 // Pure top-level camera (zoom) expressions — the only form MapLibre precompiles
 // into a per-zoom ramp. Pins fade in, clusters fade out, across the same band.
 const PIN_FADE_IN = ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, 1];
@@ -131,14 +135,11 @@ function distKm(a, b) {
   const h = Math.sin(dLa / 2) ** 2 + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLo / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
-function circleGeoJSON(center, km) {
-  const pts = [];
-  const latR = km / 110.574, lngR = km / (111.32 * Math.cos((center.lat * Math.PI) / 180));
-  for (let i = 0; i <= 64; i++) {
-    const a = (i / 64) * 2 * Math.PI;
-    pts.push([center.lng + lngR * Math.cos(a), center.lat + latR * Math.sin(a)]);
-  }
-  return { type: 'Feature', geometry: { type: 'Polygon', coordinates: [pts] } };
+// Abbreviate a server cell count the way MapLibre's own supercluster formats
+// point_count_abbreviated, so a cell bubble's digits look the same as a
+// client-clustered one (n < 1000 → literal, else "1.2k").
+function abbreviateCount(n) {
+  return n < 1000 ? String(n) : `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
 }
 function primaryCat(ev) {
   return (ev.categories || []).find((c) => CATS[c]) || 'family';
@@ -513,8 +514,8 @@ export default function Home() {
   const searchMarker = useRef(null);
 
   // "search anywhere" reference point — set when the user picks a location (town/
-  // address) from the search dropdown. Distance labels + the radius filter recompute
-  // around it instead of `me`; null restores the user's own position as reference.
+  // address) from the search dropdown. Distance labels recompute around it
+  // instead of `me`; null restores the user's own position as reference.
   const [searchCenter, setSearchCenter] = useState(null); // {lat,lng,label} | null
   const refPoint = searchCenter || me;
 
@@ -528,13 +529,23 @@ export default function Home() {
   const [geoLoading, setGeoLoading] = useState(false);
   const geoDebounce = useRef(null);
   const geoReqId = useRef(0);
+  // Global text search (title/venue/town) — independent of the viewport, so a
+  // Bulgarian event can be found while looking at Linz. Server-backed (?q=)
+  // since the client only holds the current viewport's rows.
+  const [qResults, setQResults] = useState([]);
+  const [qLoading, setQLoading] = useState(false);
+  const qDebounce = useRef(null);
+  const qReqId = useRef(0);
   function closeSearch() {
     setSearchOpen(false);
     setSearchQuery('');
     setOrteMatches([]);
     setGeoResult(null);
     setGeoLoading(false);
+    setQResults([]);
+    setQLoading(false);
     clearTimeout(geoDebounce.current);
+    clearTimeout(qDebounce.current);
   }
 
   // distinct town centroids: the static list (lib/towns.js) + any town names
@@ -641,16 +652,71 @@ export default function Home() {
     return () => clearTimeout(geoDebounce.current);
   }, [searchQuery, townCenters]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Debounced (400ms, ≥2 chars) global event search — the client only holds the
+  // current viewport's rows, so finding an event anywhere means asking the server.
+  useEffect(() => {
+    const q = searchQuery.trim();
+    clearTimeout(qDebounce.current);
+    if (q.length < 2) { setQResults([]); setQLoading(false); return; }
+    setQLoading(true);
+    qDebounce.current = setTimeout(async () => {
+      const reqId = ++qReqId.current;
+      try {
+        const res = await fetch(`/api/events?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (reqId === qReqId.current) setQResults(Array.isArray(data.results) ? data.results : []);
+      } catch {
+        if (reqId === qReqId.current) setQResults([]);
+      } finally {
+        if (reqId === qReqId.current) setQLoading(false);
+      }
+    }, 400);
+    return () => clearTimeout(qDebounce.current);
+  }, [searchQuery]);
+
+  // Animated camera moves depend on MapLibre's render loop, which dies when the
+  // basemap style CDN is unreachable — the fly never progresses, `moveend` never
+  // fires, and the viewport fetch silently stays on the OLD area while the
+  // "Around X" chip claims the new one (integration finding, 2026-07-14). This
+  // watchdog snaps with jumpTo (synchronous transform + synchronous moveend) if
+  // the animation hasn't settled shortly after it should have. Healthy CDN:
+  // moveend fires, watchdog cleared, zero behavior change.
+  function flyAssured(opts) {
+    const map = mapObj.current;
+    if (!map) return;
+    let settled = false;
+    const onEnd = () => { settled = true; };
+    map.once('moveend', onEnd);
+    map.flyTo(opts);
+    setTimeout(() => {
+      if (settled) return;
+      map.off('moveend', onEnd);
+      map.jumpTo({ center: opts.center, zoom: opts.zoom });
+    }, (opts.duration ?? 800) + 600);
+  }
+
   // selecting a location result: fly there, drop a temporary marker, and make
-  // it the reference point for distances/radius.
+  // it the reference point for distances.
   function selectLocation(loc) {
     closeSearch();
     setSearchCenter({ lat: loc.lat, lng: loc.lng, label: loc.label });
-    mapObj.current?.flyTo({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current.getZoom(), 12), duration: 800 });
+    flyAssured({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 12), duration: 800 });
   }
   function clearSearchCenter() {
     setSearchCenter(null);
-    mapObj.current?.flyTo({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current.getZoom(), 12), duration: 700 });
+    flyAssured({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 12), duration: 700 });
+  }
+  // Picking a server search result: fly there immediately (zoom ≥ 13, so the
+  // viewport lands in pins mode), then hydrate the full row and select it —
+  // the event is very likely off the currently-loaded viewport, so it must
+  // NOT be looked up in `events`.
+  function selectSearchResult(ev) {
+    closeSearch();
+    flyAssured({ center: [ev.lng, ev.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 13), duration: 800 });
+    fetch(`/api/events?id=${encodeURIComponent(ev.id)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data?.event) selectEvent(data.event, { fly: false }); })
+      .catch(() => {});
   }
 
   // Long-press / right-click on the map drops the reference point right where the
@@ -679,10 +745,8 @@ export default function Home() {
   const [range, setRange] = useState({ from: null, to: null });
   const [dpOpen, setDpOpen] = useState(false);
   const [dpDraft, setDpDraft] = useState({ from: null, to: null });
-  const [radius, setRadius] = useState(20);
-  const deferredRadius = useDeferredValue(radius);
   // Search re-runs the whole grouping pipeline + rewrites both GeoJSON sources —
-  // defer it like radius so per-keystroke work can't jank the map at scale.
+  // deferred so per-keystroke work can't jank the map at scale.
   const deferredSearch = useDeferredValue(searchQuery);
   const [cats, setCats] = useState([]);
   const [freeOnly, setFreeOnly] = useState(false);
@@ -837,10 +901,37 @@ export default function Home() {
   // saved = this device's list (localStorage, no account). interestCounts = optimistic
   // overrides on top of the server counts that ride along with each row.
   const [saved, setSaved] = useState([]);
+  // Full rows for saved ids, resolved via /api/events?ids= — saved events are
+  // usually OFF the current viewport now, so they can no longer be looked up in
+  // `events` (which is just the loaded viewport rows). Keyed by string id.
+  const [savedCache, setSavedCache] = useState({});
   const [interestCounts, setInterestCounts] = useState({});
   const [savedOpen, setSavedOpen] = useState(false);
   const [reportMenu, setReportMenu] = useState(false); // event id whose reason menu is open
   const [reported, setReported] = useState([]); // reported this session — don't offer twice
+
+  // Resolve saved ids against the server, ONLY dropping ids the server confirms
+  // are gone (absent from the ?ids= response). Never prune for being merely
+  // outside the viewport — that's exactly the bug class that once silently
+  // wiped the saved list (tasks/lessons.md).
+  async function resolveSavedIds(ids) {
+    if (!ids.length) return;
+    try {
+      const res = await fetch(`/api/events?ids=${ids.join(',')}`);
+      if (!res.ok) return; // network hiccup — never prune on a failed lookup
+      const data = await res.json();
+      const found = new Map((data.events || []).map((e) => [String(e.id), e]));
+      setSavedCache((c) => ({ ...c, ...Object.fromEntries(found) }));
+      setSaved((current) => {
+        const requested = new Set(ids);
+        const next = current.filter((id) => !requested.has(id) || found.has(id));
+        if (next.length !== current.length) {
+          try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch { /* private mode */ }
+        }
+        return next;
+      });
+    } catch { /* network error — keep the list as-is */ }
+  }
 
   // Ids are Postgres bigints, which arrive as STRINGS ("373"), not numbers — so
   // saved ids are normalized to strings on every path. A Number-typed guard here
@@ -848,33 +939,32 @@ export default function Home() {
   useEffect(() => {
     try {
       const list = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]');
-      if (Array.isArray(list)) setSaved(list.map(String).filter((id) => /^\d+$/.test(id)));
+      if (Array.isArray(list)) {
+        const ids = list.map(String).filter((id) => /^\d+$/.test(id));
+        setSaved(ids);
+        if (ids.length) resolveSavedIds(ids);
+      }
     } catch { /* corrupt/blocked storage — start empty */ }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Also re-resolve whenever the modal opens, so a save made from a search
+  // result / another session's data is fresh and any newly-expired event drops.
+  useEffect(() => {
+    if (savedOpen && saved.length) resolveSavedIds(saved);
+  }, [savedOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function persistSaved(next) {
     setSaved(next);
     try { localStorage.setItem(SAVED_KEY, JSON.stringify(next)); } catch { /* private mode */ }
   }
 
-  // Drop saves whose event has expired or been removed, so the list can't rot.
-  // Only safe because /api/events returns every published row — a partial
-  // response here would silently eat the user's saves.
-  useEffect(() => {
-    if (!events || saved.length === 0) return;
-    const live = new Set(events.map((e) => String(e.id)));
-    const next = saved.filter((id) => live.has(id));
-    if (next.length !== saved.length) persistSaved(next);
-  }, [events]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const interestCount = (ev) => interestCounts[ev.id] ?? ev.interest_count ?? 0;
 
-  // Saved ids resolved against the loaded rows, in save order (newest last).
-  const savedItems = useMemo(() => {
-    if (!events) return [];
-    const byId = new Map(events.map((e) => [String(e.id), e]));
-    return saved.map((id) => byId.get(id)).filter(Boolean);
-  }, [events, saved]);
+  // Saved ids resolved against the cache, in save order (newest last).
+  const savedItems = useMemo(
+    () => saved.map((id) => savedCache[id]).filter(Boolean),
+    [saved, savedCache]
+  );
 
   const isSaved = (ev) => saved.includes(String(ev.id));
 
@@ -882,6 +972,7 @@ export default function Home() {
     const id = String(ev.id);
     const on = !isSaved(ev);
     persistSaved(on ? [...saved, id] : saved.filter((s) => s !== id));
+    if (on) setSavedCache((c) => ({ ...c, [id]: ev }));
     setInterestCounts((c) => ({ ...c, [ev.id]: Math.max(0, interestCount(ev) + (on ? 1 : -1)) }));
     track('interest', { kind: ev.kind, id: ev.id, on });
     // The save already happened locally; the counter is best-effort. A failed
@@ -922,14 +1013,6 @@ export default function Home() {
     try { localStorage.setItem('umkreis_droppin_hint', '1'); } catch { /* private mode */ }
   }
 
-  async function loadEvents() {
-    const res = await fetch('/api/events?view=map');
-    const data = await res.json();
-    setEvents(data.events);
-    return data.events;
-  }
-  useEffect(() => { loadEvents(); }, []);
-
   useEffect(() => {
     navigator.geolocation?.getCurrentPosition(
       (p) => {
@@ -947,7 +1030,7 @@ export default function Home() {
     const hadFix = located;
     if (hadFix) {
       setSearchCenter(null); // restore own location as the reference point
-      mapObj.current?.flyTo({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current.getZoom(), 13), duration: 800 });
+      flyAssured({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 13), duration: 800 });
     }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
@@ -957,7 +1040,7 @@ export default function Home() {
         setLocated(true);
         setSearchCenter(null);
         setLocating(false);
-        mapObj.current?.flyTo({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current.getZoom(), 13), duration: 800 });
+        flyAssured({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 13), duration: 800 });
       },
       (err) => {
         setLocating(false);
@@ -978,10 +1061,16 @@ export default function Home() {
   // fallback registered after the real 'load' already fired never fires — which
   // silently skipped the pin install (bug: "zooming in shows nothing", 2026-07-13).
   const [mapLoaded, setMapLoaded] = useState(false);
-  const geoRef = useRef({ me: HOME, radius: 20 });
-  geoRef.current = { me: refPoint, radius };
+  // Separate from mapLoaded on purpose: mapLoaded waits on the basemap style
+  // (openfreemap CDN) and gates LAYER install; the data fetch only needs the
+  // map's transform (center/zoom/bounds), which exists from construction. A
+  // tile-CDN outage must degrade to "grey map, working list" — never to
+  // "0 events" (integration finding, 2026-07-14).
+  const [mapInit, setMapInit] = useState(false);
   const selectRef = useRef(() => {});
   const dropPinRef = useRef(() => {}); // latest dropLocationPin closure for the once-bound map listeners
+  const fetchViewportRef = useRef(() => {}); // latest fetchViewport closure for the once-bound map listeners
+  const moveendTimer = useRef(null);
   const longPress = useRef({ timer: null, fired: false, touch: false, x: 0, y: 0 });
 
   useEffect(() => {
@@ -990,7 +1079,10 @@ export default function Home() {
       container: mapRef.current,
       style: MAP_STYLE,
       center: [HOME.lng, HOME.lat],
-      zoom: 10.6,
+      // The viewport is the spatial filter now — the initial view must already
+      // sit in "pins" mode (>= ZOOM_TIER) so first paint shows real pins, not
+      // just cluster bubbles.
+      zoom: 12.5,
       locale: mapLibreLocale(t),
       // OSM-mined place *data* requires its own ODbL credit beyond the tile attribution.
       attributionControl: {
@@ -1001,9 +1093,6 @@ export default function Home() {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('load', () => {
       setMapLoaded(true);
-      map.addSource('radius', { type: 'geojson', data: circleGeoJSON(geoRef.current.me, geoRef.current.radius) });
-      map.addLayer({ id: 'radius-fill', type: 'fill', source: 'radius', paint: { 'fill-color': '#C93A5B', 'fill-opacity': 0.035 } });
-      map.addLayer({ id: 'radius-line', type: 'line', source: 'radius', paint: { 'line-color': '#C93A5B', 'line-opacity': 0.5, 'line-width': 1.5, 'line-dasharray': [3, 3] } });
       // Rasterize + register the category pin sprites, then let the pin layers install.
       registerPinSprites(map).then(() => setSpritesReady(true)).catch((e) => console.error('[pins] sprite', e));
     });
@@ -1035,7 +1124,7 @@ export default function Home() {
       //    to clusterMaxZoom 12 and stay visible, fading, through the band —
       //    their centroids are NOT co-located with any pin, so a bubble tap must
       //    never fall through to pin/deselect handling).
-      const bubble = top('result-cluster-bubbles');
+      const bubble = top('result-cluster-bubbles') || top('result-cell-bubbles');
       if (bubble) {
         map.easeTo({ center: bubble.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
         return;
@@ -1090,12 +1179,22 @@ export default function Home() {
     });
     map.on('touchend', cancelLongPress);
     map.on('touchcancel', cancelLongPress);
+    // Viewport-native fetch: refetch on every settle, debounced so a drag/zoom
+    // gesture doesn't fire a request per frame. Skipped during the add-flow
+    // (capture/map-pick), whose own moves aren't "browsing the map".
+    map.on('moveend', () => {
+      if (addFlowActiveRef.current) return;
+      clearTimeout(moveendTimer.current);
+      moveendTimer.current = setTimeout(() => fetchViewportRef.current(), 400);
+    });
     const meEl = document.createElement('div');
     meEl.className = 'me-marker hidden';
     meMarker.current = new maplibregl.Marker({ element: meEl }).setLngLat([HOME.lng, HOME.lat]).addTo(map);
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
     mapObj.current = map;
+    setMapInit(true);
     return () => {
+      clearTimeout(moveendTimer.current);
       map.remove();
       mapObj.current = null;
     };
@@ -1104,13 +1203,6 @@ export default function Home() {
   useEffect(() => {
     meMarker.current?.setLngLat([me.lng, me.lat]);
   }, [me]);
-
-  // radius circle recomputes around the search center when one is set, the
-  // user's own position otherwise (task: also drives the PLACES distance filter).
-  useEffect(() => {
-    const src = mapObj.current?.getSource('radius');
-    if (src) src.setData(circleGeoJSON(refPoint, radius));
-  }, [refPoint.lat, refPoint.lng, radius]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     meMarker.current?.getElement().classList.toggle('hidden', !located);
@@ -1231,13 +1323,96 @@ export default function Home() {
     }
   }, [whenMode, range]);
 
-  // Common filters (radius, category, free, kids, indoor/outdoor, search) apply to
-  // both kinds. Date chips and time-of-day only make sense for events — places are
-  // evergreen and must never be hidden by them (design doc rule).
+  /* ---------------- viewport-native fetch ---------------- */
+  // The viewport is the spatial filter (briefs/viewport-rebuild-brief.md): fetch
+  // whatever's on-screen from Postgres/PostGIS instead of shipping every row to
+  // every visitor. `mode` tracks the LAST server response's shape — >= ZOOM_TIER
+  // the server returns per-event rows ("pins"), below it pre-aggregated cells.
+  const [mode, setMode] = useState('pins');
+  const [cells, setCells] = useState([]); // cells mode only: [{lat,lng,n}]
+  const [viewTotal, setViewTotal] = useState(0);
+  const [viewTruncated, setViewTruncated] = useState(false); // no UI yet (v1) — kept for the reviewer/future
+  const viewportAbort = useRef(null);
+
+  // Clamp to the server's bbox span cap (brief: >20° -> 400) around the current
+  // center, so a user zoomed out to see the whole region never 400s the fetch.
+  function clampBbox([w, s, e, n]) {
+    const MAX = 19.5;
+    if (e - w > MAX) { const c = (e + w) / 2; w = c - MAX / 2; e = c + MAX / 2; }
+    if (n - s > MAX) { const c = (n + s) / 2; s = c - MAX / 2; n = c + MAX / 2; }
+    return [Math.max(-180, w), Math.max(-90, s), Math.min(180, e), Math.min(90, n)];
+  }
+
+  // Mirrors app/api/events/route.js's parseFilters() 1:1 — kind/cats/inout/tod/
+  // free/kids/community/from/to. `from`/`to` are date-only 'YYYY-MM-DD' (the
+  // same dFrom/dTo the client's own filteredEvents memo uses).
+  function buildFilterParams() {
+    const p = new URLSearchParams();
+    if (kindFilter !== 'all') p.set('kind', kindFilter);
+    if (cats.length) p.set('cats', cats.join(','));
+    if (inOut !== 'any') p.set('inout', inOut);
+    if (tod.length) p.set('tod', tod.join(','));
+    if (freeOnly) p.set('free', '1');
+    if (kidsOnly) p.set('kids', '1');
+    if (communityOnly) p.set('community', '1');
+    p.set('from', dFrom);
+    p.set('to', dTo);
+    return p;
+  }
+
+  async function fetchViewport() {
+    const map = mapObj.current;
+    if (!map) return;
+    const b = map.getBounds();
+    const bbox = clampBbox([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+    const zoom = map.getZoom();
+    const params = buildFilterParams();
+    params.set('view', 'map');
+    params.set('bbox', bbox.map((v) => v.toFixed(5)).join(','));
+    params.set('zoom', String(zoom));
+
+    viewportAbort.current?.abort();
+    const ac = new AbortController();
+    viewportAbort.current = ac;
+    try {
+      const res = await fetch(`/api/events?${params.toString()}`, { signal: ac.signal });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (ac.signal.aborted) return;
+      setMode(data.mode);
+      if (data.mode === 'pins') {
+        setEvents(data.events);
+        setCells([]);
+      } else {
+        setCells(data.cells);
+        setEvents([]);
+      }
+      setViewTotal(data.total ?? 0);
+      setViewTruncated(!!data.truncated);
+    } catch (e) {
+      if (e?.name !== 'AbortError') console.error('[viewport] fetch failed', e);
+    }
+  }
+  fetchViewportRef.current = fetchViewport;
+
+  // Refetch on map init + any filter change. Panning/zooming is handled by the
+  // debounced 'moveend' listener bound once in the map-init effect above (reads
+  // fetchViewportRef.current so it always calls the latest closure). Gated on
+  // mapInit, NOT mapLoaded: the fetch must not depend on the basemap style CDN.
+  useEffect(() => {
+    if (!mapInit) return;
+    fetchViewport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapInit, kindFilter, cats, freeOnly, kidsOnly, communityOnly, inOut, tod, dFrom, dTo]);
+
+  // Common filters (category, free, kids, indoor/outdoor, search) apply to both
+  // kinds. Date chips and time-of-day only make sense for events — places are
+  // evergreen and must never be hidden by them (design doc rule). The viewport
+  // itself is the spatial filter now (server-side, via fetchViewport below) —
+  // there is no client-side radius predicate anymore.
   const commonFiltered = useMemo(() => {
     if (!events) return [];
     return events.filter((ev) => {
-      if (distKm(refPoint, ev) > deferredRadius) return false;
       if (cats.length && !ev.categories.some((c) => cats.includes(c))) return false;
       if (freeOnly && ev.is_free !== 1) return false;
       if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
@@ -1252,7 +1427,7 @@ export default function Home() {
       }
       return true;
     });
-  }, [events, deferredRadius, cats, freeOnly, kidsOnly, communityOnly, inOut, refPoint, deferredSearch, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [events, cats, freeOnly, kidsOnly, communityOnly, inOut, deferredSearch, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredEvents = useMemo(() => {
     if (kindFilter === 'place') return [];
@@ -1377,6 +1552,22 @@ export default function Home() {
   const clusterDataRef = useRef(clusterData);
   clusterDataRef.current = clusterData;
 
+  // Below ZOOM_TIER the server sends pre-aggregated cells instead of rows (no
+  // per-event data exists client-side to cluster) — mapped into the same
+  // point_count / point_count_abbreviated properties MapLibre's own supercluster
+  // output uses, so the bubble/count layers below can share their paint/layout
+  // 1:1 with the cluster layers and look pixel-identical.
+  const cellsData = useMemo(() => ({
+    type: 'FeatureCollection',
+    features: cells.map((c) => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [c.lng, c.lat] },
+      properties: { point_count: c.n, point_count_abbreviated: abbreviateCount(c.n) },
+    })),
+  }), [cells]);
+  const cellsDataRef = useRef(cellsData);
+  cellsDataRef.current = cellsData;
+
   useEffect(() => {
     const map = mapObj.current;
     if (!map) return;
@@ -1384,46 +1575,72 @@ export default function Home() {
       const existing = map.getSource('result-clusters');
       if (existing) {
         existing.setData(clusterDataRef.current);
-        return;
+      } else {
+        map.addSource('result-clusters', {
+          type: 'geojson', data: clusterDataRef.current, cluster: true, clusterMaxZoom: 12, clusterRadius: 48,
+        });
+        map.addLayer({
+          id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
+          filter: ['has', 'point_count'],
+          paint: {
+            'circle-color': '#26332f', 'circle-opacity': CLUSTER_FADE_OUT(0.93),
+            'circle-radius': ['step', ['get', 'point_count'], 17, 25, 21, 100, 26],
+            'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': CLUSTER_FADE_OUT(1),
+          },
+        });
+        map.addLayer({
+          id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
+          filter: ['has', 'point_count'],
+          layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 11, 'text-font': ['Noto Sans Bold'] },
+          paint: { 'text-color': '#ffffff', 'text-opacity': CLUSTER_FADE_OUT(1) },
+        });
+        map.addLayer({
+          id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
+          filter: ['!', ['has', 'point_count']],
+          paint: {
+            'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': CLUSTER_FADE_OUT(0.94),
+            'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': CLUSTER_FADE_OUT(1),
+          },
+        });
+        // Clicks are routed by the single map-level handler (bubble → pin →
+        // overview point → deselect) — layer click handlers would race it.
+        for (const layer of ['result-cluster-bubbles', 'result-overview-points']) {
+          map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
+        }
       }
-      map.addSource('result-clusters', {
-        type: 'geojson', data: clusterDataRef.current, cluster: true, clusterMaxZoom: 12, clusterRadius: 48,
-      });
-      map.addLayer({
-        id: 'result-cluster-bubbles', type: 'circle', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': '#26332f', 'circle-opacity': CLUSTER_FADE_OUT(0.93),
-          'circle-radius': ['step', ['get', 'point_count'], 17, 25, 21, 100, 26],
-          'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': CLUSTER_FADE_OUT(1),
-        },
-      });
-      map.addLayer({
-        id: 'result-cluster-counts', type: 'symbol', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
-        filter: ['has', 'point_count'],
-        layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 11, 'text-font': ['Noto Sans Bold'] },
-        paint: { 'text-color': '#ffffff', 'text-opacity': CLUSTER_FADE_OUT(1) },
-      });
-      map.addLayer({
-        id: 'result-overview-points', type: 'circle', source: 'result-clusters', maxzoom: HANDOFF_HIGH + 0.05,
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': ['get', 'color'], 'circle-radius': 8.5, 'circle-opacity': CLUSTER_FADE_OUT(0.94),
-          'circle-stroke-width': 2, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': CLUSTER_FADE_OUT(1),
-        },
-      });
-      // Clicks are routed by the single map-level handler (bubble → pin →
-      // overview point → deselect) — layer click handlers would race it.
-      for (const layer of ['result-cluster-bubbles', 'result-overview-points']) {
-        map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
-        map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
+      const existingCells = map.getSource('result-cells');
+      if (existingCells) {
+        existingCells.setData(cellsDataRef.current);
+      } else {
+        // maxzoom sits at HANDOFF_LOW, not ZOOM_TIER: the two sources are
+        // mutually exclusive in settled state (cells mode → events=[], pins
+        // mode → cells=[]), so no doubled visuals — but during the ~400ms
+        // debounce + fetch after crossing the tier zooming IN, stale cells
+        // keep rendering instead of a blank map (review finding #5).
+        map.addSource('result-cells', { type: 'geojson', data: cellsDataRef.current });
+        map.addLayer({
+          id: 'result-cell-bubbles', type: 'circle', source: 'result-cells', maxzoom: HANDOFF_LOW,
+          paint: {
+            'circle-color': '#26332f', 'circle-opacity': 0.93,
+            'circle-radius': ['step', ['get', 'point_count'], 17, 25, 21, 100, 26],
+            'circle-stroke-width': 3, 'circle-stroke-color': '#ffffff', 'circle-stroke-opacity': 1,
+          },
+        });
+        map.addLayer({
+          id: 'result-cell-counts', type: 'symbol', source: 'result-cells', maxzoom: HANDOFF_LOW,
+          layout: { 'text-field': ['get', 'point_count_abbreviated'], 'text-size': 11, 'text-font': ['Noto Sans Bold'] },
+          paint: { 'text-color': '#ffffff', 'text-opacity': 1 },
+        });
+        map.on('mouseenter', 'result-cell-bubbles', () => { map.getCanvas().style.cursor = 'pointer'; });
+        map.on('mouseleave', 'result-cell-bubbles', () => { map.getCanvas().style.cursor = ''; });
       }
     };
     // Gate on 'load' having fired (mapLoaded), NOT map.isStyleLoaded() — that
     // flag is false whenever the style is dirty, and a once('load') fallback
     // after the real 'load' never fires. addSource/addLayer are safe post-load.
     if (mapLoaded) install();
-  }, [clusterData, mapLoaded]);
+  }, [clusterData, cellsData, mapLoaded]);
 
   // Detail pins — the all-GL replacement for the old DOM markers. One non-clustered
   // source with promoteId:'id' (feature-state selection needs stable ids; a
@@ -1553,16 +1770,22 @@ export default function Home() {
   }, [selected?.id, pinData, spritesReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!selected || !events) return;
+    // Only auto-deselect when the selection came from the loaded viewport rows
+    // and a chip toggle just filtered it out. A selection from search/saved (not
+    // in `events` — likely off-viewport) must survive filter/viewport changes;
+    // the user explicitly asked for it.
+    if (!events.some((e) => e.id === selected.id)) return;
     const visible = new Set(filtered.map((e) => e.id));
-    if (selected && !visible.has(selected.id)) selectEvent(null, { fly: false });
-  }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!visible.has(selected.id)) selectEvent(null, { fly: false });
+  }, [filtered, events]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // advancedFilterCount = filters that live INSIDE the panel (drives the ⚙ badge).
   // inOut is now a quick chip (Indoor/Outdoor), so it counts as active, not advanced.
-  const advancedFilterCount = (radius !== 20 ? 1 : 0) + cats.length + tod.length + (communityOnly ? 1 : 0);
+  const advancedFilterCount = cats.length + tod.length + (communityOnly ? 1 : 0);
   const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (inOut !== 'any' ? 1 : 0);
   function resetFilters() {
-    setRadius(20); setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setInOut('any'); setTod([]);
+    setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setInOut('any'); setTod([]);
   }
 
   /* ---------------- scan flow ---------------- */
@@ -1982,13 +2205,14 @@ export default function Home() {
             )}
             <div className="search-section">
               <div className="search-sechead">{t.searchSectionEvents}</div>
-              {filtered.slice(0, 6).map((ev) => (
-                <button key={ev.id} className="search-row" onClick={() => { closeSearch(); selectEvent(ev); }}>
+              {qResults.map((ev) => (
+                <button key={ev.id} className="search-row" onClick={() => selectSearchResult(ev)}>
                   {ev.title}
-                  <span>{ev.town || ev.venue}</span>
+                  <span>{[ev.town, ev.venue].filter(Boolean).join(', ')}</span>
                 </button>
               ))}
-              {filtered.length === 0 && <div className="search-empty">{t.emptyTitle}</div>}
+              {qResults.length === 0 && qLoading && <div className="search-loading">{t.searching}</div>}
+              {qResults.length === 0 && !qLoading && <div className="search-empty">{t.emptyTitle}</div>}
             </div>
           </div>
         )}
@@ -2036,10 +2260,6 @@ export default function Home() {
 
   const filterPanel = (
     <div className="filters">
-      <div className="fgroup">
-        <h4>{t.radius} <output>{radius} km</output></h4>
-        <input type="range" min="3" max="40" step="1" value={radius} onChange={(e) => setRadius(+e.target.value)} aria-label={t.radius} />
-      </div>
       <div className="fgroup">
         <h4>{t.timeOfDay}</h4>
         <div className="seg">
@@ -2090,7 +2310,7 @@ export default function Home() {
         <div className="empty">
           {t.emptyTitle}
           <br />
-          <button onClick={() => setRadius(Math.min(40, radius + 10))}>{t.widenRadius}</button>
+          <button onClick={() => mapObj.current?.easeTo({ zoom: Math.max(0, mapObj.current.getZoom() - 2) })}>{t.zoomOut}</button>
           <br />
           <span>{t.knowOne} 📷</span>
         </div>
@@ -2657,6 +2877,17 @@ export default function Home() {
   );
 
   /* ---------------- render ---------------- */
+  // Counts line: pins mode shows the filtered loaded rows (as before); cells
+  // mode has no per-row data client-side, so it falls back to the server's
+  // unfiltered-by-list total for the current viewport.
+  const resultsCountLine = mode === 'cells' ? t.resultsCount.replace('{n}', viewTotal) : `${filtered.length} ${t.events}`;
+  // Truncation is user-visible (review finding #2): over a dense city the 800-row
+  // cap means the map shows only the soonest events — say so instead of letting
+  // "800 events" read as "all events".
+  const truncatedNote = mode !== 'cells' && viewTruncated
+    ? t.truncatedHint.replace('{n}', events?.length ?? 0).replace('{total}', viewTotal)
+    : null;
+
   const limitCopy = limitNotice ? (() => {
     const action = limitNotice.action === 'ai_intake' ? t.limitAiAction : t.limitPublishAction;
     const reached = limitNotice.scope === 'service'
@@ -2690,7 +2921,12 @@ export default function Home() {
               {quickFilters}
             </div>
             <div className="locstats" style={{ padding: '0 18px 10px', fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>
-              <strong style={{ color: 'var(--ink)' }}>{filteredEvents.length}</strong> {t.events} · <strong style={{ color: 'var(--ink)' }}>{filteredPlaces.length}</strong> {t.places}
+              {mode === 'cells' ? (
+                resultsCountLine
+              ) : (
+                <><strong style={{ color: 'var(--ink)' }}>{filteredEvents.length}</strong> {t.events} · <strong style={{ color: 'var(--ink)' }}>{filteredPlaces.length}</strong> {t.places}</>
+              )}
+              {truncatedNote && <div style={{ marginTop: 2, fontWeight: 500 }}>{truncatedNote}</div>}
             </div>
             <div className="sidebody">
               {showFilters && filterPanel}
@@ -2758,7 +2994,7 @@ export default function Home() {
                 ⚙︎ {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
               </button>
               <button className="chip" onClick={() => { setSheetContent('list'); setSheet('full'); }}>
-                ☰ {filtered.length}
+                ☰ {mode === 'cells' ? viewTotal : filtered.length}
               </button>
             </div>
           </div>
@@ -2768,9 +3004,12 @@ export default function Home() {
         <section className={`m-sheet mobileonly ${sheet !== 'closed' ? sheet : ''}`}>
           <button className="grabber" onClick={() => setSheet(sheet === 'full' ? 'half' : 'full')} aria-label={t.resizePanel}><i /></button>
           <div className="m-sheethead">
-            <b>{sheetContent === 'filters' ? t.filters : `${filtered.length} ${t.events}`}</b>
+            <b>{sheetContent === 'filters' ? t.filters : resultsCountLine}</b>
             <button className="m-close" onClick={() => setSheet('closed')} aria-label={t.close}><X size={14} weight="bold" /></button>
           </div>
+          {sheetContent === 'list' && truncatedNote && (
+            <div style={{ padding: '0 16px 6px', fontSize: 11.5, color: 'var(--muted)', fontWeight: 500 }}>{truncatedNote}</div>
+          )}
           <div className="m-sheetbody">
             {sheetContent === 'filters' ? (
               <>
