@@ -431,13 +431,16 @@ input[type="range"] { width: 100%; accent-color: var(--accent); height: 24px; ma
   margin-top: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
   box-shadow: var(--shadow-lg); overflow: hidden; max-width: 280px;
 }
-/* Drop-pin nudge, shown while the location search is open. */
+/* Drop-pin tooltip under the search bar — only when the current spot has nothing
+   to show. Tap anywhere on it to dismiss for good. */
 .search-hint {
-  margin-top: 6px; max-width: 280px; display: flex; gap: 6px;
+  margin-top: 6px; max-width: 280px; width: 100%;
+  display: flex; gap: 7px; align-items: flex-start; text-align: left;
   background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-  box-shadow: var(--shadow-sm); padding: 8px 11px;
+  box-shadow: var(--shadow-md); padding: 9px 11px;
   font-size: 11.5px; line-height: 1.35; font-weight: 550; color: var(--muted);
 }
+.search-hint:hover { border-color: var(--accent); color: var(--ink); }
 .search-section + .search-section { border-top: 1px solid var(--line); }
 .search-sechead {
   font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;

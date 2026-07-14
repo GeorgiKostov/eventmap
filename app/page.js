@@ -908,18 +908,19 @@ export default function Home() {
     }).catch(() => { /* fire-and-forget */ });
   }
 
-  // One-time nudge so the drop-pin gesture is discoverable (it has no visible
-  // affordance). Shown a few seconds after load, once per browser.
+  // The drop-pin gesture has no visible affordance, so it needs one nudge — but
+  // only where it earns its place: standing somewhere with nothing on the map is
+  // the single moment "move the map somewhere else" is the answer. Anywhere else
+  // (on load, over a full list, under the search box) it's just in the way.
+  // Dismissed for good on tap: once you know the gesture, you don't need telling.
+  const [hintDismissed, setHintDismissed] = useState(true); // assume dismissed until localStorage says otherwise (no SSR flash)
   useEffect(() => {
-    if (typeof localStorage === 'undefined' || localStorage.getItem('umkreis_droppin_hint')) return;
-    const id = setTimeout(() => {
-      setToast(t.dropPinHint);
-      clearTimeout(toastT.current);
-      toastT.current = setTimeout(() => setToast(''), 6000);
-      try { localStorage.setItem('umkreis_droppin_hint', '1'); } catch { /* private mode */ }
-    }, 3500);
-    return () => clearTimeout(id);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    try { setHintDismissed(!!localStorage.getItem('umkreis_droppin_hint')); } catch { /* blocked storage */ }
+  }, []);
+  function dismissDropPinHint() {
+    setHintDismissed(true);
+    try { localStorage.setItem('umkreis_droppin_hint', '1'); } catch { /* private mode */ }
+  }
 
   async function loadEvents() {
     const res = await fetch('/api/events?view=map');
@@ -1279,6 +1280,11 @@ export default function Home() {
   }, [commonFiltered, kindFilter, refPoint]);
 
   const filtered = useMemo(() => [...filteredEvents, ...filteredPlaces], [filteredEvents, filteredPlaces]);
+
+  // Only once the rows are actually in (`events` null = still loading — an empty
+  // map mid-fetch is not "nothing here"), and never while the search dropdown is
+  // open, which is what made it feel in the way before.
+  const showDropPinHint = !hintDismissed && !searchOpen && !!events && filtered.length === 0;
 
   // Map grammar, in order: resolved event coordinates → same-series collapse →
   // safe same-venue collapse → generic spatial clustering. Every occurrence
@@ -1947,9 +1953,15 @@ export default function Home() {
             {t.searchCenterChip.replace('{ort}', searchCenter.label)} <span className="x">✕</span>
           </button>
         )}
-        {/* Shown the moment search opens — i.e. exactly when the user is about to
-            type a location. The cheapest place to teach the drop-pin gesture. */}
-        {searchOpen && <div className="search-hint">📍 {t.dropPinHint}</div>}
+        {/* Drop-pin tip, shown ONLY when the user is somewhere with nothing to see
+            — an empty map is the one moment the gesture actually solves a problem,
+            and the one moment a tip isn't in the way. Tap dismisses it for good. */}
+        {showDropPinHint && (
+          <button type="button" className="search-hint" onClick={dismissDropPinHint}>
+            <span aria-hidden="true">📍</span>
+            <span>{t.dropPinHint}</span>
+          </button>
+        )}
         {searchOpen && searchQuery.trim() && (
           <div className="search-results">
             {showOrte && (
