@@ -6,6 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, ImageSquare, LinkSimple, PencilSimple, CaretRight, BookmarkSimple, Flag, Warning } from '@phosphor-icons/react';
 import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
+import { hasTime, makeStartsAt, inTimeOfDay } from '../lib/event-time.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
 import { groupEventSeries } from '../lib/map-groups.js';
 import { isForKids } from '../lib/kid-cats.js';
@@ -90,13 +91,18 @@ function fmtWhen(ev, lang, t) {
   let s = fmtDayLong(startDay, lang, t);
   if (endDay !== startDay) s += ` – ${fmtDayLong(endDay, lang, t)}`;
   if (ev.all_day) return `${s} · ${t.allDay}`;
+  // No time published (lib/event-time.js) — say so, don't invent one and don't
+  // claim "ganztägig", which would tell a parent they can turn up whenever.
+  if (!hasTime(ev.starts_at)) return `${s} · ${t.timeTbd}`;
   s += ` · ${ev.starts_at.slice(11, 16)}`;
   if (ev.ends_at && endDay === startDay) s += `–${ev.ends_at.slice(11, 16)}`;
   return s;
 }
 function fmtWhenShort(ev, lang, t) {
   const d = fmtDay(ev.starts_at.slice(0, 10), lang, t);
-  return ev.all_day ? `${d} · ${t.allDay}` : `${d} · ${ev.starts_at.slice(11, 16)}`;
+  if (ev.all_day) return `${d} · ${t.allDay}`;
+  if (!hasTime(ev.starts_at)) return `${d} · ${t.timeTbd}`;
+  return `${d} · ${ev.starts_at.slice(11, 16)}`;
 }
 
 /* ---------------- places: opening hours (pinned to Europe/Vienna) ---------------- */
@@ -303,7 +309,10 @@ function groupEventsByVenue(items) {
 // all-day → start "20260712", end exclusive next day "20260713"
 function calDates(ev) {
   const compact = (iso) => iso.replace(/[-:]/g, '');
-  if (ev.all_day) {
+  // An event with no published time can only be exported as an all-day entry —
+  // iCal has no "date, time unknown". That is a calendar-format limit, not a
+  // claim we store: the DB row still says nothing about the time.
+  if (ev.all_day || !hasTime(ev.starts_at)) {
     const lastDay = (ev.ends_at || ev.starts_at).slice(0, 10);
     const endExcl = new Intl.DateTimeFormat('en-CA').format(new Date(new Date(lastDay + 'T12:00').getTime() + 86400000)).replace(/-/g, '');
     return { allDay: true, start: ev.starts_at.slice(0, 10).replace(/-/g, ''), end: endExcl, startIso: ev.starts_at.slice(0, 10), endIso: lastDay };
@@ -1374,11 +1383,9 @@ export default function Home() {
         const d = ev.starts_at.slice(0, 10);
         const dEnd = (ev.ends_at || ev.starts_at).slice(0, 10);
         if (dEnd < dFrom || d > dTo) return false;
-        if (tod.length && !ev.all_day) {
-          const h = +ev.starts_at.slice(11, 13);
-          const bucket = h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
-          if (!tod.includes(bucket)) return false;
-        }
+        // Mirrors the server predicate in lib/db.js commonFilters — an event with
+        // no published time can't be bucketed, so a bucket must not hide it.
+        if (!inTimeOfDay(ev, tod)) return false;
         return true;
       })
       .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
@@ -1961,9 +1968,11 @@ export default function Home() {
           kind: 'event',
           title: draft.title,
           description: draft.description || null,
-          starts_at: `${draft.date_start}T${timed ? draft.time_start : '09:00'}`,
+          starts_at: makeStartsAt(draft.date_start, timed ? draft.time_start : null),
           ...(endsAt ? { ends_at: endsAt } : {}),
-          all_day: !timed,
+          // Leaving the time field empty means "I don't know the time", not "it
+          // runs all day" — don't turn the user's silence into a claim either.
+          all_day: false,
           venue: draft.venue || null,
           address: draft.address || null,
           town: draft.town.trim(),
@@ -2256,7 +2265,7 @@ export default function Home() {
                 <span className="tx">
                   <span className="t">{ev.title}</span>
                   <span className="m">
-                    {ev.all_day ? t.allDay : ev.starts_at.slice(11, 16)} · {ev.town || ev.venue} · {distKm(refPoint, ev).toFixed(1).replace('.', ',')} km
+                    {ev.all_day ? t.allDay : hasTime(ev.starts_at) ? ev.starts_at.slice(11, 16) : t.timeTbd} · {ev.town || ev.venue} · {distKm(refPoint, ev).toFixed(1).replace('.', ',')} km
                   </span>
                 </span>
                 {(community || ev.is_free === 1) && <span className="rowbadges">

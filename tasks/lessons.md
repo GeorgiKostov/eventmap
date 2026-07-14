@@ -2,6 +2,44 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — A default is a claim. Two of them, and I got my own bug report's headline wrong
+
+`crawl.mjs` and `seed.mjs` both did `starts_at = date + 'T' + (time || '09:00')` **and**
+`all_day: time ? 0 : 1`. One missing fact, two inventions: a start time nobody published, and
+`all_day` — which the UI renders as **"ganztägig"**, i.e. *"turn up whenever"*. For 8,365 live events
+we were telling parents that about events we knew nothing about. A 16:00 cinema screening is not an
+all-day event.
+
+**I filed this bug myself, and its headline was wrong.** I wrote "12,052 events are displayed to
+parents as if they start at 9:00" without checking the render path. 10,625 of those rows had
+`all_day=true`, and `fmtWhen` short-circuits on `all_day` — they never showed 9:00 at all; they showed
+"ganztägig". The real display lie was a *different* lie than the one I reported, and only 1,427 rows
+were even candidates for showing a 9:00 clock — of which the sampled ones turned out to be **genuine**
+(traun.at really does publish "Zeit 09:00–13:00 Uhr"). Had I "fixed" what I reported, I'd have
+stripped real times off real events and left the actual fabrication in place. **Measure the render
+path, not just the column — a value that never reaches a user is a different bug from one that does,
+and it wants a different fix.** (Third time this session: Stuttgart's robots "block", Krenglbach's
+"selector bug", now this. The pattern is always the same — the diagnosis in the ticket is a
+hypothesis, not evidence.)
+
+**What made the cleanup safe was a property, not a guess.** 10,625 rows had to be rewritten, and
+nothing in the row said whether "all day" was true. But no parser, adapter or form *ever* set
+`all_day` from something a source actually SAID — every path derived it from the absence of a time.
+So `all_day = true ≡ "we don't know the time"`, exactly, and the rewrite was a lossless restatement
+rather than a judgement call. **Before a 10k-row backfill, look for the invariant that makes it
+mechanical; if you can't find one, you are guessing at scale.** The rows I *couldn't* prove
+(`all_day=false` at 09:00 — the extractor genuinely parsed a time) I left alone: destroying a true
+time to satisfy a heuristic is the same sin pointing the other way.
+
+**And the default poisoned a tool three files away.** `merge-dups.mjs` picked its surviving row by
+*lowest id* — a tiebreak posing as a decision. With a 09:00 placeholder in play that rule actively
+destroyed data: it kept the row that didn't know when the event started and deleted the one that did
+(85 of 453 clusters spanned different times; it would have kept "Sachkundenachweis" at the placeholder
+and dropped the real 18:30). Now the canonical is the row carrying the most **facts** — a published
+time outranks everything, age is only the final tiebreak. **A fabricated value doesn't stay where you
+put it: it flows into hashes, sorts, filters and dedup rules, and the further it travels the more it
+looks like data.**
+
 ## 2026-07-14 — Nine copies of one helper, each missing a different piece; and the bug report was half wrong
 
 The task said two bugs. **One was ours, one was the source's, and only reading the raw page told them apart.**

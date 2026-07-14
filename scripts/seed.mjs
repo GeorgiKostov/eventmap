@@ -8,6 +8,7 @@ import path from 'path';
 import { upsertEvent, upsertSource, expireFinished, closeDb } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { CRAWL_SCOPES, isWithinCrawlScope, scopeFromCatalog } from '../lib/crawl-scopes.js';
+import { makeStartsAt } from '../lib/event-time.js';
 
 const MINED_DIR = path.join(process.cwd(), 'data', 'mined');
 const CAT_EMOJI = {
@@ -28,7 +29,7 @@ function normalizeEvent(raw) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(raw.date_start)) return null;
   const validTime = (value) => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value || '');
   const time = validTime(raw.time_start) ? raw.time_start : null;
-  const starts_at = `${raw.date_start}T${time || '09:00'}`;
+  const starts_at = makeStartsAt(raw.date_start, time);
   let ends_at = null;
   if (raw.date_end || raw.time_end) {
     const de = /^\d{4}-\d{2}-\d{2}$/.test(raw.date_end || '') ? raw.date_end : raw.date_start;
@@ -42,7 +43,9 @@ function normalizeEvent(raw) {
     description: raw.description_short || raw.description || null,
     starts_at,
     ends_at,
-    all_day: time ? 0 : 1,
+    // Unknown time is NOT an all-day event — see lib/event-time.js. all_day is a
+    // claim ("turn up whenever"), and silence from a source is not that claim.
+    all_day: 0,
     venue: raw.venue || null,
     address: raw.address_text || raw.address || null,
     town: raw.town || null,

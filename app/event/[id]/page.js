@@ -2,13 +2,14 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { getEvent } from '../../../lib/db.js';
+import { hasTime } from '../../../lib/event-time.js';
 
 export const dynamic = 'force-dynamic';
 
 const PAGE_COPY = {
-  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', clock: 'Uhr', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →' },
-  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', clock: '', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →' },
-  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', clock: 'ч.', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →' },
+  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →' },
+  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →' },
+  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →' },
 };
 
 async function pageCopy() {
@@ -34,7 +35,11 @@ function jsonLd(ev) {
     '@type': 'Event',
     name: ev.title,
     description: ev.description || undefined,
-    startDate: ev.all_day ? ev.starts_at.slice(0, 10) : isoVienna(ev.starts_at),
+    // schema.org/Event accepts a bare Date. When the source published no time we
+    // emit the date alone rather than a made-up hour — this JSON-LD is what Google
+    // and the AI assistants ingest, so a fabricated startDate here is the single
+    // most widely-copied lie we could tell (hard rule 5).
+    startDate: ev.all_day || !hasTime(ev.starts_at) ? ev.starts_at.slice(0, 10) : isoVienna(ev.starts_at),
     endDate: ev.ends_at ? (ev.all_day ? ev.ends_at.slice(0, 10) : isoVienna(ev.ends_at)) : undefined,
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     eventStatus: 'https://schema.org/EventScheduled',
@@ -97,7 +102,11 @@ export default async function EventPage({ params }) {
       {when && (
         <p style={{ color: 'var(--accent)', fontWeight: 700, margin: '0 0 16px' }}>
           {when}
-          {ev.all_day ? ` · ${t.allDay}` : ` · ${ev.starts_at.slice(11, 16)}${t.clock ? ` ${t.clock}` : ''}`}
+          {ev.all_day
+            ? ` · ${t.allDay}`
+            : hasTime(ev.starts_at)
+              ? ` · ${ev.starts_at.slice(11, 16)}${t.clock ? ` ${t.clock}` : ''}`
+              : ` · ${t.timeTbd}`}
         </p>
       )}
       <p style={{ fontSize: 15, margin: '0 0 6px' }}>

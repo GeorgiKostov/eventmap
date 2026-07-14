@@ -17,6 +17,29 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-14 latest+6 — the fabricated start time is GONE)
+- **`lib/event-time.js` is the one definition of how a start time is encoded.** A date-only
+  `starts_at` ("2026-07-19") means **the source published no time**; 16 chars means it did. Replaces
+  `T${time || '09:00'}` + `all_day: time ? 0 : 1` in crawl.mjs and seed.mjs — one missing fact was
+  producing TWO inventions: a 09:00 nobody published, and `all_day`, which the UI renders as
+  **"ganztägig" ("turn up whenever")** for **8,365 live events** we knew nothing about. Threaded
+  through crawl/seed/scan/add-form/contentHash/expireFinished (timeless rows now live to end-of-day,
+  not 06:00)/both time-of-day filters/JSON-LD (bare Date)/detail/list/digest/cards; `timeTbd` label in
+  de/en/bg; 6 tests. Backfill: **10,625 rows → date-only, all_day=true is now 0.**
+- **The backfill was safe because of an invariant, not a guess:** no path ever set `all_day` from
+  something a source SAID — all of them inferred it from a missing time — so `all_day=true ≡ time
+  unknown`, exactly. The 1,427 rows at 09:00 with `all_day=false` were LEFT ALONE: there the extractor
+  really parsed 09:00 (traun.at publishes "Zeit 09:00–13:00 Uhr").
+- **`upsertEvent` gained a placeholder-migration** (mirrors the legacy-hash one): an incoming timeless
+  event adopts the old `T09:00` row instead of inserting a duplicate. Verified live — a forced GEM2GO
+  re-crawl upserted 74/74 with the row count unchanged.
+- **merge-dups.mjs canonical rule fixed**: survivor = the row with the most FACTS (published time ≫
+  geo precision > venue > description), age only as tiebreak. It was keeping the OLDEST id, which with
+  a 09:00 placeholder meant deleting the row that knew the real time. **Still UNRUN** (436 clusters /
+  481 rows) — its dry run reveals a separate geocode bug (a canonical with a wrong town).
+- **I got my own bug report's headline wrong** and nearly fixed the wrong thing: I claimed parents saw
+  "9:00" without checking the render path (all_day short-circuits it). Lesson recorded.
+
 ## Where things stand (2026-07-14 latest+5 — text hygiene + TWO data-integrity landmines found)
 - **One entity decoder now** (`lib/entities.js`), replacing NINE partial hand-rolled copies (7 adapters
   + crawl.mjs + probe-sources.mjs) of which only 2 handled numeric refs — so `&#8211;` (the en-dash in

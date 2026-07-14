@@ -446,19 +446,33 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       #1894 is the visible copy, duplicating the clean #805. Options: mail the Gemeinde, or add a
       source-specific title guard. **Do not "repair" it by inference — that is fabrication.**
 
-## ⚠ Do not run `scripts/merge-dups.mjs --write` until the 09:00 bug is fixed (2026-07-14)
-- [ ] **The crawler fabricates a start time**: `crawl.mjs:962` writes `T${time || '09:00'}` — so
-      **12,052 of ~31,300 events (38%)** sit at exactly 09:00, i.e. "no time published" is shown to
-      parents as "starts at 9:00". Straight hard-rule-5 violation (unknown ⇒ null, never a guess).
-      Fix needs an honest encoding (date-only `starts_at` + `all_day`, or a null time) threaded
-      through contentHash / expireFinished / the filters / digest / JSON-LD. **Spawned as its own task.**
-- [ ] **merge-dups is unsafe because of it**: it clusters same-day + similar-title and keeps the
-      OLDEST id, so 85 of its 453 clusters merge rows with *different* start times — it would keep
-      "Sachkundenachweis" at the placeholder 09:00 and DELETE the row holding the real 18:30 (same for
-      Pflasterspektakel 09:00 vs 16:00), and keep a canonical row whose town is plain wrong ("4. Tag
-      des Living Pools!" #144 = Alkoven, from a Kematen source). Its canonical-choice rule must prefer
-      the most *precise* row (real time, venue precision), not the lowest id. 500 rows were one
-      `--write` away from deletion.
+## Fabricated start time — FIXED 2026-07-14 (lib/event-time.js)
+- [x] **The crawler no longer invents a time.** Both write paths did `T${time || '09:00'}` **and**
+      `all_day: time ? 0 : 1` — two fabrications from one missing fact. The `09:00` was mostly hidden
+      (the UI short-circuits on all_day), but `all_day=true` renders as **"ganztägig"** = "turn up
+      whenever", which we were claiming for **8,365 live events** we knew nothing about. Encoding now:
+      **date-only `starts_at` ("2026-07-19") = the source published no time**; `all_day` is set only
+      when someone actually says so. One definition in `lib/event-time.js`
+      (`hasTime`/`timeOf`/`makeStartsAt`/`inTimeOfDay`), threaded through crawl, seed, scan, the add
+      form, contentHash, expireFinished (a timeless row now lives to end-of-day, not 06:00), the
+      SQL + client time-of-day filters, JSON-LD (`startDate` is a bare Date), the detail page, the
+      list, the digest and the cards. New label `timeTbd` in de/en/bg. 6 new tests.
+- [x] **Backfill applied**: 10,625 rows → date-only + all_day=false. Provably lossless — `all_day` was
+      never a source fact, every path inferred it from a missing time, so `all_day=true ≡ time unknown`.
+      Verified: `all_day=true` is now 0; live crawl of a GEM2GO source re-extracted 74/74 with the row
+      count unchanged (the placeholder-migration in `upsertEvent` adopts the old rows instead of
+      duplicating them); map shows "Uhrzeit nicht angegeben", never 09:00.
+- [x] **Left alone on purpose**: the 1,427 rows at `09:00` with `all_day=false` — there the extractor
+      genuinely PARSED 09:00 (traun.at really publishes "Zeit 09:00–13:00 Uhr"). Destroying a true time
+      to satisfy a heuristic is the same fabrication pointing the other way.
+- [x] **merge-dups canonical rule fixed**: the survivor is now the row with the most FACTS (published
+      time ≫ geo precision > venue > description), with age only as the final tiebreak. Re-verified in
+      its dry run: it now KEEPS "Sachkundenachweis" @18:30 and Pflasterspektakel @16:00 instead of
+      deleting them for placeholders.
+- [ ] **George: `scripts/merge-dups.mjs --write` is still UNRUN** (436 clusters / 481 rows). The
+      destructive canonical bug is fixed, but its dry run still shows a separate problem it cannot see:
+      a canonical row can carry a *wrong town* ("4. Tag des Living Pools!" #144 = Alkoven, from a
+      Kematen source — a geocode bug). Read the dry run before writing it.
 
 ## Source & parser coverage (2026-07-14, Gemini code review — triaged, kept the useful half)
 - [ ] **Fingerprint the unclassified sources — do this BEFORE writing any new parser.** Mined catalogs

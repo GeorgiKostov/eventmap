@@ -4,6 +4,7 @@ import path from 'path';
 import { extractFromImage } from '../../../lib/extract.js';
 import { publishedEvents } from '../../../lib/db.js';
 import { findDuplicate } from '../../../lib/dedup.js';
+import { makeStartsAt } from '../../../lib/event-time.js';
 import { limit } from '../../../lib/ratelimit.js';
 
 export const dynamic = 'force-dynamic';
@@ -93,7 +94,7 @@ export async function POST(req) {
     if (extraction?.is_event && extraction.title && extraction.date_start) {
       const candidate = {
         title: extraction.title,
-        starts_at: `${extraction.date_start}T${/^\d{2}:\d{2}$/.test(extraction.time_start) ? extraction.time_start : '09:00'}`,
+        starts_at: makeStartsAt(extraction.date_start, extraction.time_start),
         town: extraction.town || null,
       };
       const match = findDuplicate(candidate, await publishedEvents());

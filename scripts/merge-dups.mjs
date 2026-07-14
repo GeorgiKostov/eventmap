@@ -8,6 +8,12 @@
 //
 // DRY-RUN by default — prints every proposed cluster, nothing is written.
 // --write applies it.
+//
+// 2026-07-14: the surviving row is now the MOST PRECISE one, not the oldest id
+// (see pickCanonical). Under the old rule this script would have kept placeholder
+// rows and deleted the rows carrying the real start time. Read the dry run before
+// you --write it; a canonical with a wrong town is still possible (geocode bug,
+// separate issue) and this script cannot see that.
 // Usage: node --env-file=.env.local scripts/merge-dups.mjs
 //        node --env-file=.env.local scripts/merge-dups.mjs --write
 //
@@ -51,6 +57,36 @@ function fmtEvent(ev) {
   return `#${ev.id} "${ev.title}" @ ${ev.starts_at} (${ev.town || '?'}) — ${ev.source_name || '?'} ${ev.source_url ? `<${ev.source_url}>` : ''}`;
 }
 
+// Which row of a cluster survives.
+//
+// This used to be "the oldest id", which is a tiebreak masquerading as a
+// decision: age says nothing about quality. With the old 09:00 placeholder that
+// rule actively destroyed data — it kept the row that did not know when the
+// event started and DELETED the row that did (measured 2026-07-14: 85 of 453
+// clusters spanned different start times; "Sachkundenachweis" would have kept a
+// 09:00 placeholder and dropped the real 18:30, "Pflasterspektakel" 09:00 over
+// 16:00). The surviving row must be the one carrying the most FACTS.
+//
+// A published time outranks everything: it is the fact a parent acts on. Then a
+// precise location, then the fields that make a card useful. Age is only the
+// final tiebreak, where it belongs (older ids may be referenced by a saved list).
+function precision(ev) {
+  const timed = typeof ev.starts_at === 'string' && ev.starts_at.length > 10;
+  return (
+    (timed ? 8 : 0) +
+    (ev.geo_precision === 'venue' || ev.geo_precision === 'address' ? 4 : 0) +
+    (ev.venue ? 2 : 0) +
+    (ev.description ? 1 : 0) +
+    (ev.ends_at ? 1 : 0)
+  );
+}
+
+function pickCanonical(group) {
+  return [...group].sort(
+    (a, b) => precision(b) - precision(a) || Number(a.id) - Number(b.id),
+  )[0];
+}
+
 async function main() {
   const events = (await publishedEvents()).filter((e) => e.kind === 'event');
   console.log(`Loaded ${events.length} published event(s).`);
@@ -64,7 +100,10 @@ async function main() {
 
   const plan = []; // { canonicalId, patch, dropIds }
   for (const group of clusters) {
-    const [canonicalOrig, ...dupsOrig] = group;
+    // The cluster is ANCHORED on group[0] (canonical-linkage, above), but the
+    // row that SURVIVES is the most precise one — see pickCanonical().
+    const canonicalOrig = pickCanonical(group);
+    const dupsOrig = group.filter((e) => e.id !== canonicalOrig.id);
     let canonical = { ...canonicalOrig };
     const accPatch = {};
     for (const dup of dupsOrig) {
@@ -73,7 +112,7 @@ async function main() {
       canonical = { ...canonical, ...p };
     }
 
-    console.log(`Cluster (canonical = oldest id):`);
+    console.log(`Cluster (canonical = most precise row; see pickCanonical):`);
     console.log(`  KEEP   ${fmtEvent(canonicalOrig)}`);
     for (const dup of dupsOrig) console.log(`  DROP   ${fmtEvent(dup)}`);
     if (Object.keys(accPatch).length) {

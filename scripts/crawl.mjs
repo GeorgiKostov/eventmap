@@ -17,6 +17,7 @@ import {
 } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { decodeEntities, stripTags } from '../lib/entities.js';
+import { makeStartsAt } from '../lib/event-time.js';
 import { extractFromPage } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
@@ -859,9 +860,11 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
       const ev = {
         title: raw.title,
         description: null,
-        starts_at: `${raw.date_start}T09:00`,
+        // The Naturfreunde JSON carries no time-of-day at all. That is "unknown",
+        // not "all day" — store the date alone and claim nothing (lib/event-time.js).
+        starts_at: makeStartsAt(raw.date_start, null),
         ends_at: null, // source gives no time-of-day; date_end alone doesn't fill ends_at anywhere else in this pipeline either
-        all_day: 1,
+        all_day: 0,
         venue: raw.venue, address: raw.address, town: raw.town,
         categories: cats,
         is_free: raw.is_free, age_min: raw.age_min, age_max: raw.age_max, indoor: raw.indoor,
@@ -959,7 +962,7 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     try {
       if (!raw.title || !raw.date_start) continue;
       const time = /^\d{2}:\d{2}$/.test(raw.time_start || '') ? raw.time_start : null;
-      const starts_at = `${raw.date_start}T${time || '09:00'}`;
+      const starts_at = makeStartsAt(raw.date_start, time);
       let ends_at = raw.time_end && /^\d{2}:\d{2}$/.test(raw.time_end)
         ? `${raw.date_end || raw.date_start}T${raw.time_end}` : null;
       if (ends_at && ends_at <= starts_at) ends_at = null; // overnight/garbled end times
@@ -968,7 +971,11 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
         description: raw.description || null,
         starts_at,
         ends_at,
-        all_day: time ? 0 : 1,
+        // NOT `time ? 0 : 1`. A missing time means the source said nothing about
+        // when this starts — it does not mean the event runs all day. Claiming
+        // "ganztägig" tells a parent they can turn up whenever, which for a 16:00
+        // screening is false. Unknown stays unknown (lib/event-time.js).
+        all_day: 0,
         venue: raw.venue, address: raw.address, town: raw.town || src.town,
         // A source's default_categories are facts about the SOURCE, not guesses
         // about the text: everything a children's museum publishes is for
