@@ -776,6 +776,13 @@ export default function Home() {
   const [advertiseOpen, setAdvertiseOpen] = useState(false);
   const [limitNotice, setLimitNotice] = useState(null);
   const [toast, setToast] = useState('');
+  // The newsletter prompt. It appears at a MOMENT OF INTENT — the tap that says
+  // "I want to remember something that's happening" — never on a timer and never
+  // as a modal over the map. A timer tells you nothing about interest, and a
+  // full-screen interstitial on mobile is penalised by Google, whose index is
+  // the distribution channel this whole product is built on.
+  const [nlPrompt, setNlPrompt] = useState(false);
+  const eventOpens = useRef(0);
   const toastT = useRef(null);
 
   // scan flow
@@ -892,6 +899,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t.requestFailed);
       track('newsletter_signup');
+      try { localStorage.setItem('okolo_nl_prompt', 'signed'); } catch { /* private mode */ }
       setNl((s) => ({ ...s, busy: false, done: true, pending: data.pending !== false }));
     } catch (err) {
       setNl((s) => ({ ...s, busy: false, err: String(err.message || err) }));
@@ -975,6 +983,20 @@ export default function Home() {
 
   const isSaved = (ev) => saved.includes(String(ev.id));
 
+  // Show it once, to someone who has just shown intent, and never again after
+  // they act on it or wave it away. Anything else is nagging.
+  function maybePromptNewsletter() {
+    if (typeof window === 'undefined') return;
+    if (localStorage.getItem('okolo_nl_prompt')) return; // dismissed, or already signed up
+    setNlPrompt(true);
+    track('nl_prompt_shown');
+  }
+
+  function closeNewsletterPrompt(reason) {
+    setNlPrompt(false);
+    try { localStorage.setItem('okolo_nl_prompt', reason); } catch { /* private mode */ }
+  }
+
   function toggleSaved(ev) {
     const id = String(ev.id);
     const on = !isSaved(ev);
@@ -982,6 +1004,10 @@ export default function Home() {
     if (on) setSavedCache((c) => ({ ...c, [id]: ev }));
     setInterestCounts((c) => ({ ...c, [ev.id]: Math.max(0, interestCount(ev) + (on ? 1 : -1)) }));
     track('interest', { kind: ev.kind, id: ev.id, on });
+    // Saving something is the clearest "I intend to go" signal a visitor gives us,
+    // and the newsletter is literally "we'll remind you of these every week" — so
+    // this is the one moment the offer answers a need they just expressed.
+    if (on) maybePromptNewsletter();
     // The save already happened locally; the counter is best-effort. A failed
     // request must never cost the user their saved event.
     fetch('/api/react', {
@@ -1275,6 +1301,11 @@ export default function Home() {
     setSelected(ev);
     setDetailFull(false);
     if (ev) {
+      // Second trigger: someone opening a THIRD event is planning a weekend, not
+      // passing through. (Counted per session, in a ref — deliberately not
+      // persisted: a returning visitor gets a fresh benefit of the doubt.)
+      eventOpens.current += 1;
+      if (eventOpens.current === 3) maybePromptNewsletter();
       // The homepage payload intentionally omits heavy detail-only fields.
       // Hydrate just the row the user opens, without delaying the map response.
       if (!Object.prototype.hasOwnProperty.call(ev, 'description')) {
@@ -3316,6 +3347,28 @@ export default function Home() {
       )}
 
       {captureView}
+      {/* Newsletter prompt — a card, not a modal: it never covers the map, it can
+          be ignored, and one dismissal silences it for good. */}
+      {nlPrompt && (
+        <div className="nl-prompt" role="status">
+          <div className="nl-prompt-body">
+            <strong>{t.nlPromptTitle}</strong>
+            <span>{t.nlPromptBody}</span>
+          </div>
+          <div className="nl-prompt-actions">
+            <button
+              className="nl-prompt-cta"
+              onClick={() => { track('nl_prompt_accepted'); closeNewsletterPrompt('accepted'); openNewsletter(); }}
+            >
+              {t.nlPromptCta}
+            </button>
+            <button className="nl-prompt-x" onClick={() => closeNewsletterPrompt('dismissed')} aria-label={t.close}>
+              <X size={15} weight="bold" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className={`toast ${toast ? 'show' : ''}`}>{toast}</div>
     </div>
   );

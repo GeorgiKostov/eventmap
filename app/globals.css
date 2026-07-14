@@ -955,6 +955,40 @@ a { color: inherit; }
 }
 
 /* ================= toast / loading ================= */
+/* Newsletter prompt — appears at a moment of intent (a save, or the third event
+   opened), never on a timer. A dismissible CARD, deliberately not a modal: it
+   must never cover the map, and Google penalises intrusive interstitials on
+   mobile — our whole distribution thesis is being found in search. Docked above
+   the mobile filter bar so it never fights the bottom controls. */
+.nl-prompt {
+  position: fixed; left: 50%; bottom: 86px; transform: translateX(-50%);
+  z-index: 65; display: flex; align-items: center; gap: 14px;
+  width: min(420px, 92vw);
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--line); border-left: 5px solid var(--accent);
+  border-radius: 16px; padding: 13px 14px;
+  box-shadow: var(--shadow-lg);
+  animation: nl-prompt-in 0.28s ease-out;
+}
+@keyframes nl-prompt-in { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .nl-prompt { animation: none; } }
+.nl-prompt-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.nl-prompt-body strong { font-size: 14px; font-weight: 700; line-height: 1.3; }
+.nl-prompt-body span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.nl-prompt-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.nl-prompt-cta {
+  background: var(--accent); color: var(--accent-ink); border: 0;
+  font-size: 13px; font-weight: 700; border-radius: 999px;
+  padding: 10px 14px; cursor: pointer; white-space: nowrap;
+}
+.nl-prompt-x {
+  background: none; border: 0; color: var(--muted);
+  display: grid; place-items: center; padding: 8px; cursor: pointer; border-radius: 999px;
+}
+.nl-prompt-x:hover { background: var(--panel2); }
+@media (min-width: 861px) { .nl-prompt { bottom: 30px; left: auto; right: 22px; transform: none; }
+  @keyframes nl-prompt-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } } }
+
 .toast {
   position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 20px);
   z-index: 70; background: var(--ink); color: #fff;
