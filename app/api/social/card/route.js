@@ -4,12 +4,19 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { getChannel } from '../../../../lib/city-channels.js';
 import { loadDigest } from '../../../../lib/digest.js';
-import { CATS } from '../../../../lib/icons.js';
+import { CATS, P } from '../../../../lib/icons.js';
 
 // Weekly social carousel: one 1080×1350 (Instagram portrait) PNG per slide,
 // rendered from OUR data with OUR template. Slide 0 is the cover, slides 1..N
 // are the picks. Never a source's poster or prose — the art is ours and the
 // facts are ours (hard rule 1).
+//
+// Layout grammar (design-system.md): each event card is a bold CATEGORY-COLOUR
+// header carrying the date + a large translucent category glyph, over a paper
+// panel with the facts. The colour block is what makes the card readable at
+// thumbnail size in a feed — the previous all-paper layout had no anchor and
+// half the canvas was empty. Category colour is read from CATS, the single
+// source (never a hex literal).
 //
 // Node runtime, not edge: it reads the digest snapshot from Postgres (the same
 // frozen pick set the newsletter uses) and the Noto TTFs from disk. Noto is
@@ -21,8 +28,9 @@ export const dynamic = 'force-dynamic';
 const SIZE = { width: 1080, height: 1350 };
 const ACCENT = '#C93A5B';
 const INK = '#212B28';
-const MUTED = '#4A5652';
+const MUTED = '#6D7876';
 const PAPER = '#F2F2EE';
+const PANEL = '#FFFFFF';
 
 let fontCache;
 async function fonts() {
@@ -39,134 +47,180 @@ async function fonts() {
   return fontCache;
 }
 
-const COVER = {
-  de: { kicker: 'Familien-Wochenende', cta: 'Alle Infos & Karte auf okolo.events' },
-  bg: { kicker: 'Семеен уикенд', cta: 'Всичко на картата: okolo.events' },
-  en: { kicker: 'Family weekend', cta: 'Everything on the map: okolo.events' },
+const COPY = {
+  de: { kicker: 'Familien-Wochenende', cta: 'Alle Infos & Karte', swipe: 'Weiterwischen →', ideas: (n) => `${n} Ideen` },
+  bg: { kicker: 'Семеен уикенд', cta: 'Всичко на картата', swipe: 'Плъзни →', ideas: (n) => `${n} идеи` },
+  en: { kicker: 'Family weekend', cta: 'Everything on the map', swipe: 'Swipe →', ideas: (n) => `${n} picks` },
 };
 
-function Frame({ children }) {
+// The category glyph, oversized and translucent, as the header's texture.
+function CatGlyph({ cat, size, opacity }) {
+  const paths = P[cat] || P.family;
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        background: PAPER,
-        padding: 72,
-        fontFamily: 'Noto Sans',
-      }}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#fff"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ opacity }}
     >
-      {children}
-    </div>
+      {paths.map((d, i) => (
+        <path key={i} d={d} />
+      ))}
+    </svg>
   );
 }
 
-function Wordmark({ color = INK }) {
+function Wordmark({ color = INK, mark = ACCENT }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-      <svg width="44" height="44" viewBox="0 0 24 24">
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <svg width="38" height="38" viewBox="0 0 24 24">
         <path
-          fill={ACCENT}
+          fill={mark}
           fillRule="evenodd"
           d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"
         />
       </svg>
-      <div style={{ fontSize: 40, fontWeight: 700, color, letterSpacing: -1 }}>okolo</div>
+      <div style={{ fontSize: 36, fontWeight: 700, color, letterSpacing: -1 }}>okolo</div>
     </div>
   );
 }
 
+// ---- cover ----
 function coverSlide(digest) {
-  const c = COVER[digest.channel.lang] || COVER.en;
+  const c = COPY[digest.channel.lang] || COPY.en;
   return (
-    <Frame>
-      <Wordmark />
-      <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto', marginBottom: 'auto' }}>
-        <div style={{ fontSize: 40, fontWeight: 700, color: ACCENT, letterSpacing: 1 }}>{c.kicker}</div>
-        <div style={{ fontSize: 116, fontWeight: 700, color: INK, letterSpacing: -3, lineHeight: 1.05, marginTop: 10 }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: PAPER, fontFamily: 'Noto Sans' }}>
+      {/* brand block */}
+      <div style={{ display: 'flex', flexDirection: 'column', background: ACCENT, padding: '64px 72px 56px' }}>
+        <Wordmark color="#fff" mark="#fff" />
+        <div style={{ fontSize: 38, fontWeight: 700, color: '#fff', opacity: 0.85, marginTop: 44, letterSpacing: 1 }}>
+          {c.kicker}
+        </div>
+        <div style={{ fontSize: 104, fontWeight: 700, color: '#fff', letterSpacing: -3, lineHeight: 1.05, marginTop: 6 }}>
           {digest.channel.label}
         </div>
-        <div style={{ fontSize: 54, fontWeight: 400, color: MUTED, marginTop: 18 }}>{digest.label}</div>
-        <div
-          style={{
-            display: 'flex',
-            marginTop: 44,
-            background: ACCENT,
-            color: '#fff',
-            fontSize: 34,
-            fontWeight: 700,
-            borderRadius: 999,
-            padding: '20px 38px',
-            alignSelf: 'flex-start',
-          }}
-        >
-          {digest.items.length} {digest.channel.lang === 'bg' ? 'идеи' : digest.channel.lang === 'de' ? 'Ideen' : 'picks'}
-        </div>
+        <div style={{ fontSize: 46, color: '#fff', opacity: 0.9, marginTop: 14 }}>{digest.label}</div>
       </div>
-      <div style={{ fontSize: 30, color: MUTED, display: 'flex' }}>{c.cta}</div>
-    </Frame>
+
+      {/* what's inside — the cover earns the swipe by showing the list */}
+      <div style={{ display: 'flex', flexDirection: 'column', padding: '48px 72px 0', flexGrow: 1, justifyContent: 'center' }}>
+        {digest.items.slice(0, 5).map((it, i) => (
+          <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 22, marginBottom: 26 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 54,
+                height: 54,
+                borderRadius: 999,
+                background: CATS[it.cat]?.color || ACCENT,
+                color: '#fff',
+                fontSize: 28,
+                fontWeight: 700,
+                flexShrink: 0,
+              }}
+            >
+              {i + 1}
+            </div>
+            <div
+              style={{
+                fontSize: 34,
+                fontWeight: 700,
+                color: INK,
+                lineHeight: 1.25,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: 850,
+              }}
+            >
+              {it.title}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 72px 56px' }}>
+        <div style={{ display: 'flex', fontSize: 30, color: MUTED }}>{c.cta} · okolo.events</div>
+        <div style={{ display: 'flex', fontSize: 30, fontWeight: 700, color: ACCENT }}>{c.swipe}</div>
+      </div>
+    </div>
   );
 }
 
+// ---- one event ----
 function eventSlide(digest, item, n) {
+  const c = COPY[digest.channel.lang] || COPY.en;
   const color = CATS[item.cat]?.color || ACCENT;
+  const big = item.title.length > 60;
+
   return (
-    <Frame>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Wordmark />
-        <div style={{ fontSize: 30, fontWeight: 700, color: MUTED, display: 'flex' }}>
-          {n} / {digest.items.length}
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: PAPER, fontFamily: 'Noto Sans' }}>
+      {/* category header: colour + date + oversized glyph */}
+      <div style={{ display: 'flex', flexDirection: 'column', background: color, padding: '56px 72px 52px', position: 'relative' }}>
+        <div style={{ display: 'flex', position: 'absolute', top: -40, right: -50 }}>
+          <CatGlyph cat={item.cat} size={380} opacity={0.16} />
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Wordmark color="#fff" mark="#fff" />
+          <div style={{ display: 'flex', fontSize: 30, fontWeight: 700, color: '#fff', opacity: 0.85 }}>
+            {n} / {digest.items.length}
+          </div>
+        </div>
+        <div style={{ fontSize: 58, fontWeight: 700, color: '#fff', marginTop: 40, letterSpacing: -1 }}>{item.when}</div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', marginTop: 'auto', marginBottom: 'auto' }}>
+      {/* facts — vertically centred in the panel, footer pinned to the floor */}
+      <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, background: PANEL, padding: '56px 72px' }}>
+       <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'center' }}>
         <div
           style={{
-            display: 'flex',
-            alignSelf: 'flex-start',
-            background: color,
-            color: '#fff',
-            fontSize: 30,
-            fontWeight: 700,
-            borderRadius: 999,
-            padding: '14px 28px',
-          }}
-        >
-          {item.when}
-        </div>
-        <div
-          style={{
-            fontSize: item.title.length > 46 ? 62 : 78,
+            fontSize: big ? 60 : 74,
             fontWeight: 700,
             color: INK,
-            lineHeight: 1.12,
+            lineHeight: 1.14,
             letterSpacing: -1.5,
-            marginTop: 26,
           }}
         >
           {item.title}
         </div>
+
         {item.venue ? (
-          <div style={{ fontSize: 38, color: MUTED, marginTop: 20, display: 'flex' }}>📍 {item.venue}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 26 }}>
+            <svg width="34" height="34" viewBox="0 0 24 24">
+              <path
+                fill={color}
+                fillRule="evenodd"
+                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"
+              />
+            </svg>
+            <div style={{ display: 'flex', fontSize: 36, color: MUTED }}>{item.venue}</div>
+          </div>
         ) : null}
+
         {item.teaser ? (
-          <div style={{ fontSize: 34, color: MUTED, lineHeight: 1.45, marginTop: 22 }}>{item.teaser}</div>
+          <div style={{ fontSize: 34, color: MUTED, lineHeight: 1.5, marginTop: 24 }}>{item.teaser}</div>
         ) : null}
+
         {item.badges.length ? (
-          <div style={{ display: 'flex', gap: 12, marginTop: 28, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 12, marginTop: 32, flexWrap: 'wrap' }}>
             {item.badges.map((b) => (
               <div
                 key={b}
                 style={{
                   display: 'flex',
-                  border: `3px solid ${color}`,
-                  color,
-                  fontSize: 27,
+                  background: color,
+                  color: '#fff',
+                  fontSize: 26,
                   fontWeight: 700,
                   borderRadius: 999,
-                  padding: '10px 22px',
+                  padding: '12px 24px',
                 }}
               >
                 {b}
@@ -174,13 +228,18 @@ function eventSlide(digest, item, n) {
             ))}
           </div>
         ) : null}
-      </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ height: 8, width: 64, background: color, borderRadius: 99, display: 'flex' }} />
-        <div style={{ fontSize: 28, color: MUTED, display: 'flex' }}>okolo.events</div>
+       </div>
+
+        {/* footer sticks to the bottom of the panel */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', fontSize: 28, color: MUTED }}>okolo.events</div>
+          <div style={{ display: 'flex', fontSize: 28, fontWeight: 700, color }}>
+            {n === digest.items.length ? c.cta + ' →' : c.swipe}
+          </div>
+        </div>
       </div>
-    </Frame>
+    </div>
   );
 }
 
