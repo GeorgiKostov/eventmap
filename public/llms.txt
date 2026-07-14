@@ -1,8 +1,8 @@
-# Okolo — local events around Linz, Austria
+# Okolo — local events around you
 
-Okolo is a structured event database for the Linz region (Upper Austria),
-aggregated from official municipal sources (Gemeinde websites, linztermine.at,
-familienkarte.at) and user-submitted poster scans. Every event links back to
+Okolo is a structured event database for your region,
+aggregated from official municipal sources (Gemeinde websites, local calendars) 
+and user-submitted poster scans. Every event links back to
 its authoritative source.
 
 ## Machine-readable access

@@ -64,7 +64,7 @@ export async function generateMetadata({ params }) {
   const when = ev.starts_at ? ev.starts_at.slice(0, 10) : null;
   return {
     title: when ? `${ev.title} — ${when} · Okolo` : `${ev.title} · Okolo`,
-    description: ev.description || `${ev.title} ${t.inTown} ${ev.town || 'Linz'}${when ? ` ${t.onDate} ${when}.` : '.'}`,
+    description: ev.description || `${ev.title}${ev.town ? ` ${t.inTown} ${ev.town}` : ''}${when ? ` ${t.onDate} ${when}.` : '.'}`,
     openGraph: {
       title: ev.title,
       description: ev.description || undefined,

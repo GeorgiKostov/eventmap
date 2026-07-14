@@ -1,9 +1,9 @@
 export default function manifest() {
   return {
-    name: 'Okolo — Events around Linz',
+    name: 'Okolo — Events around you',
     short_name: 'Okolo',
     description:
-      'Family events and local happenings around Linz on a map.',
+      'Family events and local happenings around you on a map.',
     start_url: '/',
     display: 'standalone',
     background_color: '#f2f2ee',

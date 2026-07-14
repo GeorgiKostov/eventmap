@@ -8,6 +8,7 @@ import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/i
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
 import { groupEventSeries } from '../lib/map-groups.js';
+import { isForKids } from '../lib/kid-cats.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 
@@ -719,26 +720,6 @@ export default function Home() {
       .catch(() => {});
   }
 
-  // Long-press / right-click on the map drops the reference point right where the
-  // user pressed — no typing, no flyTo (the pin stays under the finger). The label
-  // starts as a neutral fallback and is filled in by a latest-wins reverse-geocode.
-  const dropReverseReqId = useRef(0);
-  function dropLocationPin(lng, lat) {
-    setSearchCenter({ lat, lng, label: t.droppedPinLabel });
-    setSelected(null);
-    setMenuOpen(false);
-    const reqId = ++dropReverseReqId.current;
-    fetch(`/api/geocode?reverse=1&lat=${lat.toFixed(5)}&lng=${lng.toFixed(5)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (reqId !== dropReverseReqId.current) return;
-        const a = data.address;
-        const label = a?.town || a?.address;
-        if (label) setSearchCenter((s) => (s ? { ...s, label } : s));
-      })
-      .catch(() => { /* keep the fallback label */ });
-  }
-
   // filters
   const [kindFilter, setKindFilter] = useState('all'); // all | event | place
   const [whenMode, setWhenMode] = useState('weekend'); // all | today | tomorrow | weekend | next7 | range
@@ -999,20 +980,6 @@ export default function Home() {
     }).catch(() => { /* fire-and-forget */ });
   }
 
-  // The drop-pin gesture has no visible affordance, so it needs one nudge — but
-  // only where it earns its place: standing somewhere with nothing on the map is
-  // the single moment "move the map somewhere else" is the answer. Anywhere else
-  // (on load, over a full list, under the search box) it's just in the way.
-  // Dismissed for good on tap: once you know the gesture, you don't need telling.
-  const [hintDismissed, setHintDismissed] = useState(true); // assume dismissed until localStorage says otherwise (no SSR flash)
-  useEffect(() => {
-    try { setHintDismissed(!!localStorage.getItem('umkreis_droppin_hint')); } catch { /* blocked storage */ }
-  }, []);
-  function dismissDropPinHint() {
-    setHintDismissed(true);
-    try { localStorage.setItem('umkreis_droppin_hint', '1'); } catch { /* private mode */ }
-  }
-
   useEffect(() => {
     navigator.geolocation?.getCurrentPosition(
       (p) => {
@@ -1068,10 +1035,8 @@ export default function Home() {
   // "0 events" (integration finding, 2026-07-14).
   const [mapInit, setMapInit] = useState(false);
   const selectRef = useRef(() => {});
-  const dropPinRef = useRef(() => {}); // latest dropLocationPin closure for the once-bound map listeners
   const fetchViewportRef = useRef(() => {}); // latest fetchViewport closure for the once-bound map listeners
   const moveendTimer = useRef(null);
-  const longPress = useRef({ timer: null, fired: false, touch: false, x: 0, y: 0 });
 
   useEffect(() => {
     if (mapObj.current || !mapRef.current) return;
@@ -1116,9 +1081,6 @@ export default function Home() {
       // flyTo — the resulting moveend would silently overwrite the location the
       // user is placing (review finding, 2026-07-13).
       if (addFlowActiveRef.current) return;
-      // A long-press that just dropped the location pin also emits a trailing
-      // click on touchend — swallow it so it can't immediately deselect.
-      if (longPress.current.fired) { longPress.current.fired = false; return; }
       const top = (layer) => (map.getLayer(layer) ? map.queryRenderedFeatures(e.point, { layers: [layer] })[0] : null);
       // 1. Cluster bubbles expand for as long as they render (clusters exist up
       //    to clusterMaxZoom 12 and stay visible, fading, through the band —
@@ -1158,27 +1120,6 @@ export default function Home() {
       selectRef.current(null, { fly: false });
       setMenuOpen(false);
     });
-    // Drop the reference point where the user long-presses (touch) or right-clicks
-    // (desktop) — the fast, no-typing way to ask "what's on around here?".
-    const dropAt = (lngLat) => { if (!addFlowActiveRef.current) dropPinRef.current(lngLat.lng, lngLat.lat); };
-    map.on('contextmenu', (e) => {
-      if (longPress.current.touch) return; // touch long-press already handled it
-      dropAt(e.lngLat);
-    });
-    const cancelLongPress = () => { clearTimeout(longPress.current.timer); longPress.current.timer = null; };
-    map.on('touchstart', (e) => {
-      if (e.points.length !== 1) { cancelLongPress(); return; } // pinch/multi-touch isn't a press
-      const lp = longPress.current;
-      lp.touch = true; lp.x = e.point.x; lp.y = e.point.y;
-      cancelLongPress();
-      lp.timer = setTimeout(() => { lp.fired = true; dropAt(e.lngLat); }, 500);
-    });
-    map.on('touchmove', (e) => {
-      const lp = longPress.current;
-      if (lp.timer && Math.hypot(e.point.x - lp.x, e.point.y - lp.y) > 10) cancelLongPress(); // a pan, not a press
-    });
-    map.on('touchend', cancelLongPress);
-    map.on('touchcancel', cancelLongPress);
     // Viewport-native fetch: refetch on every settle, debounced so a drag/zoom
     // gesture doesn't fire a request per frame. Skipped during the add-flow
     // (capture/map-pick), whose own moves aren't "browsing the map".
@@ -1216,14 +1157,11 @@ export default function Home() {
       if (searchMarker.current) { searchMarker.current.remove(); searchMarker.current = null; }
       return;
     }
-    // Create once; afterwards just move it — recreating on every label/coord
-    // update would tear the marker out from under a drag.
+    // Create once; afterwards just move it.
     if (!searchMarker.current) {
       const el = document.createElement('div');
       el.className = 'search-marker';
-      const m = new maplibregl.Marker({ element: el, draggable: true }).setLngLat([searchCenter.lng, searchCenter.lat]).addTo(map);
-      m.on('dragend', () => { const p = m.getLngLat(); dropPinRef.current(p.lng, p.lat); });
-      searchMarker.current = m;
+      searchMarker.current = new maplibregl.Marker({ element: el }).setLngLat([searchCenter.lng, searchCenter.lat]).addTo(map);
     } else {
       searchMarker.current.setLngLat([searchCenter.lng, searchCenter.lat]);
     }
@@ -1308,7 +1246,6 @@ export default function Home() {
     }
   }
   selectRef.current = selectEvent;
-  dropPinRef.current = dropLocationPin;
 
   /* ---------------- filtering ---------------- */
   const [dFrom, dTo] = useMemo(() => {
@@ -1415,7 +1352,7 @@ export default function Home() {
     return events.filter((ev) => {
       if (cats.length && !ev.categories.some((c) => cats.includes(c))) return false;
       if (freeOnly && ev.is_free !== 1) return false;
-      if (kidsOnly && !(ev.age_min != null || ev.categories.includes('family'))) return false;
+      if (kidsOnly && !isForKids(ev)) return false;
       if (communityOnly && !isCommunitySubmitted(ev)) return false;
       if (inOut === 'in' && ev.indoor !== 1) return false;
       if (inOut === 'out' && ev.indoor !== 0) return false;
@@ -1455,11 +1392,6 @@ export default function Home() {
   }, [commonFiltered, kindFilter, refPoint]);
 
   const filtered = useMemo(() => [...filteredEvents, ...filteredPlaces], [filteredEvents, filteredPlaces]);
-
-  // Only once the rows are actually in (`events` null = still loading — an empty
-  // map mid-fetch is not "nothing here"), and never while the search dropdown is
-  // open, which is what made it feel in the way before.
-  const showDropPinHint = !hintDismissed && !searchOpen && !!events && filtered.length === 0;
 
   // Map grammar, in order: resolved event coordinates → same-series collapse →
   // safe same-venue collapse → generic spatial clustering. Every occurrence
@@ -2174,15 +2106,6 @@ export default function Home() {
         {searchCenter && !searchOpen && (
           <button className="searchcenter-chip" onClick={clearSearchCenter}>
             {t.searchCenterChip.replace('{ort}', searchCenter.label)} <span className="x">✕</span>
-          </button>
-        )}
-        {/* Drop-pin tip, shown ONLY when the user is somewhere with nothing to see
-            — an empty map is the one moment the gesture actually solves a problem,
-            and the one moment a tip isn't in the way. Tap dismisses it for good. */}
-        {showDropPinHint && (
-          <button type="button" className="search-hint" onClick={dismissDropPinHint}>
-            <span aria-hidden="true">📍</span>
-            <span>{t.dropPinHint}</span>
           </button>
         )}
         {searchOpen && searchQuery.trim() && (

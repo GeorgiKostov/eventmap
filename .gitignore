@@ -7,3 +7,4 @@ data/uploads/*
 .DS_Store
 data/umkreis.db*
 env.local
+.vercel

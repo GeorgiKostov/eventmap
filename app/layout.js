@@ -7,9 +7,9 @@ import { LANGS } from '../lib/i18n.js';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
 const META_COPY = {
-  en: { title: 'Okolo — Events around you', description: 'Family events and local happenings near you, on a map. Discover what is on around you.', locale: 'en_GB', keywords: ['Events', 'Local', 'Family', 'Map', 'Nearby', 'Linz', 'Austria'] },
-  de: { title: 'Okolo — Events in deiner Nähe', description: 'Familien-Events und lokale Veranstaltungen in deiner Nähe auf einer Karte. Entdecke, was um dich herum passiert.', locale: 'de_AT', keywords: ['Events', 'Lokal', 'Familie', 'Veranstaltungen', 'Karte', 'Umgebung', 'Linz'] },
-  bg: { title: 'Okolo — Събития около теб', description: 'Семейни и местни събития около теб на карта. Открий какво се случва наблизо.', locale: 'bg_BG', keywords: ['Събития', 'Локални', 'Семейство', 'Карта', 'Наблизо', 'Линц'] },
+  en: { title: 'Okolo — Events around you', description: 'Family events and local happenings near you, on a map. Discover what is on around you.', locale: 'en_GB', keywords: ['Events', 'Local', 'Family', 'Map', 'Nearby'] },
+  de: { title: 'Okolo — Events in deiner Nähe', description: 'Familien-Events und lokale Veranstaltungen in deiner Nähe auf einer Karte. Entdecke, was um dich herum passiert.', locale: 'de_AT', keywords: ['Events', 'Lokal', 'Familie', 'Veranstaltungen', 'Karte', 'Umgebung'] },
+  bg: { title: 'Okolo — Събития около теб', description: 'Семейни и местни събития около теб на карта. Открий какво се случва наблизо.', locale: 'bg_BG', keywords: ['Събития', 'Локални', 'Семейство', 'Карта', 'Наблизо'] },
 };
 
 export async function generateMetadata() {
