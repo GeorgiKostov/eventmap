@@ -560,3 +560,20 @@ are OK before the Linz gate. Country registration (item 8) is explicitly post-Li
       link/updates) → embeddable widget + "Found on Google & AI via Umkreis" badge + referral stats.
 - [ ] One-page **organizer pitch** for the commercial/semi-commercial segment (venues, festivals, paid
       workshops) — trade our SEO/AI distribution for their event feed. Not for civic micro-events (crawled).
+
+## Imprecise locations — honest map (2026-07-14, George: "how do we communicate it so it's not confusing")
+- [x] **Jitter removed + 10,661 rows snapped to true centroid** — the ±300m scatter INVENTED a
+      coordinate for every town-level event (170 across a few Wiener Neustadt blocks). (0495d13)
+- [x] **Town groups**: dashed bubble + count + TOWN NAME replaces per-event pins for the 10.8k
+      town-level events. Grammar reused, nothing new to learn: dashed=approximate (existing),
+      bubble+count=many (existing). Tap → list scoped to that town with "Genauer Ort nicht
+      angegeben". List/detail show "in {town} · ≈{km}" never a fake address. Online events (395)
+      off the map entirely, still in list+search with a badge. Dead approx-halo grammar removed.
+      Legend now contrasts the two bubbles. (2fbbbe6)
+- [ ] **George: tap a dashed bubble in a real browser** — the only path not yet verified (basemap
+      tiles wouldn't load in the agent's pane). Handler is structurally identical to the working
+      cluster-bubble handler.
+- [x] Museums count as "For kids" (George). 1,254/1,269 places now pass; only `trail` out, pending
+      the family_suitable attribute. (4fe7de0)
+- [x] **docs/partnerships/README.md** — cross-country tracker + drafts for feratel Deskline,
+      RiS/GEM2GO, Land NÖ Veranstaltungsdatenbank. Stuttgart closed (was our own bug). (4fe7de0)
