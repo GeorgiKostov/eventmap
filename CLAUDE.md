@@ -46,6 +46,17 @@ If a file is missing, skip it and continue. Do not stop.
    events with no reliable date. A wrong event on the map destroys trust faster than a missing one.
 6. **Serverless is read-only + ephemeral.** On Vercel the project dir is read-only and `/tmp` is
    ephemeral. Any write path (DB, uploads) must account for this until the Supabase port lands.
+7. **Every source must end up repeatable.** Outside crawlers and tools (Grok/xAI mining, an LLM
+   sweep, OSM/Overpass, a hand-written `scripts/mine-*.mjs`) are allowed — but only as a
+   **bootstrap**, never as the refresh path. A mining task is not done until the source is
+   registered in `sources` with `works=true` **and** reachable by `scripts/crawl.mjs` — via the
+   structured waterfall, or a new cms adapter in `lib/` wired into `tryStructuredExtraction()` if
+   its CMS needs one. It must then survive `npm run crawl -- --url <source>` before you call it
+   finished. A row parked at `works=false` with "refresh only with script X" is a **bug**: the cron
+   skips it and its events silently rot (this is exactly what happened to Stuttgart's Sindelfingen +
+   Kreativregion sources, fixed 2026-07-14). If a source genuinely cannot be re-crawled (one-off
+   PDF, static OSM venue set), say so in `notes` and flag it to George rather than leaving it to
+   look scheduled when it isn't.
 
 ## Git convention
 

@@ -9,6 +9,27 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-14 latest — crawl cadence + repeatable-source rule)
+- **Crawl trigger is now daily** (`0 4 * * *`, `.github/workflows/crawl.yml`, renamed "Scheduled
+  crawl"). Was Thursday-weekly, which made `TIER_CADENCE_DAYS` (active 2d / slow 5d / dormant 7d)
+  dead code — on a 7-day trigger every source is past even the dormant threshold. Daily is the
+  *trigger*; the tiers decide who is actually *due* (1,711 skipped as not-due on the verification
+  run). Actions minutes to watch: most AT sources are still `active` (new sources default there
+  until 3 crawls of history), so early runs fetch ~half the catalog daily.
+- **Hard rule 7 added (CLAUDE.md): every source must end up repeatable.** Outside crawlers/tools
+  (Grok mining, OSM, `scripts/mine-*.mjs`) are bootstrap only — a mining task isn't done until the
+  source is `works=true` and reachable by `scripts/crawl.mjs`, verified with
+  `npm run crawl -- --url <source>`. `works=false` + "refresh only with script X" is a bug.
+- **Stuttgart's two disabled sources are live again.** Sindelfingen (221 ev) and Kreativregion
+  (174 ev) had `works=false` because the crawl had no adapter for their CMS — their parsers already
+  existed in `lib/`, just unreachable from the waterfall. Wired `typo3-hwveranstaltung` +
+  `wordpress-ical` into `tryStructuredExtraction()`; both deterministic, zero LLM cost. All 8 DE
+  sources now crawlable. DE published events 763 → 790.
+- **Open gap:** `Landeshauptstadt Stuttgart` yields 0 — stuttgart.de robots.txt disallows its RSS
+  path, so the region's biggest city contributes nothing. Needs an allowed endpoint or a permission
+  email; do not crawl the blocked path. (Spawned as a separate task.)
+- Coverage snapshot: AT 1,578 sources / 20,551 events · BG 219 / 2,511 · DE 8 / 790.
+
 ## Where things stand (2026-07-14 — set location by map gesture)
 - **Long-press / right-click drops the "around here" reference point on the map** (George: typing a
   location to move off current sucks). Long-press = manual 500ms touch timer (cancels on >10px pan,

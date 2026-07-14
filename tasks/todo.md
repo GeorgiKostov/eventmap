@@ -267,6 +267,20 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       scan entrant (the LLM-extraction wedge is recent enough a fresh competitor is plausible).
 - [ ] Decide: is "family-friendly" a filter or the default lens?
 
+- [x] **Crawl cadence fixed + repeatable-source rule** (2026-07-14): cron weekly → daily, so the
+      `active`/`slow`/`dormant` tiers stop being dead code. Sindelfingen + Kreativregion adapters
+      (`typo3-hwveranstaltung`, `wordpress-ical`) wired into the crawl waterfall and both sources
+      re-enabled (395 events now refresh instead of rotting). Hard rule 7 in CLAUDE.md: outside
+      crawlers/tools are bootstrap only; a source isn't done until the cron can re-fetch it.
+- [ ] **Stuttgart city source is robots-blocked** — `Landeshauptstadt Stuttgart` yields 0 events;
+      stuttgart.de disallows its RSS path. Find an allowed endpoint (open-data portal? JSON-LD/iCal
+      calendar page?) or send a permission email (briefs/outreach-emails-de.md). Never crawl the
+      blocked path. Biggest city in the DE scope currently contributes nothing.
+- [ ] **Watch Actions minutes** after ~2 weeks of daily crawls: most AT sources still default to
+      `tier='active'` (2d) until they have 3 crawls of yield history, so early runs are heavy
+      (~600–1,400 min/month est., free allowance is 2,000 on private repos). Should self-correct as
+      tiers demote; if not, drop the trigger to `0 4 */2 * *`. See docs/ops/crawl-cron.md.
+
 - [ ] **Austria backfill Phase 2** (briefs/austria-backfill-brief.md): after waterfall merge + Phase-1
       probe lands — `EXTRACT_PROVIDER=grok` batch crawl (needs `XAI_API_KEY` from console.x.ai — George;
       falls back to Gemini ~$6–15 one-time if no key). Provider already wired in lib/extract.js.

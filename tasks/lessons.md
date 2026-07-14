@@ -228,3 +228,27 @@ facts are in `<meta>`, not the body — always feed `og:description`/`twitter:de
 to the extractor, not just the title. And when an extractor "succeeds" with a field the
 source doesn't actually contain, suspect fabrication, not competence — verify against the
 raw input. Logs that print the exact model input are how you catch both.
+
+## 2026-07-14 — A source parked at `works=false` is data that rots, not data we have
+
+Answering "how often do we crawl, and do we cover everything?" surfaced two silent
+failures. **(1) The tiering was dead code.** `TIER_CADENCE_DAYS` gates each source at
+active 2d / slow 5d / dormant 7d — but the cron only fired *weekly*, so by Thursday
+every source was past even the 7-day dormant threshold. All ~1,800 were crawled every
+run regardless of tier; the whole tier column bought us nothing. **A per-item cadence is
+a no-op unless the trigger is at least as frequent as the tightest tier.** Fixed by
+moving the trigger to daily — the tiers now do the differentiating (1,711 skipped as
+"not due" on the next run).
+
+**(2) Stuttgart's two best sources were switched off.** Sindelfingen (221 events) and
+Kreativregion (174) sat at `works=false` with notes saying "refresh only with
+`scripts/mine-*.mjs`", because the generic crawl had no adapter for their CMS. Their
+parsers *already existed* in `lib/` — they were just only reachable from the one-shot
+mining scripts. So the cron skipped them and their events quietly went stale. Wiring the
+two parsers into `tryStructuredExtraction()` (`typo3-hwveranstaltung`, `wordpress-ical`)
+turned 395 dead events into a repeating feed for zero LLM cost. **Lesson:** an external
+tool (Grok mining, OSM, a hand-rolled miner) is a *bootstrap*, never a refresh path. If
+the cron can't re-fetch it, we don't have the data — we have a snapshot with an expiry
+date nobody wrote down. Now hard rule 7 in CLAUDE.md. Corollary: the miner scripts wrote
+`works: false` into their own `source_registry`, so re-running one would have re-disabled
+the source it just fed — a bootstrap must never be able to undo the pipeline.

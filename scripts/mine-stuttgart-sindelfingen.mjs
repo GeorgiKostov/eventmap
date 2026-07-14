@@ -1,5 +1,9 @@
 // Mine the official Stadt Sindelfingen event list. Facts shown in the public
 // result cards only; no descriptions/images, model calls or DB writes.
+//
+// BOOTSTRAP ONLY (hard rule 7). The recurring refresh path is the cron, via the
+// `typo3-hwveranstaltung` adapter in scripts/crawl.mjs — this script exists to
+// produce a reviewable seed file, not to keep the source fresh.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfingen-events.js';
@@ -65,8 +69,8 @@ async function main() {
     },
     source_registry: [{
       name: 'Stadt Sindelfingen', url: SOURCE_URL, kind: 'municipal', town: 'Sindelfingen',
-      country: 'DE', region: 'Stuttgart 40km', cms: 'typo3-hwveranstaltung', works: false,
-      notes: 'Refresh only with `node scripts/mine-stuttgart-sindelfingen.mjs`; generic crawl has no deterministic hwveranstaltung adapter.',
+      country: 'DE', region: 'Stuttgart 40km', cms: 'typo3-hwveranstaltung', works: true,
+      notes: 'Repeatable: scripts/crawl.mjs has a typo3-hwveranstaltung adapter, so the cron refreshes this. This script is a bootstrap only.',
     }],
     failures: [], events: deduped,
   };

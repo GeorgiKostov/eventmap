@@ -2,6 +2,10 @@
 // records and per-event iCal exports. Detail pages are read only for the
 // factual location label. No descriptions, images, model calls or DB writes.
 //
+// BOOTSTRAP ONLY (hard rule 7). The recurring refresh path is the cron, via the
+// `wordpress-ical` adapter in scripts/crawl.mjs — this script exists to produce a
+// reviewable seed file, not to keep the source fresh.
+//
 // Usage: node scripts/mine-stuttgart-kreativregion.mjs
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -183,8 +187,8 @@ async function main() {
     },
     source_registry: [{
       name: SOURCE_NAME, url: REST_URL, kind: 'regional', town: 'Stuttgart', country: 'DE',
-      region: 'Stuttgart 40km', cms: 'wordpress-ical', works: false,
-      notes: 'Refresh only with `node scripts/mine-stuttgart-kreativregion.mjs`; generic crawl has no wordpress-ical adapter. Public WRS WordPress REST records with canonical links and per-event iCal exports.',
+      region: 'Stuttgart 40km', cms: 'wordpress-ical', works: true,
+      notes: 'Repeatable: scripts/crawl.mjs has a wordpress-ical adapter, so the cron refreshes this. This script is a bootstrap only. Public WRS WordPress REST records with canonical links and per-event iCal exports.',
     }],
     failures,
     events: deduped,

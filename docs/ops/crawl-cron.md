@@ -6,16 +6,18 @@ Keeps the map fresh without anyone remembering to run it. The workflow
 
 ## What it does
 
-- **Schedule:** every **Thursday 04:00 UTC** (~06:00 Vienna) — off-peak and polite
-  to municipal servers, and the best day for a *weekly* cadence: organizers enter
-  and change events during the work week, and families plan the weekend Wed–Fri,
-  so a Thursday run captures the week's updates and lands fresh for the weekend
-  with a day of buffer. (Monday is the worst weekly slot — furthest from the next
-  weekend, so a mid-week cancellation for "this weekend" wouldn't be caught until
-  after the event passed.) Once there are users, the next step is *tiered* cadence
-  (daily on aggregators, weekly on villages), which makes the day-of-week moot.
+- **Schedule:** **daily at 04:00 UTC** (~06:00 Vienna) — off-peak and polite to
+  municipal servers. Daily is the **trigger**, not the per-source cadence: the
+  crawl gates each source on its own tier (`active` 2d / `slow` 5d / `dormant` 7d,
+  `dead` excluded), so on any given morning only the sources actually *due* get
+  fetched. This is the tiered cadence the weekly version was waiting for —
+  aggregators and big-city calendars refresh every other day, sleepy Gemeinden
+  weekly, and nobody gets hammered.
+  *(Was Thursday-weekly until 2026-07-14. That made the tiering dead code: on a
+  7-day trigger every source is past even the 7-day dormant threshold, so all
+  1,800 were crawled every Thursday regardless of tier.)*
 - **Also on demand:** the `workflow_dispatch` trigger means you can run it any
-  time from the repo's **Actions → Weekly crawl → Run workflow** button.
+  time from the repo's **Actions → Scheduled crawl → Run workflow** button.
 - **One run at a time:** the `concurrency` group prevents two crawls overlapping.
   This is deliberate — Nominatim (geocoding) rate-limits **per IP, not per host**,
   so two crawls on one runner throttle each other and silently drop geocodes
@@ -39,8 +41,8 @@ are never written to disk.
    | `DATABASE_URL` | the Supabase pooler connection string | copy the exact value from your local `.env.local` |
    | `GEMINI_API_KEY` | the Gemini API key | copy from `.env.local` |
 
-3. That's it. To test immediately without waiting for Monday: **Actions → Weekly
-   crawl → Run workflow**. Watch the log; the final line is
+3. That's it. To test immediately without waiting for 04:00 UTC: **Actions →
+   Scheduled crawl → Run workflow**. Watch the log; the final line is
    `Crawl done: N events upserted, M expired`.
 
 Optional secrets (only if you change extraction providers — defaults are fine):
@@ -50,33 +52,41 @@ Optional secrets (only if you change extraction providers — defaults are fine)
 
 **Bottom line: effectively free — under ~$10/month, and likely less.**
 
-### Compute (the GitHub Actions runner) — **$0**
+### Compute (the GitHub Actions runner) — **$0, but watch the minutes**
 
 - GitHub Actions is **free for 2,000 minutes/month on private repos, unlimited on
   public repos**.
-- One weekly full pass is ~30–90 min. At 4–5 runs/month that is **~150–450
-  minutes/month** — comfortably inside the free private-repo allowance, and $0 on
-  a public repo. (For reference, Actions minutes past the free tier bill at
-  ~$0.008/min on Linux, so even a wildly over-budget month would be a few dollars.)
+- A daily run only fetches the sources that are *due*, not all 1,800 — so a run is
+  much shorter than a full pass (a full pass is ~30–90 min).
+- **The one thing to watch:** a brand-new source defaults to `tier='active'`
+  (2-day cadence) until it has 3 crawls of yield history, and right now ~1,500 of
+  1,578 AT sources are still `active`. Until they settle into `slow`/`dormant`,
+  a daily trigger fetches roughly half the catalog every morning. Ballpark
+  **~600–1,400 minutes/month** — inside the 2,000 free private-repo allowance, but
+  not by a mile, and **$0 regardless if the repo is public**. It falls off on its
+  own as tiers demote. If it doesn't, drop the trigger to `0 4 */2 * *`.
 
-### The actual work (LLM extraction) — **~$1–8/month at weekly cadence**
+### The actual work (LLM extraction) — **~$1–8/month**
 
-This is the only real cost, and the waterfall keeps it tiny:
+This is the only real cost, and the waterfall keeps it tiny. Note it is driven by
+**how often pages change**, not by how often we look — so moving from weekly to
+daily does *not* multiply it:
 
 - Of ~1,580 Austrian sources, **~930 are GEM2GO/RiS deterministic parsers → $0 per
   page**, and the page-hash check skips unchanged pages for free.
-- Only *changed* pages among the ~635 unknown/other sources call the LLM. On a
-  weekly pass, realistically **~100–300 LLM extractions**.
+- Only *changed* pages among the ~635 unknown/other sources call the LLM. A page
+  that changes once a week costs one extraction a week whether we check it once or
+  seven times.
 - Gemini Flash-Lite is ~pennies per page (each extraction ≈ 5–15k input tokens).
-  ~300 calls/week × ~4 weeks ≈ **~1,200 extractions/month** → **roughly $1–8/month**,
-  and a chunk may fall inside Gemini's free tier.
+  Realistically **~1,200 extractions/month** → **roughly $1–8/month**, and a chunk
+  may fall inside Gemini's free tier.
 
 ### Geocoding — **$0**
 Nominatim/Photon are free public services, and every lookup is cached
 permanently (`geocache` table), so recrawls almost never re-geocode.
 
 ### Database (Supabase) — **$0 for now**
-Current free tier: 500 MB. The `events` table is ~18 MB. The weekly crawl also
+Current free tier: 500 MB. The `events` table is ~18 MB. The scheduled crawl also
 keeps the project awake (free-tier Supabase pauses after inactivity), which is a
 nice side benefit. Upgrade to Pro ($25/mo) only when storage/bandwidth grows.
 
@@ -86,7 +96,7 @@ Adding Bulgaria or the USA adds sources but most are structured/unchanged, so th
 LLM bill stays flat. "One region at a time" is a demand strategy; supply is cheap
 by design.
 
-**Summary table (weekly cadence, Austria):**
+**Summary table (daily trigger, tiered per-source cadence):**
 
 | Item | Cost/month |
 |---|---|
@@ -98,18 +108,19 @@ by design.
 
 ## Changing the cadence
 
-Edit the `cron:` line in `.github/workflows/crawl.yml` (UTC, standard cron syntax):
+Two dials, and it matters which one you turn:
 
-- Every 2 days: `0 4 */2 * *`
-- Daily: `0 4 * * *`
-- Twice a week (Mon + Thu): `0 4 * * 1,4`
+1. **The trigger** — the `cron:` line in `.github/workflows/crawl.yml` (UTC).
+   Currently daily (`0 4 * * *`). This sets how often we *look*.
+2. **The per-source cadence** — `TIER_CADENCE_DAYS` in `scripts/crawl.mjs`
+   (`active: 2, slow: 5, dormant: 7`). This sets who is actually *due* when we look.
 
-Because unchanged pages are free, a tighter cadence mostly just catches
-cancellations/changes sooner; it does not multiply cost proportionally. When
-freshness matters more (closer to launch), the natural next step is **tiered
-cadence** — a daily pass over the high-yield aggregators + big-city calendars, a
-slower pass over sleepy Gemeinden — using the `sources.tier` column that already
-exists. Not needed yet at weekly.
+The trigger must always be at least as frequent as the tightest tier, or the tier
+is a no-op (the weekly-trigger bug). To make aggregators refresh faster, lower
+`active`; don't touch the cron. To crawl more politely overall, raise the tiers.
+
+Because unchanged pages are hash-skipped for free, a tighter cadence mostly just
+catches cancellations/changes sooner; it does not multiply cost proportionally.
 
 ## Troubleshooting
 
@@ -119,7 +130,7 @@ exists. Not needed yet at weekly.
 - **Run succeeds but 0 events** → likely a source-side change, not the cron. Check
   the log for per-source `! skip` lines. A genuinely empty pass with everything
   unchanged is normal (hash-skips).
-- **Timed out at 180 min** → raise `timeout-minutes`, or the source set has grown
-  enough to warrant tiered cadence.
+- **Timed out at 180 min** → raise `timeout-minutes`, or raise the tier cadences
+  in `scripts/crawl.mjs` so fewer sources come due per run.
 - **Never run more than one crawl at once from the same machine/IP** (Nominatim
   per-IP limit). The `concurrency` block enforces this in CI; respect it locally too.

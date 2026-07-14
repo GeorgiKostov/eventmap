@@ -19,6 +19,8 @@ import { geocodeEvent } from '../lib/geocode.js';
 import { extractFromPage } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
+import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfingen-events.js';
+import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
@@ -601,10 +603,78 @@ async function parseWienErlebenEvents(html, src) {
   return events;
 }
 
+// The Stuttgart adapters (lib/sindelfingen-events.js, lib/kreativregion-events.js)
+// were written for the one-shot mine-*.mjs scripts and speak the seed-file shape.
+// Map it onto the crawl shape rather than forking the parsers.
+function fromMinedShape(ev) {
+  return {
+    ...ev,
+    description: ev.description_short ?? null,
+    address: ev.address_text ?? null,
+  };
+}
+
+// TYPO3 "hwveranstaltung" result list (Stadt Sindelfingen): a paginated set of
+// result cards at /seite-N/. Page 1 is the registered source URL, already fetched.
+async function parseHwVeranstaltungEvents(html, src) {
+  const events = parseSindelfingenEvents(html);
+  if (!/\/seite-\d+\//.test(src.url)) return events; // no pager in the URL → single page
+  const pages = Math.min(sindelfingenPageCount(html), 100);
+  for (let page = 2; page <= pages; page++) {
+    const url = src.url.replace(/\/seite-\d+\//, `/seite-${page}/`);
+    try {
+      if (!await robotsAllowed(url)) break;
+      const res = await politeFetch(url);
+      if (!res.ok) break;
+      events.push(...parseSindelfingenEvents(await res.text()));
+    } catch { break; } // a broken page N must not discard pages 1..N-1
+  }
+  return events;
+}
+
+// WordPress `dmwpevents` post type + per-event iCal export (Kreativregion
+// Stuttgart). The registered source URL is the REST collection; each record's
+// canonical link is the linkback and its iCal export carries the dated facts.
+async function parseWordpressIcalEvents(src) {
+  const origin = new URL(src.url).origin;
+  const records = [];
+  for (let page = 1; page <= 5; page++) {
+    const listUrl = new URL(src.url);
+    listUrl.searchParams.set('per_page', '100');
+    listUrl.searchParams.set('page', String(page));
+    listUrl.searchParams.set('_fields', 'id,link,title');
+    const res = await politeFetch(listUrl.toString(), { headers: { Accept: 'application/json' } });
+    if (!res.ok) break;
+    const batch = await res.json();
+    if (!Array.isArray(batch) || !batch.length) break;
+    records.push(...batch);
+    if (batch.length < 100) break;
+  }
+
+  const events = [];
+  for (const rec of records) {
+    if (!Number.isInteger(rec?.id) || !rec?.link) continue;
+    try {
+      const icsUrl = `${origin}/feed/calendar/?id=${rec.id}`;
+      if (!await robotsAllowed(icsUrl)) continue;
+      const res = await politeFetch(icsUrl, { headers: { Accept: 'text/calendar' } });
+      if (!res.ok) continue;
+      const ev = parseKreativregionIcs(await res.text(), {
+        title: decodeWpTitle(rec.title?.rendered), source_url: rec.link,
+      });
+      // This source covers a wider area than the 40 km scope (Brussels, Heilbronn,
+      // online). An event whose facts name no town would inherit src.town below —
+      // i.e. get pinned in Stuttgart on no evidence. Drop it instead.
+      if (ev?.town) events.push(ev);
+    } catch { /* one broken calendar record must not abort the source */ }
+  }
+  return events;
+}
+
 // Waterfall: JSON-LD → iCal → wien-erleben (cms-gated, two-hop) → GEM2GO
-// (cms-gated) → DVV hCalendar RSS (cms-gated) → generic RSS/Atom. First route
-// that yields ≥1 valid event wins and
-// the LLM call is skipped entirely.
+// (cms-gated) → DVV hCalendar RSS (cms-gated) → sitepark/hwveranstaltung/
+// wordpress-ical (cms-gated) → generic RSS/Atom. First route that yields ≥1
+// valid event wins and the LLM call is skipped entirely.
 async function tryStructuredExtraction(html, src) {
   const jsonld = parseJsonLdEvents(html, src);
   if (jsonld.length) return { route: 'jsonld', events: jsonld };
@@ -648,6 +718,16 @@ async function tryStructuredExtraction(html, src) {
       } catch { /* one broken calendar item must not abort the source */ }
     }
     if (events.length) return { route: 'ical', events };
+  }
+
+  if (src.cms === 'typo3-hwveranstaltung') {
+    const events = await parseHwVeranstaltungEvents(html, src);
+    if (events.length) return { route: 'hwveranstaltung', events: events.map(fromMinedShape) };
+  }
+
+  if (src.cms === 'wordpress-ical') {
+    const events = await parseWordpressIcalEvents(src);
+    if (events.length) return { route: 'wordpress-ical', events: events.map(fromMinedShape) };
   }
 
   const feedHref = findFeedLink(html, ['application/rss+xml', 'application/atom+xml']);
