@@ -9,7 +9,16 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## DEPLOY POLICY (do not forget)
+- **Pushing to main does NOT deploy.** vercel.json sets `git.deploymentEnabled=false`
+  (b73a855, "manual deployments only") — a deliberate guard against concurrent sessions
+  shipping half-finished states. Production ships only via `vercel deploy --prod --yes`
+  (CLI is authenticated as georgikostov). Verify the live API after every deploy.
+
 ## Where things stand (2026-07-14 latest+3 — VIEWPORT-NATIVE MAP SHIPPED, radius retired)
+- **Deployed to production 2026-07-14 ~14:30Z** (dpl_B2sLnRFxTTF31g5NZPZCAbD3imrt → www.okolo.events)
+  and live-verified: pins 48 KB/107 rows incl. 46 places (was 10.7 MB/23,937), cells 2 KB for
+  all-AT (20,664 events → 37 cells), ?q= works, no-bbox → 400.
 - **The app now loads what the map shows, not the planet** (ced9e73; decision doc
   2026-07-14-viewport-data-loading.md). PostGIS geom+GiST live on prod; /api/events?view=map is
   zoom-tiered (pins ≥11.5 with LIMIT 800 places-first, grid cells below — constant cost at any
