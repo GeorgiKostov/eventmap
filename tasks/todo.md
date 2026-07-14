@@ -329,6 +329,22 @@ Critical/Major against the code, then fixed all. Build green, 52 tests pass (+3 
 ## Growth & go-to-market (strategy: docs/strategy/growth-and-social.md, 2026-07-13)
 
 ### Weekly growth engine SHIPPED 2026-07-14 (system doc: docs/strategy/growth-system.md)
+- [x] **Phase 2 — the digest is a permanent public page** (George: "sharable page per city
+      per week so we reuse the content and have a nice SEO output"). `/weekend/<city>/<friday>`
+      renders the SAME frozen snapshot the mail and the carousel read: schema.org ItemList of
+      Events, own descriptions, in the sitemap, og:image = that weekend's carousel cover (card route
+      gained `&weekend=` so an old page keeps its own cover). `/weekend/<city>` (no date) always
+      redirects to the current weekend — the stable URL for a bio/QR poster/pinned group message.
+      Past weekends stay up as an archive. Guards: <3 picks ⇒ noindex (a stack of thin city pages is
+      a doorway farm); a past weekend links only still-published events (no link-to-404s). Caught by
+      rendering it: JSON-LD had NO startDate — schema.org Event requires it and Google rejects the
+      WHOLE rich result, so all 9 events would have been invisible. Snapshots now carry startsAt/
+      endsAt; jsonLd() drops any dateless item rather than emit a broken Event. (6e026ea)
+- [x] **Digest length is quality-gated**, not fixed: floor 5, ceiling 9 (IG allows 1 cover + 9
+      slides). Above the floor a pick must still clear the family lens. A thin weekend reads short,
+      never padded. Interests picker REMOVED from signup (asked a question the send ignored).
+      Cron points at Linz only — the other 9 channels are ready but have no handle/audience.
+      Measured cost: ~1.2¢ per city per week (2.3k in + 700 out, Sonnet) = 61¢/yr for Linz. (6605107)
 - [x] **The whole Thursday flow is built and driven end-to-end**: channel registry
       (`lib/city-channels.js`, 10 cities DE+BG) → weekend-picks query (`weekendPicks()`, PostGIS
       ST_DWithin + DISTINCT ON title so a series can't fill the digest) → AI copy

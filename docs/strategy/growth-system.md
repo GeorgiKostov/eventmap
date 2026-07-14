@@ -33,6 +33,21 @@ costs ten minutes, so the only remaining input is George showing up in the place
 measure nothing. A retention metric over zero users is not a small signal, it is no signal. Audience
 seeding is not "marketing to do later" — it is *step one of the validation test*.
 
+## 2b. The weekly page (phase 2 — shipped 2026-07-14)
+
+Every digest is also a permanent URL: `/weekend/<city>/<friday>`. Same content, three jobs the map
+can't do — a link that **unfurls** (with that weekend's carousel cover) when pasted into a WhatsApp
+or Facebook group; an **indexable** page for the query parents actually type ("was ist los in Linz am
+Wochenende"), carrying schema.org Event data and internal links to our event pages; and an **archive**
+that keeps its inbound links. `/weekend/<city>` with no date always redirects to the current weekend —
+that is the URL for the bio, the QR poster, and the pinned group message, because it never goes stale.
+
+Why it matters more than it looks: it is the only part of the engine that **compounds**. A post is
+gone in a day and an email is read once, but 52 weeks × the cities you actually run is a growing body
+of unique, local, structured content no aggregator has — produced as a byproduct of the ten minutes
+you already spend on Thursday. Guardrails so it stays an asset and not a penalty: a weekend with
+fewer than 3 picks is `noindex`, and a past weekend links only the events still published.
+
 ## 3. The loop
 
 ```
