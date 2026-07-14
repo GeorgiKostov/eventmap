@@ -2,6 +2,47 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — Nine copies of one helper, each missing a different piece; and the bug report was half wrong
+
+The task said two bugs. **One was ours, one was the source's, and only reading the raw page told them apart.**
+
+**Ours:** 66 published titles carried raw entity text ("Sommerfest &#8211; Kramer in der Au"). Cause:
+**nine** hand-rolled `decodeEntities` implementations (one per adapter, plus crawl.mjs and
+probe-sources.mjs), each with a different partial list of named entities — and only two of the nine
+handled NUMERIC references at all. So `&#8211;`, the en-dash that appears in half of all German event
+titles, survived every path that hadn't happened to spell it out. WordPress makes this the *default*
+case: it entity-encodes inside JSON-LD and RSS, where `JSON.parse`/XML parsing decode their own
+escapes but never HTML's — so "the parser is clean" is not the same as "the text is clean".
+
+**Not ours:** the reported "text bled in from the next element" (`…der ErdeDie progressiven
+Nostalgiker`) is published *by krenglbach.at itself* — its own JSON-LD `name` field and its own
+share-link carry the identical corrupted string. We stored faithfully what they served. I nearly
+"fixed" our parser for a bug our parser did not have. (This is the Stuttgart-robots lesson again:
+**replay the inherited diagnosis against the raw source before writing the fix.**) It stays as
+published — repairing a source's text by inference is fabrication, and hard rule 5 cuts both ways.
+
+**Two traps in the cleanup itself, both caught by dry-running against prod:**
+(a) A first pass would have rewritten `content_hash` on **28,568** rows — every row still carrying the
+pre-2026-07 legacy hash. But `upsertEvent`'s legacy path re-matches those *deliberately* (exact
+`starts_at` + non-conflicting venue), which tolerates a row whose venue was null when written.
+Blindly re-hashing them would break that match and let the next crawl insert a second copy —
+manufacturing the very duplicates the script existed to remove. Legacy hashes are not corrupt;
+entity/whitespace hashes are. **Touch only what is actually broken.**
+(b) The obvious follow-up — "re-run merge-dups" — would have **destroyed data**. It clusters by
+same-day + similar title and keeps the *oldest* id, and 85 of its 453 clusters merge rows with
+*different start times*: it would have kept "Sachkundenachweis" at a placeholder 09:00 and deleted the
+row carrying the real 18:30. A dedup tool's canonical-choice rule is a data-quality decision, not a
+tiebreak. **Read a destructive tool's dry run row by row before believing its summary line.**
+
+**Lessons:** (1) N copies of one helper is N different behaviours — the third copy is where it stops
+being duplication and starts being drift; put it in one module (`lib/entities.js`) and, for a
+cross-cutting invariant, enforce it at the **single write boundary** (`upsertEvent`) so no future
+adapter can bypass it — same rule as `kid-cats.js`, same rule as the age coercion already sitting
+there; (2) don't trust the *category* of a bug report ("our selector is wrong") over the raw evidence;
+(3) a hash computed from user-visible text must be recomputed whenever that text is normalized —
+`hashPart()` strips non-alphanumerics, so `&#8211;` was silently contributing a literal "8211" to
+every affected row's identity.
+
 ## 2026-07-14 — A confidently wrong pin is worse than an honest approximate one; and a registry seeded under a broken rule outlives it
 
 Chasing the biggest unresolved venues, "Bühne 1/2/3" (175+ events) turned out to be *stages inside

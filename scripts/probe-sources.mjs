@@ -17,6 +17,7 @@
 import fs from 'fs';
 import path from 'path';
 import { listSourcesForDedup, closeDb } from '../lib/db.js';
+import { decodeEntities } from '../lib/entities.js';
 
 const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
 const BOT_TOKEN = 'umkreisbot';
@@ -144,9 +145,6 @@ const COMMON_PATHS = [
 // href attribute values are HTML-entity-encoded in the markup (query strings
 // commonly carry "&amp;") — decode before resolving or "&amp;menuonr=" turns
 // into a literal "amp;menuonr" param, silently breaking RIS/GEM2GO deep links.
-function decodeEntities(s) {
-  return s.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-}
 function extractHrefs(html, base) {
   const hrefs = [...html.matchAll(/href="([^"]+)"/gi)].map((m) => decodeEntities(m[1]));
   const abs = [];

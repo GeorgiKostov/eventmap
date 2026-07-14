@@ -17,6 +17,27 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-14 latest+5 — text hygiene + TWO data-integrity landmines found)
+- **One entity decoder now** (`lib/entities.js`), replacing NINE partial hand-rolled copies (7 adapters
+  + crawl.mjs + probe-sources.mjs) of which only 2 handled numeric refs — so `&#8211;` (the en-dash in
+  half of all German titles) reached 66 published titles. WordPress entity-encodes *inside* JSON-LD/RSS,
+  so a clean parser ≠ clean text. Enforced at the single write boundary (`upsertEvent` → `cleanText`),
+  like the age coercion already there, so no future adapter can bypass it. Prod cleaned via
+  `scripts/fix-entities.mjs` (dry-run default): 298 rows normalized + re-hashed, 20 provably-identical
+  dupes merged (identical recomputed content_hash), 0 entity rows left; re-crawl verified idempotent.
+- **The reported "text bleed" was NOT our bug** — krenglbach.at's own JSON-LD publishes
+  "…der ErdeDie progressiven Nostalgiker". We store it faithfully; repairing it by inference would be
+  fabrication. (Stuttgart-robots lesson again: replay the diagnosis against the raw source first.)
+- **🚨 The crawler FABRICATES a start time.** `crawl.mjs:962` = `T${time || '09:00'}` → **12,052 of
+  31,349 events (38%) sit at exactly 09:00**, i.e. "no time published" is shown to parents as "starts
+  9:00". Hard-rule-5 violation at scale. Spawned as its own task; needs an honest encoding threaded
+  through contentHash/expire/filters/digest.
+- **🚨 `scripts/merge-dups.mjs --write` is currently DESTRUCTIVE — do not run it.** Its dry run wanted
+  to delete 500 rows; it keeps the OLDEST id as canonical, and 85 of 453 clusters merge different start
+  times — it would keep a placeholder 09:00 row and delete the row carrying the real 18:30 (verified:
+  Sachkundenachweis, Pflasterspektakel), and keep a canonical row with a wrong town. Fix its
+  canonical-choice rule (prefer the most precise row) *after* the 09:00 fix.
+
 ## Where things stand (2026-07-14 latest+4 — family/kids supply + the filter that hid it)
 - **All researched family/nature/Verein sources are live and crawled: 495 events, 347 family-tagged.**
   FRida&freD 144 · Kalkalpen 99 · Naturfreunde 65 · Kinderfreunde 60 · Alpenverein Jugend&Familie

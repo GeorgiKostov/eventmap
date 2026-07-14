@@ -422,6 +422,39 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - Rejected: per-event Google search as the opener (venue-first is ~10× cheaper); Mamilade/
   alpenvereinaktiv/bergfex/komoot as sources (ToS/commercial — partnership conversations only).
 
+## Text hygiene / entity decoding (2026-07-14) — SHIPPED
+- [x] **One entity decoder** (`lib/entities.js`) replaces the NINE partial hand-rolled copies (7
+      adapters + crawl.mjs + probe-sources.mjs); only 2 of the 9 handled numeric refs, so `&#8211;`
+      reached 66 published titles. Enforced at the single write boundary (`upsertEvent` → `cleanText`
+      on title/description/venue/address/town), so no future adapter can bypass it. 10 unit tests.
+- [x] **Cleanup applied to prod** (`scripts/fix-entities.mjs`, dry-run default): 298 rows normalized
+      (decode + trim/collapse + re-hash), 20 provably-identical duplicates merged into the older row
+      (identical recomputed content_hash = same title/day/time/town/venue; enrich-then-delete).
+      Verified idempotent: full re-extraction of Krenglbach upserted 12/12 with zero new rows.
+      DB now: 0 entity-bearing rows, 0 untrimmed titles.
+- [x] Deliberately NOT done: mass-rewriting the ~28k rows that still carry the legacy hash format —
+      `upsertEvent`'s legacy path re-matches those on purpose (exact starts_at + non-conflicting
+      venue); re-hashing them would break the match and let the next crawl duplicate them.
+- [ ] **`Gemeinde Krenglbach` publishes a corrupted title itself** — krenglbach.at's own JSON-LD
+      `name` reads "…der ErdeDie progressiven Nostalgiker" (their WordPress welds the next event's
+      title on; their share-link carries the same string). NOT our bug; we store it faithfully. Event
+      #1894 is the visible copy, duplicating the clean #805. Options: mail the Gemeinde, or add a
+      source-specific title guard. **Do not "repair" it by inference — that is fabrication.**
+
+## ⚠ Do not run `scripts/merge-dups.mjs --write` until the 09:00 bug is fixed (2026-07-14)
+- [ ] **The crawler fabricates a start time**: `crawl.mjs:962` writes `T${time || '09:00'}` — so
+      **12,052 of ~31,300 events (38%)** sit at exactly 09:00, i.e. "no time published" is shown to
+      parents as "starts at 9:00". Straight hard-rule-5 violation (unknown ⇒ null, never a guess).
+      Fix needs an honest encoding (date-only `starts_at` + `all_day`, or a null time) threaded
+      through contentHash / expireFinished / the filters / digest / JSON-LD. **Spawned as its own task.**
+- [ ] **merge-dups is unsafe because of it**: it clusters same-day + similar-title and keeps the
+      OLDEST id, so 85 of its 453 clusters merge rows with *different* start times — it would keep
+      "Sachkundenachweis" at the placeholder 09:00 and DELETE the row holding the real 18:30 (same for
+      Pflasterspektakel 09:00 vs 16:00), and keep a canonical row whose town is plain wrong ("4. Tag
+      des Living Pools!" #144 = Alkoven, from a Kematen source). Its canonical-choice rule must prefer
+      the most *precise* row (real time, venue precision), not the lowest id. 500 rows were one
+      `--write` away from deletion.
+
 ## Source & parser coverage (2026-07-14, Gemini code review — triaged, kept the useful half)
 - [ ] **Fingerprint the unclassified sources — do this BEFORE writing any new parser.** Mined catalogs
       show `cms` = gem2go 1275 / **other 447 / unknown 408** / custom 53 / ris 29. The 855 unclassified
