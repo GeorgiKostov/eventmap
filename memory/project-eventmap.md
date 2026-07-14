@@ -17,6 +17,29 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-14 latest+4 — family/kids supply + the filter that hid it)
+- **All researched family/nature/Verein sources are live and crawled: 495 events, 347 family-tagged.**
+  FRida&freD 144 · Kalkalpen 99 · Naturfreunde 65 · Kinderfreunde 60 · Alpenverein Jugend&Familie
+  (Linz/Graz/Ibk) 35 · dioceses 30 · Donau-Auen 13 · Familienbund 10 · libraries 22 · ASVÖ 7.
+  Total family-tagged events in DB: 2,328.
+- **THE BIG ONE: "For kids" was deleting 1,268 of 1,269 places** (every playground/pool/zoo) —
+  its predicate predated the `place` kind. George's instinct ("things that fit kids aren't tagged")
+  was right, but the cause was a stale predicate, not the taxonomy: removing the filter would have
+  destroyed the product's core lens and left the bug. `lib/kid-cats.js` is now the ONE definition
+  (server SQL + client list had drifted into two). Live-verified: 2,634 → 3,483 results, 1 → 849
+  places. Open call for George: museum/park in or out?
+- **`sources.default_categories`**: the extractor reads an EVENT's words, not its publisher's
+  identity — a children's museum's 144 events extracted as `culture`. Source-level tags now append
+  at crawl time (single-audience sources only; forcing `family` on a diocese would be rule-5
+  fabrication in the category column). Backfill must join on source_name, NOT source_url (most
+  adapters store the event permalink there — that silently missed OÖ Familienbund).
+- **enrich_attempted_at** makes enrichment resumable/cron-able: a killed run used to restart at the
+  top of a stable ordering and re-pay the model for pages already proven location-less (resolved 0
+  of its first 250). Now stamped on FETCH; re-runs skip 1,188 in 1.6 min instead of 78.
+- Enrichment yield so far: zone town-precision 4,575 → 3,727. venue-search.mjs (Grok CLI, $0,
+  web-search, verified on Posthof) is BUILT and ready — run it alone (Nominatim budget) once the
+  LLM pass finishes.
+
 ## Where things stand (2026-07-14 latest+3 — VIEWPORT-NATIVE MAP SHIPPED, radius retired)
 - **Deployed to production 2026-07-14 ~14:30Z** (dpl_B2sLnRFxTTF31g5NZPZCAbD3imrt → www.okolo.events)
   and live-verified: pins 48 KB/107 rows incl. 46 places (was 10.7 MB/23,937), cells 2 KB for

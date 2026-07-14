@@ -20,6 +20,29 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] Later, if EU dataset outgrows grid cells: MVT vector tiles (ST_AsMVT), CDN-cached. pg_trgm +
       GIN for search >100k rows.
 
+## Family/kids quality (2026-07-14, George: "not tagged as kids but family — remove the kids tag?")
+- [x] **"For kids" was HIDING every playground** — the predicate (`age_min IS NOT NULL OR family =
+      ANY(cats)`) predated the `place` kind, so it deleted **1,268 of 1,269 places** (all playgrounds,
+      pools, zoos, indoor play). Answer to George: don't remove the filter (it's the product thesis,
+      and there is no separate "kids" tag — the chip already means family-OR-age-range); fix the
+      definition. `lib/kid-cats.js` = single predicate for server SQL + client list (they had drifted
+      into two implementations). Kid places = playground/indoor_play/zoo/pool/climbing/park; museum
+      + trail deliberately excluded (adult venues / needs family_suitable attr). Verified live:
+      For-kids results 2,634 → 3,483, places 1 → 849, API returns 25 places for Linz. (6cd13b0)
+- [x] **`sources.default_categories`** — a children's museum publishes kids events even when the
+      event text never says "kids" (144 FRida events extracted as `culture`, invisible to the filter).
+      Source-level categories appended at crawl time + backfilled. Set only for unambiguously
+      single-audience sources; NOT dioceses/libraries/Naturparks (that would be hard-rule-5
+      fabrication in the category column). Backfill joins on source_name — source_url holds the
+      EVENT permalink for most adapters. (3ac0e47, ae335fa)
+- [x] Duplicate FRida source (2905) deactivated — 1717 already crawls it since 2026-07-12.
+- [ ] **Open call for George:** should `museum` and/or `park` count as "For kids" places? Currently
+      park=yes, museum=no. One-line change in `lib/kid-cats.js`.
+- [ ] **Erzdiözese Wien is structurally low-yield**: its listing shows only a rolling "today" window
+      (18 events ingested, all 06:00–07:30 masses, expired within hours) and its date-navigation URLs
+      are robots-blocked. Left registered (1 fetch/day) but it will contribute ~nothing. Other 4
+      dioceses fine.
+
 ## Feedback signals (2026-07-14, George: "ratings + likes + comments? what do you recommend")
 - [x] **Interested / Save** on events + places — anonymous one tap, save in localStorage (works at
       zero traffic, no account), server keeps only the aggregate. Count hidden below
