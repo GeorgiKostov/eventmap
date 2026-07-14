@@ -2,6 +2,33 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — A confidently wrong pin is worse than an honest approximate one; and a registry seeded under a broken rule outlives it
+
+Chasing the biggest unresolved venues, "Bühne 1/2/3" (175+ events) turned out to be *stages inside
+Dschungel Wien*, a children's theatre in the MuseumsQuartier — the venue was never in the event
+text at all, it was the **publisher's identity** (→ `sources.default_venue`, same shape as
+`default_categories`). But fixing that exposed two deeper bugs:
+
+**(1) Only one of geocodeEvent's precise rungs was bounded.** `poiQuery` has required a hit to be
+within 15km of the expected town since the generic-names lesson (2026-07-11) — but the plain
+`address` and `venue+town` rungs never did. So a generic string could match a same-named place
+anywhere in the country and be stored at full **venue precision**: "Bühne 3" landed 24km outside
+Vienna. **A precisely-wrong pin is strictly worse than a town centroid** — the approx ring is the
+signal that tells a user to check the source, and a confident pin removes it. Every precise rung
+is now bounded (`TOWN_BOUND_KM`).
+
+**(2) The venues registry had been SEEDED from data produced under that broken rule.**
+`migrate-venues.mjs` seeded it from events already at venue precision — including the misplaced
+ones. The registry rung returns *before* any bound check (that is the entire point of a registry),
+so each poisoned row was served forever and survived every recrawl. 254 rows were beyond the
+bound, up to **446km** off (Brand / Egg / Kematen — Austrian town names that repeat).
+**Lessons:** (a) when you introduce a cache/registry, ask what rule produced the data you are
+seeding it with, and re-validate the seed against the CURRENT rules — this is the negative-geocache
+lesson (2026-07-11) in a new costume, and it will keep coming back; (b) a lookup layer that
+short-circuits validation must be *provably* clean, because nothing downstream will ever check it
+again; (c) delete, don't "correct", a row whose fields contradict each other by 400km — when venue
+and town disagree that badly you cannot know which is wrong, so let the pipeline re-derive it.
+
 ## 2026-07-14 — Build the surface that shows you your data, and it will show you your data
 
 The first run of the new weekly digest picked, as the **#1 family event for Linz this weekend**, a row
