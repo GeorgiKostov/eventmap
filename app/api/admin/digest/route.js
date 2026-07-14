@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getChannel, CHANNELS, channelForPoint } from '../../../../lib/city-channels.js';
 import { loadOrBuildDigest, saveDigest, applyDrop, renderNewsletter, renderCaption } from '../../../../lib/digest.js';
 import { confirmedSubscribers, metaGet, metaSet } from '../../../../lib/db.js';
-import { sendNewsletter } from '../../../../lib/mail.js';
+import { sendNewsletter, mailConfigured } from '../../../../lib/mail.js';
 import { isAdmin } from '../../../../lib/admin-auth.js';
 
 // The Thursday flow's engine (docs/ops/weekly-automation.md). One route:
@@ -88,16 +88,16 @@ export async function POST(req) {
       return NextResponse.json({ error: 'already sent for this weekend', sentAt: await metaGet(key) }, { status: 409 });
     }
 
-    // sendNewsletter() is a no-op returning false when SMTP isn't configured.
-    // Reporting "sent to 40 subscribers" when nothing left the building is the
-    // worst possible lie for this button — fail loudly instead.
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      return NextResponse.json({ error: 'SMTP not configured — nothing was sent. Set SMTP_USER / SMTP_PASS.' }, { status: 503 });
+    // sendNewsletter() returns false when no provider is configured. Reporting
+    // "sent to 40 subscribers" when nothing left the building is the worst
+    // possible lie for this button — fail loudly instead.
+    if (!mailConfigured()) {
+      return NextResponse.json({ error: 'No mail provider — nothing was sent. Set RESEND_API_KEY or SMTP_USER/SMTP_PASS.' }, { status: 503 });
     }
 
     const audience = audienceFor(channel, await confirmedSubscribers());
     if (body.test) {
-      const to = process.env.NOTIFY_TO || process.env.SMTP_USER;
+      const to = process.env.NOTIFY_TO || process.env.SMTP_USER || process.env.MAIL_FROM;
       const url = `${BASE}/api/subscribe/unsubscribe?token=TEST`;
       const mail = renderNewsletter(digest, { unsubscribeUrl: url });
       const ok = await sendNewsletter({ to, ...mail, unsubscribeUrl: url });

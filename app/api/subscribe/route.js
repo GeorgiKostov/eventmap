@@ -19,18 +19,21 @@ const MESSAGES = {
     invalid: 'Bitte eine gültige E-Mail-Adresse eingeben.',
     invalidArea: 'Bitte einen gültigen Ort oder eine Postleitzahl auswählen.',
     invalidPreferences: 'Bitte wähle nur gültige Interessen aus.',
+    mailDown: 'Anmeldung momentan nicht möglich — bitte später erneut versuchen.',
   },
   en: {
     limited: 'Too many requests — please try again later.',
     invalid: 'Please enter a valid email address.',
     invalidArea: 'Please choose a valid town or postcode.',
     invalidPreferences: 'Please choose valid interests.',
+    mailDown: 'Sign-up isn’t available right now — please try again later.',
   },
   bg: {
     limited: 'Твърде много заявки — опитай отново по-късно.',
     invalid: 'Въведи валиден имейл адрес.',
     invalidArea: 'Избери валиден град или пощенски код.',
     invalidPreferences: 'Избери валидни интереси.',
+    mailDown: 'Записването не е възможно в момента — опитай отново по-късно.',
   },
 };
 
@@ -81,7 +84,18 @@ export async function POST(req) {
   if (pending && token) {
     const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
     const confirmUrl = `${base}/api/subscribe/confirm?token=${encodeURIComponent(token)}&lang=${lang || 'en'}`;
-    await sendSubscriberConfirm(email, { lang, confirmUrl });
+    const delivered = await sendSubscriberConfirm(email, { lang, confirmUrl });
+
+    // If the mail did NOT go out, do not tell them to check their inbox. The UI
+    // reads `pending` and says "we've sent you an email — click the link", so a
+    // silent false here leaves a real person waiting for a mail that does not
+    // exist, and their signup can never be confirmed. An honest 503 is worse for
+    // one signup and far better for trust — and it's the difference between a
+    // misconfiguration we notice and one we don't.
+    if (!delivered) {
+      console.error('[subscribe] no mail provider accepted the confirmation — set RESEND_API_KEY or SMTP_USER/SMTP_PASS');
+      return NextResponse.json({ error: msg.mailDown }, { status: 503 });
+    }
     await notifyNewSubscriber(email, { lang, source: 'newsletter_popup' });
   }
   return NextResponse.json({ ok: true, pending });

@@ -870,14 +870,33 @@ export default function Home() {
       let location = nl.areaLat != null && nl.areaLng != null
         ? { label: area, lat: nl.areaLat, lng: nl.areaLng }
         : null;
+      // Resolve from the local gazetteer first — it holds every city we cover,
+      // with coordinates, so a typed "Linz"/"София" needs NO network call. Most
+      // signups land here instantly; only an off-list village falls through.
       if (!location) {
-        // Try the UI-language country first, then the other — the map covers
-        // both AT and BG, so a Bulgarian-speaker in Linz (or vice versa) must
-        // not be told their real town is invalid just because of the language.
+        const hit = searchPlaces(area, { limit: 1 })[0];
+        if (hit && normalizePlace(hit.label) === normalizePlace(area)) {
+          location = { label: hit.label, lat: hit.lat, lng: hit.lng };
+        }
+      }
+      if (!location) {
+        // Network fallback for the long tail. BOTH the AT and BG lookups are
+        // bounded: /api/geocode hits Nominatim, which is globally rate-limited to
+        // ~1 req/s and CAN hang — an unbounded fetch here is exactly why the
+        // button spun forever. On timeout we treat the town as unresolved and
+        // fail loudly, rather than leaving the user stuck.
         const tryGeo = async (country) => {
-          const geoRes = await fetch(`/api/geocode?q=${encodeURIComponent(area)}&country=${country}`);
-          const geoData = await geoRes.json();
-          return geoRes.ok ? geoData.result : null;
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 6000);
+          try {
+            const geoRes = await fetch(`/api/geocode?q=${encodeURIComponent(area)}&country=${country}`, { signal: ctrl.signal });
+            const geoData = await geoRes.json();
+            return geoRes.ok ? geoData.result : null;
+          } catch {
+            return null; // aborted or network error — treat as "not found"
+          } finally {
+            clearTimeout(timer);
+          }
         };
         const primary = lang === 'bg' ? 'BG' : 'AT';
         location = await tryGeo(primary) || await tryGeo(primary === 'AT' ? 'BG' : 'AT');
