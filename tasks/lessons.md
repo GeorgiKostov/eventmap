@@ -2,6 +2,26 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — The one filter our users care about was hiding what they came for
+
+George: "a lot of events and locations which would fit for kids are not tagged as kids" — and
+proposed dropping the "For kids" filter to stop frustrating people. Measuring first turned a
+tagging question into a **bug**: the kids predicate was `age_min IS NOT NULL OR 'family' =
+ANY(categories)`, written before the `place` kind existed. Places carry `playground`/`pool`/`zoo`
+— never `family`, never an age range — so switching on "For kids" **deleted 1,268 of 1,269
+places, including every playground**. On a families-first product, the single filter a parent
+reaches for was removing exactly what they came for. (Also learned: a children's museum's 144
+events extracted as `culture`, because the extractor reads the EVENT's words, not the publisher's
+identity → `sources.default_categories`.)
+**Lessons:** (1) when a user reports a *tagging* smell, measure before agreeing to the *taxonomy*
+fix they propose — the cause was a stale predicate, and removing the filter would have destroyed
+the product's core lens while leaving the real bug in place; (2) this is the sentinel-value lesson
+again in a new costume — a new data class (`kind='place'`) landed and nobody re-checked the
+consumers reading `categories`/`age_min`; **grep every consumer of a field when you add a class
+that populates it differently**; (3) one predicate implemented twice (server SQL + client list)
+WILL drift — when it does, the server ships rows the client hides, which reads as data loss.
+Extract it (`lib/kid-cats.js`) rather than keeping them in sync by discipline.
+
 ## 2026-07-14 — A marker-bounded block-slice refactor swallowed a function; green checks proved nothing
 
 Extracting the politeness layer from crawl.mjs into lib/crawl-net.js, I removed "everything from
