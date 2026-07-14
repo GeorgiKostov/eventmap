@@ -68,7 +68,46 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   Sachkundenachweis, Pflasterspektakel), and keep a canonical row with a wrong town. Fix its
   canonical-choice rule (prefer the most precise row) *after* the 09:00 fix.
 
-## Where things stand (2026-07-14 latest+4 — family/kids supply + the filter that hid it)
+## Where things stand (2026-07-14 FINAL — honest map, family supply, geocode integrity)
+**Numbers:** 1,824 sources (1,743 working, 0 dead) · 23,743 published events · 1,269 places ·
+2,589 family-tagged. AT 20,482 / BG 2,486 / DE 775.
+
+**THE COST LEVER, unchanged and un-pulled:** 813 working sources still resolve via the **LLM route**
+vs 790 deterministic GEM2GO. ~half of all sources cost a model call *every crawl*. The national probe
+classified sources from **URLs only, never fetching HTML**, leaving ~1,027 unclassified — the CMS
+fingerprint sweep is the highest-value pipeline task outstanding, and it is also the biggest coverage
+lever for the thin Graz ring. **Do this before anything else on scraping.**
+
+**The map no longer lies about where things are.** Half of all events know only a town. We used to
+draw each as a pin with a random ±300m jitter — inventing a coordinate for ~11k events. Now: jitter
+gone, 10,661 rows snapped to the true centroid, and town-level events collapse into ONE dashed bubble
+per town ("N events in Ottensheim", tap → list, "Genauer Ort nicht angegeben"). Grammar reused, not
+invented: dashed already meant approximate, bubble+count already meant many. Online events (395) off
+the map entirely, still in list+search. **George owes one real-browser tap on a dashed bubble** —
+the only unverified path.
+
+**Geocode integrity (the deepest bugs of the day):** only ONE of geocodeEvent's precise rungs was
+town-bounded, so generic venue names were placed anywhere in Austria at full venue precision — and
+those wrong coords had been SEEDED into the venues registry, which returns *before* validation. 254
+poisoned rows, up to 446km off, served on every recrawl. All rungs bounded now; `prune-venues.mjs`
+exists for the next time a rule changes. **A cache/registry seeded under a broken rule outlives the
+rule** — re-validate on every rule change.
+
+**Family supply: 495 events from the new sources** (FRida&freD 144, Kalkalpen 99, Naturfreunde 65,
+Kinderfreunde 60, Alpenverein 35, dioceses 30, Donau-Auen 13, Familienbund 10, libraries 22, ASVÖ 7).
+Diocese "siteswift" = the second GEM2GO-class cluster (6 of 9 dioceses, one adapter).
+`sources.default_categories` (a children's museum's events ARE family events even when the text never
+says so) and `sources.default_venue` (a theatre names the ROOM — "Bühne 1" is inside Dschungel Wien).
+
+**"For kids" now includes museums** (George). 1,254/1,269 places pass; only `trail` out pending the
+family_suitable attribute. Insight worth keeping: our places catalogue was MINED as family places, so
+per-category re-litigation was hiding our own curation.
+
+**Still running / next:** `venue-search.mjs` (767 unique venues, Grok CLI $0, ~2min each, resumable,
+0 errors) — leave it chipping. Then: CMS fingerprint sweep. Partnerships tracker with drafts:
+docs/partnerships/README.md (George sends; feratel Deskline is the highest-leverage new one).
+
+## Where things stand (2026-07-14 — family/kids supply + the filter that hid it)
 - **All researched family/nature/Verein sources are live and crawled: 495 events, 347 family-tagged.**
   FRida&freD 144 · Kalkalpen 99 · Naturfreunde 65 · Kinderfreunde 60 · Alpenverein Jugend&Familie
   (Linz/Graz/Ibk) 35 · dioceses 30 · Donau-Auen 13 · Familienbund 10 · libraries 22 · ASVÖ 7.
