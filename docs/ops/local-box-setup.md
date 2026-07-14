@@ -10,15 +10,40 @@ architecture), [`docs/design/data-pipeline.md`](../design/data-pipeline.md) (wha
 Everything below assumes the box reaches the internet and can hold ~150 GB (country extracts) or
 ~1 TB NVMe free (full Europe, later).
 
-## 0. OS layer
+## 0. OS layer — Windows walkthrough (George's box runs Windows)
 
-- **Linux (Ubuntu 24.04 LTS)** is the straight path — everything below is native.
-- **Windows:** use **WSL2 + Ubuntu** with Docker Desktop (WSL2 backend). Two WSL2 gotchas:
-  - Put the repo and all Docker volumes **inside the WSL filesystem** (`~/…`), never on `/mnt/c`
-    — NTFS passthrough murders Nominatim import performance.
-  - Enable systemd in WSL (`/etc/wsl.conf` → `[boot] systemd=true`) so the timer units below work;
-    otherwise schedule via Windows Task Scheduler calling `wsl.exe -e …`.
-- Give WSL2/Docker enough headroom: `.wslconfig` → `memory=48GB`, and let Docker use it.
+Nobody can install this remotely — but every step below is copy-paste, and once the repo is
+cloned you can open a Claude Code session **on the box itself** and let it drive the rest
+(`npm i -g @anthropic-ai/claude-code`, sign in, say "run docs/ops/local-box-setup.md").
+
+1. **WSL2 + Ubuntu** (admin PowerShell):
+   ```powershell
+   wsl --install -d Ubuntu-24.04     # reboot when prompted, set a unix user
+   ```
+2. **WSL config** — create `C:\Users\<you>\.wslconfig`:
+   ```ini
+   [wsl2]
+   memory=48GB
+   processors=12
+   swap=16GB
+   ```
+   Then `wsl --shutdown` once so it applies.
+3. **systemd in WSL** (for the timers in §4) — inside Ubuntu:
+   ```bash
+   printf '[boot]\nsystemd=true\n' | sudo tee /etc/wsl.conf
+   ```
+   and `wsl --shutdown` again from PowerShell.
+4. **Docker Desktop for Windows** — download from docker.com, install with the **WSL2 backend**
+   (default), and in Settings → Resources → WSL integration enable the Ubuntu distro.
+   Settings → General → "Start Docker Desktop when you sign in" ON (the Nominatim container
+   must survive reboots; `--restart unless-stopped` handles the rest).
+5. **The two NTFS rules:** repo and all Docker volumes live **inside the WSL filesystem**
+   (`~/…`), never on `/mnt/c` — NTFS passthrough murders Nominatim import performance. And run
+   all commands below inside the Ubuntu shell, not PowerShell.
+6. **Sleep settings:** Windows Settings → Power → never sleep on AC (a sleeping box misses its
+   crawl timer; `Persistent=true` in §4 catches up, but a box that's awake is better).
+
+Native **Linux (Ubuntu 24.04)** remains the zero-caveat path if this PC ever gets repurposed.
 
 ## 1. Repo + runtime
 
@@ -105,6 +130,34 @@ docker run -d --name photon --restart unless-stopped -p 2322:2322 \
 
 The suggest endpoint (`app/api/geocode/route.js`) currently hardcodes komoot's public instance —
 wiring a `PHOTON_URL` env is a 5-line change to make when this becomes real.
+
+## 3b. Local LLM (Ollama) — the $0 extraction fallback
+
+The crawl's LLM route only fires when nothing structured matched (~a minority of sources), so
+this is about independence and rate-limit immunity more than cost. The provider is already wired:
+`EXTRACT_PROVIDER=ollama` in `lib/extract.js`, with automatic fall-through to Gemini→Claude if
+Ollama is down — a stopped model can never break a crawl.
+
+```bash
+# inside Ubuntu/WSL — native installer (no Docker needed; GPU acceleration works via WSL2
+# if the box has an NVIDIA card, otherwise it runs CPU-only, which is fine for nightly batch)
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull qwen2.5:14b            # ~9 GB; strong German/Bulgarian, fits easily in 64 GB RAM
+```
+
+Add to `.env.local` on the box:
+
+```bash
+EXTRACT_PROVIDER=ollama
+OLLAMA_URL=http://localhost:11434   # default; change if Ollama runs elsewhere
+OLLAMA_MODEL=qwen2.5:14b
+```
+
+**Before trusting it**, benchmark against Gemini on real pages: crawl ~20 LLM-route sources with
+and without `EXTRACT_PROVIDER=ollama` and diff the extracted events (dates exact? venues not
+hallucinated? unknown fields null?). Hard rule 5 applies to local models exactly as to hosted
+ones — if the local model fabricates, it's out, regardless of price. Try `qwen2.5:32b` (~20 GB)
+if 14b quality disappoints; the box has the RAM.
 
 ## 4. Scheduled crawl — moving off GitHub Actions
 
