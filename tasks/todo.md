@@ -24,10 +24,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       radius filter / radius circle. Dropped pin draggable to fine-tune. One-time hint toast for
       discoverability. Gated by `addFlowActiveRef`; trailing synthetic click swallowed so it never
       fights tap-to-select. (f046f83)
-- [x] **Discoverability: hint at the moment of intent** — the drop-pin tip renders the instant the
-      location search opens (i.e. as the user is about to type a location, the very friction the
-      gesture removes). Reuses `dropPinHint`. Explicitly NOT in the legend: that's a pin-symbol key,
-      collapsed by default, nobody opens it mid-task. (0ca7ace)
+- [x] ~~Discoverability: hint at the moment of intent (search dropdown)~~ (0ca7ace) — **superseded:
+      George said it interfered.** The tip now shows only on an EMPTY result (`events` loaded &&
+      `filtered.length === 0`), as a small tooltip under the search bar; tap dismisses it for good
+      (localStorage `umkreis_droppin_hint`). The 3.5s-after-load toast is gone too — firing before the
+      user has any intent to move was the interference. Lesson: a tip belongs where it solves a
+      problem the user is currently having, not where they might one day need it. (cf4223c)
 
 ## Shipped (prototype v1 → v2, 2026-07-10)
 - [x] Scaffold Next.js + SQLite (Supabase-portable schema); MapLibre + OSM map.
