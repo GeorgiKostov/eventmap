@@ -47,6 +47,17 @@ Three structurally different sub-populations, needing three different fixes:
 ladder below does the same job at roughly 1/10th the lookups, and every rung feeds the one below
 so the expensive rung stays small.
 
+> **BUILT 2026-07-14.** Stages 0–2 and the LLM rung shipped and ran; Stage 3 (`scripts/venue-search.mjs`)
+> is built and verified, pending a clean run window. Measured effect so far: town-precision events in
+> the five zones **4,575 → 3,727** (51% → 41%). Cross-cutting lesson learned the expensive way, now
+> encoded as `events.enrich_attempted_at`: **a resumable enrichment pass must record that it looked
+> at a page, not just that it succeeded.** Without that stamp, a killed run restarts at the top of the
+> same stable ordering and re-fetches (and re-pays a model for) every page a prior run already proved
+> states no location — the first resumed `--llm` run resolved 0 of its first 250 events for exactly
+> this reason. The free registry rung still runs on every candidate, so a venue resolved later still
+> propagates to its siblings; only the network+tokens rung is gated (`--retry-after`, default 30d).
+> That gate is what makes the script safe to put on the cron.
+
 **Stage 0 — hygiene ($0, hours).**
 - `venue IN ('Online','Sonstige',…)` → treat as no venue: never geocode to a town centroid, and
   exclude online events from map pins (list-only, or an "online" badge). Add the strings to a
