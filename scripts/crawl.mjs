@@ -16,6 +16,7 @@ import {
   markSourceCrawled, updateSourceMeta, updateSourceStats, setSourceNote, closeDb,
 } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
+import { decodeEntities, stripTags } from '../lib/entities.js';
 import { extractFromPage } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
@@ -40,17 +41,14 @@ const CAT_EMOJI = {
 // crawl-net.js extraction accidentally removed it along with the politeness
 // block — every generic-shell source silently extracted zero until then.)
 function htmlToText(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|li|tr|h[1-6])>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&ouml;/g, 'ö').replace(/&auml;/g, 'ä').replace(/&uuml;/g, 'ü')
-    .replace(/&Ouml;/g, 'Ö').replace(/&Auml;/g, 'Ä').replace(/&Uuml;/g, 'Ü')
-    .replace(/&szlig;/g, 'ß')
+  return decodeEntities(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|div|li|tr|h[1-6])>/gi, '\n')
+      .replace(/<[^>]+>/g, ' '),
+  )
     .replace(/[ \t]+/g, ' ')
     .replace(/\n\s*\n+/g, '\n')
     .trim();
@@ -289,16 +287,6 @@ function freeFromText(text) {
   return /kostenlos|gratis|eintritt frei/i.test(text || '') ? true : null;
 }
 
-function decodeEntities(s) {
-  return (s || '')
-    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
-    .replace(/&ouml;/g, 'ö').replace(/&auml;/g, 'ä').replace(/&uuml;/g, 'ü')
-    .replace(/&Ouml;/g, 'Ö').replace(/&Auml;/g, 'Ä').replace(/&Uuml;/g, 'Ü')
-    .replace(/&szlig;/g, 'ß').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
-}
-function stripTags(s) {
-  return decodeEntities((s || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
-}
 function absUrl(href, base) {
   if (!href) return null;
   try { return new URL(href, base).toString(); } catch { return null; }
@@ -1006,7 +994,21 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
       };
       // Town-pin jitter is useful on the map but not while enforcing an exact
       // crawl boundary: use the real geocoder/centroid point for the decision.
-      const geo = await geocodeEvent(ev, { jitterTown: !scope });
+      let geo = await geocodeEvent(ev, { jitterTown: !scope });
+      // Single-venue publishers (a theatre, a museum) name the ROOM, not the
+      // house: Dschungel Wien's kids-theatre listings say "Bühne 1"/"Bühne 2",
+      // which no geocoder can place — 175 events sat on the Vienna centroid.
+      // The venue isn't in the event text, it's the publisher's identity, so
+      // fall back to the source's own address whenever the event's own location
+      // resolves no better than town level. A fact about the house, not a guess
+      // about the event (scripts/migrate-source-venue.mjs).
+      if ((!geo || geo.geo_precision === 'town') && src.default_venue) {
+        const houseGeo = await geocodeEvent(
+          { venue: src.default_venue, address: src.default_address, town: ev.town || src.town, country: ev.country },
+          { jitterTown: false },
+        );
+        if (houseGeo && houseGeo.geo_precision !== 'town') geo = houseGeo;
+      }
       if (!geo) continue;
       if (scope && !isWithinCrawlScope(geo, scope)) {
         outsideScope++;
