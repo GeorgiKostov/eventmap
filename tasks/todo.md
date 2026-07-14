@@ -285,6 +285,32 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       probe lands — `EXTRACT_PROVIDER=grok` batch crawl (needs `XAI_API_KEY` from console.x.ai — George;
       falls back to Gemini ~$6–15 one-time if no key). Provider already wired in lib/extract.js.
 
+## Crawl infra — EU/planet scale (docs/architecture/eu-scale-extraction.md, 2026-07-14)
+Items 1–7 are local-box/pipeline wins that make the *current* crawl cheaper and more reliable, so they
+are OK before the Linz gate. Country registration (item 8) is explicitly post-Linz.
+- [ ] **Raw page store** — content-addressed gzip blobs (`sha256(body)`); extraction reads the store,
+      never the network. Unblocks free re-extraction of everything after a parser/schema change
+      (today a parser bug means re-crawling the continent). ~2GB per EU snapshot.
+- [ ] **Self-host Nominatim + Photon** (Geofabrik Europe extract) — `lib/geocode.js` serializes every
+      lookup through one global 1.1s gate: EU backfill = ~61h, planet = ~25 days. Self-hosted → minutes,
+      and the 429/negative-cache storm (NÖ backfill, tasks/lessons.md) stops being possible. **The
+      bottleneck.** Needs the box first (~1TB NVMe, 32–64GB RAM).
+- [ ] **CMS fingerprint at probe time + coverage metric** — extend `scripts/probe-sources.mjs` to write
+      `sources.cms` for every source; standing query CMS → #towns → #with-parser, sorted by towns
+      unlocked = the parser backlog. One parser per CMS = hundreds of towns at €0/page. Helps Linz +
+      Stuttgart today.
+- [ ] **Conditional GET** (`ETag`/`If-Modified-Since`) on top of `page_hash` — hash skips extraction,
+      conditional GET skips the transfer. Most nightly fetches become a 304.
+- [ ] **Rot detector** (hard rule 7 enforcement) — alert on `works=true` sources past their cadence and
+      on climbing `zero_streak`. At 5k sources silent rot is guaranteed without it.
+- [ ] **Claim-queue** — `claimed_at`/`claimed_by` on `sources` + `FOR UPDATE SKIP LOCKED`. Turns the
+      single-process crawl into an N-machine fleet with no change to the extraction path.
+- [ ] **LLM leftovers via Batch API** (50% off, 24h turnaround) — a nightly crawl has zero latency need.
+- [ ] **Country onboarding** (national open-data feed → dominant CMS parser → long tail), ranked by
+      events-per-parser not market size. **Post-Linz — this is the part that builds supply past the gate.**
+- Rejected (see doc): VPN/proxy rotation (torches the legal posture for a problem we don't have),
+  Apify, thread maximization (EU aggregate is ~0.2 req/s), agents as the recurring crawler.
+
 ## Backlog (post-validation, not now)
 - [ ] Retention loop: saved favorites + reminders + private/invite events.
 - [ ] **Social layer on event/place detail** (George 2026-07-11): favorite star (save to list),
