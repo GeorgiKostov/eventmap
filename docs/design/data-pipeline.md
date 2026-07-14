@@ -2,9 +2,7 @@
 
 What actually happens, end to end, from "a Gemeinde publishes an event" to "a pin renders on the
 map" — and every side door into the `events` table. Written from the code as it stands, not from
-intent; sections flagged **[in flight, uncommitted]** describe work present in the working tree but
-not yet committed by a concurrent session (verify with `git status` / `git diff` before relying on
-exact line numbers). Companion docs: [`docs/design/design-doc.md`](design-doc.md) (product bible),
+intent. Last full pass: **2026-07-14**. Companion docs: [`docs/design/design-doc.md`](design-doc.md) (product bible),
 [`docs/decisions/2026-07-11-crawl-scaling-and-legal.md`](../decisions/2026-07-11-crawl-scaling-and-legal.md)
 (why this architecture, legal posture), [`docs/decisions/2026-07-11-middle-layer-strategy.md`](../decisions/2026-07-11-middle-layer-strategy.md)
 (where supply is going long-term), [`docs/research/scraping-cost.md`](../research/scraping-cost.md)
@@ -39,8 +37,10 @@ exact line numbers). Companion docs: [`docs/design/design-doc.md`](design-doc.md
                                                     │
                                                     ▼
                                    geocodeEvent() — lib/geocode.js
-                                   POI-name → address → venue+town →
-                                   town centroid → Nominatim town lookup
+                                   venues REGISTRY → POI-name → address →
+                                   venue+town → source default_venue →
+                                   town centroid (NO jitter)
+                                   — every precise rung bounded to its town —
                                                     │
                                                     ▼
                                    upsertEvent() — content_hash exact
@@ -53,6 +53,15 @@ exact line numbers). Companion docs: [`docs/design/design-doc.md`](design-doc.md
                                         expireFinished() — Vienna
                                         wall-clock, runs on every read
                                         and at the end of each crawl
+
+ LOCATION ENRICHMENT (§5) — shrinks the town-only bucket; writes back to `venues`,
+ so every resolution improves all FUTURE crawls, not just the rows it touched
+ ───────────────────────────────────────────────────────────────────────────────
+ enrich-locations.mjs   registry → detail-page 2nd hop (JSON-LD / per-event iCal /
+                        detail table) → [--llm] model reads the fetched page
+ venue-search.mjs       per UNIQUE (venue,town) pair, not per event: web-search
+                        model returns an ADDRESS STRING → we geocode it ourselves
+                        → town guard vetoes it. Never model coordinates.
 
  SIDE ENTRANCES (same geocode + dedup machinery, different front door)
  ───────────────────────────────────────────────────────────────────────
@@ -90,10 +99,13 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 | `cms` | `ris`\|`gem2go`\|`dvv`\|`sitepark-ical`\|`other`\|`unknown`\|null. Gates CMS-specific parsers in the waterfall. |
 | `discovered_at` | When first registered. |
 | `page_hash` | sha256 of the stripped page text from the last crawl — change-detection. |
-| `feed_kind` | Which route won the *last* crawl: `jsonld`\|`ical`\|`gem2go`\|`dvv`\|`rss`\|`llm`\|null. |
-| `crawl_count`, `events_last`, `events_sum`, `zero_streak`, `last_changed`, `tier` | Content-rating / tiering — **[in flight, uncommitted]**, see §3. |
+| `feed_kind` | Which route won the *last* crawl: `jsonld`\|`ical`\|`gem2go`\|`dvv`\|`rss`\|`llm`\|`siteswift`\|`kalkalpen`\|`naturfreunde`\|`kinderfreunde`\|null. |
+| `crawl_count`, `events_last`, `events_sum`, `zero_streak`, `last_changed`, `tier` | Content-rating / tiering, see §3. |
+| `etag`, `last_modified` | Last response's caching headers (2026-07-14). The next crawl sends `If-None-Match`/`If-Modified-Since`; a **304 skips the transfer entirely** — cheaper than `page_hash`, which still needs the body. Generic shell only. |
+| `default_categories` | Categories every event from this source inherits, **appended never substituted** (2026-07-14). The extractor reads an *event's* words, not its publisher's identity — a children's museum's 144 events extracted as `culture` and were invisible to the For-kids filter. Set only for unambiguously single-audience sources (FRida & freD, Kinderfreunde, Naturfreunde's family target-group, Familienbund, ASVÖ, Alpenverein Jugend&Familie); forcing `family` onto a diocese or a library would be hard-rule-5 fabrication in the category column. `scripts/migrate-source-categories.mjs`. |
+| `default_venue`, `default_address` | The physical house a **single-venue publisher** operates from (2026-07-14). A theatre or museum publishing its own programme names the *room*: Dschungel Wien (children's theatre, MuseumsQuartier) lists "Bühne 1"/"Bühne 2" — 175 events, and no geocoder or web search can place "Bühne 2, Wien". The venue isn't in the event text at all; it's the publisher's identity. Used as a fallback whenever an event from such a source resolves no better than town level. `scripts/migrate-source-venue.mjs`. |
 
-### Tiering policy (`scripts/crawl.mjs`, **[in flight, uncommitted]**)
+### Tiering policy (`scripts/crawl.mjs`)
 
 - `dead`: `zero_streak >= 4` → excluded from default `npm run crawl` runs; `--all` overrides.
 - `active`: avg yield (`events_sum / crawl_count`) ≥ 1.5, OR the page changed in the last 3 days →
@@ -104,20 +116,33 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 - A hash-unchanged round bumps `crawl_count` only, never `zero_streak` — "page didn't change" is
   healthy for a slow municipal calendar, not the same signal as "found nothing."
 
-### Coverage snapshot (read-only query, captured 2026-07-12)
+### Coverage snapshot (read-only query, captured 2026-07-14)
 
-272 sources registered, 214 `works=true`. All 214 currently rate `tier='active'` — mechanically
-correct per the policy above (most were only just registered as part of the Salzburg/NÖ backfill and
-haven't accumulated 3 crawls yet), not evidence the tiering logic is discriminating yet; re-check this
-count after a few weeks of real cadence.
+**1,824 sources registered, 1,743 `works=true`, 0 `tier='dead'`.** 87 never crawled (59 AT / 28 BG) —
+the daily cron picks them up.
 
-| Region | works=true | of which `cms='gem2go'` | `cms='ris'` | `cms='other'`/`null` |
+| Country | works=true | Published events | Places | Family-tagged |
 |---|---:|---:|---:|---:|
-| Salzburg | 93 | 91 | 0 | 2 |
-| Oberösterreich | 99 | 73 | 8 | 18 |
-| Niederösterreich | 24 | 22 | 0 | 2 |
+| AT | 1,537 | 20,482 | 289 | 2,148 |
+| BG | 198 | 2,486 | 661 | 322 |
+| DE (Stuttgart 40km) | 8 | 775 | 319 | 119 |
 
-`events`: 1,892 published + 279 expired (kind=`event`), 60 published places (kind=`place`).
+**Which route won each working source's last crawl — this is the cost picture, and the biggest
+remaining lever:**
+
+| Route | Sources | Cost |
+|---|---:|---|
+| `llm` | **813** | one model call per crawl — **~half of all sources** |
+| `gem2go` | 790 | $0 |
+| `jsonld` | 37 | $0 |
+| `ical` | 31 | $0 |
+| `dvv` / `siteswift` / `kalkalpen` / `naturfreunde` / `kinderfreunde` / `wordpress-ical` / `hwveranstaltung` | 15 | $0 |
+
+One deterministic parser per CMS is what converts a whole cluster from the first row to the rest —
+GEM2GO (790 sources) and the diocese `siteswift` platform (5 sources, hundreds of parishes) are the
+proof. **813 sources still on the LLM route is the standing invitation**: the national probe
+classified sources from *URLs only, never fetching HTML*, leaving ~1,027 unclassified, so the CMS
+fingerprint sweep (`sources.cms` backfill) is the highest-value pipeline task outstanding.
 
 `feed_kind` of the 214 working sources' most recent crawl: **158 GEM2GO** (73.8%), **51 LLM**
 (23.8%), 3 JSON-LD, 2 not yet crawled since the field was added. This is the measured payoff of the
@@ -162,7 +187,7 @@ the LLM is skipped:
 2. **iCal** (`parseIcsEvents`) — follows a discovered `.ics`/`webcal:` link; Vienna wall-clock
    conversion in `icsDateToVienna` (only a trailing `Z` triggers an actual UTC→Vienna conversion via
    `Intl`, everything else is taken literally as written).
-3. **GEM2GO** (`parseGem2goEvents`) — **[in flight, uncommitted]**, gated on `src.cms === 'gem2go'`.
+3. **GEM2GO** (`parseGem2goEvents`) — gated on `src.cms === 'gem2go'`.
    Four sub-parsers for four live markup variants found probing real GEM2GO sites (a CMS template
    powering 64+ OÖ municipal sites and hundreds more nationally): `parseGem2goTable` (classic
    RIS-style `<table>`), `parseGem2goBem` (Bootstrap "bem" card list), `parseGem2goRaster` (card
@@ -195,7 +220,7 @@ Every extracted event is guarded before upsert: no `title`/`date_start` → drop
 match `HH:MM` or is discarded; `ends_at <= starts_at` (garbled overnight end times) → `ends_at` reset
 to `null` (the ends-after-starts invariant from `tasks/lessons.md`).
 
-**Host concurrency** — **[in flight, uncommitted]**: `groupByHost()` buckets due sources by host;
+**Host concurrency**: `groupByHost()` buckets due sources by host;
 `runHostPool()` runs up to `HOST_CONCURRENCY = 6` lanes in parallel, but each lane processes its
 sources **strictly sequentially** — two requests never hit the same host at once, because
 `politeFetch`'s per-host timer is not concurrency-safe across simultaneous callers on its own. Speed
@@ -238,26 +263,68 @@ whenever these bounds widen, `geocache` rows with `hit=false` must be purged, or
 the old (narrower) bounds silently block the new area (`tasks/lessons.md`, the Bad Ischl bug —
 25 events extracted, 0 published, no error).
 
-**POI-name-first waterfall** (`geocodeEvent`) — **[in flight, uncommitted]**:
+**The waterfall** (`geocodeEvent`), rebuilt 2026-07-14:
 
-1. `poiQuery(venue, town)` — searches Nominatim for the venue *name* (not an address string), pulls
-   up to 5 candidates, and picks the one that (a) sits within 15km of the expected town (resolved via
-   the static `lib/towns.js` centroid list, or a cached Nominatim town lookup as fallback — if the
-   town itself can't be located, this step is skipped entirely rather than risk an unbounded match),
-   (b) "reasonably matches" the venue name (`nameMatches()` — word-boundary-aware containment or ≥0.5
-   token overlap over *distinctive* words, excluding a hand-maintained `GENERIC_NAME_WORDS` set like
-   "Gemeindeamt"/"Pfarrzentrum" that recurs in every Austrian town and would otherwise false-match
-   across the whole country), and (c) is preferentially an amenity/leisure/tourism/building/man_made
-   OSM class over a road/waterway/boundary that happens to share the name.
-2. `address` string (town-scoped Nominatim lookup).
-3. Plain `venue + town` string (no POI-class filtering).
-4. Static town centroid (`lib/towns.js`), jittered ±300m so pins don't stack.
-5. Nominatim town-name lookup as a last resort.
+0. **Sentinel venues** (`isSentinelVenue`: `Online`, `Sonstige`, `онлайн`, …) are treated as **no
+   venue at all** — they are placeholders, not places, and were previously being geocoded to a town
+   centroid and pinned on the map.
+1. **`venues` registry** (`getVenue`) — a resolved `(venue_norm, town_norm, country)` is a **fact**,
+   not a cache: once "Basilika St. Laurenz, Enns" is known, every current and future event there
+   resolves instantly and identically. Every later rung writes its result back
+   (`resolved_via`: `event`\|`place`\|`geocode`\|`detail_page`\|`llm`\|`search`\|`manual`). This is what
+   turns one-off enrichment into a permanent pipeline improvement — hard rule 7 applied to geocoding.
+2. `poiQuery(venue, town)` — venue *name* search, up to 5 candidates, must (a) sit within
+   `TOWN_BOUND_KM` (15km) of the expected town, (b) `nameMatches()` the venue (word-boundary
+   containment or ≥0.5 token overlap over *distinctive* words — `GENERIC_NAME_WORDS` like
+   "Gemeindeamt"/"Pfarrzentrum" recur in every Austrian town and would otherwise false-match
+   nationally), (c) preferentially an amenity/leisure/tourism/building/man_made OSM class.
+3. `address` string — **now town-bounded too** (see below).
+4. Plain `venue + town` string — **now town-bounded too**.
+5. **Source's `default_venue`/`default_address`** if it is a single-venue publisher (crawl only).
+6. Town centroid (`lib/towns.js`, else a cached Nominatim town lookup). **No jitter.**
 
-**Bounds of the POI step**: the 15km town-distance bound only fires when the town itself was
-resolvable; `lib/towns.js` covers only the original ~17 Linz-area towns, so most of the OÖ/Salzburg/NÖ
-expansion falls through to a cached Nominatim town lookup for that bound — an extra network/cache
-round-trip the original Linz-only design didn't need.
+**Every precise rung is bounded to its town** (2026-07-14). Only `poiQuery` used to be. So a generic
+venue string could be matched to a same-named place anywhere in the country and stored at full
+**venue precision** — "Bühne 3" (a stage inside a Vienna children's theatre) landed 24km outside
+Vienna. **A confidently-wrong pin is strictly worse than a town centroid**: the approximate treatment
+is the signal that tells a user to check the source, and a precise pin removes it.
+
+**The registry can outlive the rule that filled it.** `migrate-venues.mjs` seeded `venues` from
+events *already* at venue precision — including ones the then-unbounded rung had misplaced. The
+registry rung returns **before** any bound check (that is the point of a registry), so those rows
+were served forever and survived every recrawl. `scripts/prune-venues.mjs` deletes rows further than
+the bound from their own town: **254 found, up to 446km off** (Brand / Egg / Kematen — Austrian town
+names that repeat). Deleted, not "corrected": when a venue and its town disagree by 400km you cannot
+know which is wrong, so let the pipeline re-derive it. Same family as the negative-geocache lesson —
+**re-validate any cache/registry against the CURRENT rules whenever the rules change.**
+
+**No jitter, ever** (2026-07-14). Town-level results used to get a random ±300m offset so pins
+wouldn't stack — which *invented a coordinate* for ~11k events (170 scattered across a few Wiener
+Neustadt blocks, indistinguishable from real venues at street zoom). That is fabrication in service
+of a tidy map, and hard rule 5 has no cosmetic exemption. Every town-level event now sits exactly on
+its town centroid (`scripts/snap-town-pins.mjs` fixed the 10,661 already written), and **the map
+collapses them into one honest "N events in <town>" group** — a dashed bubble, never a pin.
+
+### The location-enrichment ladder (`scripts/enrich-locations.mjs`, `scripts/venue-search.mjs`)
+
+Half of all events know only a town. The fix is **venue-shaped, not event-shaped**: in the five big-city
+zones, 2,565 such events collapsed to just **1,163 unique (venue, town) pairs** — one resolution fixes
+every event at that venue, now and forever, via the registry. Rungs, cheapest first:
+
+1. **registry** (free) → 2. **detail-page second hop** ($0: the event's own page — JSON-LD
+   `Event.location`, the GEM2GO/RiS per-event iCal `LOCATION`, the detail table's *Ort*) →
+3. **`--llm`** (a model reads the already-fetched page and reports only what it *states*) →
+4. **`venue-search.mjs`** (a web-search model, Grok CLI on subscription = $0, asked **per unique
+   venue**, never per event).
+
+**The model never returns coordinates** — only an address *string*, which our own Nominatim geocodes
+and the 15–30km town guard vetoes. A hallucinated venue simply fails to geocode and its events stay
+honestly approximate (hard rule 5 by construction).
+
+`events.enrich_attempted_at` is stamped when a page is **fetched**, not when it succeeds — otherwise
+a resumed run restarts at the top of a stable ordering and re-pays a model for every page a prior run
+already proved states no location (the first resumed `--llm` run resolved 0 of its first 250 events
+for exactly this reason). That gate is what makes the script safely cron-able.
 
 **Photon**, not Nominatim, for autocomplete (`app/api/geocode/route.js`, `photonSuggest`) — Nominatim's
 usage policy explicitly forbids autocomplete-as-you-type; Photon (komoot's public instance) is built
@@ -462,6 +529,15 @@ the flag — treat the commands below as the correct form, not the bare `npm run
 | `node --env-file=.env.local scripts/seed-places.mjs --scope stuttgart-40km [--write]` | Review/write only Stuttgart-scoped place files | Validates `DE`, exact coordinates, and 40 km radius |
 | `node --env-file=.env.local scripts/regeocode.mjs` | Purge negative geocache, re-check town/venue-precision rows, propose moves | **Dry-run by default** — pass `--write` to apply |
 | `node --env-file=.env.local scripts/merge-dups.mjs` | Fuzzy cross-source dedup sweep over published events | **Dry-run by default** — pass `--write` to apply |
+| **Location enrichment (§5)** | | |
+| `node --env-file=.env.local scripts/enrich-locations.mjs [--write] [--llm]` | Town-precision events → registry, detail-page second hop, then (opt-in) a model reading the fetched page | **Dry-run by default.** `--zone linz` / `--all` / `--limit N` / `--retry-after DAYS`. Stamps `enrich_attempted_at` so re-runs skip pages already read |
+| `node --env-file=.env.local scripts/venue-search.mjs [--write]` | Web-search the address of each **unique unresolved (venue, town) pair** (Grok CLI, $0) | **Dry-run by default.** Model returns an address STRING; we geocode it and enforce the town guard. **Run it ALONE** — shares the global Nominatim budget |
+| `node --env-file=.env.local scripts/prune-venues.mjs [--write]` | Delete `venues` rows further than 15km from their own town | Run whenever a geocode rule changes — a registry seeded under a broken rule outlives it |
+| `node --env-file=.env.local scripts/snap-town-pins.mjs [--write]` | Snap town-precision events onto their exact town centroid | One-off; the ±300m jitter that made this necessary is gone from the geocoder |
+| **Source metadata** | | |
+| `node --env-file=.env.local scripts/migrate-source-categories.mjs [--write]` | Set + backfill `sources.default_categories` | Backfill joins on **`source_name`**, not `source_url` — most adapters store the *event's* permalink there |
+| `node --env-file=.env.local scripts/migrate-source-venue.mjs [--write]` | Set `sources.default_venue/address` for single-venue publishers | Seeds the house into `venues` so every future crawl resolves through the registry |
+| `node --env-file=.env.local scripts/embed-dedup.mjs` | Embedding-based near-dup **report** (pgvector) | Report-only. Wiring rule: similarity ≥0.90 **AND** same-town — a day-only threshold is drowned by templated municipal content |
 | `node --env-file=.env.local scripts/fix-always-open.mjs` | One-off `opening_hours` sentinel migration | Already applied; keep for reference, don't re-run blindly |
 | `npm run mcp` (or `node scripts/mcp-server.mjs`) | MCP server exposing `search_events`/`get_event`/`list_sources` over stdio | Read-only against the DB |
 

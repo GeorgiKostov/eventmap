@@ -22,6 +22,12 @@ create table if not exists sources (
                                     -- (a children's museum's events ARE family events even when the
                                     -- text never says so) — appended, never substituted. Only for
                                     -- unambiguously single-audience sources; scripts/migrate-source-categories.mjs
+  default_venue   text,             -- single-venue publishers (a theatre, a museum) name the ROOM,
+  default_address text,             -- not the house: Dschungel Wien lists "Bühne 1"/"Bühne 2", which
+                                    -- no geocoder can place. The venue is the PUBLISHER's identity,
+                                    -- not in the event text — used as a fallback when an event from
+                                    -- such a source resolves no better than town level.
+                                    -- scripts/migrate-source-venue.mjs
   -- content-rating / tiering (scripts/crawl.mjs) — see tier threshold comment there
   crawl_count   int default 0,      -- total crawl attempts (incl. hash-unchanged skips)
   events_last   int,                -- events found on the most recent extraction round
@@ -63,6 +69,12 @@ create table if not exists events (
   source_name   text,
   source_url    text,
   content_hash  text unique,
+  -- Stamped when scripts/enrich-locations.mjs actually FETCHED this event's detail
+  -- page (and, with --llm, paid a model to read it) — NOT when it succeeded. Without
+  -- it, a resumed run walks the same stable ordering from the top and re-pays for
+  -- every page a prior run already proved states no location. This is what makes
+  -- the enrichment pass safely re-runnable / cron-able. scripts/migrate-enrich-attempts.mjs
+  enrich_attempted_at timestamptz,
   created_at    timestamptz default now(),
   updated_at    timestamptz default now()
 );
@@ -75,6 +87,9 @@ create index if not exists events_kind_idx on events(kind);
 -- (`geom && ST_MakeEnvelope(...)`) replaces "ship every event, filter by radius
 -- client-side". Supabase convention: extensions live in the `extensions` schema.
 create extension if not exists postgis with schema extensions;
+-- Diacritic-folding for global search (scripts/migrate-unaccent.mjs) so
+-- "munchen" finds "München"; searchEvents wraps title/venue/town in unaccent().
+create extension if not exists unaccent with schema extensions;
 alter table events add column if not exists geom extensions.geometry(Point,4326)
   generated always as (extensions.st_setsrid(extensions.st_makepoint(lng,lat),4326)) stored;
 create index if not exists events_geom_idx on events using gist (geom);
