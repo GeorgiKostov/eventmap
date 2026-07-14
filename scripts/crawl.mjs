@@ -23,6 +23,8 @@ import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfin
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
 import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderfreunde-events.js';
 import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
+import { parseSiteswiftEvents } from '../lib/siteswift-events.js';
+import { kalkalpenDetailUrls, parseKalkalpenDetail } from '../lib/kalkalpen-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
@@ -32,6 +34,27 @@ const CAT_EMOJI = {
   family: '🎈', festival: '🎪', market: '🧺', music: '🎶',
   culture: '🎭', food: '🥨', sport: '⚽', workshop: '🎨',
 };
+
+// Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
+// page-hash change detection and the LLM fallback. (Restored 2026-07-14: the
+// crawl-net.js extraction accidentally removed it along with the politeness
+// block — every generic-shell source silently extracted zero until then.)
+function htmlToText(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|tr|h[1-6])>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&ouml;/g, 'ö').replace(/&auml;/g, 'ä').replace(/&uuml;/g, 'ü')
+    .replace(/&Ouml;/g, 'Ö').replace(/&Auml;/g, 'Ä').replace(/&Uuml;/g, 'Ü')
+    .replace(/&szlig;/g, 'ß')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n\s*\n+/g, '\n')
+    .trim();
+}
 
 // --- structured-data-first extraction; LLM fallback stays in crawlSource ---
 
@@ -591,9 +614,32 @@ async function parseWordpressIcalEvents(src) {
   return events;
 }
 
+// Nationalpark Kalkalpen (cms='kalkalpen'): the registered source URL is the
+// site's sitemap.xml (veranstaltungskalender itself is a JS-only Contao
+// widget with no server-rendered events). Two-hop, like wien-erleben above:
+// the "html" the generic shell already fetched IS the sitemap text; filter it
+// to /veranstaltung/<slug> locs, then politeFetch each detail page (same
+// host, same politeness queue). Capped well above the ~71 pages seen live so
+// legitimate growth doesn't silently truncate.
+const KALKALPEN_DETAIL_CAP = 80;
+async function parseKalkalpenSource(sitemapXml, src) {
+  const urls = kalkalpenDetailUrls(sitemapXml).slice(0, KALKALPEN_DETAIL_CAP);
+  const events = [];
+  for (const url of urls) {
+    try {
+      if (!(await robotsAllowed(url))) continue;
+      const res = await politeFetch(url);
+      if (!res.ok) continue;
+      events.push(...parseKalkalpenDetail(await res.text(), url));
+    } catch { /* one broken detail page must not break the rest */ }
+  }
+  return events.map((ev) => ({ ...ev, town: ev.town || src.town || null }));
+}
+
 // Waterfall: JSON-LD → iCal → wien-erleben (cms-gated, two-hop) → GEM2GO
-// (cms-gated) → DVV hCalendar RSS (cms-gated) → sitepark/hwveranstaltung/
-// wordpress-ical/kinderfreunde (cms-gated) → generic RSS/Atom. First route
+// (cms-gated) → siteswift (cms-gated) → kalkalpen (cms-gated, two-hop) → DVV
+// hCalendar RSS (cms-gated) → sitepark/hwveranstaltung/wordpress-ical/
+// kinderfreunde (cms-gated) → generic RSS/Atom. First route
 // that yields ≥1 valid event wins and the LLM call is skipped entirely.
 // (Naturfreunde is not in this waterfall — its registered source URL is a
 // POST-only JSON API that returns nothing meaningful on a plain GET, so it's
@@ -623,6 +669,16 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'gem2go') {
     const gem2goEvents = parseGem2goEvents(html, src);
     if (gem2goEvents.length) return { route: 'gem2go', events: gem2goEvents };
+  }
+
+  if (src.cms === 'siteswift') {
+    const siteswiftEvents = parseSiteswiftEvents(html, src);
+    if (siteswiftEvents.length) return { route: 'siteswift', events: siteswiftEvents };
+  }
+
+  if (src.cms === 'kalkalpen') {
+    const kalkalpenEvents = await parseKalkalpenSource(html, src);
+    if (kalkalpenEvents.length) return { route: 'kalkalpen', events: kalkalpenEvents };
   }
 
   if (src.cms === 'dvv') {
@@ -855,9 +911,22 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     }
   } catch { /* robots check itself failed → default allow, proceed */ }
 
-  let html;
+  // Conditional GET: send back whatever caching headers the last 200 gave us.
+  // A 304 means the server itself confirms nothing changed — cheaper than the
+  // page_hash compare below (that still pays for the full download) and
+  // handled identically: 'unchanged' stats, early return, page_hash/etag/
+  // last_modified all left as they already are in the DB.
+  let html, res;
   try {
-    const res = await politeFetch(src.url);
+    const condHeaders = {};
+    if (src.etag) condHeaders['If-None-Match'] = src.etag;
+    if (src.last_modified) condHeaders['If-Modified-Since'] = src.last_modified;
+    res = await politeFetch(src.url, Object.keys(condHeaders).length ? { headers: condHeaders } : {});
+    if (res.status === 304) {
+      console.log('  304 not modified, skipped');
+      const tier = await recordStats(src, { type: 'unchanged' });
+      return { ok: 0, fail: 0, tier };
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     html = await res.text();
   } catch (e) {
@@ -940,7 +1009,10 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
   }
   console.log(`  ${ok}/${events.length} events upserted (route: ${route})`
     + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : ''));
-  await updateSourceMeta(src.id, { page_hash: hash, feed_kind: route });
+  await updateSourceMeta(src.id, {
+    page_hash: hash, feed_kind: route,
+    etag: res.headers.get('etag'), last_modified: res.headers.get('last-modified'),
+  });
   const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
   return { ok, fail: 0, tier, outsideScope };
 }

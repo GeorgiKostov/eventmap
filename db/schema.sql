@@ -16,6 +16,8 @@ create table if not exists sources (
   discovered_at timestamptz default now(),
   page_hash     text,               -- sha256 of stripped page text; unchanged → skip extraction
   feed_kind     text,               -- jsonld | ical | gem2go | dvv | rss | llm | null
+  etag          text,               -- last response ETag (conditional GET, generic shell only)
+  last_modified text,               -- last response Last-Modified (conditional GET, generic shell only)
   -- content-rating / tiering (scripts/crawl.mjs) — see tier threshold comment there
   crawl_count   int default 0,      -- total crawl attempts (incl. hash-unchanged skips)
   events_last   int,                -- events found on the most recent extraction round
