@@ -22,6 +22,7 @@ import {
   geocodeEvent, forwardGeocode, distanceKm, normalizeName, isSentinelVenue,
 } from '../lib/geocode.js';
 import { getVenue, upsertVenue, closeDb } from '../lib/db.js';
+import { extractLocationFromText } from '../lib/extract.js';
 
 const ZONES = {
   wien: { lat: 48.2082, lng: 16.3738 },
@@ -36,6 +37,11 @@ const GUARD_KM = 30; // resolved point must stay near the event's town
 const args = process.argv.slice(2);
 const WRITE = args.includes('--write');
 const ALL = args.includes('--all');
+// --llm adds a final rung: when no structured location was found on a fetched
+// detail page, ask the extraction model (lib/extract.js — Gemini, Claude
+// fallback) what the page states, strings only; geocode + 30km guard decide.
+// ~€0.5 per 1,400 pages on Flash-Lite. Off by default.
+const LLM = args.includes('--llm');
 const zoneArg = args.includes('--zone') ? args[args.indexOf('--zone') + 1] : null;
 const LIMIT = args.includes('--limit') ? Number(args[args.indexOf('--limit') + 1]) : Infinity;
 
@@ -166,7 +172,19 @@ async function fetchDetail(url) {
 }
 
 // --- main loop ---
-const stats = { registry: 0, jsonld: 0, ics: 0, table: 0, sentinel: 0, nofetch: 0, unresolved: 0, guarded: 0, errors: 0 };
+// Cheap tag-strip for the LLM rung (crawl.mjs has the canonical htmlToText,
+// but that file auto-runs main() on import — consolidate when it's modularized).
+function stripHtml(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const stats = { registry: 0, jsonld: 0, ics: 0, table: 0, llm: 0, sentinel: 0, nofetch: 0, unresolved: 0, guarded: 0, errors: 0 };
 let processed = 0;
 const t0 = Date.now();
 
@@ -257,6 +275,21 @@ for (const ev of candidates) {
       );
       if (hit && hit.geo_precision !== 'town'
           && await apply(hit, hit.geo_precision, 'detail_page', tl.venue, tl.street)) { stats.table++; continue; }
+    }
+
+    // 2d) LLM rung (opt-in): the page is fetched but nothing structured matched.
+    // The model only reports what the page STATES (strings, never coords);
+    // the same geocode + distance guard as every other rung decides.
+    if (LLM) {
+      const loc = await extractLocationFromText({ text: stripHtml(html), title: ev.title, town: ev.town });
+      if (loc && (loc.venue ? !isSentinelVenue(loc.venue) : true)) {
+        const hit = await geocodeEvent(
+          { venue: loc.venue, address: loc.address, town: ev.town, country },
+          { jitterTown: false },
+        );
+        if (hit && hit.geo_precision !== 'town'
+            && await apply(hit, hit.geo_precision, 'llm', loc.venue, loc.address)) { stats.llm++; continue; }
+      }
     }
 
     stats.unresolved++;
