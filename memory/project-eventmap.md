@@ -1,4 +1,4 @@
-# Project memory — eventmap (Umkreis)
+# Project memory — eventmap (Okolo)
 
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 

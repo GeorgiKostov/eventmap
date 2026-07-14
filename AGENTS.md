@@ -44,8 +44,8 @@ families, one region at a time. Don't propose direction changes that conflict wi
 - `npm run build` must pass before commit for anything touching routes/SSR/config.
 - Drive the actual user flow (map, filter, detail, scan) in a browser for UI/behavior changes —
   don't trust "it compiles."
-- The seeded `data/umkreis.db` is the demo ground truth; `npm run seed` rebuilds it from
-  `data/mined/*.json`.
+- The datastore is Supabase Postgres (`umkreis` schema — legacy name, product is Okolo);
+  `npm run seed` imports `data/mined/*.json` into it.
 
 ## How to ask the human
 

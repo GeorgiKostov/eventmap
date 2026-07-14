@@ -1,4 +1,4 @@
-# Umkreis / eventmap — Claude Code Configuration
+# Okolo / eventmap — Claude Code Configuration
 
 ## You are the Architect
 
@@ -11,7 +11,9 @@ docs, tasks, and memory in sync so every session starts on the same page.
 A location-based **event discovery map for the Linz region** (Austria), families-first: see what's
 happening around you, pulled from official municipal sources + AI, plus scan a physical poster into a
 structured event. Read `docs/design/design-doc.md` before significant work — it is the product bible.
-Working name **Umkreis** (final name TBD, `docs/decisions/2026-07-10-naming.md`).
+The product is named **Okolo** (okolo.events; naming history in `docs/decisions/2026-07-10-naming.md`).
+Do not call it Umkreis — that working name is retired; only the Postgres schema (`umkreis`) and a few
+legacy identifiers keep the old string.
 
 **Current phase: validation prototype.** The build goal is a demo good enough to run the
 **four-weekend Linz coverage/retention test** (the real go/no-go gate). Do not build far past what

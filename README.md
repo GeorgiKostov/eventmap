@@ -56,7 +56,7 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 
 ## Deploying
 
-**GitHub Pages does not work** for this app — it serves only static files, but Umkreis
+**GitHub Pages does not work** for this app — it serves only static files, but Okolo
 needs a Node server (API routes, SSR event pages, sitemap). Use **Vercel** (it runs
 Next.js natively).
 
