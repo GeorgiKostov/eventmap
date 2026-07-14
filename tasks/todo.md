@@ -2,6 +2,13 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Set location by map gesture (2026-07-14, George: "typing a location to move from current sucks")
+- [x] **Long-press (touch, 500ms) / right-click (desktop) drops the search-anywhere reference point**
+      where pressed — reverse-geocodes into the existing `Around {ort}` chip, recomputes distances /
+      radius filter / radius circle. Dropped pin draggable to fine-tune. One-time hint toast for
+      discoverability. Gated by `addFlowActiveRef`; trailing synthetic click swallowed so it never
+      fights tap-to-select. (f046f83)
+
 ## Shipped (prototype v1 → v2, 2026-07-10)
 - [x] Scaffold Next.js + SQLite (Supabase-portable schema); MapLibre + OSM map.
 - [x] Mine 92 real events from linztermine.at, familienkarte.at, erlebe.enns.at, 14 Gemeinde sites

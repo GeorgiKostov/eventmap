@@ -9,6 +9,17 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-14 — set location by map gesture)
+- **Long-press / right-click drops the "around here" reference point on the map** (George: typing a
+  location to move off current sucks). Long-press = manual 500ms touch timer (cancels on >10px pan,
+  swallows the trailing synthetic click); desktop = `contextmenu`. Reverse-geocodes into the existing
+  `searchCenter` + `Around {ort}` chip, so distances / radius filter / radius circle recompute for
+  free. Dropped `search-marker` is now draggable (create-once, setLngLat on update — no teardown
+  mid-drag). One-time hint toast (`dropPinHint`, localStorage `umkreis_droppin_hint`). Gated by
+  `addFlowActiveRef` so it never fires during event/place intake. All in `app/page.js`
+  (`dropLocationPin`, gesture listeners in map-init effect); i18n keys `droppedPinLabel`/`dropPinHint`
+  in de/en/bg. Build green, browser-verified. (f046f83)
+
 ## Where things stand (2026-07-13 latest — FB link unfurl, filter UX, party category)
 - **Public Facebook events now resolve via a pasted link.** FB's login wall is UA-gated;
   `app/api/extract-url` requests FB hosts (`facebook.com`/`fb.me`/…) as the `facebookexternalhit`
