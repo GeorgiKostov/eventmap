@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { getChannel } from '../../../../lib/city-channels.js';
-import { loadDigest } from '../../../../lib/digest.js';
+import { loadDigest, loadDigestFor } from '../../../../lib/digest.js';
 import { CATS, P } from '../../../../lib/icons.js';
 
 // Weekly social carousel: one 1080×1350 (Instagram portrait) PNG per slide,
@@ -128,16 +128,21 @@ function coverSlide(digest) {
             >
               {i + 1}
             </div>
+            {/* Wrap to two lines rather than clipping: a truncated title on the
+                COVER is the one place truncation costs us the click — that line is
+                the whole pitch for swiping to the card. */}
             <div
               style={{
-                fontSize: 34,
+                display: 'flex',
+                fontSize: 32,
                 fontWeight: 700,
                 color: INK,
-                lineHeight: 1.25,
+                lineHeight: 1.28,
+                maxWidth: 840,
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: 850,
+                // satori honours -webkit-line-clamp; two lines is the ceiling
+                // before five picks stop fitting the panel.
+                WebkitLineClamp: 2,
               }}
             >
               {it.title}
@@ -253,7 +258,11 @@ export async function GET(req) {
   // (cards are embedded in social posts), and loadOrBuild would let an anonymous
   // hit freeze a stale pick set for the whole weekend AND trigger a paid AI copy
   // call. Building the snapshot is the authenticated desk's job.
-  const digest = await loadDigest(channel);
+  // `weekend=<friday>` pins the card to one specific weekend — the public weekend
+  // page uses it as its OG image, so an OLD page keeps unfurling with ITS OWN
+  // cover instead of silently showing whatever is current.
+  const pinned = searchParams.get('weekend');
+  const digest = pinned ? await loadDigestFor(channel, pinned) : await loadDigest(channel);
   if (!digest) return NextResponse.json({ error: 'digest not prepared yet' }, { status: 404 });
   if (!digest.items.length) return NextResponse.json({ error: 'no events this weekend' }, { status: 404 });
   if (!Number.isInteger(slide) || slide < 0 || slide > digest.items.length) {
