@@ -2,6 +2,30 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — Build the surface that shows you your data, and it will show you your data
+
+The first run of the new weekly digest picked, as the **#1 family event for Linz this weekend**, a row
+titled "Test event" (description: "Testing events") — George's own add-flow test from 2026-07-12, still
+`status='published'` on the live map, dated this Friday. Nobody noticed for two days, because nothing
+ever *ranked* the map's contents before: a junk row is invisible among 22k events, and instantly
+obvious when something has to choose the best five. The same run surfaced a second latent bug (a crawled
+title with an undecoded `&#8211;` and the next element's text bled onto the end, which also defeats
+content_hash dedup and duplicates the event).
+
+Also caught, in my own code, by driving it rather than reading it: the send button reported success when
+SMTP wasn't configured (`sendNewsletter()` no-ops and returns false; the route incremented `sent`
+regardless) — it would have told George "sent to N subscribers" while nothing left the building, *and*
+written the "already sent this weekend" ledger, which would then have silently skipped the real send.
+
+**Lessons:** (1) an aggregate view hides junk; a **ranked** view exposes it — building the thing that
+must pick the best N is one of the cheapest data-quality audits available, so read its first output as a
+bug report, not as content; (2) a no-op-when-unconfigured helper (`return false` if no SMTP/API key) is
+a trap for every caller that assumes it threw or worked — check the return value, and make the
+user-facing path **fail loudly** rather than report a success it can't back up (reporting outcomes
+faithfully matters most exactly where the outcome is invisible — an email you can't see not-arriving);
+(3) never write an idempotence ledger before confirming the action actually happened, or the failure
+locks out the retry.
+
 ## 2026-07-14 — The one filter our users care about was hiding what they came for
 
 George: "a lot of events and locations which would fit for kids are not tagged as kids" — and

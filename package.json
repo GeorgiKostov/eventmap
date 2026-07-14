@@ -11,6 +11,7 @@
     "seed:sql": "node --env-file=.env.local scripts/import-sql.mjs",
     "crawl": "node --env-file=.env.local scripts/crawl.mjs",
     "subscribers": "node --env-file=.env.local scripts/export-subscribers.mjs",
+    "digest": "node --env-file=.env.local scripts/weekly-digest.mjs",
     "mcp": "node --env-file=.env.local scripts/mcp-server.mjs"
   },
   "dependencies": {

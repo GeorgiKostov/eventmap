@@ -40,6 +40,34 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   web-search, verified on Posthof) is BUILT and ready — run it alone (Nominatim budget) once the
   LLM pass finishes.
 
+## Where things stand (2026-07-14 latest+4 — WEEKLY GROWTH ENGINE SHIPPED)
+- **The Thursday flow exists end-to-end** (docs/strategy/growth-system.md = the operating system;
+  docs/ops/weekly-automation.md = the runbook, now marked SHIPPED). `lib/city-channels.js` (10 city
+  channels, AT/BG/DE, each with lang + hashtags + catchment) → `weekendPicks()` (PostGIS ST_DWithin,
+  DISTINCT ON lower(title) so a Ferienprogramm series can't fill the digest, ranked family→free→
+  community→precise) → `writeDigestCopy()` in lib/extract.js (**Sonnet** primary → Gemini → template;
+  routed in extract.js per hard rule 2) → **frozen weekly snapshot in `meta`** so cards, caption and
+  email can never disagree → `/api/social/card` 1080×1350 carousel (Noto Sans = real Cyrillic, not
+  tofu) → `/admin/thursday?token=` desk (review, Drop a bad pick, download cards, copy caption, Send)
+  → `npm run digest` CLI → `.github/workflows/weekly-digest.yml` Thursday cron that **prepares only**.
+- **Deliberately manual: posting and sending.** Auto-posting gets you banned from the local parent
+  FB/WhatsApp groups that ARE the channel; an auto-sent newsletter is how you mail parents a wrong
+  event. The cron prepares and emails George "desk is ready". Revisit Graph API after ~4 weeks manual.
+- **The digest immediately found two real bugs, which is the point:** (1) George's own "Test event"
+  (id 13890, from add-flow testing) was **published on the live map**, dated this Friday, and would
+  have headlined the first newsletter — now `status='removed'` (reversible: flip back to 'published').
+  (2) A crawled title carries an undecoded `&#8211;` plus text bled in from the next element
+  ("...der ErdeDie progressiven Nostalgiker"), which also defeats content_hash dedup → spawned as its
+  own task.
+- **AI writes prose, never facts** — every teaser was traced back to our own DB `description`. The
+  copy label reports the model that ACTUALLY wrote it (currently `gemini-2.5-flash`), because
+  ANTHROPIC_API_KEY is set nowhere: **George must set it (Vercel + GH secret) to get Sonnet**, plus
+  ADMIN_TOKEN on Vercel to open the desk in prod.
+- **THE BOTTLENECK IS AUDIENCE, and it is now the only one.** Supply = 22k events; product = fine;
+  assets = 10 min/week. Subscribers = **1, unconfirmed**. Followers = 0. Groups seeded = 0. Running
+  the four-weekend Linz test before seeding an audience measures nothing — audience seeding is step
+  one OF the test, not marketing to do afterwards (growth-system.md §5).
+
 ## Where things stand (2026-07-14 latest+3 — VIEWPORT-NATIVE MAP SHIPPED, radius retired)
 - **Deployed to production 2026-07-14 ~14:30Z** (dpl_B2sLnRFxTTF31g5NZPZCAbD3imrt → www.okolo.events)
   and live-verified: pins 48 KB/107 rows incl. 46 places (was 10.7 MB/23,937), cells 2 KB for

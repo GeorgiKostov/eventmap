@@ -1,7 +1,25 @@
 # Weekly Automation Pipeline (The Thursday Flow)
 
-> Status: planned · Owner: Architect agent
+> Status: **SHIPPED 2026-07-14** · Owner: Architect agent
 > This spec defines the automation pipeline for the weekly Okolo growth engine. We automate the *creation* of assets, but keep *distribution* (social posting) manual until proven.
+>
+> **What exists now** (the strategy around it: `docs/strategy/growth-system.md`):
+> | Piece | Where |
+> |---|---|
+> | City/area channel registry (10 cities, DE + BG) | `lib/city-channels.js` |
+> | Top-5 weekend selection query | `lib/db.js` → `weekendPicks()` |
+> | AI copy — subject, intro, one teaser per pick (Sonnet → Gemini → template) | `lib/extract.js` → `writeDigestCopy()` |
+> | Digest assembly + frozen weekly snapshot + caption + email HTML | `lib/digest.js` |
+> | Carousel cards, 1080×1350, Latin + Cyrillic | `GET /api/social/card?channel=&slide=` |
+> | The desk (review, drop a pick, download cards, copy caption, send) | `/admin/thursday?token=<ADMIN_TOKEN>` |
+> | CLI (`npm run digest -- --all --cards ./out --send`) | `scripts/weekly-digest.mjs` |
+> | Thursday cron — **prepares only, never posts, never sends** | `.github/workflows/weekly-digest.yml` |
+>
+> Deviations from the plan below, and why: the "Top 5" is a **frozen snapshot** per city per weekend
+> (so the cards, the caption and the email can never disagree, and a card request can't re-trigger a
+> paid AI call); the ZIP download became per-card links (a ZIP needs a bundler dep for six files you
+> right-click anyway); and the send button refuses with a 503 when SMTP is unset rather than reporting
+> a success that never left the building.
 
 ## 1. Goal & Philosophy
 The growth strategy relies on a weekly rhythm: every Thursday afternoon, we tell parents what the best 5 family events are in Linz for the upcoming weekend. 

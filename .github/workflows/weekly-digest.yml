@@ -1,0 +1,53 @@
+name: Weekly digest (prepare)
+
+# Thursday's growth engine — the PREPARE half of it.
+#
+# This job freezes each city's weekend picks and writes the AI copy (Sonnet) into
+# the digest snapshot, then emails George that the desk is ready. It deliberately
+# does NOT send the newsletter and does NOT post to social:
+#   · an auto-sent newsletter nobody looked at is how you mail parents a wrong
+#     event (hard rule 5 is about trust, and the newsletter is our highest-trust
+#     surface);
+#   · auto-posting bots get banned from the local FB/WhatsApp groups that are the
+#     whole point of the channel (docs/strategy/growth-and-social.md §3).
+# George reviews at /admin/thursday, downloads the carousel, posts by hand, and
+# hits Send. ~10 minutes.
+#
+# Runs BEFORE the Thursday-afternoon post slot so the copy is waiting for him.
+
+on:
+  schedule:
+    - cron: '0 9 * * 4' # Thursday 09:00 UTC (~11:00 Vienna)
+  workflow_dispatch:
+    inputs:
+      regenerate:
+        description: 'Rebuild picks + copy even if a snapshot exists'
+        type: boolean
+        default: false
+
+concurrency:
+  group: weekly-digest
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Prepare weekend digests
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # Sonnet writes the copy
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # fallback copywriter
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
+          NEXT_PUBLIC_BASE_URL: https://okolo.events
+        run: node scripts/weekly-digest.mjs --all --notify ${{ inputs.regenerate && '--regenerate' || '' }}

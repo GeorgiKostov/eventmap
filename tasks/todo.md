@@ -288,18 +288,36 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       logs stay. Revisit: tighten further toward the original 4-5/hr if abuse shows up, or hold at 20.
 
 ## Growth & go-to-market (strategy: docs/strategy/growth-and-social.md, 2026-07-13)
-- [ ] **Newsletter unsubscribe/consent gaps — remaining** (double opt-in + unsubscribe shipped
-      790eaa7; these are the leftovers): (a) decide grandfather-vs-drop for existing pre-migration
-      subscribers (all now confirmed_at=NULL); (b) record a proof-of-consent (timestamp + consent-text
-      version + IP-hash at signup); (c) add RFC-8058 List-Unsubscribe + List-Unsubscribe-Post headers to
-      the actual newsletter sends when the send pipeline is built; (d) confirm-token expiry/rotation
-      policy; (e) offer preference-management/unsubscribe from the confirm landing page.
-- [ ] **Design + build the `okolo.linz` IG/FB weekly-posting flow** (design in
-      docs/strategy/growth-and-social.md §2): weekend-picks selection query → `next/og` card template(s)
-      at 1080×1350 (reuse app/opengraph-image.js) + cover card → card/batch endpoint
-      (`/api/social/weekend-card`) → a "generate this week's carousel" script (PNGs + caption). Manual
-      posting first; Graph API automation only after the motion is proven. Facts+linkback: our own card
-      art + descriptions, never source posters/prose; link to our map.
+
+### Weekly growth engine SHIPPED 2026-07-14 (system doc: docs/strategy/growth-system.md)
+- [x] **The whole Thursday flow is built and driven end-to-end**: channel registry
+      (`lib/city-channels.js`, 10 cities DE+BG) → weekend-picks query (`weekendPicks()`, PostGIS
+      ST_DWithin + DISTINCT ON title so a series can't fill the digest) → AI copy
+      (`writeDigestCopy()`, **Sonnet** primary → Gemini → deterministic template) → frozen weekly
+      snapshot in `meta` (cards/caption/email can never disagree) → 1080×1350 carousel
+      (`/api/social/card`, Noto = real Cyrillic) → the desk (`/admin/thursday?token=`) → send with
+      RFC-8058 List-Unsubscribe → CLI (`npm run digest`) → Thursday cron that **prepares only**.
+      Verified: real Linz + Sofia picks, cards rendered, teasers traced back to our own DB
+      descriptions (no fabrication), 403/503/409 guards all fire.
+- [x] Consent gap (c) CLOSED: List-Unsubscribe + List-Unsubscribe-Post on every send, and the
+      unsubscribe route now answers the one-click POST.
+- [ ] **George: set `ANTHROPIC_API_KEY`** (Vercel + GH Actions secret) or the newsletter copy stays on
+      the Gemini fallback — the desk honestly shows which model wrote it. Also set `ADMIN_TOKEN` on
+      Vercel to open the desk in prod.
+- [ ] **THE REAL GAP — audience is zero.** 1 subscriber, unconfirmed; no followers; no groups seeded.
+      Supply (22k events) and the machine are both done; distribution is the bottleneck and always was.
+      Running the four-weekend test before seeding an audience measures nothing. Plan:
+      docs/strategy/growth-system.md §5 (map signup prompt → parent FB groups → kindergarten/playground
+      QR → Familienkarte). **This is step one of the validation test, not marketing to do later.**
+- [ ] **Newsletter consent gaps — remaining**: (a) decide grandfather-vs-drop for the pre-migration
+      subscriber (confirmed_at=NULL, so it currently receives nothing); (b) record a proof-of-consent
+      (timestamp + consent-text version + IP-hash at signup); (d) confirm-token expiry/rotation policy;
+      (e) offer preference-management/unsubscribe from the confirm landing page.
+- [ ] Open call (growth-system.md §10): community-submitted events get +2 in the digest ranking — which
+      is exactly what let a *test row* headline the first digest. Keep the bonus + rely on Drop, or gate
+      community events on a quality check?
+- [ ] Later, only after ~4 weeks of manual posting proves the motion: Instagram/FB Graph API auto-post.
+      Never before — auto-posting bots get banned from the local parent groups that are the whole channel.
 - [ ] **Verify FB/WhatsApp groups to seed into** (method + candidates in
       docs/strategy/growth-and-social.md §3): live pass — join Linz/OÖ parent + community FB groups,
       read each group's promo rules, gauge activity; identify Bulgarian-in-Austria groups; plan the

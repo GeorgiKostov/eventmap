@@ -23,3 +23,13 @@ export async function GET(req) {
   const email = token ? await unsubscribe(token) : null;
   return page(email ? c.ok : c.bad, email ? c.okBody : c.badBody);
 }
+
+// RFC 8058 one-click: Gmail/Yahoo POST this URL when the reader hits the
+// mail client's own "unsubscribe" button (see the List-Unsubscribe-Post header
+// in lib/mail.js). No body is read, no confirmation page — the same token,
+// the same idempotent revoke, a bare 200.
+export async function POST(req) {
+  const token = new URL(req.url).searchParams.get('token');
+  const email = token ? await unsubscribe(token) : null;
+  return new Response(null, { status: email ? 200 : 400 });
+}
