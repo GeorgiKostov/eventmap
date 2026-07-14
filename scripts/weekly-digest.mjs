@@ -33,7 +33,7 @@ const BASE = (process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events').replac
 const LOCAL = val('base', process.env.DIGEST_CARD_BASE || 'http://localhost:3311');
 
 async function run(channel) {
-  const digest = await loadOrBuildDigest(channel, { force: flag('regenerate'), limit: Number(val('limit', 5)) });
+  const digest = await loadOrBuildDigest(channel, { force: flag('regenerate'), limit: Number(val('limit', 9)) });
   const caption = renderCaption(digest);
 
   console.log(`\n=== ${channel.label} (${channel.handle}) · ${digest.label} ===`);

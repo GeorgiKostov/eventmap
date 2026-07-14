@@ -629,18 +629,6 @@ export default function Home() {
     }));
   }
 
-  function toggleNewsletterCategory(category) {
-    setNl((s) => {
-      const selectedCategory = s.categories.includes(category);
-      return {
-        ...s,
-        categories: selectedCategory
-          ? s.categories.filter((c) => c !== category)
-          : [...s.categories, category],
-      };
-    });
-  }
-
   // Long tail of the location search: everything the gazetteer doesn't carry
   // (villages, hamlets, addresses), via the Photon autocomplete endpoint.
   // Localities come first, then streets/POIs; anything already matched locally
@@ -3224,27 +3212,15 @@ export default function Home() {
                     </datalist>
                     <small>{t.nlAreaHelp}</small>
                   </label>
-                  <fieldset className="nl-interest-field">
-                    <legend>{t.nlInterests}</legend>
-                    <p>{t.nlInterestsHelp}</p>
-                    <div className="nl-category-grid">
-                      {EVENT_CATS.map((category) => {
-                        const selectedCategory = nl.categories.includes(category);
-                        return (
-                          <button
-                            key={category}
-                            type="button"
-                            className={selectedCategory ? 'selected' : ''}
-                            aria-pressed={selectedCategory}
-                            onClick={() => toggleNewsletterCategory(category)}
-                          >
-                            <CatIcon cat={category} size={15} />
-                            <span>{t.cats[category]}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </fieldset>
+                  {/* The interests picker is GONE (George, 2026-07-14: "keep it
+                      simple"). It asked people to choose categories and then the
+                      send ignored them — a promise we weren't keeping. The digest
+                      is one list per city; the signal for what people actually
+                      want comes from filter taps and Interested taps, which every
+                      visitor gives us for free, not just the ones who subscribe.
+                      Fewer fields also converts better, which matters more at 0
+                      subscribers than personalisation does. The `categories`
+                      column stays — nothing is lost if we bring this back. */}
                   <button type="submit" className="nl-submit" disabled={nl.busy}>{nl.busy ? t.nlSending : t.nlSubmit}</button>
                 </form>
                 {nl.err && <p className="nl-err">{nl.err}</p>}

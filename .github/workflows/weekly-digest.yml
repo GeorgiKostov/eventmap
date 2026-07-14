@@ -50,4 +50,10 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
           NEXT_PUBLIC_BASE_URL: https://okolo.events
-        run: node scripts/weekly-digest.mjs --all --notify ${{ inputs.regenerate && '--regenerate' || '' }}
+        # LINZ ONLY (George, 2026-07-14). The other nine channels in
+        # lib/city-channels.js are defined and ready, but none has a handle, a
+        # follower or a subscriber — preparing their digests every Thursday would
+        # write copy nobody reads and clutter the desk with nine tabs that never
+        # get pressed. Not a cost decision (the whole run is ~1¢/city/week); a
+        # focus one. Open a city by adding it here when its handle actually exists.
+        run: node scripts/weekly-digest.mjs --channel linz --notify ${{ inputs.regenerate && '--regenerate' || '' }}
