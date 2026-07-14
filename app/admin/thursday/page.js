@@ -7,8 +7,10 @@ import { useCallback, useEffect, useState } from 'react';
 // carousel cards to download, the caption to paste, the email preview, and the
 // send button. ~10 minutes, once a week, per city.
 //
-// Auth is the ADMIN_TOKEN in the URL (?token=…) — same shared secret as the
-// one-click removal links. Prototype-grade and deliberately so.
+// Auth is a PASSWORD, not a URL token: you type it once, the server sets an
+// httpOnly signed cookie, and you stay logged in on that device for 30 days. A
+// `?token=` in the URL would sit in browser history, in the Referer of every
+// outbound link, and in any screen-share. See lib/admin-auth.js.
 
 const S = {
   page: { minHeight: '100vh', background: '#F2F2EE', color: '#212B28', fontFamily: 'system-ui, sans-serif', padding: '24px 16px' },
@@ -29,25 +31,56 @@ const S = {
 };
 
 export default function ThursdayPage() {
-  const [token, setToken] = useState('');
+  const [authed, setAuthed] = useState(null); // null = still checking
+  const [password, setPassword] = useState('');
   const [channel, setChannel] = useState('linz');
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
   const [note, setNote] = useState('');
 
+  // Ask the server whether this browser already holds a valid session cookie.
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
-    setToken(p.get('token') || '');
     if (p.get('channel')) setChannel(p.get('channel'));
+    fetch('/api/admin/login')
+      .then((r) => r.json())
+      .then((j) => setAuthed(!!j.authed))
+      .catch(() => setAuthed(false));
   }, []);
 
-  const load = useCallback(async (slug, tok) => {
-    if (!tok) return;
+  async function login(e) {
+    e.preventDefault();
+    setBusy('login');
+    setErr('');
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'login failed');
+      setPassword('');
+      setAuthed(true);
+    } catch (e2) {
+      setErr(e2.message);
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function logout() {
+    await fetch('/api/admin/login', { method: 'DELETE' });
+    setAuthed(false);
+    setData(null);
+  }
+
+  const load = useCallback(async (slug) => {
     setBusy('load');
     setErr('');
     try {
-      const res = await fetch(`/api/admin/digest?channel=${slug}&token=${encodeURIComponent(tok)}`);
+      const res = await fetch(`/api/admin/digest?channel=${slug}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'failed');
       setData(json);
@@ -60,8 +93,8 @@ export default function ThursdayPage() {
   }, []);
 
   useEffect(() => {
-    if (token) load(channel, token);
-  }, [token, channel, load]);
+    if (authed) load(channel);
+  }, [authed, channel, load]);
 
   async function act(action, extra = {}) {
     setBusy(action);
@@ -71,13 +104,13 @@ export default function ThursdayPage() {
       const res = await fetch('/api/admin/digest', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ token, channel, action, ...extra }),
+        body: JSON.stringify({ channel, action, ...extra }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'failed');
       if (action === 'send') {
         setNote(json.test ? `Test sent to ${json.to}` : `Sent to ${json.sent} of ${json.audience} subscribers${json.failed ? ` (${json.failed} failed)` : ''}`);
-        await load(channel, token);
+        await load(channel);
       } else {
         setData(json);
       }
@@ -88,12 +121,38 @@ export default function ThursdayPage() {
     }
   }
 
-  if (!token) {
+  if (authed === null) {
     return (
       <div style={S.page}>
-        <div style={{ ...S.wrap, ...S.card }}>
+        <div style={{ ...S.wrap, ...S.card }}><p style={S.muted}>…</p></div>
+      </div>
+    );
+  }
+
+  if (!authed) {
+    return (
+      <div style={S.page}>
+        <div style={{ maxWidth: 380, marginLeft: 'auto', marginRight: 'auto', ...S.card, marginTop: '12vh' }}>
           <h1 style={S.h1}>Thursday desk</h1>
-          <p style={S.muted}>Add your admin token to the URL: <code>/admin/thursday?token=…</code></p>
+          <p style={{ ...S.muted, margin: '0 0 16px' }}>Enter the admin password.</p>
+          <form onSubmit={login}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              autoFocus
+              autoComplete="current-password"
+              style={{
+                width: '100%', boxSizing: 'border-box', padding: '12px 14px', fontSize: 15,
+                border: '1px solid #DCDCD6', borderRadius: 9, marginBottom: 10,
+              }}
+            />
+            <button type="submit" style={{ ...S.btn, width: '100%' }} disabled={busy === 'login' || !password}>
+              {busy === 'login' ? 'Checking…' : 'Log in'}
+            </button>
+          </form>
+          {err ? <p style={{ color: '#C93A5B', fontSize: 13, margin: '12px 0 0' }}>{err}</p> : null}
         </div>
       </div>
     );
@@ -107,10 +166,15 @@ export default function ThursdayPage() {
     <div style={S.page}>
       <div style={S.wrap}>
         <div style={S.card}>
-          <h1 style={S.h1}>Thursday desk</h1>
-          <p style={{ ...S.muted, margin: '0 0 14px' }}>
-            Weekend picks → carousel + caption + newsletter. Post manually, send when it looks right.
-          </p>
+          <div style={{ ...S.row, justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <h1 style={S.h1}>Thursday desk</h1>
+              <p style={{ ...S.muted, margin: '0 0 14px' }}>
+                Weekend picks → carousel + caption + newsletter. Post manually, send when it looks right.
+              </p>
+            </div>
+            <button style={S.ghost} onClick={logout}>Log out</button>
+          </div>
           <div style={S.row}>
             {(data?.channels || [{ slug: 'linz', label: 'Linz' }]).map((c) => (
               <button key={c.slug} style={S.tab(c.slug === channel)} onClick={() => setChannel(c.slug)}>

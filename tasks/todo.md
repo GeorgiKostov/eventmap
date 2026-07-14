@@ -317,9 +317,17 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       npm script passes `--env-file=.env.local`). Exactly the trap in lessons.md 2026-07-10. Copied
       into `.env.local`. **Two identical-looking env files is a footgun — consider deleting the
       dotless `env.local` (both are gitignored).**
-- [ ] **George: still needed for PROD** — `ANTHROPIC_API_KEY` as a Vercel env var *and* a GitHub
-      Actions secret (the Thursday cron writes the copy), or prod/cron silently falls back to Gemini.
-      Also `ADMIN_TOKEN` on Vercel to open the desk in prod.
+- [x] **Admin is a PASSWORD now, not a URL token** (George: "cant we just add some password locked
+      page so i can log in from anywhere"). `ADMIN_PASSWORD` → POST /api/admin/login (constant-time
+      compare, rate-limited 10/h + 30/day per hashed IP via the durable limiter) → httpOnly + Secure +
+      SameSite=Lax cookie holding `<expiry>.<HMAC(expiry)>`, keyed on the password itself, 30 days.
+      Stateless (no session table) and changing the password logs every device out. Log-out button on
+      the desk. `?token=` survives ONLY on /api/admin/remove — a mail client can't present a login
+      form. Verified: 403 → wrong-pw 401 → right-pw 200 → forged/expired cookie 403 → brute force 429
+      at attempt 9 → reload keeps the session → `document.cookie` cannot see it (httpOnly).
+- [ ] **George: still needed for PROD** — set on Vercel: `ADMIN_PASSWORD` (long + random),
+      `ANTHROPIC_API_KEY` (also as a GitHub Actions secret — the Thursday cron writes the copy, else it
+      silently falls back to Gemini), and keep `ADMIN_TOKEN` for the removal links.
 - [ ] **THE REAL GAP — audience is zero.** 1 subscriber, unconfirmed; no followers; no groups seeded.
       Supply (22k events) and the machine are both done; distribution is the bottleneck and always was.
       Running the four-weekend test before seeding an audience measures nothing. Plan:

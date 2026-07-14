@@ -3,7 +3,7 @@ import { getChannel, CHANNELS, channelForPoint } from '../../../../lib/city-chan
 import { loadOrBuildDigest, saveDigest, renderNewsletter, renderCaption } from '../../../../lib/digest.js';
 import { confirmedSubscribers, metaGet, metaSet } from '../../../../lib/db.js';
 import { sendNewsletter } from '../../../../lib/mail.js';
-import { adminOk } from '../../../../lib/admin-auth.js';
+import { isAdmin } from '../../../../lib/admin-auth.js';
 
 // The Thursday flow's engine (docs/ops/weekly-automation.md). One route:
 //   GET                → the frozen weekly snapshot + caption + email preview + audience size
@@ -52,7 +52,7 @@ async function snapshot(channel, { force = false } = {}) {
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  if (!adminOk(searchParams.get('token'))) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  if (!isAdmin(req)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   const channel = getChannel(searchParams.get('channel') || 'linz');
   if (!channel) return NextResponse.json({ error: 'unknown channel' }, { status: 400 });
   return NextResponse.json({
@@ -62,11 +62,8 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-  const { searchParams } = new URL(req.url);
   const body = await req.json().catch(() => ({}));
-  if (!adminOk(body.token || searchParams.get('token'))) {
-    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  }
+  if (!isAdmin(req)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   const channel = getChannel(body.channel || 'linz');
   if (!channel) return NextResponse.json({ error: 'unknown channel' }, { status: 400 });
 

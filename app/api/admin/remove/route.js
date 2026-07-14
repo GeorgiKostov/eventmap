@@ -1,23 +1,19 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { setEventStatus } from '../../../../lib/db.js';
+import { isAdmin } from '../../../../lib/admin-auth.js';
 
 export const dynamic = 'force-dynamic';
 
 // One-click moderation from the notification email: sets status='removed'
-// (reversible in the DB, row is kept). GET so it works as a mail link; guarded
-// by ADMIN_TOKEN. Prototype-grade by design — replace with a real admin surface
-// post-validation.
+// (reversible in the DB, row is kept). GET so it works as a mail link.
+//
+// This is the ONE place a URL token is still accepted (`allowToken`): a link in
+// an email cannot present a login form, and the whole point is that you can kill
+// a bad event from your phone in one tap. A logged-in admin session works too.
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const id = Number(searchParams.get('id'));
-  const token = searchParams.get('token') || '';
-  const expected = process.env.ADMIN_TOKEN || '';
-  const ok =
-    expected.length >= 16 &&
-    token.length === expected.length &&
-    crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected));
-  if (!ok) return new NextResponse('Nicht erlaubt.', { status: 403 });
+  if (!isAdmin(req, { allowToken: true })) return new NextResponse('Nicht erlaubt.', { status: 403 });
   if (!Number.isInteger(id) || id <= 0) return new NextResponse('Ungültige ID.', { status: 400 });
 
   const row = await setEventStatus(id, 'removed');
