@@ -48,11 +48,20 @@ const LIMIT = args.includes('--limit') ? Number(args[args.indexOf('--limit') + 1
 const sql = postgres(process.env.DATABASE_URL, { prepare: false, max: 2, connection: { search_path: 'umkreis' } });
 
 // --- candidate selection ---
+// Every town-precision event is a candidate for the (free, DB-only) registry
+// rung — a venue resolved by a later run must still propagate to its siblings.
+// The EXPENSIVE rung (fetch the page + pay a model to read it) is gated below
+// on enrich_attempted_at: a page we already read and found no location in does
+// not sprout one overnight, so re-paying for it is pure waste. That gate is why
+// this script is safely re-runnable / cron-able. --retry-after 0 forces a redo.
+const RETRY_DAYS = args.includes('--retry-after') ? Number(args[args.indexOf('--retry-after') + 1]) : 30;
 const rows = await sql`
-  select id, title, town, country, venue, address, lat, lng, source_url
+  select id, title, town, country, venue, address, lat, lng, source_url, enrich_attempted_at
   from events
   where kind='event' and status='published' and geo_precision='town'
   order by town, source_url`;
+const recentlyAttempted = (ev) =>
+  ev.enrich_attempted_at && Date.now() - new Date(ev.enrich_attempted_at).getTime() < RETRY_DAYS * 86400000;
 const zones = zoneArg ? { [zoneArg]: ZONES[zoneArg] } : ZONES;
 if (zoneArg && !ZONES[zoneArg]) { console.error(`unknown zone ${zoneArg}`); process.exit(1); }
 const inZones = (e) => Object.values(zones).some((z) => distanceKm(e, z) <= ZONE_KM);
@@ -184,7 +193,7 @@ function stripHtml(html) {
     .trim();
 }
 
-const stats = { registry: 0, jsonld: 0, ics: 0, table: 0, llm: 0, sentinel: 0, nofetch: 0, unresolved: 0, guarded: 0, errors: 0 };
+const stats = { registry: 0, jsonld: 0, ics: 0, table: 0, llm: 0, sentinel: 0, skipped: 0, nofetch: 0, unresolved: 0, guarded: 0, errors: 0 };
 let processed = 0;
 const t0 = Date.now();
 
@@ -229,11 +238,18 @@ for (const ev of candidates) {
       if (reg && await apply(reg, reg.geo_precision, 'registry')) { stats.registry++; continue; }
     }
 
-    // 2) detail-page second hop
+    // 2) detail-page second hop — the expensive rung (network + model tokens).
+    // Skip anything we already read within RETRY_DAYS: that page was proven
+    // location-less, and paying to re-read it is the exact waste that made the
+    // first --llm re-run resolve nothing for its first 1,500 events.
+    if (recentlyAttempted(ev)) { stats.skipped++; continue; }
     if (!ev.source_url || !looksDetailPage(ev.source_url)) { stats.nofetch++; continue; }
     const pageUrl = decodeUrl(ev.source_url);
     const html = await fetchDetail(pageUrl);
     if (!html) { stats.nofetch++; continue; }
+    // Stamp on FETCH, not on success: "we looked at this page" is the fact that
+    // makes the next run cheaper, whether or not it yielded a location.
+    if (WRITE) await sql`update events set enrich_attempted_at=now() where id=${ev.id}`;
 
     // 2a) JSON-LD Event.location
     const jl = jsonLdLocation(html, ev.title);
