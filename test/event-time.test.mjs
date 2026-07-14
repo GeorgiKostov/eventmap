@@ -2,7 +2,7 @@
 // or "ganztägig". Run: node --test test/event-time.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hasTime, timeOf, dayOf, makeStartsAt, inTimeOfDay } from '../lib/event-time.js';
+import { hasTime, timeOf, dayOf, makeStartsAt, makeEndsAt, inTimeOfDay } from '../lib/event-time.js';
 import { contentHash } from '../lib/db.js';
 import { formatWhen } from '../lib/digest.js';
 import { submissionProblem } from '../lib/moderation.js';
@@ -48,8 +48,21 @@ test('a time-unknown event hashes apart from a 9am one (they are not the same ev
   assert.equal(unknown, contentHash({ ...base, starts_at: '2026-07-19' }));
 });
 
+test('makeEndsAt keeps a known end DATE even when the end time is unknown', () => {
+  // The CRITICAL bug: a multi-day range with no end time used to store ends_at=null,
+  // so expiry fell back to end-of-START-day and the event vanished after day one.
+  assert.equal(makeEndsAt('2026-12-31', null, '2026-02-28'), '2026-12-31'); // date-only end kept
+  assert.equal(makeEndsAt('2026-12-31', '18:00', '2026-02-28'), '2026-12-31T18:00'); // timed end kept
+  assert.equal(makeEndsAt(null, '18:00', '2026-07-19'), '2026-07-19T18:00'); // no end date → start date
+  assert.equal(makeEndsAt(null, null, '2026-07-19'), '2026-07-19'); // same-day, caller nulls it (== starts)
+  assert.equal(makeEndsAt('garbage', null, null), null); // no usable date at all
+});
+
 test('the digest prints the day, never an invented clock', () => {
-  assert.equal(formatWhen('2026-07-19', false, 'de'), 'So 19.7.');
+  // Date-only = time UNKNOWN → the day plus an honest "time TBD" label (never a
+  // fabricated clock), and distinct from all_day (which is just the day).
+  assert.equal(formatWhen('2026-07-19', false, 'de'), 'So 19.7. · Zeit folgt');
+  assert.equal(formatWhen('2026-07-19', true, 'de'), 'So 19.7.');
   assert.equal(formatWhen('2026-07-19T16:00', false, 'de'), 'So 19.7. 16:00');
 });
 

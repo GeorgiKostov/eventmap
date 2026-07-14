@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { getChannel } from '../../../../lib/city-channels.js';
-import { loadOrBuildDigest } from '../../../../lib/digest.js';
+import { loadDigest } from '../../../../lib/digest.js';
 import { CATS } from '../../../../lib/icons.js';
 
 // Weekly social carousel: one 1080×1350 (Instagram portrait) PNG per slide,
@@ -190,7 +190,12 @@ export async function GET(req) {
   if (!channel) return NextResponse.json({ error: 'unknown channel' }, { status: 400 });
 
   const slide = Number(searchParams.get('slide') || 0);
-  const digest = await loadOrBuildDigest(channel);
+  // Read the frozen snapshot ONLY — never build here. This route is public
+  // (cards are embedded in social posts), and loadOrBuild would let an anonymous
+  // hit freeze a stale pick set for the whole weekend AND trigger a paid AI copy
+  // call. Building the snapshot is the authenticated desk's job.
+  const digest = await loadDigest(channel);
+  if (!digest) return NextResponse.json({ error: 'digest not prepared yet' }, { status: 404 });
   if (!digest.items.length) return NextResponse.json({ error: 'no events this weekend' }, { status: 404 });
   if (!Number.isInteger(slide) || slide < 0 || slide > digest.items.length) {
     return NextResponse.json({ error: 'slide out of range' }, { status: 400 });

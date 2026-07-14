@@ -1120,39 +1120,44 @@ export default function Home() {
       // user is placing (review finding, 2026-07-13).
       if (addFlowActiveRef.current) return;
       const top = (layer) => (map.getLayer(layer) ? map.queryRenderedFeatures(e.point, { layers: [layer] })[0] : null);
-      // 1. Cluster bubbles expand for as long as they render (clusters exist up
-      //    to clusterMaxZoom 12 and stay visible, fading, through the band —
-      //    their centroids are NOT co-located with any pin, so a bubble tap must
-      //    never fall through to pin/deselect handling).
-      const bubble = top('result-cluster-bubbles') || top('result-cell-bubbles');
-      if (bubble) {
-        map.easeTo({ center: bubble.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
-        return;
-      }
-      // 1b. Town-group bubbles render in the SAME zoom band as pins (never a
-      // solid cluster, never an individual pin — design-system.md marker
-      // grammar), so they need their own tolerance box like pins do just
-      // below — but must still be checked BEFORE pins, same reasoning as the
-      // cluster bubble above: a bubble tap must never fall through to a pin.
-      // Opens the list scoped to that town, never the single-event detail.
-      if (map.getLayer('town-group-bubbles')) {
+      const clusterBubble = () => top('result-cluster-bubbles') || top('result-cell-bubbles');
+      const zoomToBubble = (bubble) => map.easeTo({ center: bubble.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
+      // Town-group bubbles render in the SAME zoom band as pins (never a solid
+      // cluster, never an individual pin — design-system.md marker grammar), with
+      // a tolerance box like pins. Opens the list scoped to that town.
+      const townBubble = () => {
+        if (!map.getLayer('town-group-bubbles')) return null;
         const pad = 8;
         const box = [[e.point.x - pad, e.point.y - pad], [e.point.x + pad, e.point.y + pad]];
-        const hits = map.queryRenderedFeatures(box, { layers: ['town-group-bubbles'] });
         let best = null; let bestD = Infinity;
-        for (const h of hits) {
+        for (const h of map.queryRenderedFeatures(box, { layers: ['town-group-bubbles'] })) {
           const p = map.project(h.geometry.coordinates);
           const d = (p.x - e.point.x) ** 2 + (p.y - e.point.y) ** 2;
           if (d < bestD) { bestD = d; best = h; }
         }
-        if (best) {
-          setSelected(null);
-          setDetailFull(false);
-          setSelectedTown({ town: best.properties.town, country: best.properties.country });
-          setSheetContent('list');
-          setSheet('full');
-          return;
-        }
+        return best;
+      };
+      const openTown = (best) => {
+        setSelected(null);
+        setDetailFull(false);
+        setSelectedTown({ town: best.properties.town, country: best.properties.country });
+        setSheetContent('list');
+        setSheet('full');
+      };
+      // Priority depends on the zoom band. clusterMaxZoom is 12 and the crossfade
+      // runs to HANDOFF_HIGH, so a fading-out cluster bubble is STILL hit-testable
+      // (queryRenderedFeatures ignores opacity) at the same screen spot as a
+      // fading-IN town bubble. Once we're in/above the handoff band the town
+      // grammar owns the tap; below it, clusters do. Either way a bubble tap never
+      // falls through to a pin/deselect.
+      if (map.getZoom() >= HANDOFF_LOW) {
+        const tb = townBubble();
+        if (tb) { openTown(tb); return; }
+        const cb = clusterBubble();
+        if (cb) { zoomToBubble(cb); return; }
+      } else {
+        const cb = clusterBubble();
+        if (cb) { zoomToBubble(cb); return; }
       }
       // 2. Pins (rendered from HANDOFF_LOW up), with a few-px tolerance box.
       let item = null;
@@ -1332,7 +1337,7 @@ export default function Home() {
   const [mode, setMode] = useState('pins');
   const [cells, setCells] = useState([]); // cells mode only: [{lat,lng,n}]
   const [viewTotal, setViewTotal] = useState(0);
-  const [viewTruncated, setViewTruncated] = useState(false); // no UI yet (v1) — kept for the reviewer/future
+  const [viewTruncated, setViewTruncated] = useState(false); // drives the "zoom in to see all" hint (truncatedNote below)
   const viewportAbort = useRef(null);
 
   // Clamp to the server's bbox span cap (brief: >20° -> 400) around the current

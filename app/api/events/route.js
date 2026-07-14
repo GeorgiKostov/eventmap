@@ -5,6 +5,7 @@ import {
 } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
+import { cleanText } from '../../../lib/entities.js';
 import { limit } from '../../../lib/ratelimit.js';
 import { spamReason, sanitizeText, submissionProblem } from '../../../lib/moderation.js';
 import { notifyOperator } from '../../../lib/mail.js';
@@ -36,8 +37,12 @@ function bad(msg) {
 // Returns [minLng,minLat,maxLng,maxLat] | undefined (missing) | null (invalid).
 function parseBbox(raw) {
   if (!raw) return undefined;
-  const parts = raw.split(',').map(Number);
-  if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) return null;
+  const tokens = raw.split(',');
+  // Number('') === 0, so an empty component (`10,,10.1,0.05`) would silently
+  // become a valid 0 — require every token to be a non-empty numeric literal.
+  if (tokens.length !== 4 || tokens.some((t) => t.trim() === '')) return null;
+  const parts = tokens.map(Number);
+  if (parts.some((n) => !Number.isFinite(n))) return null;
   const [minLng, minLat, maxLng, maxLat] = parts;
   if (minLng >= maxLng || minLat >= maxLat) return null;
   if (minLng < -180 || maxLng > 180 || minLat < -90 || maxLat > 90) return null;
@@ -220,9 +225,12 @@ export async function POST(req) {
   // from a different source, or scanned once before). Events only — places
   // are evergreen singletons with no natural "duplicate" concept here.
   if (kind === 'event') {
+    // Decode entities on the candidate FIRST: publishedEvents() rows were cleaned
+    // at the write boundary, so an incoming "&#8211;" (→ stray "8211" token in
+    // dedup's normalizer) would fail the title match and insert a real duplicate.
     const candidate = {
-      title: body.title, starts_at: body.starts_at, ends_at, town: body.town || null, lat, lng,
-      description: body.description || null, address: body.address || null, venue: body.venue || null,
+      title: cleanText(body.title), starts_at: body.starts_at, ends_at, town: cleanText(body.town) || null, lat, lng,
+      description: body.description || null, address: cleanText(body.address) || null, venue: cleanText(body.venue) || null,
       is_free: body.is_free ?? null, age_min: body.age_min ?? null, age_max: body.age_max ?? null,
       indoor: body.indoor ?? null, photo_path: body.photo_path || null,
       categories: Array.isArray(body.categories) ? body.categories.slice(0, 3) : [],

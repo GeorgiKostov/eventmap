@@ -8,7 +8,7 @@ import path from 'path';
 import { upsertEvent, upsertSource, expireFinished, closeDb } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { CRAWL_SCOPES, isWithinCrawlScope, scopeFromCatalog } from '../lib/crawl-scopes.js';
-import { makeStartsAt } from '../lib/event-time.js';
+import { makeStartsAt, makeEndsAt } from '../lib/event-time.js';
 
 const MINED_DIR = path.join(process.cwd(), 'data', 'mined');
 const CAT_EMOJI = {
@@ -30,13 +30,11 @@ function normalizeEvent(raw) {
   const validTime = (value) => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value || '');
   const time = validTime(raw.time_start) ? raw.time_start : null;
   const starts_at = makeStartsAt(raw.date_start, time);
-  let ends_at = null;
-  if (raw.date_end || raw.time_end) {
-    const de = /^\d{4}-\d{2}-\d{2}$/.test(raw.date_end || '') ? raw.date_end : raw.date_start;
-    const te = validTime(raw.time_end) ? raw.time_end : '23:59';
-    ends_at = `${de}T${te}`;
-    if (ends_at <= starts_at) ends_at = null;
-  }
+  // A known end DATE with no end time is stored date-only (read as end-of-day in
+  // expireFinished) — never fabricate a 23:59, never drop the date. Same builder
+  // as crawl.mjs (lib/event-time.js makeEndsAt).
+  let ends_at = makeEndsAt(raw.date_end, raw.time_end, raw.date_start);
+  if (ends_at && ends_at <= starts_at) ends_at = null;
   const cats = (raw.categories || []).filter((c) => CAT_EMOJI[c]);
   return {
     title: String(raw.title).slice(0, 200),

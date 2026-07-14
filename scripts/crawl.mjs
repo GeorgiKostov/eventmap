@@ -17,7 +17,7 @@ import {
 } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { decodeEntities, stripTags } from '../lib/entities.js';
-import { makeStartsAt } from '../lib/event-time.js';
+import { makeStartsAt, makeEndsAt } from '../lib/event-time.js';
 import { extractFromPage } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
@@ -31,6 +31,15 @@ import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
 import { politeFetch, robotsAllowed } from '../lib/crawl-net.js';
+
+// One end-time builder for every adapter. Keeps a known end DATE even when the
+// end TIME is unknown (date-only ends_at), and drops an end that isn't strictly
+// after the start (overnight/garbled times, or a same-day range that carries no
+// extra info). See lib/event-time.js makeEndsAt + expireFinished.
+function endsAtOf(raw, starts_at) {
+  const ends = makeEndsAt(raw.date_end, raw.time_end, raw.date_start);
+  return ends && ends > starts_at ? ends : null;
+}
 
 const CAT_EMOJI = {
   family: '🎈', festival: '🎪', market: '🧺', music: '🎶',
@@ -863,7 +872,9 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
         // The Naturfreunde JSON carries no time-of-day at all. That is "unknown",
         // not "all day" — store the date alone and claim nothing (lib/event-time.js).
         starts_at: makeStartsAt(raw.date_start, null),
-        ends_at: null, // source gives no time-of-day; date_end alone doesn't fill ends_at anywhere else in this pipeline either
+        // A multi-day Naturfreunde range (date_start..date_end, no times) keeps
+        // its end DATE — dropping it would expire a multi-day tour after day one.
+        ends_at: endsAtOf(raw, makeStartsAt(raw.date_start, null)),
         all_day: 0,
         venue: raw.venue, address: raw.address, town: raw.town,
         categories: cats,
@@ -963,9 +974,9 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
       if (!raw.title || !raw.date_start) continue;
       const time = /^\d{2}:\d{2}$/.test(raw.time_start || '') ? raw.time_start : null;
       const starts_at = makeStartsAt(raw.date_start, time);
-      let ends_at = raw.time_end && /^\d{2}:\d{2}$/.test(raw.time_end)
-        ? `${raw.date_end || raw.date_start}T${raw.time_end}` : null;
-      if (ends_at && ends_at <= starts_at) ends_at = null; // overnight/garbled end times
+      // Keep a known end DATE even when the end time is unknown (date-only
+      // ends_at) — dropping it expired multi-day ranges after their first day.
+      const ends_at = endsAtOf(raw, starts_at);
       const ev = {
         title: raw.title,
         description: raw.description || null,
