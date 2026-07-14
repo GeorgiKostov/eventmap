@@ -40,12 +40,19 @@ If a file is missing, skip it and continue. Do not stop.
    Never compute "now"/"today"/expiry against the host timezone or UTC — use the Vienna-pinned
    helpers (`viennaNow()` in `lib/db.js`, `Intl` with `timeZone:'Europe/Vienna'` client-side).
    This class of bug bit us once (see `tasks/lessons.md`).
-4. **Supabase-portable schema.** `lib/db.js` mirrors the target Postgres+PostGIS layout. Don't add
-   SQLite-only cleverness that makes the port harder; keep it one-file-portable.
+4. **Postgres via Supabase is the datastore.** `lib/db.js` is the single data layer (postgres.js over
+   the transaction pooler, `umkreis` schema). Schema changes go in `db/schema.sql` **plus** an
+   idempotent `scripts/migrate-*.mjs`. NB: `id` is `bigint`, which arrives in JS as a **string** —
+   never type-guard ids as numbers (this silently ate the saved-events list once).
 5. **Never fabricate event data.** Extraction/mining must use `null` for unknown fields and skip
    events with no reliable date. A wrong event on the map destroys trust faster than a missing one.
-6. **Serverless is read-only + ephemeral.** On Vercel the project dir is read-only and `/tmp` is
-   ephemeral. Any write path (DB, uploads) must account for this until the Supabase port lands.
+   Corollary: users can report `cancelled`/`wrong_time`/`wrong_info`/`not_free`, surfaced once
+   `REPORT_MIN` independent reporters agree.
+6. **Anonymous writes are structured-only.** Any new user-write surface is a closed enum, never free
+   text, and never behind an account: an enum can't be moderated, defamed with, or spam-linked, so it
+   needs no login. Free-text UGC on a kids-focused product carries DSA/ECG host-provider duties —
+   don't add it without George, and if it lands it needs accounts + a moderation path.
+   Anti-abuse toolkit already in place: `lib/ratelimit.js` (hashed IP), honeypot, `lib/moderation.js`.
 7. **Every source must end up repeatable.** Outside crawlers and tools (Grok/xAI mining, an LLM
    sweep, OSM/Overpass, a hand-written `scripts/mine-*.mjs`) are allowed — but only as a
    **bootstrap**, never as the refresh path. A mining task is not done until the source is

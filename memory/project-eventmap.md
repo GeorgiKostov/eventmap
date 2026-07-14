@@ -30,6 +30,27 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   email; do not crawl the blocked path. (Spawned as a separate task.)
 - Coverage snapshot: AT 1,578 sources / 20,551 events · BG 219 / 2,511 · DE 8 / 790.
 
+## Where things stand (2026-07-14 — anonymous feedback signals)
+- **Interested/Save + data-quality reports shipped** (0c100b9). One `reactions` table (entity + enum +
+  dedupe key), `/api/react`, unique (event_id, kind, ip_hash) = one person one vote. Interest count
+  hidden below 3; reports (cancelled/wrong_time/wrong_info/not_free) surface only at 3 independent
+  reporters. Saved list in localStorage, first item in the menu. Migration: `scripts/migrate-reactions.mjs`.
+- **The reasoning matters more than the code** (George asked "ratings? likes? comments?"):
+  ratings FAIL the cold-start test — events are ephemeral (a star on something you can't re-attend is
+  worthless) and places lose to Google's 100× review volume; every card would show empty stars, which
+  reads as a dead product and poisons the retention metric. Free-text comments are the most expensive
+  and least informative option: DSA/Austrian ECG host-provider duties on a *kids* product, and they
+  need a login, which throttles volume to ~zero at validation scale. **Interested is the only signal
+  that pays off at N=1** — it's personal-first ("save this") before it's social, it's forward-looking
+  so it survives ephemeral events, and it hands us intent-to-attend, the best PMF proxy in the
+  four-weekend test. Login policy = **match identity to blast radius**: enum → anonymous; free text →
+  account. Comments revisit post-test; "Saved" is the earned on-ramp to accounts (sync on a new phone).
+- **Gotcha:** Postgres `bigint` ids arrive in JS as **strings**. `Number.isInteger()` guard silently
+  wiped the saved list on reload — caught only by browser verification, not by the build.
+- CLAUDE.md hard rules updated: old rule 6 ("serverless is read-only/ephemeral until the Supabase port
+  lands") was STALE — the port has landed, `lib/db.js` is Postgres, writes persist. Replaced with the
+  anonymous-writes-are-structured-only rule.
+
 ## Where things stand (2026-07-14 — set location by map gesture)
 - **Long-press / right-click drops the "around here" reference point on the map** (George: typing a
   location to move off current sucks). Long-press = manual 500ms touch timer (cancels on >10px pan,

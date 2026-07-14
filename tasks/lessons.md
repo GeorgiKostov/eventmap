@@ -252,3 +252,12 @@ the cron can't re-fetch it, we don't have the data — we have a snapshot with a
 date nobody wrote down. Now hard rule 7 in CLAUDE.md. Corollary: the miner scripts wrote
 `works: false` into their own `source_registry`, so re-running one would have re-disabled
 the source it just fed — a bootstrap must never be able to undo the pipeline.
+
+## Postgres bigint ids are strings in JS (2026-07-14)
+`events.id` is `bigint`; postgres.js returns it as a **string** (`"373"`), not a number. A
+`Number.isInteger(id)` guard when loading saved-event ids from localStorage silently discarded the
+entire list on every reload — the build was green and there was no console error. Only driving the
+real flow in the browser (save → reload → check the menu badge) surfaced it.
+**Lesson:** never type-guard or compare a DB id as a number; normalize to `String` on every path.
+**Lesson:** a green build proves nothing about state that round-trips through storage — verify the
+flow, not the compile.

@@ -2,6 +2,22 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Feedback signals (2026-07-14, George: "ratings + likes + comments? what do you recommend")
+- [x] **Interested / Save** on events + places — anonymous one tap, save in localStorage (works at
+      zero traffic, no account), server keeps only the aggregate. Count hidden below
+      `INTEREST_SHOW_MIN`=3 ("1 interested" reads as an empty room). Saved list = first menu item.
+- [x] **Data-quality reports** — closed enum (cancelled / wrong_time / wrong_info / not_free), no
+      free text ⇒ nothing to moderate ⇒ no login needed. Surfaced on the card only once `REPORT_MIN`=3
+      independent reporters agree, so one person can't smear an event. Defends hard rule 5.
+- [x] One `reactions` table + `/api/react`; unique (event_id, kind, ip_hash) = one person one vote.
+      Migration `scripts/migrate-reactions.mjs` (run against prod DB). (0c100b9)
+- [ ] **Deliberately NOT built:** star ratings (fail cold-start; events are ephemeral, places lose to
+      Google's volume) and free-text comments (DSA/ECG moderation burden on a kids product, needs a
+      login, which throttles volume to ~zero at validation scale). Revisit comments post-test, behind
+      accounts — "Saved" is the earned on-ramp (people ask for sync once they lose saves on a new phone).
+- [ ] Watch in the test: interest taps = the only intent-to-attend signal we have; reports = coverage
+      accuracy, the go/no-go metric.
+
 ## Set location by map gesture (2026-07-14, George: "typing a location to move from current sucks")
 - [x] **Long-press (touch, 500ms) / right-click (desktop) drops the search-anywhere reference point**
       where pressed — reverse-geocodes into the existing `Around {ort}` chip, recomputes distances /
