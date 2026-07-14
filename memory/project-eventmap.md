@@ -9,7 +9,22 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-07-14 latest — big-city quality concept + robots parser fix)
+## Where things stand (2026-07-14 latest+1 — enrichment ladder stages 0–2 SHIPPED)
+- **Venues registry live**: `venues` table seeded with 4,216 resolved venues (events+places);
+  `geocodeEvent()` consults it before Nominatim and writes POI hits back. Sentinel venues
+  (Online/Sonstige/онлайн…) never geocode. `NOMINATIM_URL` env → self-hosted instance, no throttle.
+- **scripts/enrich-locations.mjs shipped** (detail-page second hop): registry → JSON-LD (title-
+  matched) → per-event GEM2GO/RiS iCal LOCATION (data-bez matched; postcode→address, else POI) →
+  detail-table Ort. 30km town guard, dry-run default, lib/crawl-net.js shared politeness (extracted
+  from crawl.mjs). First 5-zone --write run launched — check its tail next session for yield.
+- **docs/ops/local-box-setup.md**: full runbook for George's Ryzen/64GB box (Nominatim docker on
+  merged AT+BG+DE Geofabrik extract, Photon caveat — Vercel can't reach LAN, systemd timer, GH
+  Actions cutover rule: never both crons). George intends to run the box himself.
+- NB: a `next dev -p 3311` (not ours) shares .next — `npm run build` fails at export shuffle;
+  compile+types green, runtime verified through that dev server. Don't fight the build while his
+  server runs.
+
+## Where things stand (2026-07-14 — big-city quality concept + robots parser fix)
 - **Concept delivered: docs/design/big-city-quality.md** (George: precise locations for big-city
   events + missing family/nature/Verein sources). Measured: 51% of 9,035 events in the 5 city
   zones (W/L/G/S/I +40km) are town-precision; 2,565 have an unresolved venue string collapsing to

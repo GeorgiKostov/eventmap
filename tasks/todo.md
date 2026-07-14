@@ -306,11 +306,20 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 ## Big-city quality concept (2026-07-14, George: precise locations + family/nature sources —
 ## full concept: docs/design/big-city-quality.md; measured: 51% of 9,035 events in the 5 city
 ## zones sit at town precision; 2,565 have a venue string that collapses to 1,163 unique pairs)
-- [ ] Stage 0 hygiene: `Online`/`Sonstige` venue sentinels — never centroid-pin them (394 junk pins).
-- [ ] **Venue registry** (`venues` table): (name_norm, town) → coords + provenance; seed from
-      resolved events + places; geocodeEvent consults it first. The durable asset — do before regeocode.
-- [ ] **Detail-page second hop**: fetch per-event detail URLs (GEM2GO detailonr etc.) for
-      town-precision events; parse Ort/address + JSON-LD. $0, deterministic, biggest precision jump.
+- [~] Stage 0 hygiene SHIPPED in geocode (isSentinelVenue: Online/Sonstige/… never feed the venue
+      geocoder). REMAINS: UI decision for the existing 394 'Online' events (list-only vs badge) —
+      they still sit at town centroids until that call.
+- [x] **Venue registry SHIPPED** (2026-07-14): `venues` table (schema + scripts/migrate-venues.mjs,
+      seeded 4,216 venues from resolved events + places); geocodeEvent consults it before Nominatim
+      and writes every new POI hit back (resolved_via provenance, first-resolution-wins).
+- [x] **Detail-page second hop SHIPPED**: scripts/enrich-locations.mjs — registry → JSON-LD
+      Event.location (title-matched) → per-event GEM2GO/RiS iCal LOCATION (data-bez title match,
+      postcode→address vs name→POI routing) → detail-table Ort/Adresse; 30km town guard; dry-run
+      default. Shares lib/crawl-net.js (politeFetch+robots extracted from crawl.mjs). First
+      5-zone --write run in flight.
+- [x] **NOMINATIM_URL env** in lib/geocode.js: self-hosted instance skips the 1.1s throttle.
+      Setup runbook for George's Ryzen box: docs/ops/local-box-setup.md (Nominatim docker AT+BG+DE
+      merged extract → Europe later; systemd timer; NEVER run box cron + GH Actions cron together).
 - [ ] `blocked_reason` column + monthly recheck + rot-report section (robots|ai_bot_policy|js_spa|
       login_wall|tos) — blocked ≠ dead; feeds the outreach queue instead of rotting to tier=dead.
 - [ ] **Naturfreunde JSON adapter** — POST naturfreunde.at/events/ng_items: 2,491 events, all 9

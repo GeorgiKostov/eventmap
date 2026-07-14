@@ -64,6 +64,26 @@ create index if not exists events_starts_idx on events(starts_at);
 create index if not exists events_status_idx on events(status);
 create index if not exists events_kind_idx on events(kind);
 
+-- Venues registry (docs/design/big-city-quality.md §1): resolved venue name +
+-- town → coordinates, with provenance. Consulted by geocodeEvent() before the
+-- Nominatim waterfall; written back by every enrichment path. Distinct from
+-- geocache: geocache rows are disposable query results, venue rows are facts.
+create table if not exists venues (
+  id            bigint generated always as identity primary key,
+  name          text not null,
+  town          text,
+  country       text not null default 'AT',
+  name_norm     text not null,      -- normalizeName(name) (lib/geocode.js)
+  town_norm     text not null default '',
+  lat           double precision not null,
+  lng           double precision not null,
+  geo_precision text not null default 'venue',   -- venue | address
+  resolved_via  text not null,      -- event | place | geocode | detail_page | search | manual
+  source_url    text,
+  verified_at   timestamptz default now(),
+  unique (name_norm, town_norm, country)
+);
+
 create table if not exists geocache (
   query text primary key,
   lat   double precision,
