@@ -301,6 +301,43 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       probe lands — `EXTRACT_PROVIDER=grok` batch crawl (needs `XAI_API_KEY` from console.x.ai — George;
       falls back to Gemini ~$6–15 one-time if no key). Provider already wired in lib/extract.js.
 
+## Source & parser coverage (2026-07-14, Gemini code review — triaged, kept the useful half)
+- [ ] **Fingerprint the unclassified sources — do this BEFORE writing any new parser.** Mined catalogs
+      show `cms` = gem2go 1275 / **other 447 / unknown 408** / custom 53 / ris 29. The 855 unclassified
+      rows are ~30× the RiS prize and almost certainly hide another gem2go-sized cluster. Step 1: run the
+      count against the **live `sources` table** (local `data/umkreis.db` is stale — pre-`cms`-column;
+      real DB is Postgres via `DATABASE_URL`) to confirm the ratio. Step 2: extend
+      `scripts/probe-sources.mjs` to sniff CMS (generator meta, asset paths, URL shape, footer sig) and
+      backfill `sources.cms`. Step 3: rank CMS → #towns → #with-parser. That ranked list *is* the parser
+      backlog — stop guessing which one to write.
+- [ ] **RiS-Kommunal deterministic parser** — real, but it's ~29 sources, not the top of the list.
+      Do it *after* the fingerprint sweep says nothing bigger is hiding. Mirrors the GEM2GO parser
+      (`scripts/crawl.mjs:331`), wire into `tryStructuredExtraction()` per hard rule 7.
+- [ ] **Austrian town-centroid table** (~2,100 municipalities) — `lib/towns.js` covers only ~17 towns
+      around Linz, so every new region's centroid fallback goes through Nominatim's 1.1s gate. Cheap
+      (hours) and worth doing now. NOTE: this fixes the *fallback* path only — venue/address lookups
+      (the hot path, ~200k unique at EU scale) still need the self-hosted Nominatim below. Stacks with
+      it; does not replace it.
+- [ ] **George-actions (need an email from you, 403 by default):**
+      - **linztermine.at XML open-data API** — CC-BY-4.0, has `properforchildren` + `freeofcharge` flags.
+        Would replace the monthly `/linz-erleben/` HTML scrape that breaks on every month rollover.
+        Best single win here: a licensed feed for our most important city. Contact: Stadt Linz digital office.
+      - **Österreich Werbung ContentDB** — CC-BY-4.0 aggregate of Austrian tourism boards (incl. OÖ),
+        skews family/festival/seasonal. Request credentials: `api@austria.info`.
+- [ ] **Land OÖ Familienkarte scraper** — POST with date-range + district keys (Linz Stadt=7, Linz Land=8);
+      static page only returns today. Our exact target audience. (Already noted in briefs/mining-brief.md.)
+- **Rejected from that review:** promoting the Facebook link-unfurl as a *supply channel*. The existing
+  `/api/extract-url` path stays exactly as-is — user-initiated, one URL, rate-limited 20/h — and that is
+  defensible: it reads the OG tags Meta publishes for link previews, same as any Slack/WhatsApp unfurl.
+  Scaling it into systematic FB harvesting is identity-misrepresentation to obtain withheld content — the
+  same category as the VPN idea rejected in the architecture doc, and we don't get to wave it through just
+  because Meta is big. **Working position, not a closed decision** — BG relies heavily on FB events (see
+  memory), so there's real product value on the other side. George to overrule if he wants it.
+- **Already covered elsewhere, no action:** schema enrichment (ticket links / price / organizer / RRULE)
+  is item 5 of the 2026-07-11 decision's build order. Google Maps: correctly rejected — no events API,
+  ToS forbids storing coords / rendering on a non-Google map. Stay on OSM/Overpass + MapLibre; let our
+  JSON-LD make *us* the thing Google indexes.
+
 ## Crawl infra — EU/planet scale (docs/architecture/eu-scale-extraction.md, 2026-07-14)
 Items 1–7 are local-box/pipeline wins that make the *current* crawl cheaper and more reliable, so they
 are OK before the Linz gate. Country registration (item 8) is explicitly post-Linz.

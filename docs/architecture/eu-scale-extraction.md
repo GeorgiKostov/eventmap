@@ -69,6 +69,13 @@ target for the "not limited by external API calls" instinct. Not the crawler —
 - `lib/geocode.js` keeps its interface. Swap the endpoint, drop `throttle()`, keep the cache
   (it's still a free hit and a portability seam).
 
+**Cheap stopgap, worth doing first:** `lib/towns.js` holds centroids for only ~17 towns around Linz,
+so every *new* region's centroid fallback pays the 1.1s toll. Pre-populating all ~2,100 Austrian
+municipalities is a few hours' work and unblocks the AT build-out immediately. But note what it does
+*not* fix: centroids are the **fallback** path — venue and street addresses are the **hot** path, and
+those (~200k unique at EU scale) still go through Nominatim. The two stack; the table is not a
+substitute for the self-host.
+
 ## 2. Store raw pages — never re-fetch to fix a parser
 
 The one component we are missing outright. Today, extraction reads the live fetch. So a parser bug,
@@ -91,6 +98,24 @@ Municipal sites cluster hard on a few CMS vendors per country. We found this by 
 exploit it — `lib/sitepark-events.js`, `lib/dvv-events.js`, `lib/kreativregion-events.js`, and the
 RiS-Kommunal / GEM2GO work — but we treat each as a one-off. At EU scale it is *the* growth curve:
 **one parser per CMS unlocks hundreds of towns at €0/page, forever.**
+
+**The cost of *not* measuring this, in real numbers.** Current `cms` distribution across our mined
+catalogs:
+
+| `cms` | sources | parser? |
+|---|---|---|
+| gem2go | 1,275 | ✅ |
+| **other** | **447** | ❌ |
+| **unknown** | **408** | ❌ |
+| custom | 53 | — |
+| ris | 29 | ❌ |
+| rss / jevents-ical / dvv | 36 | ✅ |
+
+An independent code review (Gemini, 2026-07-14) read the pipeline and proposed *"build a RiS parser"*
+as its top improvement. RiS is 29 sources. **The unclassified bucket is 855** — thirty times larger,
+and invisible because nothing systematically fingerprints those rows. That is the entire argument for
+this section in one table: without the metric, even a careful reviewer optimizes the wrong cluster.
+(Counts are from `data/` catalogs; confirm against the live `sources` table before acting.)
 
 `sources.cms` and `sources.feed_kind` already exist. What's missing is making them drive the work:
 
