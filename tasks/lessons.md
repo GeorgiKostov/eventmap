@@ -332,3 +332,14 @@ the render loop; with a dead CDN the animation never progresses, `moveend` never
 viewport silently stays on the old area while the "Around X" chip claims the new one. Fix:
 watchdog → `jumpTo` (synchronous moveend). Rule of thumb: an OpenFreeMap outage must degrade to
 "grey map, working list" — verify features with the tile CDN *blocked*, not just healthy.
+
+## An architecture change can delete the problem a feature was solving (2026-07-14)
+The long-press / right-click drop-pin was built to answer "show me events over there without
+typing" — a real problem under the radius model, where the map didn't drive the query. Hours later
+the viewport rebuild made *panning* the query, so the gesture duplicated the map's primary
+interaction and its discoverability tip became wrong advice ("long-press to see events around that
+spot" — no: just look). George spotted it, not me: I shipped the rebuild and carried the gesture
+forward without re-asking whether it still had a job.
+**Lesson:** after a change to how the app fundamentally works, re-audit the features built for the
+old model and ask what each one is still *for*. Deleting a feature you just built is not waste —
+carrying a dead interaction (plus its hint, its CSS, its i18n) forward is.

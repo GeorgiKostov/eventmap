@@ -59,18 +59,18 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] Watch in the test: interest taps = the only intent-to-attend signal we have; reports = coverage
       accuracy, the go/no-go metric.
 
-## Set location by map gesture (2026-07-14, George: "typing a location to move from current sucks")
-- [x] **Long-press (touch, 500ms) / right-click (desktop) drops the search-anywhere reference point**
-      where pressed — reverse-geocodes into the existing `Around {ort}` chip, recomputes distances /
-      radius filter / radius circle. Dropped pin draggable to fine-tune. One-time hint toast for
-      discoverability. Gated by `addFlowActiveRef`; trailing synthetic click swallowed so it never
-      fights tap-to-select. (f046f83)
-- [x] ~~Discoverability: hint at the moment of intent (search dropdown)~~ (0ca7ace) — **superseded:
-      George said it interfered.** The tip now shows only on an EMPTY result (`events` loaded &&
-      `filtered.length === 0`), as a small tooltip under the search bar; tap dismisses it for good
-      (localStorage `umkreis_droppin_hint`). The 3.5s-after-load toast is gone too — firing before the
-      user has any intent to move was the interference. Lesson: a tip belongs where it solves a
-      problem the user is currently having, not where they might one day need it. (cf4223c)
+## Set location by map gesture (2026-07-14) — BUILT, THEN RETIRED
+- [x] Long-press / right-click dropped a reference pin; tip shown only on an empty result. (f046f83, cf4223c)
+- [x] **REMOVED (George, same day): "we can remove the right click and long tap now right"** — correct.
+      Under the viewport model, panning IS how you see events elsewhere, so the gesture duplicated the
+      map's primary interaction, and its tip ("long-press to see events around that spot") became wrong
+      advice. Gone: dropLocationPin, contextmenu/touch long-press listeners, draggable search-marker,
+      the hint + its localStorage key, droppedPinLabel/dropPinHint (de/en/bg), .search-hint CSS.
+      Typed location search still re-anchors distances via the "Around X" chip — the pin's only
+      remaining job. (page.js swept into 6375d5a; remnants 3dbace7)
+      **Lesson: a feature can be correct when built and obsolete two hours later — a bigger change
+      upstream (radius → viewport) can delete the problem a feature was solving. Re-audit gestures
+      after an architecture change instead of carrying them forward.**
 
 ## Shipped (prototype v1 → v2, 2026-07-10)
 - [x] Scaffold Next.js + SQLite (Supabase-portable schema); MapLibre + OSM map.
