@@ -288,10 +288,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       (`typo3-hwveranstaltung`, `wordpress-ical`) wired into the crawl waterfall and both sources
       re-enabled (395 events now refresh instead of rotting). Hard rule 7 in CLAUDE.md: outside
       crawlers/tools are bootstrap only; a source isn't done until the cron can re-fetch it.
-- [ ] **Stuttgart city source is robots-blocked** — `Landeshauptstadt Stuttgart` yields 0 events;
-      stuttgart.de disallows its RSS path. Find an allowed endpoint (open-data portal? JSON-LD/iCal
-      calendar page?) or send a permission email (briefs/outreach-emails-de.md). Never crawl the
-      blocked path. Biggest city in the DE scope currently contributes nothing.
+- [x] **Stuttgart "robots block" was OUR parser bug, fixed 2026-07-14** — parseRobots ignored
+      `Allow:`, so Cloudflare's `User-agent:* / Allow:/` + named-AI-bot blocks merged into one
+      all-disallowed `*` group. Fixed (Allow parsing, longest-match precedence, same-agent group
+      union, trailing-`*` prefixes; 13/13 tests incl. live stuttgart.de). Stuttgart now yields
+      **92 events via the existing sitepark-ical adapter**; Община Плевен (only other victim)
+      unblocked too. Both sources' stale notes replaced.
 - [ ] **Watch Actions minutes** after ~2 weeks of daily crawls: most AT sources still default to
       `tier='active'` (2d) until they have 3 crawls of yield history, so early runs are heavy
       (~600–1,400 min/month est., free allowance is 2,000 on private repos). Should self-correct as
@@ -300,6 +302,34 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] **Austria backfill Phase 2** (briefs/austria-backfill-brief.md): after waterfall merge + Phase-1
       probe lands — `EXTRACT_PROVIDER=grok` batch crawl (needs `XAI_API_KEY` from console.x.ai — George;
       falls back to Gemini ~$6–15 one-time if no key). Provider already wired in lib/extract.js.
+
+## Big-city quality concept (2026-07-14, George: precise locations + family/nature sources —
+## full concept: docs/design/big-city-quality.md; measured: 51% of 9,035 events in the 5 city
+## zones sit at town precision; 2,565 have a venue string that collapses to 1,163 unique pairs)
+- [ ] Stage 0 hygiene: `Online`/`Sonstige` venue sentinels — never centroid-pin them (394 junk pins).
+- [ ] **Venue registry** (`venues` table): (name_norm, town) → coords + provenance; seed from
+      resolved events + places; geocodeEvent consults it first. The durable asset — do before regeocode.
+- [ ] **Detail-page second hop**: fetch per-event detail URLs (GEM2GO detailonr etc.) for
+      town-precision events; parse Ort/address + JSON-LD. $0, deterministic, biggest precision jump.
+- [ ] `blocked_reason` column + monthly recheck + rot-report section (robots|ai_bot_policy|js_spa|
+      login_wall|tos) — blocked ≠ dead; feeds the outreach queue instead of rotting to tier=dead.
+- [ ] **Naturfreunde JSON adapter** — POST naturfreunde.at/events/ng_items: 2,491 events, all 9
+      Länder, WITH lat/lng; Crawl-delay 10. Filter by family target group. + **Kinderfreunde**
+      HTML parser (age-tagged, robots-open). Then: FRida&freD Graz, city libraries (not Wien),
+      Naturpark Attersee-Traunsee; Donau-Auen/Kalkalpen are js_spa — need their AJAX endpoints.
+- [ ] Zone-scoped CMS sniff of the 1,027 unsniffed probe skips — Graz ring thinnest (63 sources,
+      ≥51 candidates); Stmk 12%/Ktn 13%/Bgld 15% pass rates hide a cluster. (Merges with the
+      fingerprint item below.)
+- [ ] Venue web-search backfill (Grok CLI $0 / Gemini grounding) for residual unique venue pairs —
+      model returns an address STRING, we geocode it ourselves, 15km bound, registry provenance.
+      Never accept model coords (hard rule 5).
+- [ ] Places: trails via route=hiking + sac_scale strolling|hiking (11.7k relations / 26.5k easy
+      ways AT-wide) with family_suitable + trail_type attrs; **family_cafe** category via
+      restaurant↔playground ≤80m spatial join (direct tags measured dead: kids_area=67, playground
+      =yes on restaurants=1); retail play areas (IKEA/XXXLutz) = committed hand-curated seed file.
+      `farm` deferred. George's call: family_cafe labeling honesty ("own playground" vs "nebenan").
+- Rejected: per-event Google search as the opener (venue-first is ~10× cheaper); Mamilade/
+  alpenvereinaktiv/bergfex/komoot as sources (ToS/commercial — partnership conversations only).
 
 ## Source & parser coverage (2026-07-14, Gemini code review — triaged, kept the useful half)
 - [ ] **Fingerprint the unclassified sources — do this BEFORE writing any new parser.** Mined catalogs

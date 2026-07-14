@@ -2,6 +2,27 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-14 — Your own politeness layer can manufacture a block; verify "blocked" against the raw file
+
+Stuttgart (the biggest DE-scope city) sat at 0 events for days with `notes="skipped: disallowed
+by robots.txt"` — and stuttgart.de never blocked us. `parseRobots` didn't recognize `Allow:`
+lines, so Cloudflare's now-ubiquitous managed robots layout (`User-agent: * / Allow: /` followed
+immediately by `User-agent: GPTBot / Disallow: /` etc.) left the `*` group looking rule-less; the
+consecutive-UA grouping heuristic then merged the first named AI bot INTO the `*` group, which
+absorbed its `Disallow: /` — our parser concluded the whole site was closed to everyone. The skip
+even fed `zero_streak`, i.e. "we may not crawl this" was being counted as "nothing is here" and
+marching toward auto-`dead`. **Lessons:** (1) a "blocked/disallowed" verdict produced by your own
+compliance code deserves the same skepticism as any other failure — before accepting it (or
+emailing a webmaster for permission), replay the parser against the raw robots.txt and read the
+file yourself; (2) when hand-rolling a spec subset, unrecognized-but-rule-bearing directives are
+the trap: any directive you don't parse must still terminate grouping windows, or its group
+swallows its neighbors; (3) skip-reasons must be states, not failure streaks — a robots skip
+should never increment the same counter as an empty calendar (→ `blocked_reason` concept,
+docs/design/big-city-quality.md §2). Same-day corollary: an inherited analysis (the "796 sources
+were never registered" claim) was stale — its headline was false against the live DB while its
+sub-findings were real. Verify inherited/pasted findings against the live system before building
+plans on them; stale `_meta` notes in catalog files outlive the actions that resolved them.
+
 ## 2026-07-13 — `map.isStyleLoaded()` + `once('load')` is a dead-end gate for late layer installs
 
 The GL pins shipped and George saw an EMPTY map past cluster zoom: the pin layers were never

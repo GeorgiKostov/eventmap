@@ -72,9 +72,14 @@ async function politeFetch(url, opts = {}) {
   });
 }
 
-// Groups consecutive "User-agent:" lines (no Disallow seen yet) into one rule
+// Groups consecutive "User-agent:" lines (no rule seen yet) into one rule
 // set, per RFC 9309's common-case grouping. Good enough for our two agents
 // (our UA and "*") — not a full robots.txt implementation.
+// "Allow:" MUST count as a rule here: Cloudflare's managed robots layout is
+// `User-agent: * / Allow: /` immediately followed by named AI-bot blocks
+// (`User-agent: GPTBot / Disallow: /`, ...). Ignoring Allow left the `*`
+// group "empty", merged the first named bot into it, and made the entire
+// site look disallowed for everyone — the false block that zeroed Stuttgart.
 function parseRobots(text) {
   const groups = [];
   let current = null;
@@ -86,15 +91,18 @@ function parseRobots(text) {
     const key = line.slice(0, idx).trim().toLowerCase();
     const value = line.slice(idx + 1).trim();
     if (key === 'user-agent') {
-      if (current && current.disallow.length === 0 && !current.sawRule) {
+      if (current && !current.sawRule) {
         current.agents.push(value.toLowerCase());
       } else {
-        current = { agents: [value.toLowerCase()], disallow: [], crawlDelayMs: null, sawRule: false };
+        current = { agents: [value.toLowerCase()], disallow: [], allow: [], crawlDelayMs: null, sawRule: false };
         groups.push(current);
       }
     } else if (key === 'disallow' && current) {
       current.sawRule = true;
       if (value) current.disallow.push(value);
+    } else if (key === 'allow' && current) {
+      current.sawRule = true;
+      if (value) current.allow.push(value);
     } else if (key === 'crawl-delay' && current) {
       current.sawRule = true;
       const seconds = Number(value);
@@ -104,15 +112,36 @@ function parseRobots(text) {
   return groups;
 }
 
+// A robots.txt may contain several groups for the same agent token (Stuttgart
+// has two `User-agent: *` blocks — Cloudflare's and the site's own). Per
+// RFC 9309 their rules apply as a union, so merge every matching group rather
+// than taking the first.
 function matchingRobotsGroup(groups) {
-  return groups.find((g) => g.agents.some((a) => a.includes(BOT_TOKEN)))
-    || groups.find((g) => g.agents.includes('*'))
+  const merge = (pred) => {
+    const matched = groups.filter(pred);
+    if (!matched.length) return null;
+    return {
+      disallow: matched.flatMap((g) => g.disallow),
+      allow: matched.flatMap((g) => g.allow),
+      crawlDelayMs: matched.map((g) => g.crawlDelayMs).find((d) => d != null) ?? null,
+    };
+  };
+  return merge((g) => g.agents.some((a) => a.includes(BOT_TOKEN)))
+    || merge((g) => g.agents.includes('*'))
     || null;
 }
 
+// RFC 9309 precedence: the longest matching rule wins; on an allow/disallow
+// tie, allow wins. Patterns are treated as prefixes (a trailing '*' is
+// equivalent and stripped); interior wildcards/'$' stay unsupported, as before.
 function isDisallowed(group, pathname) {
   if (!group) return false;
-  return group.disallow.some((p) => p === '/' || (p && pathname.startsWith(p)));
+  const longest = (rules) => rules.reduce((max, p) => {
+    const prefix = p.endsWith('*') ? p.slice(0, -1) : p;
+    return prefix && pathname.startsWith(prefix) && prefix.length > max ? prefix.length : max;
+  }, 0);
+  const d = longest(group.disallow);
+  return d > 0 && d > longest(group.allow);
 }
 
 async function robotsAllowed(url) {

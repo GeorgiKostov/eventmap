@@ -143,7 +143,11 @@ UA (`UmkreisBot/0.1 … contact: bobojojok@gmail.com`), a per-host ≥1s delay e
 `lastFetchByHost` map, and a `robots.txt` check (`robotsAllowed()`) cached per origin, gating on a
 match for `umkreisbot` or `*` in a small hand-rolled RFC-9309 group parser
 (`parseRobots`/`isDisallowed`) — good enough for the two agents that matter, not a full spec
-implementation.
+implementation. It does handle the parts that bite in practice (fixed 2026-07-14 after the
+Stuttgart false block): `Allow:` lines count as rules (Cloudflare's managed layout otherwise
+merges named AI-bot `Disallow: /` blocks into the `*` group), multiple groups for the same agent
+token are unioned, precedence is longest-match with allow winning ties, and a trailing `*` in a
+pattern is treated as the equivalent prefix. Interior wildcards/`$` remain unsupported.
 
 **Change detection.** The fetched page is stripped to text (`htmlToText`), hashed (sha256), and
 compared to `sources.page_hash`. Unchanged (and no `--force`) → skip extraction entirely, only

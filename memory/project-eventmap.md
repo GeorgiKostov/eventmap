@@ -9,7 +9,33 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-07-14 latest — crawl cadence + repeatable-source rule)
+## Where things stand (2026-07-14 latest — big-city quality concept + robots parser fix)
+- **Concept delivered: docs/design/big-city-quality.md** (George: precise locations for big-city
+  events + missing family/nature/Verein sources). Measured: 51% of 9,035 events in the 5 city
+  zones (W/L/G/S/I +40km) are town-precision; 2,565 have an unresolved venue string collapsing to
+  **1,163 unique (venue,town) pairs** → the fix is venue-shaped, not event-shaped. Ladder: sentinel
+  hygiene (394 'Online' centroid pins) → venues registry → $0 detail-page second hop (480+ events
+  have unfetched detailonr URLs) → web-search per unique venue (model returns address string, WE
+  geocode it, 15km bound — never model coords) → per-event search deliberately NOT built.
+  Source sweep (2 Sonnet agents): **Naturfreunde hidden JSON API** (POST /events/ng_items — 2,491
+  events, all Länder, lat/lng included, robots-allowed, Crawl-delay 10) is the top unlock;
+  then Kinderfreunde (age-tagged HTML), FRida&freD Graz, non-Wien city libraries. Closed/never:
+  alpenvereinaktiv, bergfex, komoot, Mamilade (ToS/commercial). Places: trails have real OSM
+  backbone (11.7k hiking relations, sac_scale strolling|hiking = family filter); family_cafe only
+  viable as restaurant↔playground ≤80m spatial join (direct tags: 1 and 67 hits AT-wide);
+  IKEA/XXXLutz play areas = hand-curated committed seed list.
+- **Stuttgart was never robots-blocked — parseRobots bug, fixed.** `Allow:` wasn't parsed, so
+  Cloudflare's managed layout merged named AI-bot `Disallow:/` into the `*` group → whole site
+  read as closed. Fix: Allow parsing + RFC-9309 longest-match + same-agent group union + trailing-*
+  prefixes (13/13 tests, live-verified). Stuttgart → **92 events via existing sitepark-ical
+  adapter**; Плевен (only other victim) unblocked; no source had rotted to tier=dead. Concept §2:
+  `blocked_reason` column so genuine blocks (Büchereien Wien, JS-SPAs) are states feeding an
+  outreach queue, not zero_streaks rotting to 'dead'.
+- **Inherited-analysis caveat:** the pasted "796 probed sources never registered / Salzburg 0%"
+  claim was STALE (all 796 registered 2026-07-12; Salzburg ring has 62 working sources). Real
+  kernel kept: probe never sniffed HTML → 1,027 unclassified skips, Graz ring thinnest.
+
+## Where things stand (2026-07-14 — crawl cadence + repeatable-source rule)
 - **Crawl trigger is now daily** (`0 4 * * *`, `.github/workflows/crawl.yml`, renamed "Scheduled
   crawl"). Was Thursday-weekly, which made `TIER_CADENCE_DAYS` (active 2d / slow 5d / dormant 7d)
   dead code — on a 7-day trigger every source is past even the dormant threshold. Daily is the
