@@ -865,7 +865,9 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
   let ok = 0;
   for (const raw of events) {
     try {
-      const cats = raw.categories.filter((c) => CAT_EMOJI[c]);
+      // Same source-level default categories as the generic path (see there).
+      const cats = [...new Set([...raw.categories, ...(src.default_categories || [])])]
+        .filter((c) => CAT_EMOJI[c]);
       const ev = {
         title: raw.title,
         description: null,
@@ -980,9 +982,20 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
         ends_at,
         all_day: time ? 0 : 1,
         venue: raw.venue, address: raw.address, town: raw.town || src.town,
-        categories: (raw.categories || []).filter((c) => CAT_EMOJI[c]),
+        // A source's default_categories are facts about the SOURCE, not guesses
+        // about the text: everything a children's museum publishes is for
+        // children, even when the event's own words never say so (a FRida & freD
+        // listing reading "Stille Stunden — Inklusives Programm" extracted as
+        // 'culture', leaving 144 kids-museum events invisible to the For-kids
+        // filter). Appended, never substituted — the extractor's own categories
+        // stand. Only set for unambiguously single-audience sources; see
+        // scripts/migrate-source-categories.mjs.
+        categories: [...new Set([
+          ...(raw.categories || []),
+          ...(src.default_categories || []),
+        ])].filter((c) => CAT_EMOJI[c]),
         is_free: raw.is_free, age_min: raw.age_min, age_max: raw.age_max, indoor: raw.indoor,
-        emoji: CAT_EMOJI[(raw.categories || [])[0]] || '📌',
+        emoji: CAT_EMOJI[(raw.categories || [])[0]] || CAT_EMOJI[(src.default_categories || [])[0]] || '📌',
         src_kind: 'crawl',
         source_name: src.name,
         source_url: raw.source_url || src.url,

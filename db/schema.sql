@@ -18,6 +18,10 @@ create table if not exists sources (
   feed_kind     text,               -- jsonld | ical | gem2go | dvv | rss | llm | null
   etag          text,               -- last response ETag (conditional GET, generic shell only)
   last_modified text,               -- last response Last-Modified (conditional GET, generic shell only)
+  default_categories text[] not null default '{}', -- categories every event from this source inherits
+                                    -- (a children's museum's events ARE family events even when the
+                                    -- text never says so) — appended, never substituted. Only for
+                                    -- unambiguously single-audience sources; scripts/migrate-source-categories.mjs
   -- content-rating / tiering (scripts/crawl.mjs) — see tier threshold comment there
   crawl_count   int default 0,      -- total crawl attempts (incl. hash-unchanged skips)
   events_last   int,                -- events found on the most recent extraction round
