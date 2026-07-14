@@ -58,6 +58,10 @@ async function photonSuggest(q, country = 'AT') {
           label: photonLabel(f.properties || {}),
           lat: f.geometry.coordinates[1],
           lng: f.geometry.coordinates[0],
+          // A locality is a different kind of answer than a street or a shop:
+          // the location search ranks localities first, address autocomplete
+          // ignores the flag.
+          place: (f.properties?.osm_key || '') === 'place',
         }))
         .filter((r) => r.label)
         .slice(0, 6);

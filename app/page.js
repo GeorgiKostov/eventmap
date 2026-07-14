@@ -8,6 +8,7 @@ import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/i
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { hasTime, makeStartsAt, inTimeOfDay } from '../lib/event-time.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
+import { searchPlaces, normalizePlace } from '../lib/places.js';
 import { groupEventSeries } from '../lib/map-groups.js';
 import { isForKids } from '../lib/kid-cats.js';
 import { track } from '../lib/analytics.js';
@@ -157,6 +158,18 @@ function primaryCat(ev) {
 function isCommunitySubmitted(ev) {
   return ev.src_kind === 'user_photo' || ev.src_kind === 'user_manual' || ev.src_kind === 'user_link';
 }
+// Placeholder venues ('Online', 'Sonstige', 'онлайн', …) are not a physical
+// place — never draw them on the map, in a pin or a town group (they have
+// nowhere to point to). Mirrors lib/geocode.js SENTINEL_VENUES, duplicated as
+// a tiny local check because that module pulls in server-only deps (postgres
+// via lib/db.js) that must not enter the client bundle.
+const SENTINEL_VENUES = new Set([
+  'online', 'sonstige', 'sonstiges', 'diverse', 'verschiedene orte', 'div orte',
+  'wird noch bekannt gegeben', 'siehe beschreibung', 'онлайн',
+]);
+function isOnlineVenue(ev) {
+  return SENTINEL_VENUES.has((ev.venue || '').trim().toLowerCase());
+}
 
 /* ---------------- GL pin sprites ----------------
  * MapLibre paint/layout can't read CSS vars, so pin sprites are rasterized from
@@ -172,8 +185,8 @@ const PIN_PAD = 3;                    // room for the 2px white border
 const PIN_BOX = PIN_S + PIN_PAD * 2;  // 34px shown at icon-size 1
 const HALO_S = 44;                    // selection halo silhouette — rings the 1.28× selected pin
 const HALO_BOX = 46;
-const APPROX_S = 40;                  // approx dashed outline (DOM was pin+6px inset each side)
-const APPROX_BOX = 44;
+const TOWN_BUBBLE_S = 40;             // town-group dashed bubble diameter
+const TOWN_BUBBLE_BOX = 44;
 const SPRITE_RATIO = 3;               // supersample so pins stay crisp on hidpi
 
 // Teardrop (event) = circle with a sharp-ish bottom-left corner, matching the CSS
@@ -203,13 +216,16 @@ function haloSpriteSvg(cat) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${HALO_BOX}" height="${HALO_BOX}" viewBox="0 0 ${HALO_BOX} ${HALO_BOX}">`
     + `<g transform="translate(${pad} ${pad})"><path d="${pinSilhouette(HALO_S, place)}" fill="${CATS[cat].color}"/></g></svg>`;
 }
-// Town-level (approx) precision = neutral dashed outline following the pin shape
-// (the DOM ::before used border-radius:inherit — a circle ring on a teardrop pin
-// reads wrong). GL can't dash, so it's a baked sprite drawn under the pin.
-function approxHaloSvg(place) {
-  const pad = (APPROX_BOX - APPROX_S) / 2;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${APPROX_BOX}" height="${APPROX_BOX}" viewBox="0 0 ${APPROX_BOX} ${APPROX_BOX}">`
-    + `<g transform="translate(${pad} ${pad})"><path d="${pinSilhouette(APPROX_S, place)}" fill="rgba(255,255,255,0.42)" stroke="rgba(33,43,40,0.62)" stroke-width="2" stroke-dasharray="4 4"/></g></svg>`;
+// Town-level positions never become individual pins (a pin claims "a venue is
+// here", which a town centroid can't support) — they collapse into ONE dashed
+// bubble per town instead (grouping happens in townGroupData below). Neutral
+// fill (no category color — a town group has no single category), dashed
+// outline reusing the same "approximate" stroke language the old per-pin halo
+// used, circular only (no shape to match — a town group isn't a venue or kind).
+function townBubbleSvg() {
+  const pad = (TOWN_BUBBLE_BOX - TOWN_BUBBLE_S) / 2, r = TOWN_BUBBLE_S / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${TOWN_BUBBLE_BOX}" height="${TOWN_BUBBLE_BOX}" viewBox="0 0 ${TOWN_BUBBLE_BOX} ${TOWN_BUBBLE_BOX}">`
+    + `<circle cx="${pad + r}" cy="${pad + r}" r="${r - 1}" fill="rgba(246,246,243,0.95)" stroke="rgba(33,43,40,0.72)" stroke-width="2" stroke-dasharray="4 4"/></svg>`;
 }
 // Rasterize an SVG string to ImageData at SPRITE_RATIO for map.addImage.
 function rasterizeSprite(svg, cssW, cssH) {
@@ -237,8 +253,7 @@ async function registerPinSprites(map) {
   await Promise.all([
     ...Object.keys(CATS).map((cat) => add(`pin-${cat}`, pinSpriteSvg(cat), PIN_BOX, PIN_BOX)),
     ...Object.keys(CATS).map((cat) => add(`halo-${cat}`, haloSpriteSvg(cat), HALO_BOX, HALO_BOX)),
-    add('approx-event', approxHaloSvg(false), APPROX_BOX, APPROX_BOX),
-    add('approx-place', approxHaloSvg(true), APPROX_BOX, APPROX_BOX),
+    add('town-bubble', townBubbleSvg(), TOWN_BUBBLE_BOX, TOWN_BUBBLE_BOX),
   ]);
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
@@ -534,8 +549,8 @@ export default function Home() {
   const [manualEntry, setManualEntry] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [orteMatches, setOrteMatches] = useState([]); // instant local town matches
-  const [geoResult, setGeoResult] = useState(null); // remote forward-geocode result {lat,lng,label} | null
+  const [orteMatches, setOrteMatches] = useState([]); // instant gazetteer/town matches
+  const [geoMatches, setGeoMatches] = useState([]); // remote suggest results (villages, addresses)
   const [geoLoading, setGeoLoading] = useState(false);
   const geoDebounce = useRef(null);
   const geoReqId = useRef(0);
@@ -550,7 +565,7 @@ export default function Home() {
     setSearchOpen(false);
     setSearchQuery('');
     setOrteMatches([]);
-    setGeoResult(null);
+    setGeoMatches([]);
     setGeoLoading(false);
     setQResults([]);
     setQLoading(false);
@@ -626,36 +641,47 @@ export default function Home() {
     });
   }
 
-  async function runForwardGeocode(q) {
+  // Long tail of the location search: everything the gazetteer doesn't carry
+  // (villages, hamlets, addresses), via the Photon autocomplete endpoint.
+  // Localities come first, then streets/POIs; anything already matched locally
+  // is dropped so a place can't appear twice.
+  async function runPlaceSuggest(q, localLabels) {
     const reqId = ++geoReqId.current;
     setGeoLoading(true);
     try {
-      const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/geocode?suggest=1&q=${encodeURIComponent(q)}`);
       const data = await res.json();
-      if (reqId === geoReqId.current) setGeoResult(data.result || null);
+      const rows = [];
+      for (const r of Array.isArray(data.results) ? data.results : []) {
+        const key = normalizePlace(r.label);
+        // Photon happily returns the same street as several OSM ways.
+        if (localLabels.has(key) || rows.some((x) => normalizePlace(x.label) === key)) continue;
+        rows.push(r);
+      }
+      rows.sort((a, b) => Number(b.place) - Number(a.place));
+      if (reqId === geoReqId.current) setGeoMatches(rows.slice(0, 4));
     } catch {
-      if (reqId === geoReqId.current) setGeoResult(null);
+      if (reqId === geoReqId.current) setGeoMatches([]);
     } finally {
       if (reqId === geoReqId.current) setGeoLoading(false);
     }
   }
 
-  // instant client-side town match as the user types; falls back to a debounced
-  // (600ms, ≥3 chars) forward-geocode via the Nominatim-backed API when nothing
-  // local matches.
+  // Instant, offline location matches as the user types: the city/town
+  // gazetteer (lib/places.js) plus the towns of the loaded events, ranked
+  // prefix-first. A remote geocoder can't do this — Photon biases to the map
+  // centre, so "vie"/"wie" near Linz returns a street long before Vienna —
+  // hence the static list carries the names people actually type.
   useEffect(() => {
     const q = searchQuery.trim();
     clearTimeout(geoDebounce.current);
-    if (q.length < 2) { setOrteMatches([]); setGeoResult(null); setGeoLoading(false); return; }
-    const ql = q.toLowerCase();
-    const local = [...townCenters.entries()]
-      .filter(([name]) => name.toLowerCase().includes(ql))
-      .slice(0, 5)
-      .map(([label, c]) => ({ label, lat: c.lat, lng: c.lng }));
+    if (q.length < 2) { setOrteMatches([]); setGeoMatches([]); setGeoLoading(false); return; }
+    const local = searchPlaces(q, { extra: townCenters });
     setOrteMatches(local);
-    setGeoResult(null);
-    if (local.length === 0 && q.length >= 3) {
-      geoDebounce.current = setTimeout(() => runForwardGeocode(q), 600);
+    setGeoMatches([]);
+    if (q.length >= 3) {
+      const localLabels = new Set(local.flatMap((l) => l.keys));
+      geoDebounce.current = setTimeout(() => runPlaceSuggest(q, localLabels), 300);
     } else {
       setGeoLoading(false);
     }
@@ -1078,7 +1104,7 @@ export default function Home() {
       const haloCat = e.id.startsWith('halo-') ? e.id.slice(5) : null;
       if (pinCat && CATS[pinCat]) put(pinSpriteSvg(pinCat), PIN_BOX, PIN_BOX);
       else if (haloCat && CATS[haloCat]) put(haloSpriteSvg(haloCat), HALO_BOX, HALO_BOX);
-      else if (e.id === 'approx-event' || e.id === 'approx-place') put(approxHaloSvg(e.id === 'approx-place'), APPROX_BOX, APPROX_BOX);
+      else if (e.id === 'town-bubble') put(townBubbleSvg(), TOWN_BUBBLE_BOX, TOWN_BUBBLE_BOX);
     });
     // ONE click handler routes every map tap with explicit priority — cluster
     // bubble → pin → overview point → deselect. Layer-specific on('click', layer)
@@ -2033,7 +2059,8 @@ export default function Home() {
   // Top-left locality label + expanding search. `compact` = floating pill over
   // the map (mobile); non-compact = a normal row inside the desktop sidebar.
   function locSearchBar(compact) {
-    const showOrte = orteMatches.length > 0 || geoLoading || geoResult;
+    const locResults = [...orteMatches, ...geoMatches];
+    const showOrte = locResults.length > 0 || geoLoading;
     return (
       <div className={`locsearch ${compact ? 'floaty' : ''}`}>
         <div className="locsearch-row">
@@ -2047,13 +2074,9 @@ export default function Home() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') closeSearch();
-                  if (e.key === 'Enter') {
-                    const q = searchQuery.trim();
-                    if (q.length >= 3 && orteMatches.length === 0) {
-                      clearTimeout(geoDebounce.current);
-                      runForwardGeocode(q);
-                    }
-                  }
+                  // Enter takes the top location — the whole point of the
+                  // ranking is that it's the one you meant.
+                  if (e.key === 'Enter' && locResults.length > 0) selectLocation(locResults[0]);
                 }}
                 placeholder={t.searchPlaceholder}
               />
@@ -2122,17 +2145,13 @@ export default function Home() {
             {showOrte && (
               <div className="search-section">
                 <div className="search-sechead">{t.searchSectionLocations}</div>
-                {orteMatches.map((loc) => (
-                  <button key={loc.label} className="search-row loc" onClick={() => selectLocation(loc)}>
+                {locResults.map((loc) => (
+                  <button key={`${loc.label}:${loc.lat}`} className="search-row loc" onClick={() => selectLocation(loc)}>
                     📍 {loc.label}
+                    {loc.hint && <span>{loc.hint}</span>}
                   </button>
                 ))}
-                {orteMatches.length === 0 && geoLoading && <div className="search-loading">{t.searching}</div>}
-                {orteMatches.length === 0 && !geoLoading && geoResult && (
-                  <button className="search-row loc" onClick={() => selectLocation(geoResult)}>
-                    📍 {geoResult.label}
-                  </button>
-                )}
+                {locResults.length === 0 && geoLoading && <div className="search-loading">{t.searching}</div>}
               </div>
             )}
             <div className="search-section">
