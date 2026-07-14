@@ -81,9 +81,12 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ("...der ErdeDie progressiven Nostalgiker"), which also defeats content_hash dedup → spawned as its
   own task.
 - **AI writes prose, never facts** — every teaser was traced back to our own DB `description`. The
-  copy label reports the model that ACTUALLY wrote it (currently `gemini-2.5-flash`), because
-  ANTHROPIC_API_KEY is set nowhere: **George must set it (Vercel + GH secret) to get Sonnet**, plus
-  ADMIN_TOKEN on Vercel to open the desk in prod.
+  copy label reports the model that ACTUALLY wrote it, which is how we caught that Sonnet wasn't
+  running: `ANTHROPIC_API_KEY` lived in **`env.local` — the DOTLESS file, which nothing loads**
+  (`next` reads `.env.local`; npm scripts pass `--env-file=.env.local`). The 2026-07-10 lesson,
+  repeating. Copied into `.env.local` → `copy: claude-sonnet-5` confirmed. **Still needed in PROD:
+  ANTHROPIC_API_KEY as a Vercel env var AND a GH Actions secret (the Thursday cron writes the copy),
+  plus ADMIN_TOKEN on Vercel.** Two near-identically-named env files is a live footgun.
 - **THE BOTTLENECK IS AUDIENCE, and it is now the only one.** Supply = 22k events; product = fine;
   assets = 10 min/week. Subscribers = **1, unconfirmed**. Followers = 0. Groups seeded = 0. Running
   the four-weekend Linz test before seeding an audience measures nothing — audience seeding is step

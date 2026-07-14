@@ -301,9 +301,14 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       descriptions (no fabrication), 403/503/409 guards all fire.
 - [x] Consent gap (c) CLOSED: List-Unsubscribe + List-Unsubscribe-Post on every send, and the
       unsubscribe route now answers the one-click POST.
-- [ ] **George: set `ANTHROPIC_API_KEY`** (Vercel + GH Actions secret) or the newsletter copy stays on
-      the Gemini fallback — the desk honestly shows which model wrote it. Also set `ADMIN_TOKEN` on
-      Vercel to open the desk in prod.
+- [x] **Sonnet copy CONFIRMED working locally** (`copy: claude-sonnet-5`). The key was there all
+      along — in `env.local`, the DOTLESS file, which nothing loads (`next` reads `.env.local`; every
+      npm script passes `--env-file=.env.local`). Exactly the trap in lessons.md 2026-07-10. Copied
+      into `.env.local`. **Two identical-looking env files is a footgun — consider deleting the
+      dotless `env.local` (both are gitignored).**
+- [ ] **George: still needed for PROD** — `ANTHROPIC_API_KEY` as a Vercel env var *and* a GitHub
+      Actions secret (the Thursday cron writes the copy), or prod/cron silently falls back to Gemini.
+      Also `ADMIN_TOKEN` on Vercel to open the desk in prod.
 - [ ] **THE REAL GAP — audience is zero.** 1 subscriber, unconfirmed; no followers; no groups seeded.
       Supply (22k events) and the machine are both done; distribution is the bottleneck and always was.
       Running the four-weekend test before seeding an audience measures nothing. Plan:
