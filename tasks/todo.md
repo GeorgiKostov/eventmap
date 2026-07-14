@@ -2,6 +2,24 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Viewport-native rebuild (2026-07-14, George: "best for performance and scale... dispatch sonnet opus agents") — SHIPPED
+- [x] **Radius model retired; viewport = the spatial filter** (decision doc
+      2026-07-14-viewport-data-loading.md, brief briefs/viewport-rebuild-brief.md). PostGIS geom +
+      GiST (migration run on prod), zoom-tiered API: pins ≥z11.5 (LIMIT 800, places-first so they
+      never starve, total/truncated surfaced) / server grid cells below (constant cost at any scale).
+      Global ?q= search, ?ids= saved-list resolve, expireIfStale — reads don't write. Linz viewport
+      47 KB (was 10.2 MB / 23,766 rows). Pipeline: Sonnet server agent → Sonnet client agent → Opus
+      adversarial review (SHIP-AFTER-FIXES, 2 MAJOR + 4 MINOR + 2 NIT, all fixed or deliberately
+      accepted) → architect integration. (ced9e73)
+- [x] **Basemap-outage resilience** (architect integration findings): initial fetch gated on map
+      init not MapLibre 'load' (CDN outage → grey map + working list, never "0 events");
+      `flyAssured()` jumpTo-watchdog so recenters land + refetch even with a dead render loop.
+- [ ] **George: eyeball on prod** — Vienna at z12–12.6 (truncation hint + places present), cells at
+      country zoom, cell-bubble tap (desk-checked only — flaky tile CDN blocked click-testing),
+      search → cross-country fly, saved list from another city.
+- [ ] Later, if EU dataset outgrows grid cells: MVT vector tiles (ST_AsMVT), CDN-cached. pg_trgm +
+      GIN for search >100k rows.
+
 ## Feedback signals (2026-07-14, George: "ratings + likes + comments? what do you recommend")
 - [x] **Interested / Save** on events + places — anonymous one tap, save in localStorage (works at
       zero traffic, no account), server keeps only the aggregate. Count hidden below

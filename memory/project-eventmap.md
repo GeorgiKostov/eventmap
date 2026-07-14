@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-14 latest+3 — VIEWPORT-NATIVE MAP SHIPPED, radius retired)
+- **The app now loads what the map shows, not the planet** (ced9e73; decision doc
+  2026-07-14-viewport-data-loading.md). PostGIS geom+GiST live on prod; /api/events?view=map is
+  zoom-tiered (pins ≥11.5 with LIMIT 800 places-first, grid cells below — constant cost at any
+  scale); all filters mirrored 1:1 in SQL; global ?q= search; ?ids= saved resolve; expireIfStale.
+  Radius slider/circle GONE — viewport is the filter, distance labels stay, newsletter radius stays.
+  Linz viewport 47 KB vs 10.2 MB before. Multi-agent build: Sonnet (server) → Sonnet (client) →
+  Opus adversarial review → architect fixes. Two integration finds worth remembering: (1) never gate
+  DATA on MapLibre 'load' — a basemap-CDN outage then means "0 events" forever; gate on map init,
+  degrade to grey-map-working-list. (2) animated flyTo dies with the render loop → `flyAssured()`
+  jumpTo watchdog, or recenters silently don't refetch. George still owes a prod eyeball (Vienna
+  truncation hint, cell tap).
+
 ## Where things stand (2026-07-14 latest+2 — source wave + enrichment run DONE)
 - **Enrichment run 1 (deterministic) finished: 537/4,573 zone events upgraded** (registry 146 /
   JSON-LD 191 / iCal 102 / table 98), 33 distance-guarded, 186 sentinels. Remainder: 2,264

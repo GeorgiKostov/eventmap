@@ -302,3 +302,13 @@ real flow in the browser (save → reload → check the menu badge) surfaced it.
 **Lesson:** never type-guard or compare a DB id as a number; normalize to `String` on every path.
 **Lesson:** a green build proves nothing about state that round-trips through storage — verify the
 flow, not the compile.
+
+## Data must not depend on the basemap (2026-07-14)
+Two integration bugs from the viewport rebuild, same root: coupling app data to MapLibre's render
+pipeline. (1) The initial event fetch was gated on `map.on('load')` — which never fires if the
+style/tile CDN is down, leaving "0 events" on a healthy API. Gate data on map *construction*
+(transform/bounds exist immediately); only LAYER install needs 'load'. (2) Animated `flyTo` needs
+the render loop; with a dead CDN the animation never progresses, `moveend` never fires, and the
+viewport silently stays on the old area while the "Around X" chip claims the new one. Fix:
+watchdog → `jumpTo` (synchronous moveend). Rule of thumb: an OpenFreeMap outage must degrade to
+"grey map, working list" — verify features with the tile CDN *blocked*, not just healthy.
