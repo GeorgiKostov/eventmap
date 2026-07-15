@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { addSubscriber } from '../../../lib/db.js';
-import { limit } from '../../../lib/ratelimit.js';
+import { limit, hashIp } from '../../../lib/ratelimit.js';
 import { notifyNewSubscriber, sendSubscriberConfirm } from '../../../lib/mail.js';
 import { EVENT_CATS } from '../../../lib/icons.js';
+import { NL_CONSENT_VERSION } from '../../../lib/i18n.js';
 
 export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,6 +78,11 @@ export async function POST(req) {
     radiusKm,
     categories,
     token: randomUUID(),
+    // Proof of consent (Art. 7(1) GDPR): the wording version is stamped
+    // server-side (client + server deploy together, so this IS what was shown),
+    // and the IP is stored only as the rate limiter's salted hash, never raw.
+    consentVersion: NL_CONSENT_VERSION,
+    consentIpHash: hashIp(req),
   });
 
   // Double opt-in: nothing is "subscribed" until the address owner clicks the

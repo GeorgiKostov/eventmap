@@ -142,9 +142,18 @@ create table if not exists subscribers (
   -- double opt-in (GDPR/TKG): a subscriber is only "active" once confirmed and
   -- not unsubscribed. `token` is the per-subscriber secret for the confirm and
   -- unsubscribe links; rotated whenever a pending/unsubscribed row re-subscribes.
+  -- Confirm links expire CONFIRM_TTL_DAYS after `token_issued_at` (lib/db.js);
+  -- unsubscribe never expires — revoking consent must always work.
   token          text,
+  token_issued_at timestamptz,
   confirmed_at   timestamptz,
-  unsubscribed_at timestamptz
+  unsubscribed_at timestamptz,
+  -- proof of consent (Art. 7(1) GDPR): when they signed up, which version of
+  -- the consent wording they saw (NL_CONSENT_VERSION in lib/i18n.js), and the
+  -- same hashed-IP value the rate limiter uses — never the raw IP.
+  consent_version text,
+  consent_ip_hash text,
+  consent_at      timestamptz
 );
 
 -- durable, IP-hash-keyed rate limiting for anonymous writes (scan + submit).
