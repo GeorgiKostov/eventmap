@@ -35,6 +35,7 @@ export default function ThursdayPage() {
   const [password, setPassword] = useState('');
   const [channel, setChannel] = useState('linz');
   const [data, setData] = useState(null);
+  const [social, setSocial] = useState(null);
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
   const [note, setNote] = useState('');
@@ -92,9 +93,24 @@ export default function ThursdayPage() {
     }
   }, []);
 
+  const loadSocial = useCallback(async (slug) => {
+    try {
+      const res = await fetch(`/api/admin/social?channel=${slug}`);
+      const json = await res.json();
+      setSocial(res.ok ? json : { error: true });
+    } catch {
+      // Not a page-level error, but "buttons silently disabled" reads as a
+      // broken feature — record the failure so the section can say so.
+      setSocial({ error: true });
+    }
+  }, []);
+
   useEffect(() => {
-    if (authed) load(channel);
-  }, [authed, channel, load]);
+    if (authed) {
+      load(channel);
+      loadSocial(channel);
+    }
+  }, [authed, channel, load, loadSocial]);
 
   async function act(action, extra = {}) {
     setBusy(action);
@@ -113,6 +129,33 @@ export default function ThursdayPage() {
         await load(channel);
       } else {
         setData(json);
+      }
+    } catch (e) {
+      setErr(e.message);
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function publish(target, extra = {}) {
+    const busyKey = `social-${target}`;
+    setBusy(busyKey);
+    setErr('');
+    setNote('');
+    try {
+      const res = await fetch('/api/admin/social', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ channel, target, ...extra }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'failed');
+      if (json.dryRun) {
+        console.log(`[dry run] ${target}`, json);
+        alert(`Dry run — would post ${json.imageUrls.length} images to ${target}. Payload logged to console.`);
+      } else {
+        setNote(`Posted to ${target}${json.permalink ? `: ${json.permalink}` : ''}${json.warning ? ` — ⚠ ${json.warning}` : ''}`);
+        await loadSocial(channel);
       }
     } catch (e) {
       setErr(e.message);
@@ -283,6 +326,55 @@ export default function ThursdayPage() {
                     >
                       {busy === 'send' ? 'Sending…' : data.sentAt ? `Re-send to ${data.audience}` : `Send to ${data.audience}`}
                     </button>
+                  </div>
+                </div>
+
+                <div style={S.card}>
+                  <div style={{ fontWeight: 700, marginBottom: 10 }}>4 · Publish (Instagram + Facebook)</div>
+                  {social?.error ? (
+                    <div style={{ ...S.muted, fontSize: 13 }}>Publish status unavailable — reload to retry.</div>
+                  ) : null}
+                  <div style={S.row}>
+                    {['instagram', 'facebook'].map((target) => {
+                      const configured = social?.configured?.[target];
+                      const posted = social?.posted?.[target];
+                      const busyKey = `social-${target}`;
+                      const label = target === 'instagram' ? 'Instagram' : 'Facebook';
+                      return (
+                        <div key={target} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          {social && !social.error && !configured ? (
+                            <span style={{ ...S.muted, fontSize: 13 }}>
+                              {label}: not configured — see docs/ops/meta-api-setup.md
+                            </span>
+                          ) : (
+                            <button
+                              style={S.btn}
+                              disabled={!!busy || !social || !!social.error}
+                              onClick={() => {
+                                if (posted && !confirm(`Already posted to ${label} for this weekend (${posted.permalink || posted.id}). Post again?`)) return;
+                                publish(target, { force: !!posted });
+                              }}
+                            >
+                              {busy === busyKey ? 'Posting…' : posted ? `Re-post to ${label}` : `Post to ${label}`}
+                            </button>
+                          )}
+                          {/* Preview is a server-side dry run — side-effect-free and
+                              credential-free, so it stays available even unconfigured. */}
+                          <button style={S.ghost} disabled={!!busy || !social || !!social.error} onClick={() => publish(target, { test: true })}>
+                            Preview
+                          </button>
+                          {posted ? (
+                            posted.permalink ? (
+                              <a href={posted.permalink} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: '#2E9C8C', fontWeight: 700 }}>
+                                Posted ✓
+                              </a>
+                            ) : (
+                              <span style={{ fontSize: 13, color: '#2E9C8C', fontWeight: 700 }}>Posted ✓ (no permalink)</span>
+                            )
+                          ) : null}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </>
