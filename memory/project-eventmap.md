@@ -17,6 +17,27 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-15 later — the zero-yield freeze is FIXED at the mechanism level)
+- **The starvation fix (49a8ee9) was necessary but not sufficient — two recording bugs of our own kept
+  sources frozen even when the crawl DID reach them** (4ea3f14): (1) extraction failure was recorded as
+  `noContent` → events_last=0 + zero_streak+1, so a provider blip read as "source is empty" (4 sources
+  unjustly tier=dead); (2) a zero-candidate LLM round stamped the NEW page_hash → all later crawls
+  hash-skip as "unchanged". Measured before the fix: 371 frozen works=true sources, 333 wedged with a
+  stamped hash, 329 on the llm route. Now: provider errors leave stats+last_crawled untouched (source
+  stays due → retries next run); page_hash stamped only when the LLM produced candidates (a genuinely
+  empty page costs one flash-lite call per due-crawl — cents); withRetry on crawl LLM calls;
+  **crawl.yml now passes ANTHROPIC_API_KEY — CI previously had NO fallback provider at all.**
+  `--recover-zeros` (new flag) force-recrawls the frozen set incl. dead; run 2026-07-15 FINAL:
+  **2,153 events from 100/371 sources, 0 provider errors; zero-yield 371 → 271 (rest are honest
+  zeros that now re-extract on cadence); published events 29,846.** **George still owes the GH
+  Actions secrets check:** add ANTHROPIC_API_KEY; confirm GEMINI_API_KEY there is the paid key
+  (Vercel ≠ Actions).
+- **Map: sparse-viewport switch shipped (12cab82), George's own UX call.** Below ZOOM_TIER, viewport
+  total ≤50 → API returns rows instead of grid cells; lone events render as category dots, black count
+  bubbles only where supercluster finds real overlap. Dense stays cells. Browser-verified both ways
+  (community filter at regional zoom = 1 colored dot + real sidebar list; all-AT = 37 cell bubbles).
+- Dev-env: `.claude/launch.json` pins the dev server to /opt/homebrew/bin/node (shell node is v16).
+
 ## Where things stand (2026-07-15 — big-city coverage: Innsbruck fixed + a systemic zero-yield finding)
 - **George's priority: 100% of the big 5 (Wien/Linz/Graz/Salzburg/Innsbruck), countryside can wait.**
   Measured: Wien 3368/76% precise/712 fam, Linz 3442/54%/342, Graz 1198/57%/269, Salzburg 1259/71%/172,

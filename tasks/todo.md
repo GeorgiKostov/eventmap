@@ -2,6 +2,32 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Crawl freeze fix + sparse-map pins (2026-07-15, George: "fix the crawl infra debt … and the map threshold switch") — SHIPPED (4ea3f14, 12cab82)
+- [x] **The zero-yield freeze had TWO of our own bugs on top of the ordering starvation (49a8ee9):**
+      (1) extraction failure recorded as `noContent` → events_last=0 + zero_streak+1, so a provider
+      blip read as "source is empty" and rotted sources toward dead (4 were unjustly tier=dead);
+      (2) a zero-candidate LLM round stamped the NEW page_hash → every later crawl hash-skipped the
+      source as "unchanged" — measured: 371 frozen works=true sources, **333 wedged with a stamped
+      hash**, 329 on the llm route. Fixed: provider errors leave stats+last_crawled untouched (stay
+      due, retry next run); page_hash stamped only when the LLM produced candidates; withRetry on the
+      crawl's Gemini/Claude calls; crawl.yml passes ANTHROPIC_API_KEY (CI had NO fallback before).
+- [x] **`--recover-zeros` recovery mode** (crawl.mjs + getZeroYieldSources): force-recrawls the frozen
+      set, tier=dead included (success resets zero_streak → tier revives). Run 2026-07-15 FINAL:
+      **2,153 events recovered from 100 of 371 sources, 0 provider errors** (paid key held at full
+      volume). Zero-yield sources 371 → 271 — and the remaining 271 are honest zeros that re-extract
+      every due cadence instead of being hash-wedged. Published events now 29,846.
+- [ ] **George: GitHub Actions secrets** (repo Settings → Secrets → Actions): add `ANTHROPIC_API_KEY`
+      (crawl.yml now reads it) and confirm the `GEMINI_API_KEY` secret there is the PAID key — Vercel
+      envs don't reach Actions.
+- [x] **Map: sparse viewports show pins, not black count bubbles** (George's call: "<20 events and
+      still big black circles?"). Below ZOOM_TIER, if the viewport total ≤50 the API returns rows
+      instead of grid cells; client unchanged — isolated events render as category dots, supercluster
+      bubbles only where ≥2 points overlap within 48px. Dense views stay cells (25k → 37 bubbles).
+      Browser-verified both ways. Bonus: sparse country-zoom sidebar now lists real events instead of
+      "N results, zoom in". SPARSE_PINS_MAX=50 in app/api/events/route.js.
+- [x] Dev-env note: `.claude/launch.json` now pins the dev server to `/opt/homebrew/bin/node`
+      (shell default node is v16, Next needs ≥20).
+
 ## Newsletter/social review + local language + city-handle branding (2026-07-15, George) — SHIPPED (c26704f)
 - [x] **Reviewed the whole growth surface** (signup → confirm → digest build → newsletter render →
       send ledger → social cards → weekend page): structurally solid. Language was already channel-

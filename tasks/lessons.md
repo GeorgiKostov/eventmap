@@ -506,3 +506,16 @@ forward without re-asking whether it still had a job.
 **Lesson:** after a change to how the app fundamentally works, re-audit the features built for the
 old model and ask what each one is still *for*. Deleting a feature you just built is not waste —
 carrying a dead interaction (plus its hint, its CSS, its i18n) forward is.
+
+## Record WHAT failed, not just that yield was zero (2026-07-15)
+The crawl conflated three unrelated facts into one signal: "extraction errored" (a provider
+problem), "the LLM returned no events" (ambiguous — empty calendar or silent model failure), and
+"the page had no events" (a source fact) all landed as events_last=0, and two of them also advanced
+zero_streak toward tier=dead. Worse, the zero-candidate LLM round stamped the new page_hash, so the
+change-detector then skipped the source as "unchanged" forever — a cache stamp taken during a
+failure window outlived the failure (the venues-registry lesson again, in a different table). 371
+working sources were frozen this way; 333 hash-wedged; 4 unjustly dead.
+**Lesson:** every pipeline stat must record *whose* fact it is. A provider error may not touch
+source stats, a cadence stamp, or any cache/hash — the run simply didn't happen for that source.
+And any "skip next time" marker (hash, etag, negative cache) may only be written on a *successful*
+round, or the skip logic institutionalizes the failure.
