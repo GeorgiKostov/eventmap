@@ -29,6 +29,14 @@ const INOUT_ENUM = new Set(['in', 'out', 'any']);
 const TOD_ENUM = new Set(['morning', 'afternoon', 'evening']);
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const ZOOM_TIER = 11.5; // >= pins, < cells (HANDOFF 12.0-12.6 crossfade band)
+// Below ZOOM_TIER, a viewport this sparse skips cells and returns real rows:
+// grid cells exist for constant cost at scale, but on a thin result set (a
+// filtered view, a low-coverage region) they render every lone event as a
+// black "1"/"2" count bubble. Rows let the client draw individual dots and
+// let MapLibre's supercluster decide per-spot where bubbles are actually
+// needed (≥2 points within its 48px radius). Well under mapPins' LIMIT 800,
+// so the switch can never truncate.
+const SPARSE_PINS_MAX = 50;
 
 function bad(msg) {
   return NextResponse.json({ error: msg }, { status: 400 });
@@ -127,6 +135,10 @@ export async function GET(req) {
     // ~64px cells at the given zoom: 360deg / 2^zoom tiles, quartered.
     const cellDeg = 360 / Math.pow(2, Math.round(zoom)) / 4;
     const { cells, total } = await mapCells({ bbox, cellDeg, ...filters });
+    if (total <= SPARSE_PINS_MAX) {
+      const { events, truncated } = await mapPins({ bbox, ...filters });
+      return NextResponse.json({ mode: 'pins', events, total, truncated });
+    }
     return NextResponse.json({ mode: 'cells', cells, total });
   }
   if (view) return bad('unknown view');
