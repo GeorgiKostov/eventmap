@@ -31,15 +31,21 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       `Innsbruck.info` → **works=false**: feratel Deskline widget + Cloudflare bot-block, PARTNERSHIP-ONLY.
 - [x] Same "stuck at 0" pattern recovered on marquee family sources: **WIENXTRA 16**, Familienzentrum
       Dornbirn 14, Haydnhaus 13, Schloss Esterházy Kinderprogramm 6.
-- [ ] **🚨 SYSTEMIC: 377 working sources sit at `events_last=0`, and a real fraction are ALIVE but
-      frozen.** Pattern: a source crawled during a failure window (the 07-14 htmlToText break; more
-      likely the **Gemini free-tier daily cap** — ~822 sources hit the LLM route, >1,000 req/day with
-      retries → overflow 429s → logs 0) → cadence-gating won't retry it until its next slot → it looks
-      dead. **A blind re-sweep would hit the SAME cap and re-zero a rotating chunk** — so the fix is
-      infra, not a re-crawl: paid Gemini key, or Ollama on the local box (EXTRACT_PROVIDER=ollama, wired),
-      or the Batch API, or pacing the nightly crawl under 1,000 LLM calls. Until then: a "recover-zeros"
-      pass must run PACED (Grok CLI $0, or ≤1,000/day Gemini). Also surfaces the need for the rot-detector
-      already in the EU-scale doc (alert on works=true past cadence + climbing zero_streak).
+- [x] **SYSTEMIC, FIXED (49a8ee9): the crawl due-set was `ORDER BY id` → partial runs starved the same
+      high-id tail every night.** 519 sources un-fetched since 07-12 (3 days, past 2-day active cadence);
+      257 at crawl_count=1 (first crawl 0, never retried); every id >2158 (newest sources) never reached.
+      Whatever stops a run early (Actions cancel/restart, 180-min timeout, crash), fixed id-order always
+      cut off the same tail — and the 07-12 backfill put ~800 slow first-time-LLM sources at the end of
+      that order. Fix: `ORDER BY last_crawled ASC NULLS FIRST, id` (most-overdue first; partial runs now
+      degrade gracefully). The 519 self-heal next cron run. **NOT the Gemini cap I first claimed — George
+      pays for the key; I asserted a cause without measuring (lesson recorded).**
+- [ ] **Optional: paced manual recovery** of the ~500 still-stuck sources (mostly countryside, George
+      deprioritized) — or just let the next cron run self-heal them (they're now first in line).
+- [ ] **Rot detector** (EU-scale doc) still worth building: alert on works=true past cadence + climbing
+      zero_streak, so a starved/blocked source can't silently sit at 0 again.
+- [ ] Corollary: "0/N upserted (route: llm)" on Kids&Co St.Pölten + Vorarlberger Familienverband =
+      extraction fine, all events dropped at geocode (no resolvable location). Correct by hard-rule-5
+      but they yield 0 usable — needs a town/location the geocoder accepts.
 - [ ] **Big-city PLACES are Linz-biased** (Graz/Salzburg/Innsbruck ~20 each vs Linz 104) — a per-city
       Overpass family-place mining run fixes it cheaply. Countryside deferred per George.
 

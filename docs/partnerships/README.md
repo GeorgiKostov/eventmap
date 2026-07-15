@@ -125,3 +125,36 @@ office via data.gv.at), then reuse the §4.1 structure verbatim.
   facts, and we never treat it as one.
 - **"Please stop"** → we stop, immediately, and mark the source `works=false` with the reason. Our
   legal posture is worth more than any single source.
+
+## 6. How publishers give us cleaner data — the integration ladder
+
+George asked (2026-07-15): "make an open-source API they integrate? ask them to format their data?
+have them push to us when they post?" **Answer: don't build an API.** We already ingest the open
+standards (`scripts/crawl.mjs` consumes iCal, RSS, and schema.org/Event JSON-LD). The work is
+packaging and incentives, not engineering — and it is a **post-Linz play**, because the whole pitch
+only lands once we have an audience to offer as the carrot (today: 1 subscriber). This extends the
+[middle-layer strategy](../decisions/2026-07-11-middle-layer-strategy.md): trade distribution for supply.
+
+**The ladder, ranked by THEIR effort (the only ranking that matters):**
+
+| Their effort | What | Who it fits | We support it? |
+|---|---|---|---|
+| 30 seconds | Paste us a **feed URL** (iCal/RSS) | Any modern CMS already exports one | ✅ pipeline eats it today |
+| One-time paste | Add **schema.org/Event JSON-LD** to pages they already publish | Anyone with a web person — and it *also* gets them into Google Events (shared incentive) | ✅ parsed today |
+| Per event | Our **submit form / "claim your event"** | Motivated organizers (festival, theatre, Verein) | ✅ add-event exists; claim-flow backlog |
+| Real integration | Webhook/API push on publish | Only a **platform vendor**, never an individual clerk | build only if a vendor asks |
+
+**The "open-source API" instinct, done right:** not an API they call — an open **ingestion spec + a
+live preview/validator** ("paste a URL, see exactly the events we'd extract, before committing"). The
+scalable version is an **open-source WordPress/TYPO3 plugin** that emits correct Event JSON-LD: fix the
+CMS-vendor layer, not each leaf.
+
+**The real scale lever is vendor-level, and it's an email not code.** ~5 CMS vendors sit behind
+thousands of Austrian sites — GEM2GO/RiS (~1,300 municipalities), feratel (tourism), the diocese
+`siteswift` platform, DVV. One vendor exposing a standard export = hundreds of publishers in a single
+integration. Those asks are §3/§4 above.
+
+**Two honest constraints:** (1) most municipal clerks will do none of this, so publisher-push is a
+**complement to crawling, never a replacement** — crawling stays the floor. (2) It's post-Linz: build
+the "Add your events" page (small — ingestion already exists) the day a real organizer asks or the
+Linz test proves demand, not before.

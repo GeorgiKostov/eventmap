@@ -26,14 +26,28 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   extracts cleanly — it was just STUCK at 0 from a failed-crawl window. `--url --force` recovered it
   (16 + 9 + library 1). Innsbruck 878→941, family 26→38. Innsbruck.info → works=false (feratel Deskline
   widget + Cloudflare bot-block = partnership-only, drafts in docs/partnerships/README.md).
-- **🚨 SYSTEMIC (the real scraping finding): 377 working sources sit at events_last=0, many ALIVE but
-  frozen.** Proved by re-crawling WIENXTRA (0→16), Familienzentrum Dornbirn (0→14), Haydnhaus (0→13),
-  Esterházy (0→6) — all extract fine, were just stuck. Root cause = a crawl batch bigger than the
-  **Gemini free-tier daily cap** (~822 LLM-route sources > 1,000 req/day) → overflow 429s log 0 →
-  cadence-gating freezes them. **A blind re-sweep hits the same cap and re-zeros a rotating chunk** —
-  fix is INFRA (paid Gemini / Ollama-on-box / Batch API / pace <1,000 LLM/night), not a re-crawl.
-  Corollary bug seen twice: "0/N upserted (route: llm)" = extraction worked but every event dropped at
-  geocode (no resolvable location) — correct by hard-rule-5, but means some family sources yield 0 usable.
+- **🚨 SYSTEMIC + FIXED: the crawl's due-set was `ORDER BY id`, so a partial run always starved the
+  same high-id tail** (49a8ee9). 519 works=true sources hadn't been fetched since 07-12 (3 days) despite
+  active-tier 2-day cadence; 257 at crawl_count=1 (first crawl got 0, never retried); every source id
+  >2158 (newest, incl. today's family sources) never reached by the cron. The 07-12 national backfill
+  registered ~800 high-id sources needing slow first-time LLM extraction (slowest AND last in id order),
+  so whatever stops a run early — Actions cancellation/restart, 180-min timeout, crash — cut off before
+  reaching them, every night. Fix: `ORDER BY last_crawled ASC NULLS FIRST, id` — a partial run now
+  spends its budget on the most-overdue and skips the freshest. The 519 self-heal on the next cron run
+  (now first in line); a paced manual recovery brings them sooner. Proved alive by re-crawling
+  WIENXTRA (0→16), Dornbirn (0→14), Haydnhaus (0→13), Esterházy (0→6).
+  **LESSON (recorded): I first asserted this was the "Gemini free-tier daily cap" — flatly wrong,
+  George pays for the key. 3rd time this session I stated a diagnosis as fact without measuring
+  (Stuttgart robots, Krenglbach, this). The ticket's cause — even my own — is a hypothesis until the
+  DB says so.** Corollary bug seen twice: "0/N upserted (route: llm)" = extraction worked but every
+  event dropped at geocode (no resolvable location) — correct by hard-rule-5, but yields 0 usable.
+- **Publisher-integration question (George: "make an API / ask them to format / push to us?"):
+  answer = DON'T build an API.** We already ingest iCal/RSS/JSON-LD; the cleanest path is a public
+  "Add your events" page with tiers by THEIR effort: paste a feed URL (30s, pipeline already eats it)
+  › add schema.org/Event JSON-LD (one-time, also gets them into Google) › submit form. Real scale
+  lever = CMS-VENDOR feeds (GEM2GO/feratel/siteswift = thousands of sites per integration), an
+  email-from-George, not code. It's the middle-layer strategy (trade distribution for supply) and it's
+  POST-LINZ — the carrot is an audience we don't have yet (1 subscriber). Details: docs/partnerships/README.md §6.
 - **Registered sources are otherwise caught up** (8 BG never-crawled → tonight's cron). Countryside CMS
   fingerprint sweep (793 unclassified, 822 on LLM route) deferred per George.
 
