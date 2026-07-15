@@ -8,11 +8,12 @@
 //        npm run crawl -- --url https://... (single source, ignores tier/cadence)
 //        npm run crawl -- --force          (ignore page-hash change-detection)
 //        npm run crawl -- --all            (ignore tier/cadence gating — periodic deep sweep)
+//        npm run crawl -- --recover-zeros  (force-recrawl sources frozen at events_last=0, incl. tier=dead)
 //        npm run crawl -- --scope stuttgart-40km (only that registered scope)
 // Requires Claude API credentials (ANTHROPIC_API_KEY or `ant auth login`).
 import { createHash } from 'node:crypto';
 import {
-  upsertEvent, expireFinished, getSourceByUrl, getSourcesForCrawl,
+  upsertEvent, expireFinished, getSourceByUrl, getSourcesForCrawl, getZeroYieldSources,
   markSourceCrawled, updateSourceMeta, updateSourceStats, setSourceNote, closeDb,
 } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
@@ -962,9 +963,14 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     try {
       events = await extractFromPage({ text, sourceName: src.name, town: src.town });
     } catch (e) {
-      console.log(`  extraction failed: ${e.message}`);
-      const tier = await recordStats(src, { type: 'noContent' });
-      return { ok: 0, fail: 1, tier };
+      // A provider failure (429 storm, outage, missing key) says nothing about
+      // the SOURCE. Recording it as noContent zeroed events_last and bumped
+      // zero_streak, so one bad Gemini night froze hundreds of healthy sources
+      // at 0 (and 4 rotted to tier=dead). Leave stats and page_hash untouched
+      // and signal the caller to skip last_crawled, so the source stays due
+      // and retries on the next run.
+      console.log(`  extraction failed (provider, source stats untouched): ${e.message}`);
+      return { ok: 0, fail: 1, extractError: true };
     }
   }
 
@@ -1042,10 +1048,20 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
   }
   console.log(`  ${ok}/${events.length} events upserted (route: ${route})`
     + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : ''));
-  await updateSourceMeta(src.id, {
-    page_hash: hash, feed_kind: route,
-    etag: res.headers.get('etag'), last_modified: res.headers.get('last-modified'),
-  });
+  // An LLM round with ZERO candidates is ambiguous: an empty calendar, or a
+  // model that silently returned nothing (an overloaded Gemini answers 200
+  // with an empty list). Stamping page_hash/etag here wedged the source: every
+  // later crawl hash-skipped as "unchanged" until the page text changed — 333
+  // of the 371 frozen sources were in exactly this state. Skip the stamp, so
+  // the next due crawl re-extracts instead of trusting a possibly-bogus empty.
+  // Structured routes ($0, deterministic) and any round with candidates stamp
+  // as before. Costs one flash-lite call per genuinely-empty source per crawl.
+  if (!(route === 'llm' && events.length === 0)) {
+    await updateSourceMeta(src.id, {
+      page_hash: hash, feed_kind: route,
+      etag: res.headers.get('etag'), last_modified: res.headers.get('last-modified'),
+    });
+  }
   const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
   return { ok, fail: 0, tier, outsideScope };
 }
@@ -1081,8 +1097,9 @@ async function runHostPool(groups, worker) {
 
 async function main() {
   const urlArg = process.argv.indexOf('--url');
-  const force = process.argv.includes('--force');
+  let force = process.argv.includes('--force');
   const all = process.argv.includes('--all');
+  const recoverZeros = process.argv.includes('--recover-zeros');
   const scopeArg = process.argv.indexOf('--scope');
   const requestedScope = scopeArg > -1 ? crawlScope(process.argv[scopeArg + 1]) : null;
   if (scopeArg > -1 && !requestedScope) {
@@ -1092,6 +1109,14 @@ async function main() {
   let sources, skippedCadence = 0;
   if (urlArg > -1) {
     sources = await getSourceByUrl(process.argv[urlArg + 1]); // single --url test: ignores tier/cadence
+  } else if (recoverZeros) {
+    // Recovery pass over sources frozen at zero yield (works=true,
+    // events_last=0, tier=dead included): most were wedged by a page_hash
+    // stamped during a failed-extraction window, so hash/cadence must both be
+    // bypassed — force implies both. Successful rounds reset zero_streak and
+    // re-derive tier, so unjustly-dead sources revive on their own.
+    sources = await getZeroYieldSources();
+    force = true;
   } else {
     const candidates = await getSourcesForCrawl({ all }); // already excludes tier='dead' unless --all
     sources = all ? candidates : candidates.filter((s) => {
@@ -1110,18 +1135,22 @@ async function main() {
   console.log(`Crawling ${sources.length} source(s) across ${groups.length} host(s) (up to ${HOST_CONCURRENCY} in parallel)`
     + (skippedCadence ? `, ${skippedCadence} skipped (tier cadence not due)` : '') + ' …');
 
-  let total = 0, totalOutsideScope = 0;
+  let total = 0, totalOutsideScope = 0, extractErrors = 0;
   const tierCounts = { active: 0, slow: 0, dormant: 0, dead: 0 };
   await runHostPool(groups, async (src) => {
     // A crash anywhere in one source's processing (fetch, extraction, stats,
     // an upsert that slipped past the per-event guard) must not abort the
     // rest of the batch — log and move on to the next source.
     try {
-      const { ok, tier, outsideScope = 0 } = await crawlSource(src, { force, scope: requestedScope });
+      const { ok, tier, outsideScope = 0, extractError } = await crawlSource(src, { force, scope: requestedScope });
       total += ok;
       totalOutsideScope += outsideScope;
       if (tier) tierCounts[tier] = (tierCounts[tier] || 0) + 1;
-      await markSourceCrawled(src.id);
+      if (extractError) extractErrors += 1;
+      // A provider-side extraction failure leaves last_crawled alone so the
+      // source stays due and retries next run instead of waiting out its tier
+      // cadence with events_last mislabeled 0.
+      else await markSourceCrawled(src.id);
     } catch (e) {
       console.log(`! skip source "${src.name}" (${src.url}): ${e.code || e.message}`);
     }
@@ -1129,6 +1158,7 @@ async function main() {
 
   const expired = await expireFinished();
   console.log(`\nCrawl done: ${total} events upserted, ${expired} expired.`);
+  if (extractErrors) console.log(`Provider errors: ${extractErrors} source(s) skipped without stats change — they stay due and retry next run.`);
   if (totalOutsideScope) console.log(`Scope guard: ${totalOutsideScope} out-of-radius event(s) skipped.`);
   console.log(`Tiers — active: ${tierCounts.active}, slow: ${tierCounts.slow}, dormant: ${tierCounts.dormant}, `
     + `dead: ${tierCounts.dead}, skipped (not due): ${skippedCadence}`);
