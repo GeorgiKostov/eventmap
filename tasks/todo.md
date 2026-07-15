@@ -2,6 +2,28 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Big-city coverage (2026-07-15, George: "100% of big cities matters, countryside fine for now")
+- [x] **Innsbruck (worst-covered big city) fixed.** Its 5 city sources were registered works=true but
+      4 yielded 0 — looked covered, contributed nothing (the 878 "Innsbruck" events were all Tirol
+      surroundings). Root cause was NOT the sources: `innsbrucktermine.at` (+/familie/kinder) is plain
+      server-rendered HTML, robots-allowed, extracts cleanly (proved in isolation: 16 + 9 events). It
+      was **stuck at events_last=0** from a past failed-crawl window; a `--url --force` re-crawl brought
+      it straight back. Innsbruck 878→941 ev, family 26→38. Stadtbibliothek Ibk = 1 (genuinely thin).
+      `Innsbruck.info` → **works=false**: feratel Deskline widget + Cloudflare bot-block, PARTNERSHIP-ONLY.
+- [x] Same "stuck at 0" pattern recovered on marquee family sources: **WIENXTRA 16**, Familienzentrum
+      Dornbirn 14, Haydnhaus 13, Schloss Esterházy Kinderprogramm 6.
+- [ ] **🚨 SYSTEMIC: 377 working sources sit at `events_last=0`, and a real fraction are ALIVE but
+      frozen.** Pattern: a source crawled during a failure window (the 07-14 htmlToText break; more
+      likely the **Gemini free-tier daily cap** — ~822 sources hit the LLM route, >1,000 req/day with
+      retries → overflow 429s → logs 0) → cadence-gating won't retry it until its next slot → it looks
+      dead. **A blind re-sweep would hit the SAME cap and re-zero a rotating chunk** — so the fix is
+      infra, not a re-crawl: paid Gemini key, or Ollama on the local box (EXTRACT_PROVIDER=ollama, wired),
+      or the Batch API, or pacing the nightly crawl under 1,000 LLM calls. Until then: a "recover-zeros"
+      pass must run PACED (Grok CLI $0, or ≤1,000/day Gemini). Also surfaces the need for the rot-detector
+      already in the EU-scale doc (alert on works=true past cadence + climbing zero_streak).
+- [ ] **Big-city PLACES are Linz-biased** (Graz/Salzburg/Innsbruck ~20 each vs Linz 104) — a per-city
+      Overpass family-place mining run fixes it cheaply. Countryside deferred per George.
+
 ## Adversarial review (2026-07-14, George: "adversarial review of all the latest features… sonnet agents and review" → "clean all") — SHIPPED (96ce8c4, cddd1ee)
 Four Sonnet agents (crawl · map · growth · admin-auth security), architect-verified every
 Critical/Major against the code, then fixed all. Build green, 52 tests pass (+3 new), DB smoke-tested.

@@ -17,6 +17,26 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-15 — big-city coverage: Innsbruck fixed + a systemic zero-yield finding)
+- **George's priority: 100% of the big 5 (Wien/Linz/Graz/Salzburg/Innsbruck), countryside can wait.**
+  Measured: Wien 3368/76% precise/712 fam, Linz 3442/54%/342, Graz 1198/57%/269, Salzburg 1259/71%/172,
+  **Innsbruck 878/61%/26** — Innsbruck was the clear hole.
+- **Innsbruck was a "registered but dead" trap, now fixed.** 4 of its 5 city sources were works=true at
+  events_last=0. innsbrucktermine.at (+ /familie/kinder) is plain server-rendered HTML, robots-allowed,
+  extracts cleanly — it was just STUCK at 0 from a failed-crawl window. `--url --force` recovered it
+  (16 + 9 + library 1). Innsbruck 878→941, family 26→38. Innsbruck.info → works=false (feratel Deskline
+  widget + Cloudflare bot-block = partnership-only, drafts in docs/partnerships/README.md).
+- **🚨 SYSTEMIC (the real scraping finding): 377 working sources sit at events_last=0, many ALIVE but
+  frozen.** Proved by re-crawling WIENXTRA (0→16), Familienzentrum Dornbirn (0→14), Haydnhaus (0→13),
+  Esterházy (0→6) — all extract fine, were just stuck. Root cause = a crawl batch bigger than the
+  **Gemini free-tier daily cap** (~822 LLM-route sources > 1,000 req/day) → overflow 429s log 0 →
+  cadence-gating freezes them. **A blind re-sweep hits the same cap and re-zeros a rotating chunk** —
+  fix is INFRA (paid Gemini / Ollama-on-box / Batch API / pace <1,000 LLM/night), not a re-crawl.
+  Corollary bug seen twice: "0/N upserted (route: llm)" = extraction worked but every event dropped at
+  geocode (no resolvable location) — correct by hard-rule-5, but means some family sources yield 0 usable.
+- **Registered sources are otherwise caught up** (8 BG never-crawled → tonight's cron). Countryside CMS
+  fingerprint sweep (793 unclassified, 822 on LLM route) deferred per George.
+
 ## Where things stand (2026-07-15 — newsletter consent gaps closed; newsletter is launch-ready code-side)
 - **Consent gaps (b)(d)(e) closed** (f042187, migration `scripts/migrate-consent.mjs` applied to prod):
   signup stores proof of consent (consent_at + consent_version stamped server-side from
