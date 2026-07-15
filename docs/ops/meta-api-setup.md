@@ -8,6 +8,29 @@ set, every surface says so honestly — nothing pretends to have posted.
 One Meta Business account for the whole product (all city channels post
 through the same IG/FB pair) — per-city accounts are a later extension.
 
+## 0. Account structure (decided 2026-07-15)
+
+**Use George's existing personal Meta account — never a fresh one.** A new
+account creating a Business Manager + app + tokens is the exact fingerprint
+Meta checkpoints/bans; an aged real account is the safe admin, and page
+roles / BM membership / app ownership are never publicly visible. Layering,
+shared across ALL projects (okolo, Storykept, …):
+
+    1 personal account (2FA on — required for BM admins)
+      → 1 Business Portfolio ("Kostov Projects", not public)
+        → all Pages + IG accounts added as assets
+          (existing pages: Business Settings → Pages → "Add a Page";
+           IGs switched to Professional/Business + linked to their Page)
+        → 1 Business-type app ("Kostov Publishing", dev mode forever)
+        → 1 SYSTEM USER PER PROJECT (okolo-publisher, storykept-publisher),
+          each token scoped to only its own brand's Page+IG — a leaked
+          token can't touch the other brand.
+
+Fallback: if an unverified portfolio caps system users at one, use a single
+system user carrying all assets and share the token (bigger leak blast
+radius, otherwise identical). Other projects reuse `lib/social-publish.js`
+as-is — it only reads the three env vars.
+
 ## 1. Facebook Page + Instagram professional account
 
 1. If okolo has no Facebook Page yet, create one (facebook.com → Pages →
