@@ -376,6 +376,16 @@ Critical/Major against the code, then fixed all. Build green, 52 tests pass (+3 
 ## Growth & go-to-market (strategy: docs/strategy/growth-and-social.md, 2026-07-13)
 
 ### Weekly growth engine SHIPPED 2026-07-14 (system doc: docs/strategy/growth-system.md)
+- [x] **Newsletter signup: two real bugs behind "spins forever / never get the mail"** (771694b).
+      (1) The client geocoded the town before POSTing with an UNBOUNDED fetch to Nominatim (~1 req/s,
+      can stall) → the button spun with no exit. Now resolves from `lib/places.js` first (every covered
+      city, coords, zero network — verified "Linz" = 0 geocode calls, ~1s), and the off-list-village
+      fallback is AbortController-bounded to 6s. (2) With no mail provider, `sendSubscriberConfirm`
+      returned false but the route still answered `pending:true`, so the UI said "check your inbox" for
+      a mail that never sent — a person left waiting, unconfirmable forever. Now the route 503s honestly
+      (`mailDown`, de/en/bg). Mail is provider-routed in `lib/mail.js` (Resend → SMTP → none); the
+      digest-send guard is `mailConfigured()`, not SMTP-only. Resend since verified LIVE on prod by the
+      concurrent session (a211302, 8346a6c) — full signup→confirm loop working.
 - [x] **Phase 2 — the digest is a permanent public page** (George: "sharable page per city
       per week so we reuse the content and have a nice SEO output"). `/weekend/<city>/<friday>`
       renders the SAME frozen snapshot the mail and the carousel read: schema.org ItemList of
