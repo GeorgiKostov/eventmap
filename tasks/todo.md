@@ -377,10 +377,16 @@ Critical/Major against the code, then fixed all. Build green, 52 tests pass (+3 
       Running the four-weekend test before seeding an audience measures nothing. Plan:
       docs/strategy/growth-system.md §5 (map signup prompt → parent FB groups → kindergarten/playground
       QR → Familienkarte). **This is step one of the validation test, not marketing to do later.**
-- [ ] **Newsletter consent gaps — remaining**: (a) decide grandfather-vs-drop for the pre-migration
-      subscriber (confirmed_at=NULL, so it currently receives nothing); (b) record a proof-of-consent
-      (timestamp + consent-text version + IP-hash at signup); (d) confirm-token expiry/rotation policy;
-      (e) offer preference-management/unsubscribe from the confirm landing page.
+- [x] **Newsletter consent gaps (b)(d)(e) CLOSED** (f042187, migration applied to prod): proof-of-
+      consent recorded at signup (consent_at + NL_CONSENT_VERSION in lib/i18n.js — bump when wording
+      changes — + the rate limiter's IP hash; datenschutz updated de/en/bg); confirm links expire
+      7 days after issue (CONFIRM_TTL_DAYS in lib/db.js — activation needs a fresh token, re-signup
+      rotates it; unsubscribe tokens never expire, RFC 8058); confirm landing page now links
+      unsubscribe + says preferences change by re-signing up with the same address. Lifecycle
+      verified against prod DB + pages driven in browser.
+- [ ] **Newsletter consent gap (a) — George**: decide grandfather-vs-drop for the pre-migration
+      subscriber (confirmed_at=NULL, so it currently receives nothing; its token_issued_at was
+      backfilled to created_at, so its original confirm link dies 7 days after signup).
 - [ ] Open call (growth-system.md §10): community-submitted events get +2 in the digest ranking — which
       is exactly what let a *test row* headline the first digest. Keep the bonus + rely on Drop, or gate
       community events on a quality check?

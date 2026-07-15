@@ -17,6 +17,19 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-15 — newsletter consent gaps closed; newsletter is launch-ready code-side)
+- **Consent gaps (b)(d)(e) closed** (f042187, migration `scripts/migrate-consent.mjs` applied to prod):
+  signup stores proof of consent (consent_at + consent_version stamped server-side from
+  `NL_CONSENT_VERSION` in lib/i18n.js + the rate limiter's salted IP hash); confirm links expire
+  7 days after `token_issued_at` (activation only — unsubscribe tokens never expire, RFC 8058);
+  confirm landing page links unsubscribe + explains preferences = re-sign up with same address
+  (addSubscriber updates a confirmed row in place, no re-confirm mail). Datenschutz updated de/en/bg.
+  Verified: full lifecycle against prod DB + confirm/unsubscribe/invalid pages in the browser.
+- **What remains for the newsletter is entirely George's side**: Resend domain verify + Vercel envs
+  (RESEND_API_KEY, MAIL_FROM, ADMIN_PASSWORD, ADMIN_TOKEN, ANTHROPIC_API_KEY also as GH Actions
+  secret) + deploy; gap (a) grandfather-vs-drop the one pre-migration subscriber; the digest's
+  community +2 ranking-bonus call; and audience seeding (growth-system.md §5) — still the bottleneck.
+
 ## Where things stand (2026-07-14 latest+8 — adversarial review of the latest features, all cleaned)
 - **Four Sonnet agents reviewed crawl / map / growth / admin-auth; architect verified every
   Critical/Major against the code and fixed all.** Shipped 96ce8c4 (pipeline/map/search) + cddd1ee
