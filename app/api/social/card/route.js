@@ -256,7 +256,6 @@ export async function GET(req) {
   const channel = getChannel(searchParams.get('channel') || 'linz');
   if (!channel) return NextResponse.json({ error: 'unknown channel' }, { status: 400 });
 
-  const slide = Number(searchParams.get('slide') || 0);
   // Read the frozen snapshot ONLY — never build here. This route is public
   // (cards are embedded in social posts), and loadOrBuild would let an anonymous
   // hit freeze a stale pick set for the whole weekend AND trigger a paid AI copy
@@ -268,8 +267,22 @@ export async function GET(req) {
   const digest = pinned ? await loadDigestFor(channel, pinned) : await loadDigest(channel);
   if (!digest) return NextResponse.json({ error: 'digest not prepared yet' }, { status: 404 });
   if (!digest.items.length) return NextResponse.json({ error: 'no events this weekend' }, { status: 404 });
-  if (!Number.isInteger(slide) || slide < 0 || slide > digest.items.length) {
-    return NextResponse.json({ error: 'slide out of range' }, { status: 400 });
+
+  // Address a card by EVENT ID (`event=`, used by individual posts — immune to a
+  // Regenerate reordering the slides) or by SLIDE index (`slide=`, cover=0, used
+  // by the carousel). event= wins; a stale id 404s rather than render the wrong
+  // event's card.
+  const eventId = searchParams.get('event');
+  let slide;
+  if (eventId != null) {
+    const idx = digest.items.findIndex((it) => String(it.id) === String(eventId));
+    if (idx === -1) return NextResponse.json({ error: 'event not in this weekend' }, { status: 404 });
+    slide = idx + 1;
+  } else {
+    slide = Number(searchParams.get('slide') || 0);
+    if (!Number.isInteger(slide) || slide < 0 || slide > digest.items.length) {
+      return NextResponse.json({ error: 'slide out of range' }, { status: 400 });
+    }
   }
 
   return new ImageResponse(

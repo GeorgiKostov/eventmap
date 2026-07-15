@@ -9,8 +9,14 @@ import {
   facebookMessage,
   publishInstagramCarousel,
   publishAndLedger,
+  itemPostedKey,
+  itemSlide,
+  cardUrlForItem,
+  nextUnpostedItem,
+  publishItemAndLedger,
+  itemsAlreadyPosted,
 } from '../lib/social-publish.js';
-import { renderCaption, weekendUrl } from '../lib/digest.js';
+import { renderCaption, renderItemCaption, weekendUrl } from '../lib/digest.js';
 
 // Snapshot + restore the handful of env vars each test touches, so tests
 // never leak state into each other or into the rest of the suite.
@@ -171,4 +177,114 @@ test('publishAndLedger: a thrown publish releases the claim (only a hard kill le
   const m = memMeta();
   await assert.rejects(() => publishAndLedger({ ...pubArgs, target: 'not-a-target', ...m }), /unknown target/);
   assert.equal(m.store.size, 0, 'claim must be released on failure, nothing else written');
+});
+
+// ---- per-item (individual photo) publishing ----
+
+test('itemPostedKey: instagram and facebook get distinct, stable per-event keys', () => {
+  assert.equal(itemPostedKey('instagram', 'linz', '2026-07-17', '42'), 'posted:ig:linz:2026-07-17:ev:42');
+  assert.equal(itemPostedKey('facebook', 'linz', '2026-07-17', '42'), 'posted:fb:linz:2026-07-17:ev:42');
+});
+
+const multiItemDigest = {
+  channel: { slug: 'linz', label: 'Linz', handle: 'okolo.linz', lang: 'de', hashtags: ['#linz'] },
+  window: { friday: '2026-07-17', sunday: '2026-07-19', from: '2026-07-17', to: '2026-07-19' },
+  label: '17.–19. Juli',
+  items: [
+    { id: '1', title: 'Erstes Event', when: 'Fr 17.7.', venue: 'Hauptplatz', badges: ['gratis'], teaser: 'Ein toller Auftakt.' },
+    { id: '2', title: 'Zweites Event', when: 'Sa 18.7.', venue: '', badges: [] },
+    { id: '3', title: 'Drittes Event', when: 'So 19.7.', venue: 'Donaupark', badges: [] },
+  ],
+};
+
+test('itemSlide: 1-based index of the item within digest.items, throws if absent', () => {
+  assert.equal(itemSlide(multiItemDigest, { id: '1' }), 1);
+  assert.equal(itemSlide(multiItemDigest, { id: '3' }), 3);
+  assert.throws(() => itemSlide(multiItemDigest, { id: 'not-there' }), /not in this digest/);
+});
+
+test('cardUrlForItem: addresses the card by EVENT ID (drift-proof), weekend pinned', () => {
+  const url = cardUrlForItem(multiItemDigest.channel, multiItemDigest, multiItemDigest.items[1], 'https://okolo.events');
+  // event=<id>, NOT slide=<n>: a Regenerate can move an event to a different
+  // slide, but the id still resolves to the right card (or 404s).
+  assert.equal(url, 'https://okolo.events/api/social/card?channel=linz&event=2&weekend=2026-07-17');
+});
+
+test('nextUnpostedItem: first item not in the posted set', () => {
+  const postedIds = new Set(['1']);
+  const next = nextUnpostedItem(multiItemDigest, 'instagram', postedIds);
+  assert.equal(next.id, '2');
+});
+
+test('nextUnpostedItem: null once every item is posted', () => {
+  const postedIds = new Set(['1', '2', '3']);
+  assert.equal(nextUnpostedItem(multiItemDigest, 'instagram', postedIds), null);
+});
+
+test('renderItemCaption: appends the weekend link exactly once', () => {
+  const caption = renderItemCaption(multiItemDigest, multiItemDigest.items[0]);
+  const link = weekendUrl(multiItemDigest);
+  const occurrences = caption.split(link).length - 1;
+  assert.equal(occurrences, 1, `expected exactly one occurrence of ${link}, got ${occurrences}`);
+  assert.ok(caption.includes('📍 Erstes Event'), 'leads with the event title');
+  assert.ok(caption.includes('Ein toller Auftakt.'), 'includes the item\'s own teaser, not invented text');
+});
+
+test('publishItemAndLedger: existing per-item ledger → ALREADY_POSTED, no double-post', async () => {
+  const item = multiItemDigest.items[0];
+  const key = itemPostedKey('instagram', multiItemDigest.channel.slug, multiItemDigest.window.friday, item.id);
+  const m = memMeta({ [key]: JSON.stringify({ id: 'ig1', at: 'x' }) });
+  await assert.rejects(
+    () => publishItemAndLedger({ channel: multiItemDigest.channel, digest: multiItemDigest, item, target: 'instagram', ...m }),
+    (err) => err.code === 'ALREADY_POSTED',
+  );
+});
+
+test('publishItemAndLedger: posting one event never touches another event\'s ledger key', async () => {
+  const itemA = multiItemDigest.items[0];
+  const itemB = multiItemDigest.items[1];
+  const keyA = itemPostedKey('instagram', multiItemDigest.channel.slug, multiItemDigest.window.friday, itemA.id);
+  const keyB = itemPostedKey('instagram', multiItemDigest.channel.slug, multiItemDigest.window.friday, itemB.id);
+  // itemA already posted; posting itemB must not see itemA's ledger as its own,
+  // and must fail cleanly (no network in tests) without writing itemA's key.
+  const m = memMeta({ [keyA]: JSON.stringify({ id: 'ig1', at: 'x' }) });
+  await assert.rejects(() => publishItemAndLedger({ channel: multiItemDigest.channel, digest: multiItemDigest, item: itemB, target: 'not-a-target', ...m }));
+  assert.ok(m.store.has(keyA), 'itemA ledger untouched');
+  assert.ok(!m.store.has(keyB), 'itemB ledger not written on failure');
+});
+
+// ---- cross-ledger dedup: carousel <-> individual never silently double-post ----
+
+test('publishItemAndLedger: refuses when the carousel already went out (ALREADY_IN_CAROUSEL)', async () => {
+  const item = multiItemDigest.items[0];
+  const bulkKey = postedKey('instagram', multiItemDigest.channel.slug, multiItemDigest.window.friday);
+  const m = memMeta({ [bulkKey]: JSON.stringify({ id: 'carousel1', permalink: 'p', at: 'x' }) });
+  await assert.rejects(
+    () => publishItemAndLedger({ channel: multiItemDigest.channel, digest: multiItemDigest, item, target: 'instagram', ...m }),
+    (err) => err.code === 'ALREADY_IN_CAROUSEL',
+  );
+  // force is the deliberate override — it must get PAST the cross-check (and then
+  // fail only at the network boundary, which we simulate with a bad target).
+  await assert.rejects(
+    () => publishItemAndLedger({ channel: multiItemDigest.channel, digest: multiItemDigest, item, target: 'not-a-target', force: true, ...m }),
+    (err) => err.code !== 'ALREADY_IN_CAROUSEL',
+  );
+});
+
+test('publishAndLedger: refuses when events were already posted individually (ITEMS_ALREADY_POSTED)', async () => {
+  const item = multiItemDigest.items[1];
+  const key = itemPostedKey('instagram', multiItemDigest.channel.slug, multiItemDigest.window.friday, item.id);
+  const m = memMeta({ [key]: JSON.stringify({ id: 'ig2', at: 'x' }) });
+  await assert.rejects(
+    () => publishAndLedger({ channel: multiItemDigest.channel, digest: multiItemDigest, target: 'instagram', ...m }),
+    (err) => err.code === 'ITEMS_ALREADY_POSTED' && err.ids.includes('2'),
+  );
+});
+
+test('itemsAlreadyPosted: lists only the events with their own per-item ledger', async () => {
+  const k1 = itemPostedKey('facebook', 'linz', '2026-07-17', '1');
+  const k3 = itemPostedKey('facebook', 'linz', '2026-07-17', '3');
+  const m = memMeta({ [k1]: '{}', [k3]: '{}' });
+  const ids = await itemsAlreadyPosted({ channel: multiItemDigest.channel, digest: multiItemDigest, target: 'facebook', metaGet: m.metaGet });
+  assert.deepEqual(ids.sort(), ['1', '3']);
 });

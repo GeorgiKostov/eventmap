@@ -137,8 +137,17 @@ export default function ThursdayPage() {
     }
   }
 
+  // Shared by the bulk carousel buttons and the per-item ones below — the
+  // busy key encodes WHICH row is in flight (bulk / one item / "next") so a
+  // click on one row doesn't show "Posting…" on another.
+  function socialBusyKey(target, extra) {
+    if (extra.itemId != null) return `social-${target}-${extra.itemId}`;
+    if (extra.next) return `social-${target}-next`;
+    return `social-${target}`;
+  }
+
   async function publish(target, extra = {}) {
-    const busyKey = `social-${target}`;
+    const busyKey = socialBusyKey(target, extra);
     setBusy(busyKey);
     setErr('');
     setNote('');
@@ -152,9 +161,11 @@ export default function ThursdayPage() {
       if (!res.ok) throw new Error(json.error || 'failed');
       if (json.dryRun) {
         console.log(`[dry run] ${target}`, json);
-        alert(`Dry run — would post ${json.imageUrls.length} images to ${target}. Payload logged to console.`);
+        alert(json.item
+          ? `Dry run — would post "${json.item.title}" to ${target}. Payload logged to console.`
+          : `Dry run — would post ${json.imageUrls.length} images to ${target}. Payload logged to console.`);
       } else {
-        setNote(`Posted to ${target}${json.permalink ? `: ${json.permalink}` : ''}${json.warning ? ` — ⚠ ${json.warning}` : ''}`);
+        setNote(`Posted${json.item ? ` "${json.item.title}"` : ''} to ${target}${json.permalink ? `: ${json.permalink}` : ''}${json.warning ? ` — ⚠ ${json.warning}` : ''}`);
         await loadSocial(channel);
       }
     } catch (e) {
@@ -334,11 +345,13 @@ export default function ThursdayPage() {
                   {social?.error ? (
                     <div style={{ ...S.muted, fontSize: 13 }}>Publish status unavailable — reload to retry.</div>
                   ) : null}
+
+                  <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Post all as one carousel</div>
                   <div style={S.row}>
                     {['instagram', 'facebook'].map((target) => {
                       const configured = social?.configured?.[target];
                       const posted = social?.posted?.[target];
-                      const busyKey = `social-${target}`;
+                      const busyKey = socialBusyKey(target, {});
                       const label = target === 'instagram' ? 'Instagram' : 'Facebook';
                       return (
                         <div key={target} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -351,11 +364,24 @@ export default function ThursdayPage() {
                               style={S.btn}
                               disabled={!!busy || !social || !!social.error}
                               onClick={() => {
-                                if (posted && !confirm(`Already posted to ${label} for this weekend (${posted.permalink || posted.id}). Post again?`)) return;
-                                publish(target, { force: !!posted });
+                                // Never silently re-broadcast: confirm if the carousel
+                                // already went out OR if any event was posted on its own
+                                // (the carousel would repeat those). Either needs force.
+                                const itemsDupe = (social.items || []).some((it) => {
+                                  const p = it.posted?.[target];
+                                  return p && !p.viaCarousel;
+                                });
+                                const needForce = !!posted || itemsDupe;
+                                if (needForce) {
+                                  const msg = posted
+                                    ? `Already posted the ${label} carousel this weekend (${posted.permalink || posted.id}). Post again?`
+                                    : `Some events were already posted individually to ${label}. Posting the carousel repeats them. Continue?`;
+                                  if (!confirm(msg)) return;
+                                }
+                                publish(target, { force: needForce });
                               }}
                             >
-                              {busy === busyKey ? 'Posting…' : posted ? `Re-post to ${label}` : `Post to ${label}`}
+                              {busy === busyKey ? 'Posting…' : posted ? `Re-post carousel → ${label}` : `Post carousel → ${label}`}
                             </button>
                           )}
                           {/* Preview is a server-side dry run — side-effect-free and
@@ -376,6 +402,90 @@ export default function ThursdayPage() {
                       );
                     })}
                   </div>
+
+                  {social && !social.error ? (
+                    <>
+                      <div style={{ fontWeight: 600, fontSize: 13, margin: '18px 0 4px' }}>Post next unposted event</div>
+                      <div style={S.row}>
+                        {['instagram', 'facebook'].map((target) => {
+                          if (!social.configured?.[target]) return null;
+                          const label = target === 'instagram' ? 'Instagram' : 'Facebook';
+                          const busyKey = socialBusyKey(target, { next: true });
+                          return (
+                            <button
+                              key={target}
+                              style={S.ghost}
+                              disabled={!!busy}
+                              onClick={() => publish(target, { next: true })}
+                            >
+                              {busy === busyKey ? 'Posting…' : `Post next unposted → ${label}`}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ fontWeight: 600, fontSize: 13, margin: '18px 0 4px' }}>Post individual events</div>
+                      {(social.items || []).map((it) => (
+                        <div key={it.id} style={S.item}>
+                          <div style={{ flex: 1 }}>
+                            <a href={`/event/${it.id}`} target="_blank" rel="noreferrer" style={{ fontWeight: 600, color: '#212B28', textDecoration: 'none', fontSize: 14 }}>
+                              {it.title}
+                            </a>
+                          </div>
+                          {['instagram', 'facebook'].map((target) => {
+                            const label = target === 'instagram' ? 'IG' : 'FB';
+                            const targetLabel = target === 'instagram' ? 'Instagram' : 'Facebook';
+                            const configured = social.configured?.[target];
+                            const posted = it.posted?.[target];
+                            const busyKey = socialBusyKey(target, { itemId: it.id });
+                            return (
+                              <div key={target} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                {posted ? (
+                                  <>
+                                    {posted.permalink ? (
+                                      <a href={posted.permalink} target="_blank" rel="noreferrer" title={posted.viaCarousel ? 'went out in the carousel' : 'posted individually'} style={{ fontSize: 12, color: '#2E9C8C', fontWeight: 700 }}>
+                                        {label} ✓{posted.viaCarousel ? '↳' : ''}
+                                      </a>
+                                    ) : (
+                                      <span title={posted.viaCarousel ? 'went out in the carousel' : 'posted individually'} style={{ fontSize: 12, color: '#2E9C8C', fontWeight: 700 }}>{label} ✓{posted.viaCarousel ? '↳' : ''}</span>
+                                    )}
+                                    <button
+                                      style={{ ...S.ghost, padding: '3px 7px', fontSize: 11 }}
+                                      disabled={!!busy}
+                                      title={`Re-post "${it.title}" to ${targetLabel}`}
+                                      onClick={() => {
+                                        const msg = posted.viaCarousel
+                                          ? `"${it.title}" already went out in the ${targetLabel} carousel this weekend. Post it on its own too?`
+                                          : `Already posted "${it.title}" to ${targetLabel} (${posted.permalink || posted.id}). Post again?`;
+                                        if (confirm(msg)) publish(target, { itemId: it.id, force: true });
+                                      }}
+                                    >
+                                      ↻
+                                    </button>
+                                  </>
+                                ) : configured ? (
+                                  <button
+                                    style={{ ...S.ghost, padding: '5px 10px', fontSize: 12 }}
+                                    disabled={!!busy}
+                                    onClick={() => publish(target, { itemId: it.id })}
+                                  >
+                                    {busy === busyKey ? '…' : label}
+                                  </button>
+                                ) : null}
+                                <button
+                                  style={{ ...S.ghost, padding: '5px 10px', fontSize: 12 }}
+                                  disabled={!!busy}
+                                  onClick={() => publish(target, { itemId: it.id, test: true })}
+                                >
+                                  Preview
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </>
+                  ) : null}
                 </div>
               </>
             ) : null}

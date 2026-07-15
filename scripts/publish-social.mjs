@@ -6,6 +6,11 @@
 //   npm run social -- --channel linz --target facebook
 //   npm run social -- --channel linz --target instagram --force
 //
+// Alongside the bulk carousel, a single event can be posted on its own:
+//
+//   npm run social -- --channel linz --target instagram --item 12345
+//   npm run social -- --channel linz --target facebook --next
+//
 // Requires a frozen digest snapshot to already exist (prepare it first with
 // `npm run digest -- --channel linz` or on the desk) — this script never
 // builds one, same rule as the API route: publishing must not trigger a
@@ -16,7 +21,7 @@
 // always safe to run without credentials.
 
 import { getChannel, CHANNELS } from '../lib/city-channels.js';
-import { loadDigest, renderCaption } from '../lib/digest.js';
+import { loadDigest, renderCaption, renderItemCaption } from '../lib/digest.js';
 import { metaGet, metaSet, metaClaim, metaDelete } from '../lib/db.js';
 import {
   socialConfigured,
@@ -25,6 +30,10 @@ import {
   postedKey,
   publishAndLedger,
   facebookMessage,
+  itemPostedKey,
+  cardUrlForItem,
+  publishItemAndLedger,
+  nextUnpostedItem,
 } from '../lib/social-publish.js';
 
 const args = process.argv.slice(2);
@@ -60,12 +69,78 @@ const configured = socialConfigured();
 const missing = missingSocialEnv(target);
 const dryRun = flag('dry-run') || missing.length > 0;
 
-const imageUrls = cardUrls(channel, digest);
-const message = target === 'facebook' ? facebookMessage(digest) : renderCaption(digest);
+const itemIdArg = val('item', null);
+const nextFlag = flag('next');
 
 console.log(`\n=== ${channel.label} (${channel.handle}) → ${target} · ${digest.label} ===`);
 console.log(`configured: instagram=${configured.instagram} facebook=${configured.facebook}`);
 if (missing.length) console.log(`missing env: ${missing.join(', ')}`);
+
+if (itemIdArg != null || nextFlag) {
+  // ---- single-item / "next unposted" path ----
+  let item;
+  if (nextFlag) {
+    const postedFlags = await Promise.all(
+      digest.items.map((it) => metaGet(itemPostedKey(target, channel.slug, digest.window.friday, it.id))),
+    );
+    const postedIds = new Set(digest.items.filter((_, i) => postedFlags[i]).map((it) => String(it.id)));
+    item = nextUnpostedItem(digest, target, postedIds);
+    if (!item) {
+      console.log('all events already posted for this platform');
+      process.exit(0);
+    }
+  } else {
+    item = digest.items.find((it) => String(it.id) === String(itemIdArg));
+    if (!item) {
+      console.error(`item ${itemIdArg} is not in the current digest`);
+      process.exit(1);
+    }
+  }
+
+  const imageUrl = cardUrlForItem(channel, digest, item);
+  const caption = renderItemCaption(digest, item);
+
+  console.log(`item: ${item.id} "${item.title}"`);
+
+  const key = itemPostedKey(target, channel.slug, digest.window.friday, item.id);
+  const already = await metaGet(key);
+  if (already && !flag('force')) {
+    console.log(`ALREADY POSTED: ${already}`);
+    console.log('Use --force to re-post.');
+    process.exit(0);
+  }
+
+  console.log(`\nimage: ${imageUrl}`);
+  console.log(`\ncaption:\n${caption}\n`);
+
+  if (dryRun) {
+    console.log(missing.length ? '(dry run — credentials not configured)' : '(dry run — --dry-run passed)');
+    process.exit(0);
+  }
+
+  try {
+    const record = await publishItemAndLedger({
+      channel, digest, item, target, force: flag('force'),
+      metaGet, metaSet, metaClaim, metaDelete,
+    });
+    console.log(`posted: id=${record.id} permalink=${record.permalink || '(none)'}`);
+    if (record.warning) console.warn(`WARNING: ${record.warning}`);
+  } catch (err) {
+    if (err.code === 'ALREADY_POSTED' || err.code === 'ALREADY_IN_CAROUSEL') {
+      console.log(err.code === 'ALREADY_IN_CAROUSEL' ? err.message : `ALREADY POSTED: ${JSON.stringify(err.existing)}`);
+      console.log('Use --force to post it anyway.');
+      process.exit(0);
+    }
+    console.error(`publish failed: ${err.message}`);
+    process.exit(1);
+  }
+
+  process.exit(0);
+}
+
+// ---- bulk carousel path ----
+const imageUrls = cardUrls(channel, digest);
+const message = target === 'facebook' ? facebookMessage(digest) : renderCaption(digest);
 
 const key = postedKey(target, channel.slug, digest.window.friday);
 const already = await metaGet(key);
@@ -94,6 +169,10 @@ try {
 } catch (err) {
   if (err.code === 'ALREADY_POSTED') {
     console.log(`ALREADY POSTED for this weekend: ${JSON.stringify(err.existing)}`);
+    process.exit(0);
+  }
+  if (err.code === 'ITEMS_ALREADY_POSTED') {
+    console.log(`${err.message}\nEvent ids: ${err.ids.join(', ')}\nUse --force to post the carousel anyway.`);
     process.exit(0);
   }
   console.error(`publish failed: ${err.message}`);
