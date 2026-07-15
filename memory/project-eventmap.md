@@ -17,6 +17,23 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-15 latest+1 — per-event social posting + cross-ledger dedup)
+- **Individual-photo posting on the desk** (551047a): each digest event posts on its own (IG/FB/Preview
+  per row, "post next unposted", CLI `--item`/`--next`), sharing one `publishWithLedger` core with the
+  bulk carousel. Per-event ledger key `posted:<ig|fb>:<slug>:<friday>:ev:<id>`. "Reroll" = the existing
+  Regenerate; per-event keys survive it. Sonnet review caught TWO double-post holes, both fixed:
+  cross-ledger (bulk↔item didn't cross-check → silent duplicate; now ALREADY_IN_CAROUSEL /
+  ITEMS_ALREADY_POSTED + viaCarousel UI state + confirm-both-directions + bulk-aware next), and
+  snapshot-drift (item cards were slide-indexed → mid-Regenerate could mismatch caption/image; now
+  `event=<id>`-addressed cards, 404 if regenerated away). 80 tests, build green.
+- **OPEN — George's call before I build newsletter/social RANKING by source quality:** rank trusted
+  official sources (linztermine, Wien erleben, Familienkarte, curated family sources) to the top + drop
+  reported events. Today's `weekendPicks` (lib/db.js:383) has NO source-trust signal and actually
+  UP-ranks user-submitted content (why a "Test event" once headlined). Plan: add `lib/source-quality.js`
+  + reorder the lexicographic tuple to family→not-reported→source-quality→precise→free→soonest. The one
+  decision pending: community/user-submitted events = gated-and-included (date+venue+description, no
+  reports) OR excluded-until-vetted. Feeds BOTH newsletter and social cards.
+
 ## Where things stand (2026-07-15 latest — Meta publishing pipeline built, waiting only on credentials)
 - **The weekly digest can now post itself to Instagram (carousel) + Facebook Page** (b589d14):
   `lib/social-publish.js` (the one Graph-API surface, mail.js pattern) → `/api/admin/social` →

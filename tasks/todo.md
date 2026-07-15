@@ -2,6 +2,20 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Per-event social posting + cross-ledger dedup (2026-07-15, George: "post individual fotos… different days… dont get stuff already posted") — SHIPPED (551047a)
+- [x] Each digest event posts on its own (desk row: IG/FB/Preview; "post next unposted"; CLI --item/--next),
+      sharing one `publishWithLedger` core with the bulk carousel. Per-event ledger key
+      `posted:<ig|fb>:<slug>:<friday>:ev:<id>` — a re-post never re-posts a sent event. "Reroll" = the
+      existing Regenerate; per-event keys survive it (posted events stay marked, new ones postable).
+- [x] Sonnet adversarial review caught TWO real double-post holes, both fixed: (1) CROSS-LEDGER — bulk
+      and per-item ledgers didn't cross-check, so carousel-then-item (or item-then-carousel) silently
+      duplicated. Now ALREADY_IN_CAROUSEL / ITEMS_ALREADY_POSTED guards + viaCarousel state + desk
+      confirms both directions + bulk-aware "next"; force is the only override, always behind confirm.
+      (2) SNAPSHOT DRIFT — item cards were slide-indexed, so a mid-post Regenerate could pair caption A
+      with image B. Cards now addressed by `event=<id>` (card route resolves→slide, 404 if gone).
+      80 tests green, build green, event= addressing verified valid→200 / gone→404 / carousel slide→200.
+- [ ] Still needs Vercel META env vars to post from the DEPLOYED desk; CLI works now with the local token.
+
 ## Meta Graph publishing pipeline (2026-07-15, George: "build the meta api pipeline… ready until the part I need to do") — SHIPPED (b589d14)
 - [x] **Everything except credentials is built**: `lib/social-publish.js` (IG carousel + FB Page post,
       one module = the only place posts leave the building), `/api/admin/social` (dry-run first,
