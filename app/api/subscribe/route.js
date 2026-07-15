@@ -5,6 +5,7 @@ import { limit, hashIp } from '../../../lib/ratelimit.js';
 import { notifyNewSubscriber, sendSubscriberConfirm } from '../../../lib/mail.js';
 import { EVENT_CATS } from '../../../lib/icons.js';
 import { NL_CONSENT_VERSION } from '../../../lib/i18n.js';
+import { channelForPoint } from '../../../lib/city-channels.js';
 
 export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,7 +68,16 @@ export async function POST(req) {
   ) {
     return NextResponse.json({ error: msg.invalidPreferences }, { status: 400 });
   }
-  const lang = ['de', 'en', 'bg'].includes(body.lang) ? body.lang : null;
+  // The subscriber's language decides every mail we ever send them (confirm +
+  // newsletter fallbacks). The UI language they signed up in is their choice and
+  // wins; if the client didn't send one, fall back to the language OF THE PLACE
+  // they chose — a Sofia signup gets Bulgarian, a Linz or Stuttgart one German —
+  // never English just because a field was omitted. (BG is entirely east of
+  // lng 20, AT/DE entirely west — the registry covers the cities, the meridian
+  // covers the villages.)
+  const lang = ['de', 'en', 'bg'].includes(body.lang)
+    ? body.lang
+    : channelForPoint(areaLat, areaLng)?.lang || (areaLng > 20 ? 'bg' : 'de');
 
   const { pending, token } = await addSubscriber(email, {
     source: 'newsletter_popup',

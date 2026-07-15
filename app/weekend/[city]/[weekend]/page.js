@@ -170,7 +170,7 @@ export default async function WeekendPage({ params }) {
         <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#C93A5B" fillRule="evenodd" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
         </svg>
-        okolo
+        <span>okolo<span style={{ color: '#C93A5B' }}>{channel.handle.replace(/^okolo/, '')}</span></span>
       </Link>
 
       <h1 style={{ fontSize: 30, lineHeight: 1.2, margin: '22px 0 10px', letterSpacing: -0.4 }}>{c.h1(channel.label, digest.label)}</h1>

@@ -75,7 +75,10 @@ function CatGlyph({ cat, size, opacity }) {
   );
 }
 
-function Wordmark({ color = INK, mark = ACCENT }) {
+// The wordmark carries the CITY handle (okolo.linz) — a single reshared slide
+// should travel with the handle the viewer can actually follow, and it matches
+// the newsletter header (one brand moment across surfaces).
+function Wordmark({ color = INK, mark = ACCENT, text = 'okolo' }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
       <svg width="38" height="38" viewBox="0 0 24 24">
@@ -85,7 +88,7 @@ function Wordmark({ color = INK, mark = ACCENT }) {
           d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"
         />
       </svg>
-      <div style={{ fontSize: 36, fontWeight: 700, color, letterSpacing: -1 }}>okolo</div>
+      <div style={{ fontSize: 36, fontWeight: 700, color, letterSpacing: -1 }}>{text}</div>
     </div>
   );
 }
@@ -97,7 +100,7 @@ function coverSlide(digest) {
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: PAPER, fontFamily: 'Noto Sans' }}>
       {/* brand block */}
       <div style={{ display: 'flex', flexDirection: 'column', background: ACCENT, padding: '64px 72px 56px' }}>
-        <Wordmark color="#fff" mark="#fff" />
+        <Wordmark color="#fff" mark="#fff" text={digest.channel.handle} />
         <div style={{ fontSize: 38, fontWeight: 700, color: '#fff', opacity: 0.85, marginTop: 44, letterSpacing: 1 }}>
           {c.kicker}
         </div>
@@ -173,7 +176,7 @@ function eventSlide(digest, item, n) {
           <CatGlyph cat={item.cat} size={380} opacity={0.16} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Wordmark color="#fff" mark="#fff" />
+          <Wordmark color="#fff" mark="#fff" text={digest.channel.handle} />
           <div style={{ display: 'flex', fontSize: 30, fontWeight: 700, color: '#fff', opacity: 0.85 }}>
             {n} / {digest.items.length}
           </div>
