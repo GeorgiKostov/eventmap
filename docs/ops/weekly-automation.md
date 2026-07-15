@@ -18,8 +18,8 @@
 > Deviations from the plan below, and why: the "Top 5" is a **frozen snapshot** per city per weekend
 > (so the cards, the caption and the email can never disagree, and a card request can't re-trigger a
 > paid AI call); the ZIP download became per-card links (a ZIP needs a bundler dep for six files you
-> right-click anyway); and the send button refuses with a 503 when SMTP is unset rather than reporting
-> a success that never left the building.
+> right-click anyway); and the send button refuses with a 503 when no mail provider is set (Resend or
+> SMTP) rather than reporting a success that never left the building.
 
 ## 1. Goal & Philosophy
 The growth strategy relies on a weekly rhythm: every Thursday afternoon, we tell parents what the best 5 family events are in Linz for the upcoming weekend. 
