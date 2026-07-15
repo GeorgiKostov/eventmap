@@ -25,10 +25,16 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   confirm landing page links unsubscribe + explains preferences = re-sign up with same address
   (addSubscriber updates a confirmed row in place, no re-confirm mail). Datenschutz updated de/en/bg.
   Verified: full lifecycle against prod DB + confirm/unsubscribe/invalid pages in the browser.
-- **What remains for the newsletter is entirely George's side**: Resend domain verify + Vercel envs
-  (RESEND_API_KEY, MAIL_FROM, ADMIN_PASSWORD, ADMIN_TOKEN, ANTHROPIC_API_KEY also as GH Actions
-  secret) + deploy; gap (a) grandfather-vs-drop the one pre-migration subscriber; the digest's
-  community +2 ranking-bonus call; and audience seeding (growth-system.md §5) — still the bottleneck.
+- **Resend is LIVE on prod (2026-07-15)**: George verified okolo.events on Resend (DKIM/SPF/MX on
+  send.okolo.events checked via dig) and set RESEND_API_KEY on Vercel (Preview+Production). Vercel
+  envs are **sensitive/write-only — `vercel env pull` returns empty values**, so local testing needs
+  the key pasted into .env.local by hand (line exists, still empty). Architect deployed manually
+  (documented exception: key only exists on prod) and verified the full loop live: signup form →
+  0 Nominatim calls → 200 + honest pending message (only renders when Resend accepted the mail) →
+  confirm link → confirmed_at set (bobojojok@gmail.com, Linz, is a real confirmed subscriber now).
+  MAIL_FROM is NOT set on Vercel — fromAddress() falls back to `Okolo <SMTP_USER>`, which works.
+- **Newsletter remainders**: gap (a) grandfather-vs-drop the one pre-migration subscriber; the
+  digest's community +2 ranking-bonus call; audience seeding (growth-system.md §5) — the bottleneck.
 
 ## Where things stand (2026-07-14 latest+8 — adversarial review of the latest features, all cleaned)
 - **Four Sonnet agents reviewed crawl / map / growth / admin-auth; architect verified every
