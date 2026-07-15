@@ -61,12 +61,27 @@ as-is — it only reads the three env vars.
    (from step 1) and the Instagram account (linked in step 1) — both must
    be assigned, or every Graph call will 403 with a permissions error.
 4. Still in the system user, click **Generate New Token**, pick the app from
-   step 2, and select scopes:
+   step 2, and select **exactly these five scopes — no more**:
    - `instagram_basic`
    - `instagram_content_publish`
    - `pages_manage_posts`
    - `pages_read_engagement`
    - `business_management`
+
+   These are precisely what `lib/social-publish.js` calls. **Least privilege
+   is the point:** this token never expires and sits in plaintext (Vercel env
+   + `.env.local`), so its scopes ARE its leak blast radius. Adding scopes the
+   code never uses is pure risk for zero benefit. In particular never add
+   `ads_*` / `pages_manage_ads` (spends money), `pages_messaging` (DMs your
+   followers), or `pages_manage_metadata` (page settings) to this token.
+   (Adding *products/APIs* to the app itself is harmless — it grants nothing;
+   only the ticked scopes at token-generation time grant access. Still, trim
+   unused products so none drags in App Review or a privacy-policy demand.)
+
+   *Engagement/insights later:* reading post reach/likes needs
+   `instagram_manage_insights` + `read_insights`. Add those only when the
+   analytics feature is actually built — ideally on a SEPARATE read-only
+   token, so this publish token stays minimal.
 5. If the dialog offers a **token expiration** choice, explicitly pick
    **Never** — don't trust the default. A 60-day token silently breaks the
    whole pipeline two months later.
