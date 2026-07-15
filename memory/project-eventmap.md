@@ -55,6 +55,13 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   MAIL_FROM is NOT set on Vercel — fromAddress() falls back to `Okolo <SMTP_USER>`, which works.
 - **Newsletter remainders**: gap (a) grandfather-vs-drop the one pre-migration subscriber; the
   digest's community +2 ranking-bonus call; audience seeding (growth-system.md §5) — the bottleneck.
+- **Growth-surface review + local language + handle branding (c26704f)**: subscriber lang now falls
+  back to the chosen area's language (channel registry → lng-20 meridian), never English-by-default;
+  newsletter/social-cards/weekend-page all brand as the CITY handle (okolo.linz…) via channel.handle;
+  notifyOperator warns when NOTIFY_TO is missing (Resend-only prod silently dropped all signup pings —
+  **George: set NOTIFY_TO on Vercel + redeploy**). Newsletter body language was already channel-local
+  by construction. NB: `sent:digest:linz:2026-07-17` exists in meta — this weekend's Linz digest is
+  already marked sent (ledger has recipients); the desk will 409 a resend without force.
 
 ## Where things stand (2026-07-14 latest+8 — adversarial review of the latest features, all cleaned)
 - **Four Sonnet agents reviewed crawl / map / growth / admin-auth; architect verified every

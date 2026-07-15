@@ -2,6 +2,25 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Newsletter/social review + local language + city-handle branding (2026-07-15, George) — SHIPPED (c26704f)
+- [x] **Reviewed the whole growth surface** (signup → confirm → digest build → newsletter render →
+      send ledger → social cards → weekend page): structurally solid. Language was already channel-
+      local by construction (each digest is written+rendered in its channel's lang: Linz de, Sofia bg),
+      confirm mail follows the signup UI language (which follows IP country on first visit).
+- [x] **Language hole closed**: a signup with no/invalid `lang` fell back to ENGLISH regardless of
+      place. Now: UI language wins; else the language of the CHOSEN AREA (channel registry →
+      lng-20 meridian: BG east, AT/DE west). Sofia→bg, Linz/Stuttgart→de, verified matrix.
+- [x] **City handle is the brand on all three surfaces**: newsletter header, both social-card slides,
+      weekend page now show okolo.linz / okolo.sofia (from channel.handle) instead of bare "okolo".
+      Verified from the frozen 2026-07-17 snapshots (Linz de + Sofia Cyrillic covers, slide, page).
+- [x] Review find: on Resend-only prod without NOTIFY_TO, `notifyOperator` silently dropped every
+      signup/submission ping (to=undefined). Now warns loudly in logs.
+- [ ] **George: set `NOTIFY_TO` on Vercel** (e.g. your gmail) — without it you get NO new-subscriber /
+      new-submission pings and the desk's "send test to me" has no recipient. Then redeploy.
+- [ ] Per-SUBSCRIBER newsletter language (a bg-lang subscriber in Linz gets the German Linz digest) =
+      deliberately not built: needs per-language digest copy per city; channel language IS the local
+      language George asked for. Revisit only if BG-in-Austria subscribers actually show up.
+
 ## Big-city coverage (2026-07-15, George: "100% of big cities matters, countryside fine for now")
 - [x] **Innsbruck (worst-covered big city) fixed.** Its 5 city sources were registered works=true but
       4 yielded 0 — looked covered, contributed nothing (the 878 "Innsbruck" events were all Tirol
