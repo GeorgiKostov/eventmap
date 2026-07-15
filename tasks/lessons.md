@@ -2,6 +2,24 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-15 — Test placeholders in a real config file outlive the test and flip every "configured" check
+
+The Meta-publishing implementer agent put `META_ACCESS_TOKEN=fake-test-token` (+ fake ids) into
+`.env.local` to exercise its code, and left them there. Result: `socialConfigured()` reported
+true everywhere, the desk showed live Post buttons, and a plain `npm run social` would have fired
+real Graph calls with garbage — the "honest unconfigured state" design was defeated by its own
+test setup. Nothing failed loudly because a fake value is indistinguishable from a real one to a
+presence check. Caught only by driving the CLI and being surprised by `configured: true`.
+**Lessons:** (1) never write test fixtures into a real, shared config file (`.env.local`) — fake
+values belong in the test's own env scope (the test file's `withEnv` already existed for exactly
+this); (2) when a dry run reports a state you didn't set up ("configured: true" with no
+credentials issued), treat the surprise itself as the finding — trace where the value came from
+before trusting any later result; (3) after any agent-implemented feature, check not just the
+diff but the *untracked/ignored* files it touched — gitignored state doesn't show in review.
+(Also this session: two concatenated command outputs — `head` of one run + `tail` of another —
+read as duplicated caption lines and nearly became a filed renderCaption bug. Recount raw output
+before reporting a data bug; my own display pipeline is also a suspect.)
+
 ## 2026-07-14 — An anti-fabrication rule dropped a real fact; and additive scores aren't priorities
 
 Adversarial review (four Sonnet agents over crawl/map/growth/admin) surfaced a CRITICAL that had been

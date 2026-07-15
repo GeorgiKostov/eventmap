@@ -2,6 +2,26 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Meta Graph publishing pipeline (2026-07-15, George: "build the meta api pipeline… ready until the part I need to do") — SHIPPED (b589d14)
+- [x] **Everything except credentials is built**: `lib/social-publish.js` (IG carousel + FB Page post,
+      one module = the only place posts leave the building), `/api/admin/social` (dry-run first,
+      honest 503 naming missing env vars, atomic in-flight claim + success-only ledger),
+      desk Publish section on /admin/thursday (Post/Preview per target), `npm run social` CLI
+      (dry-run default when unconfigured — verified live against the frozen Linz snapshot),
+      17 tests. Sonnet implement → Sonnet adversarial review (DO-NOT-SHIP verdict) → all
+      Critical/Major fixed: kill-mid-publish duplicate risk (UNKNOWN_OUTCOME claim), concurrent
+      publish race (metaClaim), Preview blocked by credential/ledger checks, swallowed page-token
+      errors, snapshot-drift warning, 2200-char caption guard.
+- [ ] **George: Meta setup (~30 min) — runbook: docs/ops/meta-api-setup.md.** FB Page + IG
+      professional account linked → Business-type app (stays in dev mode, no App Review for own
+      assets) → Business Manager system user with Page+IG assets assigned → token (expiry: Never;
+      scopes instagram_basic, instagram_content_publish, pages_manage_posts, pages_read_engagement,
+      business_management) → set META_ACCESS_TOKEN, IG_USER_ID, FB_PAGE_ID on Vercel + .env.local
+      (lines exist, empty). Then: desk Preview → Post. Publishing needs the DEPLOYED card URLs, so
+      first real post follows the next deploy.
+- [ ] Posting to own Page/IG via API is ban-safe; GROUP seeding stays manual forever (Groups API is
+      dead) — the growth-system plan's "no auto-posting" warning applies to groups, not this.
+
 ## Crawl freeze fix + sparse-map pins (2026-07-15, George: "fix the crawl infra debt … and the map threshold switch") — SHIPPED (4ea3f14, 12cab82)
 - [x] **The zero-yield freeze had TWO of our own bugs on top of the ordering starvation (49a8ee9):**
       (1) extraction failure recorded as `noContent` → events_last=0 + zero_streak+1, so a provider

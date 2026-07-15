@@ -17,6 +17,23 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-15 latest — Meta publishing pipeline built, waiting only on credentials)
+- **The weekly digest can now post itself to Instagram (carousel) + Facebook Page** (b589d14):
+  `lib/social-publish.js` (the one Graph-API surface, mail.js pattern) → `/api/admin/social` →
+  Publish buttons on the Thursday desk + `npm run social` CLI. Reads the SAME frozen snapshot as
+  the newsletter/cards; never builds; ledger `posted:ig|fb:<slug>:<friday>` written only after Meta
+  returns an id; atomic `metaClaim` in-flight marker makes concurrent publishes lose cleanly and
+  turns a mid-publish serverless kill into an explicit "post MAY be live — check before force"
+  instead of a silent duplicate. Dry-run/Preview works with zero credentials (verified end-to-end
+  against the frozen Linz 2026-07-17 snapshot). **George's only remaining part (~30 min):
+  docs/ops/meta-api-setup.md** — Meta Business app (dev mode suffices for own assets, no review),
+  system-user token (expiry Never), set META_ACCESS_TOKEN / IG_USER_ID / FB_PAGE_ID on Vercel +
+  .env.local. Real posting needs deployed card URLs, so first post follows the next deploy.
+  Posting to own Page/IG ≠ the banned group-bot pattern; group seeding stays manual.
+- Review process note: the implementer agent had left `fake-test-token` values in .env.local, which
+  flipped every configured() check to true — a plain `npm run social` would have fired real Graph
+  calls. Caught by driving the CLI; values blanked (lesson recorded).
+
 ## Where things stand (2026-07-15 later — the zero-yield freeze is FIXED at the mechanism level)
 - **The starvation fix (49a8ee9) was necessary but not sufficient — two recording bugs of our own kept
   sources frozen even when the crawl DID reach them** (4ea3f14): (1) extraction failure was recorded as
