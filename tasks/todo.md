@@ -2,6 +2,53 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Digest rebalance + weekend-page discovery (2026-07-17, George: "almost every event is for kids… also aimed at young people without kids who want to explore art events, maybe half half… 10 best events" · "a way to access the list of events eg this week in linz from our triple-dot menu, changes based on where you are on the map") — SHIPPED (e254758)
+- [x] **It was ~100% kids BY CONSTRUCTION**, not by tagging: buildDigest took every family
+      event first and only topped up below DIGEST_MIN, and rankPick makes family strictly
+      dominant — so any decent weekend was all-family. Now `splitSections()` gives each strand
+      about half, richer strand fills the gap. Live: Linz 5/5, Wien 5/5, Graz 3/7, Plovdiv 2/8;
+      all 10 channels return 10 picks. Linz "Für alle" = Sommertheater, Grossstadtgeflüster
+      (Posthof), Kunstverein open-air — exactly the audience George named.
+- [x] **George's call: two labelled sections, not a quiet quota.** The digest was branded
+      family-first in ~11 places INCLUDING the AI's own prompt ("Du schreibst den wöchentlichen
+      Familien-Newsletter"), so a 50/50 list under that banner = the model writing family framing
+      over art events. Both strands labelled; prompt now describes both audiences + receives each
+      pick's `section`; subject/lede/caption/H1 drop "Familien" (the heading carries it). Weekend
+      page H1 now also matches the real query ("was ist los in linz am wochenende" — never
+      family-specific). `sectionsOf()` = one grouping definition for mail/text/caption/page.
+      Headings only when BOTH strands exist; frozen pre-sections snapshots render as built.
+- [x] **DIGEST_MAX 9 → 10.** The 9 existed only because IG allows 10 slides and slide 0 is the
+      cover — a POSTING limit, not editorial. Mail + page carry 10; `carouselOmitted()` names what
+      won't fit and the publisher warns rather than quietly posting 9 of 10 (post #10 per-event
+      from the desk). NB the IG caption still lists all 10 while the carousel shows 9 — accepted:
+      the caption sells the click to the page, which has all 10.
+- [x] **🚨 `?lat=&lng=` was READ NOWHERE** (pre-existing, worse than the feature). The newsletter's
+      "auf der Karte" CTA, every weekend page's map button and the event-page back link shipped
+      yesterday all carry those params — every one silently dropped the reader in **Linz**, from
+      the Sofia digest the wrong country. Now honoured at map construction; mapCenter seeded from
+      the same value (moveend never fires for a map CONSTRUCTED at its target). Verified live.
+- [x] Menu → `/weekend/<city>` for the channel nearest the map centre (`nearestChannel`,
+      deliberately NOT `channelForPoint` — that must stay catchment-bounded for SUBSCRIBER
+      routing). Verified: Vienna→Wien, Sofia→София, rural Mühlviertel→Linz. `NL_CONSENT_VERSION`
+      bumped (nlBlurb now says families AND everyone, because the newsletter does).
+- [x] Prod writes made: **wien + graz 07-17 snapshots regenerated** (both unsent; = the desk's own
+      Regenerate). **Linz 07-17 is SENT + IG/FB-posted — untouched.**
+- [ ] **innsbruck / salzburg / sofia 07-17 still hold OLD 5-item family-framed snapshots** (built
+      before this change; `loadOrBuildDigest` returns an existing snapshot unless forced). Harmless
+      — all unsent — and next Thursday's build is uniform. Regenerate from the desk if you want
+      them consistent this weekend.
+- [ ] **Data-quality smells seen while verifying, both pre-existing, neither mine**: (a) Wien's
+      three *Bouldern* events (Wienerberg / Hauptbahnhof / Seestadt) all render venue "boulderbar
+      Hauptbahnhof" — a `default_venue` overreaching across distinct locations; (b) Wien's
+      exhibitions print "Fr 17.7. **00:00**", i.e. a stored midnight rather than a date-only
+      "no time published" — the 09:00-placeholder class again, wearing a different hour.
+- [ ] **Claude copy failed ONCE with a malformed JSON response** ("Unterminated string at 982") and
+      fell back to Gemini — exactly as designed, honestly labelled. NOT my prompt and NOT the 10th
+      pick: probed 9 vs 10 events at 2000/4000 max_tokens, all `stop=end_turn` at ~850 output
+      tokens, and Graz then succeeded on claude-sonnet-5. Worth considering whether a JSON-parse
+      failure should be RETRIED (withRetry treats it as non-transient), since the fallback is a
+      real copy-quality downgrade for a one-off blip.
+
 ## Physical distribution + festival partnerships (2026-07-16, George: "stickers which we can stick around cities, generic, okolo.events, events around you with a qr code, use our CI, we need a cheap bulk provider, give it to friends to spread around, also think of other ways" · "i contacted a friend at ars electronica… they give us data, we list it and highlight it, in exchange they add us to their marketing materials, and let us use them as a reference… we probably dont need to charge them unless u say this is good practice") — QUEUED, nothing built
 
 ### Stickers

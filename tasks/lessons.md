@@ -2,6 +2,52 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-17 — "Too many kids events" was not a tagging problem; and the links we hand out went nowhere
+
+George: "almost every event is for kids… it's also aimed at young people without kids who want to
+explore art events". The instinct is to reach for the tagging (again — this is the third time a
+"things are mis-tagged" report turned out to be mechanism, after the kids-filter predicate and the
+all_day default). It wasn't: `buildDigest` took EVERY family event first and only topped up from the
+rest when fewer than DIGEST_MIN existed, and `rankPick` makes family strictly dominant. So a decent
+weekend produced an all-family list **by construction** — no tag was wrong, the selection could not
+produce anything else. **When a user reports a distribution, look for the code that makes that
+distribution inevitable before you look at the data.**
+
+**The reframe was bigger than the quota, and that's what needed asking.** The digest was branded
+family-first in ~11 places — including the AI copywriter's own system prompt ("Du schreibst den
+wöchentlichen **Familien**-Newsletter"). Shipping a 50/50 list under that banner would have had the
+model writing family framing over art events for childless 25-year-olds: a small dishonesty, in
+exactly the four weekends we're measuring trust. George picked labelled sections, which keeps both
+promises explicit. **A quota is a code change; a quota plus the copy that describes it is a
+repositioning — find the copy before you decide which one you're doing.** (The tell was cheap to
+find: grep the product noun, not the function.)
+
+**A deep-link param that nothing reads.** Verifying the new menu, I loaded `?lat=48.2&lng=16.4` and
+the menu said "Weekend in Linz". I assumed my `mapCenter` seeding was wrong — it was, but the real
+finding underneath was that **`?lat=&lng=` was read NOWHERE in the app**. The newsletter's "auf der
+Karte ansehen" CTA, every weekend page's map button, and the back link I shipped the day before all
+carry those params, and every one of them silently dropped the reader in Linz. From the Sofia digest
+that is the wrong country. Nothing errored; the map just always opened at HOME, and HOME is Linz, so
+in the one city anyone tested it looked perfect. **A default that coincides with your test case hides
+a dead parameter forever** — the Linz-shaped blind spot again. Verify a link by using it from
+somewhere that ISN'T the default.
+
+**Twins, again.** I sectioned the newsletter's HTML and left its `text/plain` twin flat — caught only
+by printing a real render, not by the diff or the tests I'd written. Same class as starts_at/ends_at,
+same class as the nine entity decoders: **two renderings of one thing WILL drift, so give them one
+shared definition** (`sectionsOf`) **and a test that reads both.** And the sibling win: extracting
+`splitSections()` as a pure function was worth it purely because the top-up arithmetic (grow family
+against `all`'s count, THEN `all` against the new family count — reverse those two lines and it
+overshoots) is the part a reader actually receives, and it was untestable while it sat inside a
+DB call.
+
+**One process note.** A Claude copy call failed once with malformed JSON and fell back to Gemini. My
+first instinct was "my prompt / the 10th pick broke it" — but probing 9 vs 10 events at 2000/4000
+max_tokens showed `stop=end_turn` at ~850 output tokens every time, and the next city came back on
+claude-sonnet-5 addressing both audiences unprompted. **Suspect your own change first, then actually
+measure it, and let the measurement acquit you** — the fallback did exactly its job and labelled the
+model honestly, which is how the blip was visible at all.
+
 ## 2026-07-16 — A page with no date; and a dedup guard that only catches half its own class
 
 Building the Pflasterspektakel adapter surfaced two things worth keeping.

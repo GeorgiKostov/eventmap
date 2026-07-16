@@ -17,7 +17,36 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
-## Where things stand (2026-07-16 latest — Pflasterspektakel adapter ready, capture runs 23–25 July)
+## Where things stand (2026-07-17 latest — the digest is two strands now, e254758)
+- **The newsletter was ~100% kids BY CONSTRUCTION** (buildDigest took every family event first;
+  rankPick makes family strictly dominant) — not a tagging problem. Now `splitSections()` gives
+  each strand ~half of 10, richer strand fills the gap. Live: Linz 5/5, Wien 5/5, Graz 3/7,
+  Plovdiv 2/8; every channel returns 10.
+- **George's call: two LABELLED sections ("Für Familien" / "Für alle"), not a quiet quota.** The
+  digest was branded family-first in ~11 places incl. the AI's own system prompt, so a 50/50 list
+  under that banner would have had the model writing family framing over art events. The prompt now
+  describes both audiences and receives each pick's `section`. `sectionsOf()` = the one grouping
+  definition (mail + text part + caption + page); headings only when both strands exist; frozen
+  pre-sections snapshots render as built.
+- **DIGEST_MAX 9 → 10.** The 9 was purely IG's 10-slide carousel (slide 0 = cover) — a posting
+  limit, not editorial. `carouselOmitted()` now NAMES the pick that doesn't fit instead of the
+  `.slice(0,10)` silently eating it.
+- **🚨 `?lat=&lng=` was read NOWHERE** (pre-existing): the newsletter CTA, every weekend page's map
+  button and the event-page back link all carried it, and every one dumped the reader in **Linz** —
+  from the Sofia digest, the wrong country. Fixed at map construction; mapCenter seeded from the
+  same value (moveend never fires for a map CONSTRUCTED at its target).
+- **Menu → `/weekend/<city>`** for the channel nearest the map centre. `nearestChannel()` is
+  deliberately NOT `channelForPoint` — that one must stay catchment-bounded, or a subscriber 300km
+  from Linz gets mailed events they can't attend. `NL_CONSENT_VERSION` → 2026-07-17 (nlBlurb now
+  says families AND everyone, because the newsletter does).
+- **Prod writes**: wien + graz 07-17 snapshots regenerated (unsent). **Linz 07-17 is SENT + posted
+  — untouched.** innsbruck/salzburg/sofia keep their old 5-item family-framed snapshots this
+  weekend; next Thursday is uniform.
+- Two pre-existing data smells seen in the Wien digest, neither mine: three distinct *Bouldern*
+  events all showing venue "boulderbar Hauptbahnhof" (default_venue overreach), and exhibitions
+  printing "Fr 17.7. 00:00" (a stored midnight where the source published no time).
+
+## Where things stand (2026-07-16 — Pflasterspektakel adapter ready, capture runs 23–25 July)
 - **George asked whether we can get per-act times/locations for Pflasterspektakel "next weekend".
   Answer: not yet, and by design.** Festival = **23–25 July** (DO 16–23, FR & SA 14–23). The
   Tagesprogramm says "Aktuell ist noch kein Tagesprogramm verfügbar" because "Die Künstler*innen
