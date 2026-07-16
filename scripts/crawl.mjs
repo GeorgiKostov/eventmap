@@ -34,7 +34,7 @@ import { fetchJeventsEvents } from '../lib/jevents-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
-import { politeFetch, robotsAllowed } from '../lib/crawl-net.js';
+import { politeFetch, robotsAllowed, aiPolicyAllowed } from '../lib/crawl-net.js';
 
 // One end-time builder for every adapter. Keeps a known end DATE even when the
 // end TIME is unknown (date-only ends_at), and drops an end that isn't strictly
@@ -846,11 +846,17 @@ async function fetchNaturfreundeEvents(src) {
 }
 
 // --- blocked_reason (docs/design/big-city-quality.md §2) ---
-// A robots-disallow (or a hand/fingerprint-sweep-set js_spa/ai_bot_policy/
-// bot_block) is a STATE, not a failure streak: it must never feed zero_streak
-// or nudge a source toward tier='dead' the way an ordinary zero-event round
-// does (the Stuttgart lesson, tasks/lessons.md 2026-07-14 — a robots skip was
-// silently counted the same as "found nothing").
+// A robots-disallow (or an ai_bot_policy skip, or a hand/fingerprint-sweep-set
+// js_spa/bot_block) is a STATE, not a failure streak: it must never feed
+// zero_streak or nudge a source toward tier='dead' the way an ordinary
+// zero-event round does (the Stuttgart lesson, tasks/lessons.md 2026-07-14 — a
+// robots skip was silently counted the same as "found nothing").
+//
+// These two reasons are re-derived from the live robots.txt on every run, so a
+// source un-blocks itself the moment a site drops the rule — unlike js_spa /
+// bot_block, which are human/sweep judgements no crawl can re-evaluate.
+const AUTO_DERIVED_BLOCKS = new Set(['robots', 'ai_bot_policy']);
+
 async function clearBlockedIfSet(src) {
   if (src.blocked_reason) await setSourceBlockedReason(src.id, null);
 }
@@ -896,11 +902,11 @@ async function tryFuzzyMerge(ev) {
 async function crawlNaturfreundeSource(src, { force } = {}) {
   console.log(`\n→ ${src.name} (${src.url})`);
 
-  // 'robots' is re-derived by THIS crawl's own check every run (below), so it
-  // clears itself the moment the site's policy changes. Any OTHER reason
-  // (js_spa/ai_bot_policy/bot_block) is set by hand or by the CMS fingerprint
+  // 'robots' and 'ai_bot_policy' are re-derived by THIS crawl's own checks every
+  // run (below), so they clear themselves the moment a site's policy changes.
+  // Any OTHER reason (js_spa/bot_block) is set by hand or by the CMS fingerprint
   // sweep, never auto-detected here — respect it and skip without an attempt.
-  if (src.blocked_reason && src.blocked_reason !== 'robots') {
+  if (src.blocked_reason && !AUTO_DERIVED_BLOCKS.has(src.blocked_reason)) {
     console.log(`  blocked (${src.blocked_reason}), skipping`);
     return { ok: 0, fail: 0 };
   }
@@ -912,6 +918,14 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
       // Blocked is a STATE, not a failure streak (tasks/lessons.md 2026-07-14):
       // leave crawl stats untouched entirely, same treatment as a provider
       // error — no zero_streak bump, no tier nudge.
+      return { ok: 0, fail: 0 };
+    }
+    // robots.txt says WE may fetch this (our UA is never on these lists) — but
+    // the site named AI crawlers and shut them out, and we honor that as intent
+    // (docs/decisions/2026-07-16-ai-bot-policy.md). Same STATE treatment.
+    if (!(await aiPolicyAllowed(src.url))) {
+      console.log('  robots.txt blocks named AI crawlers — honoring, skipping');
+      await setSourceBlockedReason(src.id, 'ai_bot_policy');
       return { ok: 0, fail: 0 };
     }
   } catch { /* robots check itself failed → default allow, proceed */ }
@@ -986,11 +1000,11 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
   const scope = requestedScope || scopeForSource(src);
   console.log(`\n→ ${src.name} (${src.url})`);
 
-  // 'robots' is re-derived by THIS crawl's own check every run (below), so it
-  // clears itself the moment the site's policy changes. Any OTHER reason
-  // (js_spa/ai_bot_policy/bot_block) is set by hand or by the CMS fingerprint
+  // 'robots' and 'ai_bot_policy' are re-derived by THIS crawl's own checks every
+  // run (below), so they clear themselves the moment a site's policy changes.
+  // Any OTHER reason (js_spa/bot_block) is set by hand or by the CMS fingerprint
   // sweep, never auto-detected here — respect it and skip without an attempt.
-  if (src.blocked_reason && src.blocked_reason !== 'robots') {
+  if (src.blocked_reason && !AUTO_DERIVED_BLOCKS.has(src.blocked_reason)) {
     console.log(`  blocked (${src.blocked_reason}), skipping`);
     return { ok: 0, fail: 0 };
   }
@@ -1002,6 +1016,14 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
       // Blocked is a STATE, not a failure streak (tasks/lessons.md 2026-07-14):
       // leave crawl stats untouched entirely, same treatment as a provider
       // error — no zero_streak bump, no tier nudge.
+      return { ok: 0, fail: 0 };
+    }
+    // robots.txt says WE may fetch this (our UA is never on these lists) — but
+    // the site named AI crawlers and shut them out, and we honor that as intent
+    // (docs/decisions/2026-07-16-ai-bot-policy.md). Same STATE treatment.
+    if (!(await aiPolicyAllowed(src.url))) {
+      console.log('  robots.txt blocks named AI crawlers — honoring, skipping');
+      await setSourceBlockedReason(src.id, 'ai_bot_policy');
       return { ok: 0, fail: 0 };
     }
   } catch { /* robots check itself failed → default allow, proceed */ }

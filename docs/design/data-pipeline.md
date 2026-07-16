@@ -497,6 +497,14 @@ summary of what's actually implemented:
 - **robots.txt honored** before every fetch (`robotsAllowed()`), **identifying UA** on every request
   (`UmkreisBot/0.1` for crawl, a separate `umkreis-prototype/0.1` UA for Nominatim per its own usage
   policy), **per-host rate limiting** (≥1s crawl, 1/s global Nominatim).
+- **Named-AI-crawler blocks honored** (`aiPolicyAllowed()`, a *second* question asked at both crawl
+  gates — decision: `docs/decisions/2026-07-16-ai-bot-policy.md`). A site naming ClaudeBot/GPTBot
+  with a `Disallow` covering our path is skipped with `blocked_reason='ai_bot_policy'`, even though
+  RFC 9309 permits us (our UA is never on those lists — which is exactly why `robotsAllowed()` can't
+  express this and must stay a clean spec implementation). Search crawlers (petalbot/Huawei,
+  amazonbot) and nuisance-scraper lists (bytespider alone) are **not** AI stances. Live cost:
+  11 sources / 138 events, incl. all of Stuttgart. Both this and `robots` self-clear on the next
+  crawl if a site drops the rule.
 - **Linkback on every event** (`source_url`, a hard rule) — the traffic-back argument that a
   deterministic parser reading the same public HTML "changes how we parse, not what we access," and
   that GEM2GO's own ToS (no account/API involved) don't bind us.

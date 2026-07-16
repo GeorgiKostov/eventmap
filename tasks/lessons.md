@@ -2,6 +2,47 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-16 — A policy that only lives in prose is not a policy; and my own token list nearly killed Linz-Termine
+
+Two lessons from enforcing the named-AI-bot rule, and the second one is about me.
+
+**(1) "We honor named-AI-bot blocks" had been our stated policy since the Wien precedent
+(2026-07-12) — and nothing in the code implemented it.** `robotsAllowed()` returns **true** for every
+site that names ClaudeBot, and *correctly so*: RFC 9309 says a group that never names `UmkreisBot`
+does not bind us. So the policy's entire enforcement mechanism was "an agent remembers to apply it
+during discovery." The nightly cron would have crawled any such source the moment a probe/gap-fill
+run registered one — and we were in fact already crawling **stuttgart.de nightly**, which publishes a
+bare `User-agent: ClaudeBot / Disallow: /`. **A rule written only in CLAUDE.md and a decision doc is
+a rule you are one careless registration away from breaking.** If a policy governs an automated path,
+the automation has to be able to express it. The fix was deliberately a *second function*
+(`aiPolicyAllowed`) rather than a change to `robotsAllowed`: they answer different questions ("may
+we?" vs "should we?"), and folding a product policy into a spec implementation is precisely what
+produced the 2026-07-14 Stuttgart false-block. **When a check keeps wanting exceptions bolted on,
+that's a sign it's two checks.**
+
+**(2) I put `petalbot` and `amazonbot` in the AI-crawler list, and my first measurement reported that
+we'd lose Linz-Termine.** PetalBot is Huawei's *search* crawler; Amazonbot is Amazon's. Neither says
+anything about AI indexing. My over-broad list inflated the blast radius from 11 sources to 21 and
+condemned **Linz-Termine (42 live events, a tier-2 source in `lib/source-quality.js`)** plus 9 more —
+i.e. it would have made Austria's exposure look 25× worse than the true 2 sources / 2 events, in the
+one city the whole validation test depends on. I caught it only because a result looked *wrong in a
+specific way* — "why would linztermine.at of all sites block AI bots?" — and I went and read the raw
+robots instead of reporting the number. **The surprise itself was the finding** (same as the
+`configured: true` trap, 2026-07-15). Two rules worth keeping: **a category list is a claim about
+each member — justify every entry individually, because one wrong member silently reclassifies real
+data**; and **when a measurement indicts something you know well, suspect the measurement first.**
+Had I shipped that table, George would have chosen between options priced on a fiction.
+
+**Corollaries from the same session.** (a) A source-name is not a key: three separate `Община Плевен`
+source rows share one `source_name`, so a per-source event count triple-counted the same 16 rows and
+reported 170 events affected when the true figure was 138 — count DISTINCT before quoting a number
+that justifies a destructive write. (b) When a state becomes auto-derived it must also become
+self-clearing (`ai_bot_policy` joined `robots` in `AUTO_DERIVED_BLOCKS`), or a site that drops its
+rule stays blocked forever — and the comment at both gates *asserting* it was "never auto-detected
+here" would have been left stating the opposite of the code, exactly the parent-effects trap from the
+day before. (c) `works=false` is still the rot pattern: a blocked source keeps `works=true` and
+carries a `blocked_reason` state, so `rot-report.mjs` can still see it.
+
 ## 2026-07-16 — A parent's effects run no matter what it renders; "the shell gates it" is not a gate
 
 Extracting the duplicated admin login into one `AdminShell` looked clean, and the desks kept their own
