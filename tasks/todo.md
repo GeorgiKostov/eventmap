@@ -2,6 +2,25 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Source-quality ranking + visual desk (2026-07-15, George: "most trusted sources first… improve the UI") — SHIPPED (5333ae3)
+- [x] **`lib/source-quality.js`** (one definition, kid-cats pattern): tier 2 curated official/vetted
+      family publishers › tier 1 municipal crawl › tier 0 unvetted. weekendPicks rank tuple now
+      family → tier → precise → free → interest → soonest; **reported events excluded in SQL**
+      (pre-DISTINCT-ON so a clean series occurrence survives); **community gated** (venue +
+      description≥30 + no reports), old community boost removed. Applies to newsletter + weekend
+      page + social cards on each channel's NEXT digest build (frozen snapshots unchanged).
+      Verified live: Linz top-12 all tier-2/1, correctly ordered. Architect call recorded:
+      community = gated-and-included, not excluded (poster-scan is a product feature).
+- [x] **Desk Publish section is visual now**: per-event card thumbnails (event-addressed), inline
+      image+caption preview (no more alert()), dimmed posted rows, posted-vs-carousel chips +
+      Vienna timestamps, source/tier badges, category dots, refresh. All dedup/confirm flows intact.
+- [x] Review (SHIP-AFTER-FIXES) caught 2 latent tier bugs (familienbund domain masked by name
+      fallback; /linztermine/i vs real "Linz-Termine") — fixed + pinned with tests. 99 tests green.
+- [ ] Minor accepted-for-now: community series whose earliest occurrence fails the quality gate drops
+      the whole title-group (gate runs post-DISTINCT-ON, unlike reports); desk card thumbnails are
+      immutable-cached per weekend URL so a mid-week Regenerate can show a stale thumb until
+      hard-refresh; no onError fallback on desk card imgs.
+
 ## Per-event social posting + cross-ledger dedup (2026-07-15, George: "post individual fotos… different days… dont get stuff already posted") — SHIPPED (551047a)
 - [x] Each digest event posts on its own (desk row: IG/FB/Preview; "post next unposted"; CLI --item/--next),
       sharing one `publishWithLedger` core with the bulk carousel. Per-event ledger key
