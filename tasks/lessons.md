@@ -2,6 +2,24 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-16 — Splitting features onto a new GL layer silently detaches every layer-name consumer
+
+The highlights build moved gold/editorial pins off the base `pins` layer onto their own
+`pins-highlight` layer (base layer gained a `['!', IS_HIGHLIGHTED]` filter). The implementing agent
+wired sprites, filters, and z-order correctly — but the single map click handler resolves pin taps
+with `queryRenderedFeatures(box, { layers: ['pins'] })`, so **the paid pins were unclickable**, and
+`mouseenter/mouseleave('pins')` meant no pointer cursor either. Nothing failed: no error, no test,
+build green — a gold pin would have rendered beautifully and ignored every tap. Caught only by the
+architect grepping `queryRenderedFeatures`/layer-name literals during review.
+**Lesson:** a GL layer name is an API. When a feature subset moves to a new layer (or a layer is
+renamed), grep every consumer of the old name — click routing, hover handlers, queryRenderedFeatures,
+`getLayer` guards, feature-state appliers — and decide per site whether it needs the new layer added.
+This is the "grep every consumer when a new data class lands" lesson (2026-07-11) wearing GL clothes:
+the filter split created a class of features invisible to code that thought "pins" meant "all pins".
+(Same review, smaller: an animated StyleImage must upload its cleared frame ONCE after an animation
+window — clearing the canvas and returning `false` leaves the last animated frame on the GPU, so a
+throttled tab freezes a mid-sweep streak onto the pin.)
+
 ## 2026-07-15 — Test placeholders in a real config file outlive the test and flip every "configured" check
 
 The Meta-publishing implementer agent put `META_ACCESS_TOKEN=fake-test-token` (+ fake ids) into

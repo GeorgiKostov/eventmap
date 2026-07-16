@@ -35,6 +35,22 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - **Concurrent session caution**: another session committed source-quality ranking (5333ae3) and swept
   this batch's lib/db.js helpers into its commit. Stage explicit paths only.
 
+## Where things stand (2026-07-16 — highlighted/sponsored pins SHIPPED, cf81564)
+- **Gold (paid) + editorial event placement is live in code** (George picked the treatments off an
+  iterated prototype artifact 69c1af62…): gold = golden outline ring outside the white pin border,
+  1.15×, star corner badge, specular shine sweep every ~5.5s (animated StyleImage, sleeps between
+  sweeps, off under prefers-reduced-motion); editorial = static CI-raspberry (#c93a5b) ring, 1.1×,
+  no badge/motion — paid and curated are visually distinct on purpose. `highlights` table (period
+  rows, migration applied to prod, currently 0 rows), active = query-time join in mapPins/search/
+  getEvent (event expiry drops the highlight for free), active highlights are cap-exempt (first sort
+  key). Desk: /admin/highlights (password cookie, search → tier → period → note, clear). Legal:
+  „Anzeige"/Sponsored tag renders on gold list rows + detail; editorial deliberately unlabeled.
+- **Open before the first PAID gold**: payer identity on the detail view + ranking-disclosure note
+  (docs/decisions/2026-07-12-paid-placement-compliance.md). Editorial showcases can be used NOW
+  (Pflasterspektakel-style) — George just sets them on the desk.
+- **George owes a real-browser map eyeball** (WebGL not drivable in the agent pane): gold ring/star/
+  shine, editorial ring, both clickable, selection on a highlighted pin. NOT deployed — push ≠ deploy.
+
 ## Where things stand (2026-07-15 latest+1 — per-event social posting + cross-ledger dedup)
 - **Individual-photo posting on the desk** (551047a): each digest event posts on its own (IG/FB/Preview
   per row, "post next unposted", CLI `--item`/`--next`), sharing one `publishWithLedger` core with the
