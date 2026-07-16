@@ -437,6 +437,9 @@ a { color: inherit; }
   padding: 10px 12px; border-radius: 10px; font-size: 13.5px; font-weight: 650; text-align: left;
 }
 .menuitem:hover { background: var(--panel2); }
+/* The weekly-picks entry is an <a> (a real page, opened in a new tab) sharing the
+   button rows' look — `a { color: inherit }` covers the colour, not the underline. */
+a.menuitem { text-decoration: none; }
 .menuitem .ic { width: 18px; text-align: center; flex: 0 0 auto; }
 .language-picker { padding: 8px 8px 7px; border-top: 1px solid var(--line); }
 .language-label { display: flex; align-items: center; gap: 10px; padding: 2px 4px 8px; color: var(--muted); font-size: 12px; font-weight: 700; }

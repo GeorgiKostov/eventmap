@@ -11,11 +11,33 @@ import { TOWNS, townCentroid } from '../lib/towns.js';
 import { searchPlaces, normalizePlace } from '../lib/places.js';
 import { groupEventSeries } from '../lib/map-groups.js';
 import { isForKids } from '../lib/kid-cats.js';
+import { nearestChannel } from '../lib/city-channels.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
+
+// Where the map opens: ?lat=&lng= if a link supplied them, else HOME.
+//
+// Those links have been handed out for a while and NOTHING read them — the
+// newsletter's "Alle Events auf der Karte" CTA, every weekend page's map button
+// and the event pages all carry ?lat=&lng=, and every one of them silently
+// dropped the reader in Linz. From the Sofia digest that is simply the wrong
+// country. Read-only and viewport-only: the params move the camera (the viewport
+// IS the spatial filter), they don't set the "Around X" search anchor.
+//
+// parseFloat, not Number: Number('') and Number(null) are both 0, which is a
+// perfectly finite coordinate in the Gulf of Guinea.
+function initialCenter() {
+  if (typeof window === 'undefined') return HOME;
+  const p = new URLSearchParams(window.location.search);
+  const lat = parseFloat(p.get('lat'));
+  const lng = parseFloat(p.get('lng'));
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return HOME;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return HOME;
+  return { lat, lng };
+}
 // "Interested" is personal-first: the save lives in localStorage (works at zero
 // traffic, no account), the server only keeps the aggregate counter. That counter
 // stays hidden until enough people agree — showing "1 interested" reads as an
@@ -665,6 +687,11 @@ export default function Home() {
 
   // top-right actions menu + search
   const [menuOpen, setMenuOpen] = useState(false);
+  // Map centre, refreshed on every settle — the only thing it drives is which
+  // city's weekly-picks page the menu offers (George: "it changes based on where
+  // you are on the map — explore Vienna, it shows the Vienna page").
+  const [mapCenter, setMapCenter] = useState(HOME);
+  const weekendChannel = useMemo(() => nearestChannel(mapCenter.lat, mapCenter.lng), [mapCenter]);
   const [manualEntry, setManualEntry] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1230,10 +1257,17 @@ export default function Home() {
 
   useEffect(() => {
     if (mapObj.current || !mapRef.current) return;
+    // Read the deep-link params HERE, not in a useState initializer: this effect
+    // is client-only, so there's no SSR pass computing a different centre and no
+    // hydration mismatch to reason about. mapCenter is seeded from the same value
+    // the camera gets, so the menu's "Wochenende in X" is right on first paint —
+    // moveend never fires for a map that was CONSTRUCTED at its target.
+    const start = initialCenter();
+    setMapCenter(start);
     const map = new maplibregl.Map({
       container: mapRef.current,
       style: MAP_STYLE,
-      center: [HOME.lng, HOME.lat],
+      center: [start.lng, start.lat],
       // The viewport is the spatial filter now — the initial view must already
       // sit in "pins" mode (>= ZOOM_TIER) so first paint shows real pins, not
       // just cluster bubbles.
@@ -1356,6 +1390,11 @@ export default function Home() {
     // gesture doesn't fire a request per frame. Skipped during the add-flow
     // (capture/map-pick), whose own moves aren't "browsing the map".
     map.on('moveend', () => {
+      // Tracked unconditionally, BEFORE the add-flow guard: this only feeds the
+      // menu's "Wochenende in X" link, and it should follow the map even when the
+      // viewport fetch is deliberately skipped.
+      const c = map.getCenter();
+      setMapCenter({ lat: c.lat, lng: c.lng });
       if (addFlowActiveRef.current) return;
       clearTimeout(moveendTimer.current);
       moveendTimer.current = setTimeout(() => fetchViewportRef.current(), 400);
@@ -2439,6 +2478,21 @@ export default function Home() {
                   <span className="ic">🔖</span>{t.savedMenu}
                   {saved.length > 0 && <span className="menucount">{saved.length}</span>}
                 </button>
+                {/* The weekly picks page for whatever you're looking at. A real
+                    <a href>, not a router push: it's a server-rendered SEO page
+                    outside the map app, and opening it in a new tab keeps the
+                    map (and the viewport you were exploring) alive behind it. */}
+                {weekendChannel && (
+                  <a
+                    className="menuitem"
+                    href={`/weekend/${weekendChannel.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => { track('weekend_page_open', { channel: weekendChannel.slug }); setMenuOpen(false); }}
+                  >
+                    <span className="ic">📅</span>{t.weekendPicksMenu.replace('{city}', weekendChannel.label)}
+                  </a>
+                )}
                 <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>

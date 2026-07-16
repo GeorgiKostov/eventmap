@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getChannel, weekendWindow } from '../../../../lib/city-channels.js';
-import { loadDigestFor, MIN_INDEXABLE_ITEMS } from '../../../../lib/digest.js';
+import { loadDigestFor, MIN_INDEXABLE_ITEMS, sectionsOf } from '../../../../lib/digest.js';
 import { eventsByIds } from '../../../../lib/db.js';
 import { CATS } from '../../../../lib/icons.js';
 import { STRINGS } from '../../../../lib/i18n.js';
@@ -30,11 +30,16 @@ export const dynamic = 'force-dynamic';
 const COPY = {
   de: {
     locale: 'de-AT',
-    h1: (city, label) => `Was ist los in ${city}? Familien-Wochenende ${label}`,
-    lede: (city, n) => `${n} Ideen für Familien rund um ${city} — Feste, Kinderkino, Sport und Ausflüge. Jede Woche neu, aus offiziellen Quellen.`,
+    // The issue carries two strands now (lib/digest.js SECTIONS), so the page
+    // title covers the weekend rather than promising only families — the family
+    // promise lives on its own section heading below. This also matches the
+    // query people actually type ("was ist los in linz am wochenende"), which
+    // was never family-specific.
+    h1: (city, label) => `Was ist los in ${city}? Wochenende ${label}`,
+    lede: (city, n) => `${n} Ideen rund um ${city} — für Familien und für alle, von Festen und Kinderprogramm bis Kunst, Musik und Ausflügen. Jede Woche neu, aus offiziellen Quellen.`,
     free: 'gratis',
     mapCta: 'Alle Events auf der Karte ansehen',
-    mapSub: (city) => `Über 20.000 Veranstaltungen in ganz Österreich — gefiltert auf Familien rund um ${city}.`,
+    mapSub: (city) => `Über 20.000 Veranstaltungen in ganz Österreich — alles rund um ${city} auf einer Karte.`,
     nlCta: 'Diese Tipps jede Woche per E-Mail',
     archive: 'Frühere Wochenenden',
     source: 'Details & Quelle',
@@ -44,11 +49,11 @@ const COPY = {
   },
   bg: {
     locale: 'bg-BG',
-    h1: (city, label) => `Какво се случва в ${city}? Семеен уикенд ${label}`,
-    lede: (city, n) => `${n} идеи за семейства около ${city} — фестивали, детско кино, спорт и разходки. Всяка седмица нови, от официални източници.`,
+    h1: (city, label) => `Какво се случва в ${city}? Уикенд ${label}`,
+    lede: (city, n) => `${n} идеи около ${city} — за семейства и за всички: фестивали, детско кино, изкуство, музика и разходки. Всяка седмица нови, от официални източници.`,
     free: 'безплатно',
     mapCta: 'Виж всички събития на картата',
-    mapSub: (city) => `Хиляди събития — филтрирани за семейства около ${city}.`,
+    mapSub: (city) => `Хиляди събития около ${city} на една карта.`,
     nlCta: 'Получавай тези идеи всяка седмица по имейл',
     archive: 'Предишни уикенди',
     source: 'Детайли и източник',
@@ -58,11 +63,11 @@ const COPY = {
   },
   en: {
     locale: 'en-GB',
-    h1: (city, label) => `What's on in ${city}? Family weekend ${label}`,
-    lede: (city, n) => `${n} ideas for families around ${city} — festivals, kids' cinema, sport and days out. New every week, from official sources.`,
+    h1: (city, label) => `What's on in ${city}? Weekend ${label}`,
+    lede: (city, n) => `${n} ideas around ${city} — for families and for everyone, from festivals and kids' cinema to art, music and days out. New every week, from official sources.`,
     free: 'free',
     mapCta: 'See every event on the map',
-    mapSub: (city) => `Thousands of events — filtered to families around ${city}.`,
+    mapSub: (city) => `Thousands of events around ${city} on one map.`,
     nlCta: 'Get these by email every week',
     archive: 'Earlier weekends',
     source: 'Details & source',
@@ -167,6 +172,11 @@ export default async function WeekendPage({ params }) {
 
   const isPast = weekend < weekendWindow(channel.tz).friday;
   const mapUrl = `${BASE}/?lat=${channel.lat}&lng=${channel.lng}&utm_source=okolo&utm_medium=weekend_page&utm_campaign=weekend-${weekend}`;
+  // Same grouping as the mail and the caption (one definition in lib/digest.js),
+  // so the three surfaces can never disagree about which strand a pick is in.
+  // `n` numbers picks 1..N across the whole issue, not per section.
+  const groups = sectionsOf(items, channel.lang);
+  let n = 0;
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: '32px 20px 72px', fontFamily: 'system-ui, sans-serif', color: '#212B28' }}>
@@ -191,8 +201,21 @@ export default async function WeekendPage({ params }) {
 
       {!items.length && <p style={{ color: '#4A5652' }}>{c.empty}</p>}
 
-      <ol style={{ listStyle: 'none', padding: 0, margin: '28px 0 0' }}>
-        {items.map((it, i) => {
+      {groups.map((g) => (
+        <section key={g.key || 'flat'}>
+          {/* A real heading, not a styled div: "Für Familien" is a meaningful
+              landmark for readers and for Google. Event titles drop to h3 under
+              it so the outline stays h1 → h2 → h3; a pre-sections frozen
+              snapshot has no heading and keeps its titles at h2. */}
+          {g.title && (
+            <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase', color: '#4A5652', margin: '30px 0 -4px' }}>
+              {g.title}
+            </h2>
+          )}
+          <ol style={{ listStyle: 'none', padding: 0, margin: '28px 0 0' }}>
+            {g.items.map((it) => {
+          const i = n++;
+          const Title = g.title ? 'h3' : 'h2';
           const color = CATS[it.cat]?.color || '#C93A5B';
           // Frozen snapshots predate `highlight`, so it may simply be absent —
           // no treatment and no label then, which is the honest pairing (an
@@ -201,7 +224,7 @@ export default async function WeekendPage({ params }) {
           const hl = HIGHLIGHT[it.highlight] || null;
           const body = (
             <>
-              <h2 style={{ fontSize: 19, margin: '0 0 4px', lineHeight: 1.3 }}>
+              <Title style={{ fontSize: 19, margin: '0 0 4px', lineHeight: 1.3 }}>
                 {it.title}
                 {/* Gold (paid) only — legal disclosure travels with the styling. */}
                 {it.highlight === 'gold' && (
@@ -209,7 +232,7 @@ export default async function WeekendPage({ params }) {
                     {(STRINGS[channel.lang] || STRINGS.en).adTag}
                   </span>
                 )}
-              </h2>
+              </Title>
               <div style={{ color, fontWeight: 700, fontSize: 14 }}>
                 {it.when}
                 {it.venue ? <span style={{ color: '#4A5652', fontWeight: 400 }}> · {it.venue}</span> : null}
@@ -236,8 +259,10 @@ export default async function WeekendPage({ params }) {
               </div>
             </li>
           );
-        })}
-      </ol>
+            })}
+          </ol>
+        </section>
+      ))}
 
       <section style={{ background: '#fff', border: '1px solid #E4E4DD', borderRadius: 14, padding: 20, marginTop: 26 }}>
         <a href={mapUrl} style={{ display: 'inline-block', background: '#C93A5B', color: '#fff', fontWeight: 700, textDecoration: 'none', borderRadius: 10, padding: '13px 20px' }}>
