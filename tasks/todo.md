@@ -2,6 +2,58 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Pflasterspektakel per-act schedule (2026-07-16, George: "check pflasterspektakel schedule in linz next weekend, can we get specific locations and times for each act and artist") — ADAPTER SHIPPED, capture runs 23–25 July
+- [x] **The answer to the question: not yet, and by design.** Festival is **23–25 July** (DO 16–23,
+      FR & SA 14–23). The Tagesprogramm reads "Aktuell ist noch kein Tagesprogramm verfügbar" because
+      "Die Künstler*innen wählen ihre Auftrittszeiten und -orte während des Festivals **täglich neu**"
+      — the grid is written fresh each day and goes up "kurz vor Programmstart". Published NOW: the
+      120+ artist lineup (name/country/genre, `?artist=<id>`, 2 ABGESAGT) + the fixed frame
+      (Kaleidoskop 17:00/20:00/22:30 im LINZ AG Spektakelzelt, Feuershows 20–23 Hauptplatz+Pfarrplatz).
+- [x] **`lib/pflaster-events.js` + `cms='pflaster'`** wired into `tryStructuredExtraction()`. Verified
+      against last year's REAL grid (Wayback 2025-07-19): **35 Spielorte / 275 acts / 87 artists**,
+      parsed deterministically, $0, no LLM. Shape: `<h2>`area → table, rows = Spielort (Kürzel+name),
+      9 hour-columns (14-15h…22-23h), cells = artist + genre + artist link. Source registered
+      (works=true) and driven live: `npm run crawl -- --url …` → `route: pflaster (0 candidates)`,
+      correct for today (hard rule 7 satisfied). 133 tests green (+9).
+- [x] **THE DATE TRAP, and why the nightly cron can never capture this.** The page carries NO date and
+      no day switcher — one grid, overwritten daily. Stamping it with "whenever the crawl ran" would
+      mislabel a whole day's line-up, and our 04:00 UTC cron fires ~06:00 Vienna, *before* the day's
+      grid is up, so it would read yesterday's as today's. The day is now taken from the source's own
+      Yoast `article:modified_time`; any grid whose stamp ≠ the Vienna crawl day is REFUSED (tests
+      pin stale/prev-day/undateable/no-grid → 0 events). Capture therefore runs from its own
+      `.github/workflows/pflasterspektakel.yml` (17–27 July, 14/16/18/21 Vienna, `--url` so it ignores
+      tier/cadence and revives the source if zero_streak ever rotted it to dead). Shares the nightly
+      crawl's `concurrency: crawl` group (Nominatim is per-IP).
+- [x] **`exclusive: true`** — new, narrow waterfall concept: the adapter OWNS the source, so an empty
+      result never falls through to the LLM. Without it this source would burn a paid call on all 362
+      grid-less days against a page that still describes the festival — i.e. pay to mint a duplicate
+      of the Linz-Termine row we already hold. Inert for every other adapter (undefined → falsy).
+- [x] **Caught by testing, not reading: all 35 stages would partly auto-merge.** They run the same day
+      within ~300m, so `dedup.js`'s `sameLocation()` passes for EVERY pair and the title is the only
+      thing keeping them apart — but `titlesMatch()` matches on SUBSTRING, so "Landhaus" (Altstadt)
+      == "Landhaus Arkadenhof" (Spektakel-Oasen) whenever start times coincide (they did on the real
+      2025 grid), and `titleSubstitution()` does NOT guard it (it only fires on swapped words, never
+      added ones). Fix: the festival's own Kürzel goes in the title ("Pflasterspektakel A4: Landhaus")
+      — which is also what's printed on its Festivalplan. 0 collisions now, even with every stage
+      forced to one start time. Regression test pinned.
+- [ ] **George — decisions:** (1) **4 duplicate festival rows** live right now (ids 3226, 32513, 14,
+      2766) from 3 sources, all town-precision "Linz Innenstadt". Best facts = **2766** (real
+      16:00–23:00 span) but best linkback = **14** (`linztermine.at/event/718976`, the real permalink;
+      2766 points at a monthly listing page). Wants a merge, not a pick. (2) **`is_free` left null**:
+      no ticket/entry control, but the site says artists "spielen für das **Hutgeld** des Publikums"
+      and the FAQ tells you where to get 2€ coins — so "free" is a claim the source doesn't make.
+      Your call whether the Free filter should include it. (3) **`family` not set** — street art is a
+      general-audience programme; forcing it would be rule-5 fabrication in the category column
+      (`default_categories` deliberately unset). (4) **Editorial highlight** — this is the
+      Pflasterspektakel case the highlights feature was built for; set it on /admin/highlights.
+- [ ] **Only the empty path is proven.** The happy path (a real grid → 35 upserts → geocode → pins)
+      CANNOT be driven until the grid exists on 23 July — there is no live fixture and the festival
+      archive keeps artists but never the grid. Watch the first workflow run on the 23rd.
+- [ ] Spielort coordinates: OSM-mined into `data/pflaster-spielorte.json`, seeded into the `venues`
+      registry so the registry rung short-circuits before Nominatim (the stage names are local
+      shorthand — "Brunnen", "Haltestelle", "Bank Austria" — that no geocoder can place). Unresolved
+      ones fall back to the Linz centroid at town precision, which is honest; **never** guessed.
+
 ## Highlights everywhere + page signups (2026-07-16, George: "gold/editorial should appear in newsletter, event static pages, list view, basically everywhere" · "pages need newsletter subscription at the bottom" · "/event/7 says okolo not okolo.linz, no back button") — SHIPPED (af3c9ba)
 - [x] **The highlight was a MAP-ONLY signal.** List view: editorial rendered *nothing*, gold had the
       „Anzeige" tag but no styling. Event pages + newsletter were highlight-blind entirely — and
@@ -33,6 +85,20 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Fixed in passing, both on the surface George flagged: every event tab read **"… · Okolo · Okolo"**
       (page title ended in "· Okolo" AND the root layout appends `template: '%s · Okolo'`) → now
       `absolute` + city-branded; a long Facebook `source_url` overflowed the page.
+- [x] **Gold shine was 3× the pin** (George: "much bigger than actual pin… should fit place or event
+      pin shape") — SHIPPED (4b9ad33). `map.addImage` defaults `pixelRatio` to **1**; every sprite is
+      supersampled at SPRITE_RATIO=3 and registered via `add()`/`put()`, which both pass
+      `{pixelRatio: SPRITE_RATIO}` (114px bitmap → 38 CSS px). The glint is the ONLY non-SVG sprite,
+      so it bypassed both helpers, was added by hand at 2 sites, and dropped the option → 114 CSS px.
+      Now one `addGlintImage()` bundles the ratio with the construction. **The shape was never
+      wrong** — it was always clipped to pinSilhouette(place) and picked glint-place/glint-event per
+      feature; at 3× a correct silhouette just sprawled past the pin it traced. Build+133 tests green.
+- [ ] **George: the shine needs your real-browser eyeball** — MapLibre 'load' never fired in the agent
+      pane this session (zero basemap requests, isStyleLoaded false), so sprites never registered and
+      I could not look at it. Verified instead from the maplibre source + an addImage probe on the
+      live map (pixelRatio 1→3, 114→38 CSS px). Folds into the existing gold-pin browser check above:
+      the sweep should now trace the pin's own teardrop (events) / circle (places), same size as the
+      ring, every ~5.5s.
 - [ ] **George: decide whether EDITORIAL should be able to earn a newsletter slot.** "No rank change"
       was answered about *gold* (paid) and I applied it to editorial too, conservatively. Consequence:
       **your Pflasterspektakel editorial showcase reaches the digest only if it independently makes

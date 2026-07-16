@@ -2,6 +2,85 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-16 — A page with no date; and a dedup guard that only catches half its own class
+
+Building the Pflasterspektakel adapter surfaced two things worth keeping.
+
+**(1) "When was this published?" is a fact, and some pages simply don't carry it.** The festival's
+Tagesprogramm is ONE grid, overwritten every day, with no date and no day switcher anywhere on it —
+because the artists pick their slots daily, so a schedule only exists on the day. The obvious
+implementation ("stamp it with today") is a **fabrication generator**: our nightly cron fires ~06:00
+Vienna, hours before the day's grid goes up, so the very first thing it would do is read yesterday's
+line-up and publish it as today's — 35 stages × 9 slots of confidently wrong times, on the marquee
+event of the coverage test. The fix was to find a fact instead of inventing one: their Yoast
+`article:modified_time` says when the page was last written, so the grid's day comes from the SOURCE,
+and a grid whose stamp doesn't match the crawl day is refused outright. **When a document's date isn't
+IN the document, look for the publisher's own metadata before reaching for the clock — and if you
+can't date it, don't store it.** Corollary: this also decided the schedule. Once the guard existed,
+"crawl it at 06:00 like everything else" became provably useless, so capture had to move into the
+festival's own opening hours — the data constraint chose the cron, not the other way round.
+
+**(2) A guard written for one shape of a bug doesn't cover the other shape.** `titleSubstitution()`
+exists to stop the crawl auto-merging templated municipal titles that swap one word ("Josefstadt
+spielt" ↔ "Meidling spielt"). It returns true only when each side has a token the other lacks — so it
+is blind to the *superset* case, where one title simply ADDS words. Meanwhile `titlesMatch()` matches
+on plain substring containment. Result: "Pflasterspektakel: Landhaus" and "Pflasterspektakel: Landhaus
+Arkadenhof" — two different stages in two different areas — read as the same event, and since all 35
+stages run on the same day within ~300m, `sameLocation()` waves every pair through; the title was the
+only thing holding the line. I found it by *running* findDuplicate over the 35 parsed stages rather
+than by reading dedup.js and reasoning — and the worst case (every stage at one start time) is the
+test that proves it, because the real grid only collided on the pairs whose times happened to
+coincide that day. **A dedup rule's safety depends on data you don't control; test your rows against
+the real matcher, and force the worst case, because "it didn't collide today" is not "it can't".**
+The fix stayed in my own adapter (put the festival's Kürzel in the title) rather than in the shared
+matcher — 28k events depend on that matcher, and a source-local ambiguity is not a reason to
+re-tune everyone's dedup. It also happens to be what the festival prints on its own Festivalplan.
+
+**Also worth knowing:** a source can be *seasonal* — this one publishes event data on 3 days a year
+and reads "no programme available" the other 362. That fights every mechanism we have: `zero_streak`
+would rot it to `tier='dead'` and the cron would skip it next July (the classic hard-rule-7 rot).
+Two things save it, and both are accidents worth making deliberate: an unchanged page is hash-skipped
+*without* touching zero_streak, and `--url` ignores tier/cadence — so the festival-window workflow
+both captures the grid and revives the source. And its data is **capture-live-or-lose-it**: the
+festival's archive preserves the artists but never the grid, so last year's schedule survives only
+because the Wayback Machine caught one day of it. For that class of source, a silent zero is not a
+neutral outcome — it is permanent data loss, which is why the parser falls back rather than bailing
+when optional markup (`<tbody>`) goes missing.
+
+## 2026-07-16 — The odd one out is where the shared option goes missing (a 3× glow, live for a day)
+
+George: "the golden glow effect is much bigger than actual pin". It was **exactly 3×** — and the
+reason is worth more than the fix. `map.addImage(id, image, options)` defaults `pixelRatio` to **1**.
+Every pin sprite is supersampled at `SPRITE_RATIO=3` and registered through one of two helpers
+(`registerPinSprites`'s `add()`, `styleimagemissing`'s `put()`), and **both** pass
+`{ pixelRatio: SPRITE_RATIO }`, so a 114px bitmap draws at 38 CSS px. The glint is the only sprite
+that isn't rasterized SVG — it's an animated StyleImageInterface — so it couldn't use either helper,
+got an `addImage` call written by hand at two sites, and both silently omitted the option. Its 114px
+bitmap drew at 114 CSS px. **When one member of a family can't use the family's constructor, it is
+the one that will drop the shared invariant** — not because the author was careless, but because the
+invariant lived in the helper, not in the thing being constructed. The fix wasn't "add the option
+twice"; it was `addGlintImage()`, one definition that bundles the option WITH the construction so the
+omission is unrepresentable. (Same shape as `lib/entities.js` enforcing cleanText at the single write
+boundary, and `kid-cats.js`: an invariant maintained by discipline at N call sites is an invariant
+with N chances to fail.)
+
+**Two symptoms, one cause — and the second symptom was a red herring.** George also said it should
+"fit place or event pin shape", which reads like a shape bug. The glint was ALWAYS clipped to
+`pinSilhouette(PIN_S, place)` and the layer already picked `glint-place`/`glint-event` per feature.
+Nothing about the shape was wrong: at 3× it sprawled past the very pin it was tracing, so a correct
+silhouette *read* as a blob ignoring the outline. **A scale error can present as a shape complaint —
+fix the measurable thing first and re-check the rest, rather than "fixing" the shape that was fine.**
+
+**Nothing caught it.** Build green, tests green, style-spec valid, no console error — a wrong
+`pixelRatio` is a perfectly legal sprite. It shipped and rendered beautifully at the wrong size for a
+day. This is the GL-layer-name lesson (2026-07-16) again: **the map is a surface where every failure
+is silent and visual, so map changes need an eyeball, and the agent pane can't always give one** —
+MapLibre `'load'` never fired this session (no basemap requests at all), so the sprites never
+registered and I couldn't look. What I could do instead of shrugging: read `pixelRatio`'s default out
+of the installed maplibre source, then run an `addImage` probe on the live map with the glint's exact
+argument shape and read the registered ratio back (1 vs 3, 114 CSS px vs 38). **When you can't see
+the pixels, measure the mechanism** — that is still evidence; "it should be fine" is not.
+
 ## 2026-07-16 — A signal that lives on one surface isn't a feature; and a freeze makes "now" the wrong question
 
 George shipped highlighted pins in the morning and by evening asked for them "in newsletter, event

@@ -17,7 +17,44 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
-## Where things stand (2026-07-16 latest — highlights read the same on every surface, af3c9ba)
+## Where things stand (2026-07-16 latest — Pflasterspektakel adapter ready, capture runs 23–25 July)
+- **George asked whether we can get per-act times/locations for Pflasterspektakel "next weekend".
+  Answer: not yet, and by design.** Festival = **23–25 July** (DO 16–23, FR & SA 14–23). The
+  Tagesprogramm says "Aktuell ist noch kein Tagesprogramm verfügbar" because "Die Künstler*innen
+  wählen ihre Auftrittszeiten und -orte während des Festivals **täglich neu**" — the grid is written
+  fresh daily and goes up "kurz vor Programmstart". Live now: the 120+ artist lineup + the fixed frame
+  (Kaleidoskop 17:00/20:00/22:30, Feuershows 20–23 Hauptplatz+Pfarrplatz).
+- **`lib/pflaster-events.js` (cms='pflaster') SHIPPED, verified against last year's real grid**
+  (Wayback 2025-07-19): 35 Spielorte / 275 acts / 87 artists, deterministic, $0. Source registered,
+  `--url` driven live → `route: pflaster (0 candidates)` = correct for today (hard rule 7). 133 tests.
+  **George's call: pin per Spielort (~35/day), not per act (~825)** — 800 rows would bury Linz during
+  the test weekend.
+- **The load-bearing detail: the page has NO date** (one grid, overwritten daily). The day comes from
+  the source's own Yoast `article:modified_time`, and a grid whose stamp ≠ the Vienna crawl day is
+  REFUSED. This is why the nightly cron can never capture it (04:00 UTC = ~06:00 Vienna, before the
+  grid is up → it would read yesterday's as today's). Capture runs from
+  `.github/workflows/pflasterspektakel.yml` (17–27 July, 14/16/18/21 Vienna; `--url` ignores
+  tier/cadence — which also revives the source if zero_streak ever rotted it to dead). Shares the
+  `concurrency: crawl` group (Nominatim is per-IP).
+- **New narrow waterfall concept `exclusive: true`** — the adapter OWNS the source, so an empty result
+  never falls to the LLM (this page describes the festival year-round; an LLM would burn a paid call
+  per crawl to mint a duplicate of the Linz-Termine row). Inert for all other adapters.
+- **Found by RUNNING dedup, not reading it: all 35 stages partly auto-merge.** Same day, ~300m apart →
+  `sameLocation()` passes for every pair; `titlesMatch()` matches on SUBSTRING so "Landhaus" ==
+  "Landhaus Arkadenhof", and `titleSubstitution()` is blind to it (it only catches SWAPPED words, not
+  added ones). Fixed inside the adapter — the festival's own Kürzel goes in the title
+  ("Pflasterspektakel A4: Landhaus"), which is also what's on its printed Festivalplan. 0 collisions
+  even with all stages forced to one start time. Deliberately did NOT re-tune the shared matcher.
+- **Capture-live-or-lose-it**: the festival archive keeps artists but NEVER the grid. Miss the window
+  and it's gone (2025 survives only via the Wayback Machine). **Only the empty path is proven** — the
+  happy path can't be driven until a grid exists on the 23rd. Watch the first workflow run.
+- **George owes 4 decisions** (tasks/todo.md): the 4 duplicate festival rows (best facts = 2766, best
+  linkback = 14 — wants a merge, not a pick); `is_free` left null (no ticket, but artists play for
+  **Hutgeld** — "free" is a claim the source doesn't make); `family` not set (general-audience
+  programme, forcing it = rule-5 fabrication); and the editorial highlight — this is exactly the
+  Pflasterspektakel case that feature was built for.
+
+## Where things stand (2026-07-16 — highlights read the same on every surface, af3c9ba)
 - **The highlight was map-only; now it's a system.** List rows ring their marker (the existing
   `.legend-pin.gold` grammar, on `.thumb` — the row's other channels are taken by range-match and
   .active); event pages + the newsletter ring the card. **Editorial was previously INVISIBLE in the
@@ -44,6 +81,15 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   "no rank change": his Pflasterspektakel showcase reaches the digest only if it independently makes
   the family top-9 — it did not make this weekend's picks. Open question for him (editorial ≠ gold
   legally: nothing stops him editing his own newsletter).
+- **The gold shine was 3× the pin, fixed (4b9ad33).** `map.addImage` defaults `pixelRatio` to 1; every
+  sprite is supersampled at SPRITE_RATIO=3 and goes through `add()`/`put()`, which pass
+  `{pixelRatio: SPRITE_RATIO}`. The glint is the only non-SVG sprite (animated StyleImageInterface),
+  so it bypassed both helpers and was hand-added at 2 sites without the option → 114 CSS px vs the
+  pin's 38. One `addGlintImage()` now bundles ratio+construction. The SHAPE was never wrong (always
+  clipped to pinSilhouette, glint-place/glint-event per feature) — a scale error presenting as a
+  shape complaint. **Still needs George's real-browser look**: MapLibre 'load' never fired in the
+  agent pane (zero basemap requests), so sprites never registered and the pixels were unobservable;
+  proven from the maplibre source + a live addImage probe instead.
 - **A CONCURRENT session owns a Pflasterspektakel adapter** (lib/pflaster-events.js, a workflow, a
   register script, scripts/crawl.mjs + data-pipeline.md edits). Staged explicit paths only.
 
