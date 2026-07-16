@@ -14,10 +14,12 @@
 import { createHash } from 'node:crypto';
 import {
   upsertEvent, expireFinished, getSourceByUrl, getSourcesForCrawl, getZeroYieldSources,
-  markSourceCrawled, updateSourceMeta, updateSourceStats, setSourceNote, closeDb,
+  markSourceCrawled, updateSourceMeta, updateSourceStats, setSourceBlockedReason,
+  dedupCandidates, updateEventFields, deleteEventsByIds, closeDb,
 } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
-import { decodeEntities, stripTags } from '../lib/entities.js';
+import { findDuplicate, mergePlan, titleSubstitution } from '../lib/dedup.js';
+import { decodeEntities, stripTags, cleanText } from '../lib/entities.js';
 import { makeStartsAt, makeEndsAt } from '../lib/event-time.js';
 import { extractFromPage } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
@@ -744,7 +746,9 @@ async function tryStructuredExtraction(html, src) {
 // A hash-unchanged round only bumps crawl_count (an attempt happened) — it does
 // NOT bump zero_streak, because "page didn't change" is a normal, healthy state
 // for a slow municipal calendar and isn't the same signal as "found nothing".
-const TIER_CADENCE_DAYS = { active: 2, slow: 5, dormant: 7 };
+// Exported so scripts/rot-report.mjs reads the SAME thresholds rather than a
+// second hand-copied object that can silently drift from these numbers.
+export const TIER_CADENCE_DAYS = { active: 2, slow: 5, dormant: 7 };
 function deriveTier({ crawl_count, events_sum, zero_streak, last_changed }) {
   if (zero_streak >= 4) return 'dead';
   if (crawl_count < 3) return 'active';
@@ -834,14 +838,74 @@ async function fetchNaturfreundeEvents(src) {
   return { events: [...seen.values()], hashParts };
 }
 
+// --- blocked_reason (docs/design/big-city-quality.md §2) ---
+// A robots-disallow (or a hand/fingerprint-sweep-set js_spa/ai_bot_policy/
+// bot_block) is a STATE, not a failure streak: it must never feed zero_streak
+// or nudge a source toward tier='dead' the way an ordinary zero-event round
+// does (the Stuttgart lesson, tasks/lessons.md 2026-07-14 — a robots skip was
+// silently counted the same as "found nothing").
+async function clearBlockedIfSet(src) {
+  if (src.blocked_reason) await setSourceBlockedReason(src.id, null);
+}
+
+// Crawl-time fuzzy cross-source dedup (docs/design/data-pipeline.md §6): a
+// FALLBACK for when upsertEvent()'s exact content_hash/legacy/placeholder
+// match already MISSED — i.e. `ev` was just inserted as a brand-new row. Two
+// sources describing the same real event in different words (a Grok-mined
+// phrasing vs. a Gemini recrawl, an aggregator vs. the municipality itself)
+// slip past the exact hash but should still collapse into one map pin rather
+// than showing twice. Bounded to ONE query (same day + town, mirroring how
+// app/api/events/route.js and app/api/scan/route.js already use findDuplicate)
+// instead of loading every published event per candidate.
+async function tryFuzzyMerge(ev) {
+  const day = (ev.starts_at || '').slice(0, 10);
+  // cleanText mirrors the write boundary (lib/db.js upsertEvent) — the row we
+  // are comparing against was stored post-cleanText, so an un-decoded "&#8211;"
+  // in `ev.title` would fail titlesMatch against an already-clean stored title.
+  const title = cleanText(ev.title);
+  const town = cleanText(ev.town);
+  if (!day || !town) return false; // nothing to bound the query on — skip
+  const candidates = await dedupCandidates(day, town, ev.id);
+  if (!candidates.length) return false;
+  const match = findDuplicate({ ...ev, title, town }, candidates);
+  if (!match) return false;
+  // Stricter bar than the scan/API paths: THIS merge is automatic and
+  // destructive (deletes the just-inserted row, no review UI, no dry run), so
+  // a template-title near-match that substitutes one content word for another
+  // ("Josefstadt spielt" ↔ "Meidling spielt" — different districts, same
+  // boilerplate, both at town precision) must bail rather than delete a real
+  // event. Hard rule 5's corollary: destroying a true event is as bad as
+  // inventing one.
+  if (titleSubstitution(match.title, title)) return false;
+  // Enrich-only (fill nulls, never overwrite a fact — see lib/dedup.js
+  // mergePlan), and source_url/source_name are excluded from the patch, so the
+  // surviving row keeps the FIRST-SEEN source's attribution, never fabricated.
+  const patch = mergePlan(match, { ...ev, title, town });
+  if (Object.keys(patch).length) await updateEventFields(match.id, patch);
+  await deleteEventsByIds([ev.id]); // the row we just inserted was the duplicate
+  return true;
+}
+
 async function crawlNaturfreundeSource(src, { force } = {}) {
   console.log(`\n→ ${src.name} (${src.url})`);
+
+  // 'robots' is re-derived by THIS crawl's own check every run (below), so it
+  // clears itself the moment the site's policy changes. Any OTHER reason
+  // (js_spa/ai_bot_policy/bot_block) is set by hand or by the CMS fingerprint
+  // sweep, never auto-detected here — respect it and skip without an attempt.
+  if (src.blocked_reason && src.blocked_reason !== 'robots') {
+    console.log(`  blocked (${src.blocked_reason}), skipping`);
+    return { ok: 0, fail: 0 };
+  }
+
   try {
     if (!(await robotsAllowed(src.url))) {
       console.log('  robots.txt disallows this path, skipping');
-      await setSourceNote(src.id, 'skipped: disallowed by robots.txt');
-      const tier = await recordStats(src, { type: 'noContent' });
-      return { ok: 0, fail: 0, tier };
+      await setSourceBlockedReason(src.id, 'robots');
+      // Blocked is a STATE, not a failure streak (tasks/lessons.md 2026-07-14):
+      // leave crawl stats untouched entirely, same treatment as a provider
+      // error — no zero_streak bump, no tier nudge.
+      return { ok: 0, fail: 0 };
     }
   } catch { /* robots check itself failed → default allow, proceed */ }
 
@@ -851,8 +915,9 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
   } catch (e) {
     console.log(`  fetch failed: ${e.message}`);
     const tier = await recordStats(src, { type: 'noContent' });
-    return { ok: 0, fail: 0, fetchError: true, tier };
+    return { ok: 0, fail: 0, fetchError: true, tier, attempted: true };
   }
+  await clearBlockedIfSet(src); // reachable → whatever blocked it before is gone
 
   const hash = createHash('sha256').update(hashParts.slice().sort().join('\n')).digest('hex');
   if (!force && src.page_hash && src.page_hash === hash) {
@@ -861,7 +926,7 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
     return { ok: 0, fail: 0, tier };
   }
 
-  let ok = 0;
+  let ok = 0, fuzzyMerged = 0;
   for (const raw of events) {
     try {
       // Same source-level default categories as the generic path (see there).
@@ -889,16 +954,23 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
       // Coordinates come straight from the source (parser-supplied, verified
       // per-item in parseNaturfreundeItem) — skip geocoding entirely, mirroring
       // how scripts/seed.mjs honors mined lat/lng.
-      await upsertEvent({ ...ev, lat: raw.lat, lng: raw.lng, geo_precision: 'venue' });
+      const res = await upsertEvent({ ...ev, lat: raw.lat, lng: raw.lng, geo_precision: 'venue' });
       ok++;
+      // Fuzzy cross-source dedup is a FALLBACK for when the exact content_hash/
+      // legacy match above already missed (res.updated === false means a brand
+      // new row was just inserted) — see tryFuzzyMerge.
+      if (!res.updated && await tryFuzzyMerge({ ...ev, id: res.id, lat: raw.lat, lng: raw.lng, geo_precision: 'venue' })) {
+        fuzzyMerged++;
+      }
     } catch (e) {
       console.log(`  ! skip event "${raw.title || '(untitled)'}" (${src.name}): ${e.code || e.message}`);
     }
   }
-  console.log(`  ${ok}/${events.length} events upserted (route: naturfreunde)`);
+  console.log(`  ${ok}/${events.length} events upserted (route: naturfreunde)`
+    + (fuzzyMerged ? `, ${fuzzyMerged} fuzzy-merged` : ''));
   await updateSourceMeta(src.id, { page_hash: hash, feed_kind: 'naturfreunde' });
   const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
-  return { ok, fail: 0, tier };
+  return { ok, fail: 0, tier, attempted: true, fuzzyMerged };
 }
 
 async function crawlSource(src, { force, scope: requestedScope } = {}) {
@@ -907,12 +979,23 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
   const scope = requestedScope || scopeForSource(src);
   console.log(`\n→ ${src.name} (${src.url})`);
 
+  // 'robots' is re-derived by THIS crawl's own check every run (below), so it
+  // clears itself the moment the site's policy changes. Any OTHER reason
+  // (js_spa/ai_bot_policy/bot_block) is set by hand or by the CMS fingerprint
+  // sweep, never auto-detected here — respect it and skip without an attempt.
+  if (src.blocked_reason && src.blocked_reason !== 'robots') {
+    console.log(`  blocked (${src.blocked_reason}), skipping`);
+    return { ok: 0, fail: 0 };
+  }
+
   try {
     if (!(await robotsAllowed(src.url))) {
       console.log('  robots.txt disallows this path, skipping');
-      await setSourceNote(src.id, 'skipped: disallowed by robots.txt');
-      const tier = await recordStats(src, { type: 'noContent' });
-      return { ok: 0, fail: 0, tier };
+      await setSourceBlockedReason(src.id, 'robots');
+      // Blocked is a STATE, not a failure streak (tasks/lessons.md 2026-07-14):
+      // leave crawl stats untouched entirely, same treatment as a provider
+      // error — no zero_streak bump, no tier nudge.
+      return { ok: 0, fail: 0 };
     }
   } catch { /* robots check itself failed → default allow, proceed */ }
 
@@ -929,6 +1012,7 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     res = await politeFetch(src.url, Object.keys(condHeaders).length ? { headers: condHeaders } : {});
     if (res.status === 304) {
       console.log('  304 not modified, skipped');
+      await clearBlockedIfSet(src); // reachable → whatever blocked it before is gone
       const tier = await recordStats(src, { type: 'unchanged' });
       return { ok: 0, fail: 0, tier };
     }
@@ -937,13 +1021,14 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
   } catch (e) {
     console.log(`  fetch failed: ${e.message}`);
     const tier = await recordStats(src, { type: 'noContent' });
-    return { ok: 0, fail: 0, fetchError: true, tier };
+    return { ok: 0, fail: 0, fetchError: true, tier, attempted: true };
   }
+  await clearBlockedIfSet(src); // reachable → whatever blocked it before is gone
   const text = htmlToText(html);
   if (text.length < 200) {
     console.log('  page too thin, skipping');
     const tier = await recordStats(src, { type: 'noContent' });
-    return { ok: 0, fail: 0, tier };
+    return { ok: 0, fail: 0, tier, attempted: true };
   }
 
   const hash = createHash('sha256').update(text).digest('hex');
@@ -970,11 +1055,11 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
       // and signal the caller to skip last_crawled, so the source stays due
       // and retries on the next run.
       console.log(`  extraction failed (provider, source stats untouched): ${e.message}`);
-      return { ok: 0, fail: 1, extractError: true };
+      return { ok: 0, fail: 1, extractError: true, attempted: true };
     }
   }
 
-  let ok = 0, outsideScope = 0;
+  let ok = 0, outsideScope = 0, fuzzyMerged = 0;
   for (const raw of events) {
     try {
       if (!raw.title || !raw.date_start) continue;
@@ -1038,8 +1123,15 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
         outsideScope++;
         continue;
       }
-      await upsertEvent({ ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision });
+      const upserted = { ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision };
+      const upsertRes = await upsertEvent(upserted);
       ok++;
+      // Fuzzy cross-source dedup is a FALLBACK for when the exact content_hash/
+      // legacy match above already missed (upsertRes.updated === false means a
+      // brand-new row was just inserted) — see tryFuzzyMerge.
+      if (!upsertRes.updated && await tryFuzzyMerge({ ...upserted, id: upsertRes.id })) {
+        fuzzyMerged++;
+      }
     } catch (e) {
       // One malformed event (bad types, unexpected DB constraint, etc.) must
       // never take down the whole national batch — log and move to the next.
@@ -1047,7 +1139,8 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     }
   }
   console.log(`  ${ok}/${events.length} events upserted (route: ${route})`
-    + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : ''));
+    + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : '')
+    + (fuzzyMerged ? `, ${fuzzyMerged} fuzzy-merged` : ''));
   // An LLM round with ZERO candidates is ambiguous: an empty calendar, or a
   // model that silently returned nothing (an overloaded Gemini answers 200
   // with an empty list). Stamping page_hash/etag here wedged the source: every
@@ -1063,7 +1156,7 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     });
   }
   const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
-  return { ok, fail: 0, tier, outsideScope };
+  return { ok, fail: 0, tier, outsideScope, attempted: true, fuzzyMerged };
 }
 
 // --- sustainable speed: bounded worker pool across DIFFERENT hosts ---
@@ -1135,22 +1228,40 @@ async function main() {
   console.log(`Crawling ${sources.length} source(s) across ${groups.length} host(s) (up to ${HOST_CONCURRENCY} in parallel)`
     + (skippedCadence ? `, ${skippedCadence} skipped (tier cadence not due)` : '') + ' …');
 
-  let total = 0, totalOutsideScope = 0, extractErrors = 0;
+  let total = 0, totalOutsideScope = 0, extractErrors = 0, totalFuzzyMerged = 0;
+  // "Attempted" = an actual fetch/extraction round happened this run — NOT a
+  // cadence skip, NOT a blocked_reason skip, NOT a hash/304-unchanged round
+  // (those are healthy no-ops by design, not failures). Used only for the
+  // systemic-failure guard below: the htmlToText lesson (tasks/lessons.md
+  // 2026-07-14) is that N identical per-source zero-yield rounds must read as
+  // ONE systemic failure, not N unrelated ones — and mixing in the sources
+  // that were SUPPOSED to yield 0 (unchanged) would drown that signal.
+  let attempted = 0, attemptedZero = 0;
   const tierCounts = { active: 0, slow: 0, dormant: 0, dead: 0 };
   await runHostPool(groups, async (src) => {
     // A crash anywhere in one source's processing (fetch, extraction, stats,
     // an upsert that slipped past the per-event guard) must not abort the
     // rest of the batch — log and move on to the next source.
     try {
-      const { ok, tier, outsideScope = 0, extractError } = await crawlSource(src, { force, scope: requestedScope });
+      const {
+        ok, tier, outsideScope = 0, extractError, attempted: wasAttempted, fuzzyMerged = 0,
+      } = await crawlSource(src, { force, scope: requestedScope });
       total += ok;
       totalOutsideScope += outsideScope;
+      totalFuzzyMerged += fuzzyMerged;
       if (tier) tierCounts[tier] = (tierCounts[tier] || 0) + 1;
-      if (extractError) extractErrors += 1;
-      // A provider-side extraction failure leaves last_crawled alone so the
-      // source stays due and retries next run instead of waiting out its tier
-      // cadence with events_last mislabeled 0.
-      else await markSourceCrawled(src.id);
+      if (wasAttempted) {
+        attempted += 1;
+        if (ok === 0) attemptedZero += 1;
+      }
+      if (extractError) {
+        extractErrors += 1;
+        // A provider-side extraction failure leaves last_crawled alone so the
+        // source stays due and retries next run instead of waiting out its
+        // tier cadence with events_last mislabeled 0.
+      } else {
+        await markSourceCrawled(src.id);
+      }
     } catch (e) {
       console.log(`! skip source "${src.name}" (${src.url}): ${e.code || e.message}`);
     }
@@ -1160,8 +1271,20 @@ async function main() {
   console.log(`\nCrawl done: ${total} events upserted, ${expired} expired.`);
   if (extractErrors) console.log(`Provider errors: ${extractErrors} source(s) skipped without stats change — they stay due and retry next run.`);
   if (totalOutsideScope) console.log(`Scope guard: ${totalOutsideScope} out-of-radius event(s) skipped.`);
+  console.log(`fuzzy-merged: ${totalFuzzyMerged}`);
   console.log(`Tiers — active: ${tierCounts.active}, slow: ${tierCounts.slow}, dormant: ${tierCounts.dormant}, `
     + `dead: ${tierCounts.dead}, skipped (not due): ${skippedCadence}`);
+  // One bad night (a provider outage, a shared-layer refactor bug) makes every
+  // attempted source fail identically — that must read as ONE alarm, not a
+  // wall of per-source skip lines (tasks/lessons.md 2026-07-14).
+  if (attempted > 0 && attemptedZero / attempted > 0.5) {
+    console.log(`\n⚠ SYSTEMIC: ${attemptedZero}/${attempted} attempted source(s) yielded 0 events this run — `
+      + 'check the extraction pipeline before assuming this many unrelated source failures.');
+  }
 }
 
-main().catch((e) => { console.error(e); process.exitCode = 1; }).finally(closeDb);
+// Guarded so scripts/rot-report.mjs can `import { TIER_CADENCE_DAYS }` from
+// this file without triggering a full crawl as an import side effect.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e) => { console.error(e); process.exitCode = 1; }).finally(closeDb);
+}

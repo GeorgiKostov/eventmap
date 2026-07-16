@@ -9,6 +9,13 @@ create table if not exists sources (
   town          text,
   works         boolean default true,
   notes         text,
+  blocked_reason text,          -- robots | ai_bot_policy | js_spa | bot_block | null. A STATE, not a
+                                -- failure streak (docs/design/big-city-quality.md §2): set by the
+                                -- crawl when its own robots.txt check disallows the path, or by hand
+                                -- for the other reasons (js_spa/bot_block/ai_bot_policy are never
+                                -- auto-detected here). While set, the crawl skips the source without
+                                -- touching zero_streak/tier; cleared automatically once a fetch
+                                -- succeeds again. scripts/migrate-blocked-reason.mjs
   last_crawled  timestamptz,
   cms           text,               -- ris | gem2go | dvv | sitepark-ical | other | unknown | null
   region        text,               -- Bundesland, e.g. 'Oberösterreich' | 'Salzburg' | 'Wien' ...
