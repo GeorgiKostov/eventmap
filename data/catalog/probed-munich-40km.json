@@ -1,0 +1,221 @@
+{
+  "_meta": {
+    "scope": "munich-40km",
+    "built_at": "2026-07-16",
+    "center": { "lat": 48.1351, "lng": 11.5820 },
+    "radius_km": 40,
+    "notes": "Discovery-only sweep, all rows live-fetched with UmkreisBot/0.1 UA, robots.txt read and honored per host. Backbone (München proper) weighted heavily per brief: official city calendar (muenchen.de, Drupal + schema.org microdata — no JSON-LD/ICS/RSS), municipal library (muenchner-stadtbibliothek.de, TYPO3, 901 events), and two family/kids editorial publishers (muenchenmitkind.de, eintrittfrei-muenchen.de). Ring: 13 towns probed (Dachau, Freising, Erding, Fürstenfeldbruck, Starnberg, Germering, Unterschleißheim, Garching, Ismaning, Wolfratshausen, Ebersberg, Gauting, plus kid-dachau.de as a family bonus) — NOT exhaustive, a characterization sample. Biggest structural finding: 'RCE-Events' (img-cdn.rce-event.de / rce_wrapper markup on TYPO3) is a white-label Bavarian regional-calendar vendor seen at 5 of 13 ring towns; only tenants hosted on their OWN subdomain (Freising, and presumably Dachau's Landkreis instance) are crawlable — 3 others (Fürstenfeldbruck, Wolfratshausen, Germering) embed it via an iframe to the shared host www.rce-event.de, whose robots.txt disallows everything except /veranstaltungen/, blocking /output.php outright. München's own open-data portal (opendata.muenchen.de) has no events dataset (checked CKAN package_search — only visitor-count statistics exist) and additionally disallows /api/ in robots.txt regardless. München Tourismus (muenchen.travel / munich.travel) is fully Cloudflare-blocked (403 'Attention Required') on every path tried."
+  },
+  "country": "DE",
+  "proposed": [
+    {
+      "name": "muenchen.de Veranstaltungskalender – Familie & Kinder",
+      "url": "https://www.muenchen.de/veranstaltungen/event/familie-kinder",
+      "town": "München",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.1351,
+      "centroid_lng": 11.5820,
+      "cms": null,
+      "confidence": "high",
+      "kind": "city",
+      "notes": "Official Landeshauptstadt München / muenchen.de city portal (Drupal). Live-verified 2026-07-16: 100 events on page 1 alone, marked up as schema.org Event MICRODATA (itemtype=\"https://schema.org/Event\", itemprop name/startDate/endDate/location/url) — not JSON-LD/ICS/RSS, so structuredSignals() won't flag it; a dedicated microdata parser would be near-zero-cost vs LLM. Paginated (?page=0..6+, 700+ family events total across pages). robots.txt (Drupal default) does not disallow /veranstaltungen*, no Crawl-delay specified."
+    },
+    {
+      "name": "muenchen.de Veranstaltungskalender – Feste & Festivals",
+      "url": "https://www.muenchen.de/veranstaltungen/event/feste-festivals",
+      "town": "München",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.1351,
+      "centroid_lng": 11.5820,
+      "cms": null,
+      "confidence": "high",
+      "kind": "city",
+      "notes": "Same Drupal portal + schema.org microdata pattern as familie-kinder (identical markup, itemtype=Event). Live-verified 2026-07-16: 100 events on page 1, paginated. Registered as a second category to confirm the pattern is systemic across the portal — 11 more category URLs exist under /veranstaltungen/event/ (ausstellung-museen, freizeit, klassik, konzerte, lesungen, messen, musical, oper-operette, sport, theater, nach-monaten) with the same markup, not individually fetched here to stay inside the request budget."
+    },
+    {
+      "name": "München mit Kind – Veranstaltungskalender (HIMBEER Verlag)",
+      "url": "https://muenchenmitkind.de/veranstaltungskalender/",
+      "town": "München",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.1351,
+      "centroid_lng": 11.5820,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "family",
+      "notes": "Editorial family/kids events portal for München + Umland, run by Himbeer Verlag. WordPress + Events Manager plugin (em-event/em-list-header/em-events-search markup — NOT currently in ADAPTER_CANDIDATES; worth adding as 'wp-events-manager'). Live-verified 2026-07-16: 18 real events server-rendered with title/venue/time/age-tag/description, all dated the fetch day (16.07.2026) — the page appears to default to a 'today' view. A von/bis GET date-range param exists on the search form but returned garbled 2015–2016 dates when tested (?von=16.07.2026&bis=16.08.2026) — unreliable, flagged for developer follow-up rather than used. robots.txt (Allow all except /wp-admin/) permits."
+    },
+    {
+      "name": "Münchner Stadtbibliothek – Veranstaltungen",
+      "url": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/",
+      "town": "München",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.1351,
+      "centroid_lng": 11.5820,
+      "cms": null,
+      "confidence": "high",
+      "kind": "library",
+      "notes": "Official municipal library system (32 branches). TYPO3 with a bespoke 'msb-theme' extension. Live-verified 2026-07-16: page states \"10 von 901 Treffer\" — 901 events total, server-rendered 10-per-page (?page=N), dates in DD.MM.YYYY format, includes a 'Kinder' (children) Zielgruppe filter. No JSON-LD/ICS/RSS found — LLM route. robots.txt allows (typo3conf/ext explicitly allowed, only /t3lib/ /typo3/ /typo3conf/ disallowed)."
+    },
+    {
+      "name": "Eintritt.Frei München – Kategorie Kinder",
+      "url": "https://www.eintrittfrei-muenchen.de/veranstaltungen/kategorie/kinder/",
+      "town": "München",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.1351,
+      "centroid_lng": 11.5820,
+      "cms": null,
+      "confidence": "high",
+      "kind": "family",
+      "notes": "Editorial calendar of free/low-cost München events (WordPress). Live-verified 2026-07-16: 6 clean schema.org/Event JSON-LD blocks in the Kinder category alone, all fields populated (name/startDate/location.name/url) — e.g. 'ORCHESTER ZUM ANFASSEN' 2026-07-19, 'Mammut, Stein & Feuerschein: Gemeinsam auf Steinzeitreise' 2026-07-19, 'Märchen im Westpark' 2026-08-01. The cleanest structured feed found on this whole sweep. robots.txt: Allow: /."
+    },
+    {
+      "name": "Landkreis Freising Veranstaltungskalender (RCE-Events)",
+      "url": "https://veranstaltungen.freising.de/freising/",
+      "town": "Freising",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.4028,
+      "centroid_lng": 11.7489,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "TYPO3 site running the 'RCE-Events' white-label calendar (rce_wrapper / .eventlist / .datum / .location / .city / .title markup; images from img-cdn.rce-event.de). Live-verified 2026-07-16: 12 events on page 1 with venue, date range, description, and detail links; pagination confirmed to at least page 3. robots.txt (own subdomain, identical text on 3+ RCE tenant hosts) allows this path. STRONG ADAPTER CANDIDATE — but see rejected entries: the SAME vendor is embedded via iframe to www.rce-event.de/output.php by Fürstenfeldbruck, Wolfratshausen and Germering, and THAT shared host's robots.txt (Disallow: / ; Allow: /veranstaltungen/) blocks /output.php — so an adapter must check per-tenant-subdomain vs shared-host deployment before trusting robots at the vendor level."
+    },
+    {
+      "name": "Stadt Erding – Veranstaltungen",
+      "url": "https://www.erding.de/veranstaltungen-übersicht",
+      "town": "Erding",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.3068,
+      "centroid_lng": 11.9075,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "Contao CMS, using Contao's own built-in calendar module (mod_eventlist_v3 — matches the existing 'contao' ADAPTER_CANDIDATES entry). robots.txt allows (only /contao/ /_contao/ admin disallowed). Live-verified 2026-07-16: 2 real events server-rendered with the mod_eventlist_v3 wrapper; this may be a homepage teaser rather than the full calendar — a developer should check whether Contao's calendar module exposes a fuller listing/detail page before committing to this exact URL long-term."
+    },
+    {
+      "name": "Stadt Starnberg – Veranstaltungskalender",
+      "url": "https://www.starnberg.de/kultur-freizeit/veranstaltungskalender",
+      "town": "Starnberg",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 47.9974,
+      "centroid_lng": 11.3407,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "TYPO3 with a bespoke 'tx_starnbergevent' extension (single-instance, not a reusable adapter target). Live-verified 2026-07-16: 12 events server-rendered (.vak-box/.vak-date/.vak-cat/.headline markup) with real titles/venues/times, e.g. 'Das Lochmannhaus' at Museum Starnberger See, 11:00–18:00. robots.txt allows (typo3conf/ext explicitly allowed)."
+    },
+    {
+      "name": "Gemeinde Ismaning – Veranstaltungen (Kultur & Freizeit)",
+      "url": "https://ismaning.de/veranstaltungen/kategorie/kultur-freizeit/",
+      "town": "Ismaning",
+      "region": "München 40km",
+      "country": "DE",
+      "centroid_lat": 48.2331,
+      "centroid_lng": 11.6733,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "WordPress. Live-verified 2026-07-16: 10 clean schema.org/Event JSON-LD blocks, all fields populated — e.g. 'Künstlergespräch mit Eduardo Palomares' (Kallmann-Museum) 2026-07-19, 'Kindernachmittag \"Riech mal! Ismaning mit der Nase erkunden\"' (Schlossmuseum Ismaning) 2026-07-19. Best-structured ring-town source found. robots.txt is empty (no restrictions declared)."
+    }
+  ],
+  "rejected": [
+    {
+      "name": "München Tourismus (muenchen.travel / munich.travel)",
+      "url": "https://www.muenchen.travel/rubriken/planen/veranstaltungskalender",
+      "reason": "bot_block",
+      "note": "Cloudflare 'Attention Required' 403 on both the German (/rubriken/planen/veranstaltungskalender) and English (/en/veranstaltungskalender at munich.travel) event-calendar paths, 2026-07-16 — not a robots.txt disallow, a live challenge page."
+    },
+    {
+      "name": "Open Data Portal München (opendata.muenchen.de)",
+      "url": "https://opendata.muenchen.de/",
+      "reason": "no_calendar",
+      "note": "CKAN package_search for 'veranstaltung' returned only 3 statistical datasets (monthly Kino/Theater/Orchester visitor counts) — no events dataset exists. Also, robots.txt disallows /api/ site-wide (Crawl-Delay: 10), so even a future dataset's API would be off-limits; only /dataset/ HTML pages are crawlable."
+    },
+    {
+      "name": "veranstaltungen.muenchen.de",
+      "url": "https://veranstaltungen.muenchen.de/",
+      "reason": "other",
+      "note": "This is the city's internal event-REGISTRATION platform (Referat für Informations- und Telekommunikationstechnik) for organizing municipal events/room bookings, not a public events calendar — wrong kind of source entirely. Its robots.txt explicitly blocks GPTBot and separately disallows /stadtbibliothek/ 'auf expliziten Wunsch des Fachbereichs' (explicit department request)."
+    },
+    {
+      "name": "Kindaling München",
+      "url": "https://www.kindaling.de/veranstaltungen/muenchen",
+      "reason": "tos",
+      "note": "Commercial marketplace for paid kids' courses/activities (page dataLayer tags itself 'RegCatHub'; site has /tickets /providers /account paths) — a booking aggregator, not a facts+linkback editorial/municipal calendar. Excluded per the no-aggregators rule."
+    },
+    {
+      "name": "IN München – Tipps für Kids / Veranstaltungen",
+      "url": "https://www.in-muenchen.de/themes/tipps-fur-kids",
+      "reason": "no_calendar",
+      "note": "WordPress magazine tag page; dates found (2025-02 through 2025-12) are article PUBLISH dates, not event dates. The separate /veranstaltungen listing page (also checked) has no JSON-LD/ICS/RSS and no repeating dated-card structure found within inspection budget — could not confirm a reliable events listing on either URL."
+    },
+    {
+      "name": "Stadt Fürstenfeldbruck – Veranstaltungskalender",
+      "url": "https://www.fuerstenfeldbruck.de/ffb/web.nsf/id/pa_veranstaltungskalender.html",
+      "reason": "robots",
+      "note": "Domino (.nsf) page whose only content is <iframe src=\"https://www.rce-event.de/output.php?id=827&mode=L\">. www.rce-event.de/robots.txt is 'Disallow: / ; Allow: /veranstaltungen/', so /output.php is blocked at the shared RCE host even though fuerstenfeldbruck.de's own robots.txt permits crawling."
+    },
+    {
+      "name": "Stadt Wolfratshausen – Veranstaltungskalender",
+      "url": "https://www.wolfratshausen.de/communice-calendar/veranstaltungskalender",
+      "reason": "robots",
+      "note": "Same RCE-Events iframe pattern: embeds https://www.rce-event.de/output.php?id=1298&mode=L, blocked by rce-event.de's robots.txt (Disallow: / except /veranstaltungen/)."
+    },
+    {
+      "name": "Stadt Germering – Veranstaltungskalender",
+      "url": "https://www.germering.de/germering/site.nsf/id/pa_de_veranstaltungskalender.html",
+      "reason": "robots",
+      "note": "Domino (.nsf) page that JS-injects an iframe to https://www.rce-event.de/output.php?id=1156&gk=9179123&ortbez=Germering, blocked by the same shared-host robots.txt. The Domino shell itself carries no event text server-side (0 dates found)."
+    },
+    {
+      "name": "Landkreis Dachau Veranstaltungskalender (RCE-Events)",
+      "url": "https://veranstaltungskalender.landratsamt-dachau.de/region/",
+      "reason": "no_future_events",
+      "note": "Same RCE-Events platform as the working Freising instance (identical robots.txt, own subdomain, crawl-permitted) — but both /region/ and /dachau/ paths returned 0 '.eventlist' rows on live fetch 2026-07-16. Likely needs a different city-slug path; not registered without a verified non-zero fetch."
+    },
+    {
+      "name": "Stadt Dachau – Veranstaltungskalender",
+      "url": "https://www.dachau.de/veranstaltungskalender/",
+      "reason": "no_future_events",
+      "note": "WordPress + Elementor/JetEngine widget ('event-alt-item', 10 items), but the only dates found in server HTML were 2025-04-26 and 2026-04-20 — stale relative to the 2026-07-16 probe date. JetEngine's own data-pages=\"0\" attribute suggests the full list loads via AJAX, not server-rendered."
+    },
+    {
+      "name": "KID Dachau – Kinder- und Familienkalender",
+      "url": "https://www.kid-dachau.de/kalender",
+      "reason": "js_spa",
+      "note": "Server HTML strips to ~3.9KB, almost entirely @font-face CSS plus the page title; no dated event content, no JSON-LD/ICS found. No recognized SPA framework marker, but functionally empty without JS execution."
+    },
+    {
+      "name": "Stadt Unterschleißheim – Veranstaltungskalender",
+      "url": "https://www.unterschleissheim.de/kultur-freizeit-sport/veranstaltungskalender.html",
+      "reason": "bot_block",
+      "note": "HTTP 401 Unauthorized on two separate direct-fetch attempts, 2026-07-16, with the declared UmkreisBot UA. Not a robots.txt disallow (robots.txt only blocks /el/) — reads as active bot/WAF blocking of non-browser requests."
+    },
+    {
+      "name": "Stadt Garching – Veranstaltungen",
+      "url": "https://www.garching.de/",
+      "reason": "other",
+      "note": "HTTP 503 'Service Temporarily Unavailable' (nginx) on both / and /robots.txt across two attempts several seconds apart, 2026-07-16. Could be a genuine outage or an active block on non-browser UAs; politeness rules out repeated probing to distinguish the two. Worth a retry on a later date."
+    },
+    {
+      "name": "Gemeinde Gauting – Veranstaltungskalender",
+      "url": "https://www.gauting.de/freizeit-und-kultur/veranstaltungskalender/",
+      "reason": "no_calendar",
+      "note": "TYPO3 page fetched successfully (200, ~253KB) but no dated event markup or event-related CSS classes found anywhere in the server HTML — likely an external widget or JS-loaded calendar not visible to a plain fetch."
+    },
+    {
+      "name": "Stadt Ebersberg – Ebersberger Kalender",
+      "url": "https://www.ebersberg.de/kultur-freizeit-tourismus/veranstaltungen-1/ebersberger-kalender",
+      "reason": "no_calendar",
+      "note": "TYPO3 page fetched successfully (200, ~925KB) but no ISO or German-format dates and no event-class markup found anywhere in the server HTML within inspection budget."
+    }
+  ]
+}

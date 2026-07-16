@@ -17,6 +17,37 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-16 latest — AI-bot policy enforced; Germany discovery done, not registered)
+- **`aiPolicyAllowed()` ships (lib/crawl-net.js)**: a site naming ClaudeBot/GPTBot with a Disallow over
+  our path is now skipped in code, not by an agent remembering to. Deliberately SEPARATE from
+  `robotsAllowed()` (RFC 9309 genuinely permits us — our UA is never on those lists; that's the whole
+  point). Decision + measurements: `docs/decisions/2026-07-16-ai-bot-policy.md`. George's calls:
+  **Variant B** (any AI crawler, not just Anthropic) · **bytespider alone ≠ an AI stance** (saves
+  berlin.de's 3 official $0 JSON-LD sources) · **honor Stuttgart + ask them** (partnerships row 8b).
+- **Applied to prod**: 11 source rows / 9 distinct source_names / **138 published events →
+  status='removed'** (BG 69, DE 67, AT 2). Published 28,651 → **28,513**. `works` stays true;
+  `blocked_reason='ai_bot_policy'` is the state and self-clears if a site drops the rule.
+  **Stuttgart is now 0 events** — the biggest city in the DE scope, gone by our own policy.
+- **NB the measurement error I made**: petalbot/amazonbot are SEARCH crawlers, not AI. Including them
+  falsely condemned **Linz-Termine (42 ev)** and 9 others. AT's real exposure = 2 sources / 2 events.
+  `AI_BOT_TOKENS` carries a comment forbidding their re-addition — do not "complete" that list.
+- **Germany discovery done, NOTHING registered yet.** `data/catalog/probed-berlin-40km.json` (16
+  proposed, 57% ring hit-rate) + `probed-munich-40km.json` (9 proposed, 31% ring). **Cost answer for
+  George: ~$1.30/month for both cities — money is not the constraint.** Nominatim (1 req/s per IP,
+  geocache is AT/BG-only → DE is all misses) and the 180-min Actions cap are.
+- **Three findings to act on before registering**: (1) **muenchen.de is schema.org MICRODATA, not
+  JSON-LD** (verified: 100 `itemtype="…Event"`, 0 ld+json) — we parse Microdata nowhere, so the
+  official city calendar would take the PAID route while being perfectly structured; a generic
+  microdata rung is now the highest-value adapter on the board. (2) **Do NOT register Erkner as
+  proposed** — its URL is a sitemap (499 locs, no event data); cms=null → LLM fed a list of URLs =
+  0 yield + a paid call every crawl. (3) **iKISS** (Berlin ring) and **RCE-Events** (Munich ring) are
+  the candidate "GEM2GO of Germany"; iKISS ships an interface to **termine-regional.de** — vet that
+  nationwide portal before building adapters.
+- **Hard rule 8 is currently VIOLATED for Germany**: `lib/places.js` has ZERO DE entries and
+  `app/api/geocode/route.js` hard-filters Photon to `['AT','BG']` + collapses country to
+  `'BG'?'BG':'AT'`. Stuttgart's events have been unsearchable since 07-13. Verified live: typing
+  "Berlin" returns `AT | Berling` (a building). Fix belongs in the same change that registers DE.
+
 ## Where things stand (2026-07-16 — crawl-optimization batch, Germany prep)
 - **George is setting up local Nominatim on his box** (docs/ops/local-box-setup.md) for the Germany
   scan; regeocode/enrich/merge-dups backfills stay parked until it's up.

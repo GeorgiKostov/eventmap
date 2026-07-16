@@ -2,6 +2,67 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Named-AI-bot policy enforced in code (2026-07-16, George: Variant B / bytespider-no / honor-Stuttgart) — SHIPPED
+- [x] **The policy existed only in our heads.** `ai_bot_policy` was a `blocked_reason` set BY HAND;
+      `robotsAllowed()` returns **true** for every site that names ClaudeBot (our UA is never listed),
+      so the nightly cron would crawl any such source that got registered. Found while opening Germany:
+      falkensee.de + teltow.de ship a **byte-identical 92-line** robots naming ClaudeBot/GPTBot with
+      **no `*` group at all** — a shared Brandenburg template that likely repeats across DE.
+- [x] **Measured before touching anything**: robots.txt for all **1,656 unique hosts** / 1,731 working
+      sources, parsed with our own parseRobots. Variant A (Anthropic-only) 9 sources/206 ev · **B (any
+      AI crawler) 11/208** · C (+bytespider) identical to B. Every blocking group is a *dedicated
+      1-agent* block — deliberate, not kitchen-sink. Applied: **11 source rows / 9 distinct
+      source_names / 138 published events → status='removed'** (BG 69, DE 67, AT 2). Published
+      28,651 → 28,513, verified.
+- [x] **My own measurement error, caught before it drove the decision**: petalbot (Huawei) + amazonbot
+      are SEARCH crawlers, not AI — they had falsely condemned **Linz-Termine (42 ev, tier-2)** and 9
+      others. AT's real exposure is 2 sources / 2 events. `AI_BOT_TOKENS` carries a comment forbidding
+      their re-addition.
+- [x] `aiPolicyAllowed()` in lib/crawl-net.js — a SEPARATE function from robotsAllowed on purpose
+      (RFC 9309 really does permit us; folding policy into the spec parser is what caused the 07-14
+      Stuttgart false-block). Pure `aiBotGroup()` + shared `robotsGroups()` = one robots fetch per
+      origin. Wired at both crawl gates; `ai_bot_policy` joins `robots` in `AUTO_DERIVED_BLOCKS` so it
+      **self-clears**; stats untouched (state, not zero_streak). `works` stays true. 12 new tests
+      (116 green), all 8 live cases driven against the real hosts.
+- [ ] **George: Stuttgart outreach** (`docs/partnerships/README.md` row 8b, reopened). Biggest DE city,
+      now 0 events. Needs a contact for Stadt Stuttgart's Online-Redaktion, then send. Irony worth
+      knowing: the 07-14 "Stuttgart is blocked" finding was our parser bug AND they separately do
+      block AI bots — both true, different blocks.
+- [ ] Gaps left deliberately: `fingerprint-sources.mjs` / `enrich-locations.mjs` / `probe-sources.mjs`
+      don't ask aiPolicyAllowed yet (manual, parked tools — the cron was the real violation). Any
+      future German municipal probe must apply the policy at DISCOVERY time or it will keep proposing
+      sources we may not crawl.
+
+## Germany big-city expansion (2026-07-16, George: "berlin munich hamburg koln 40km, cheap sonnet, tell me if costs are high") — DISCOVERY DONE, registration pending
+- [x] **Two Sonnet discovery agents (Berlin, Munich), discovery-only.** Catalogs:
+      `data/catalog/probed-berlin-40km.json` (16 proposed / 8 rejected, 57% ring hit-rate) and
+      `probed-munich-40km.json` (9 proposed / 15 rejected, 31% ring). Cost answer: **LLM crawl is
+      ~$0.04/pass ≈ $1.30/month for both cities** — money is NOT the constraint. The constraints are
+      Nominatim (1 req/s global per IP; geocache is AT/BG-only so DE is nearly all misses) and the
+      180-min Actions cap.
+- [x] **Verified, not trusted**: berlin.de really does serve JSON-LD Events ($0 route); rce-event.de
+      really does `Disallow: /` its embed path; Freising's own subdomain really is open.
+- [ ] **Architect finding — do NOT register Erkner as proposed**: its URL is a *sitemap* (499 `<loc>`,
+      zero event data). With cms=null the waterfall falls through to the LLM with a list of URLs =
+      guaranteed 0 yield + a paid call every crawl + a fabrication risk. Needs a kalkalpen-style
+      two-hop adapter first.
+- [ ] **muenchen.de publishes schema.org MICRODATA, not JSON-LD** (verified: 100 `itemtype="…Event"`
+      with startDate/name/location, **0** ld+json blocks). We parse Microdata nowhere, so the official
+      city calendar would go the PAID route while being perfectly structured. crawl-sota-2026.md flagged
+      this gap (WDC: Microdata = 46% of structured-data sites); this is the first live case. A generic
+      microdata rung in `tryStructuredExtraction()` is now the highest-value adapter on the board.
+- [ ] **iKISS** (4 of 14 Berlin ring towns, `data-ikiss-mfid`) + **RCE-Events** (5 of 13 Munich ring
+      towns) = the two candidate "GEM2GO of Germany" clusters. iKISS ships a bidirectional interface to
+      **termine-regional.de** (nationwide portal) — vet that before building adapters. RCE caveat: only
+      crawlable when a tenant runs its own subdomain; shared-host tenants are robots-blocked.
+- [ ] Still to do before Germany is live: add scopes to `lib/crawl-scopes.js` (its comment requires an
+      explicit product decision per region — George gave it), register + `--url` verify each source,
+      then **hard rule 8**: German cities are currently **unsearchable** — `lib/places.js` has ZERO DE
+      entries and `app/api/geocode/route.js` hard-filters Photon to `['AT','BG']` and collapses country
+      to `'BG'?'BG':'AT'`. Stuttgart's events have been invisible to search since 07-13. Verified live:
+      typing "Berlin" returns `AT | Berling` (a *building*), not Berlin.
+- [ ] Hamburg + Köln: not started (George said Berlin/Munich first).
+
 ## Source-quality ranking + visual desk (2026-07-15, George: "most trusted sources first… improve the UI") — SHIPPED (5333ae3)
 - [x] **`lib/source-quality.js`** (one definition, kid-cats pattern): tier 2 curated official/vetted
       family publishers › tier 1 municipal crawl › tier 0 unvetted. weekendPicks rank tuple now

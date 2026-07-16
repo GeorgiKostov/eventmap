@@ -1,0 +1,270 @@
+{
+  "_meta": {
+    "scope": "berlin-40km",
+    "built_at": "2026-07-16",
+    "center": { "lat": 52.5200, "lng": 13.4050 },
+    "radius_km": 40,
+    "notes": "Discovery-only pass, no DB writes. Berlin backbone hand-found + live-verified per the 'big cities aren't Gemeinde' lesson (official berlin.de/tickets pages, Land Berlin Familienportal, visitBerlin, top family/kids publishers). Ring: 14 Brandenburg municipalities probed (not exhaustive) to characterize CMS mix and hit rate. Single highest-value finding: four ring towns (Oranienburg, Hennigsdorf, Kleinmachnow, Velten) confirmed running iKISS (data-ikiss-mfid markup) — the CMS with a bidirectional interface to termine-regional.de named in the brief; flagged as a lead only, not built on. Second finding: Werder (Havel) runs WordPress + EventON (429 dot-dates on one page, largest ring yield seen). Third: Erkner exposes a dedicated /veranstaltungen-sitemap.xml (499 URLs) whose detail pages carry real JSON-LD Event objects — a two-hop pattern structurally identical to the existing kalkalpen adapter."
+  },
+  "country": "DE",
+  "proposed": [
+    {
+      "name": "Berlin.de Events & Festivals (offizieller Veranstaltungskalender)",
+      "url": "https://www.berlin.de/events/",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5200,
+      "centroid_lng": 13.4050,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official BerlinOnline city portal. 3 live JSON-LD Event/Festival objects verified on this page (e.g. 'Moment Mal: Young Bauhaus Festival' 2026-07-17, 'Water Lantern Festival' 2026-07-24) -> routes via generic jsonld waterfall, $0. Two <link rel=alternate type=rss> feeds also present (/events/index.rss 25 items, /events/rubric.rss 30 items) but RSS items carry only pubDate, no dtstart tag, so crawl.mjs's generic parseRssEvents() (which requires a startdate/dtstart tag) would yield 0 from the feed itself; individual event detail pages DO carry per-page JSON-LD startDate (confirmed on .../tegeler-hafenfest.html: Festival, startDate 2026-07-16). Higher-yield alternates exist at the same domain, not registered here to avoid URL staleness: /tickets/kinder/ (15 events, registered separately below) and /events/jahresuebersicht/august/ (17 events, month-named URL). robots.txt: only AdsBot-Google/-Mobile disallow /tickets/; the general 'User-agent: *' group only disallows session-id URLs, /land/kalender/print/, and press-release search -- /events/ and /tickets/ are NOT blocked for us. No named-AI-bot block found."
+    },
+    {
+      "name": "Berlin.de Kinder-Tickets (Familien/Kinder-Veranstaltungen)",
+      "url": "https://www.berlin.de/tickets/kinder/",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5200,
+      "centroid_lng": 13.4050,
+      "cms": null,
+      "confidence": "high",
+      "kind": "family",
+      "notes": "Official berlin.de ticketing vertical filtered to children's programming. 15 live JSON-LD Event objects verified (Galli Theater Berlin multiple shows, 'Aschenputtel - Mitspieltheater', 'Simsalabim! - Die Kinder-Zaubershow', Domaene Dahlem family programs, Altes Museum). We index berlin.de's own listing with linkback to berlin.de, not the underlying ticket sellers. jsonld route, $0. Same robots posture as the /events/ row above -- allowed."
+    },
+    {
+      "name": "Berlin.de Bezirk-Beispiel: Veranstaltungen in Pankow",
+      "url": "https://www.berlin.de/special/stadtteile/pankow/veranstaltungen/",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5675,
+      "centroid_lng": 13.4021,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "9 live JSON-LD events verified. One representative sample of berlin.de's 12 Bezirk/Stadtteil sub-portals (Neukoelln's equivalent kalender page returned 0 startDate on first fetch, likely needs a different URL) -- not all 12 individually probed/registered, per 'get a sense of data sources' framing. Same domain/robots.txt as the other berlin.de rows."
+    },
+    {
+      "name": "Berliner Familienportal - Veranstaltungen (Land Berlin, SenBJF)",
+      "url": "https://familienportal.berlin.de/veranstaltungen",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5200,
+      "centroid_lng": 13.4050,
+      "cms": null,
+      "confidence": "high",
+      "kind": "family",
+      "notes": "Official Land Berlin family-events database run by the Senatsverwaltung fuer Bildung, Jugend und Familie. Page states '5519 Veranstaltungen gefunden' live; 10 real dated events server-rendered on the default (unfiltered) first page, e.g. 'Maerchenraetsel in Berlin Prenzlauer Berg' 16.07.2026, with venue/description text. TYPO3-based with server-rendered pagination (twbs-pagination + unpoly, degrades to plain links, not a JS SPA). Filter facets include all 12 Bezirke PLUS an explicit 'Berliner-Umland' tag, i.e. this official source already reaches into the 40km ring. No JSON-LD/RSS/ICS found -- html/LLM route; only page 1 of the paginated result set was fetched this session (pagination not exercised). robots.txt: 'Allow: /' with only /suche//, /suche/s/ disallowed. No named-AI-bot block."
+    },
+    {
+      "name": "visitBerlin Veranstaltungskalender",
+      "url": "https://www.visitberlin.de/de/veranstaltungskalender-berlin",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5200,
+      "centroid_lng": 13.4050,
+      "cms": null,
+      "confidence": "high",
+      "kind": "tourism",
+      "notes": "Official Berlin tourism board (Drupal-based). ~18 unique future-dated events verified server-rendered (dot-date format: 26.07.2026, 02.08.2026, 23.08.2026, 13.11.2026, 15.11.2026, ...). No JSON-LD/RSS/ICS found on this page -- html/LLM route. robots.txt 'Allow: /' with only /admin/, /search/, /user/*, /media/oembed disallowed. No named-AI-bot block."
+    },
+    {
+      "name": "Berlin mit Kind - Veranstaltungskalender (HIMBEER)",
+      "url": "https://berlinmitkind.de/veranstaltungskalender/",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5200,
+      "centroid_lng": 13.4050,
+      "cms": null,
+      "confidence": "high",
+      "kind": "family",
+      "notes": "Dedicated family/kids event calendar published by HIMBEER. ~13 unique future-dated events verified (dot-dates clustered 16.07-17.07.2026). WordPress (WP Rocket cache) with tribe-events/modern-events-calendar/eventon class names present in cached markup, but neither wp-json/tribe/events/v1/events nor wp-json/events-manager/v1/events resolved (both 404) -- no working REST route found this session. An RSS feed exists (berlinmitkind.de/feed/, standard WP post feed) but lacks dtstart tags so it would not satisfy crawl.mjs's generic RSS parser -- html/LLM route on the calendar page itself. robots.txt: only /wp-admin/ disallowed, sitemap published. No named-AI-bot block."
+    },
+    {
+      "name": "Kinderkulturkalender Berlin",
+      "url": "https://www.kinderkulturkalender-berlin.de/",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5200,
+      "centroid_lng": 13.4050,
+      "cms": null,
+      "confidence": "high",
+      "kind": "family",
+      "notes": "Dedicated Berlin children's-culture calendar, Drupal-based (same platform family as visitBerlin/berlin.de). Single large page (833KB) returned 665 dot-date occurrences spanning into 2027 -- by far the highest family-event density found this session; likely several hundred unique events once de-duplicated (each entry may render its date more than once, not independently verified per-item). No JSON-LD/RSS/ICS -- html/LLM route, and the page size means a meaningfully larger per-crawl cost than the other sources here. robots.txt: 'Allow: /' (Drupal boilerplate, only /admin/, /search/, /typo3-style print params disallowed). No named-AI-bot block."
+    },
+    {
+      "name": "FEZ-Berlin Programm",
+      "url": "https://fez-berlin.de/programm",
+      "town": "Berlin",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.4675,
+      "centroid_lng": 13.5763,
+      "cms": null,
+      "confidence": "high",
+      "kind": "family",
+      "notes": "Europe's largest non-profit children's/youth/family centre (Wuhlheide), single-venue publisher -- same shape as the Dschungel Wien default_venue case. 4 live JSON-LD Event objects verified on /programm. robots.txt is a large legacy TYPO3 boilerplate naming dozens of scraper bots individually (none are GPTBot/ClaudeBot/CCBot) -- the general 'User-agent: *' group only disallows /fileadmin/_temp_/, /t3lib/, /typo3/, /typo3_src/ and print params, otherwise open. Good candidate for sources.default_venue/default_address once registered."
+    },
+    {
+      "name": "Landeshauptstadt Potsdam - Veranstaltungskalender",
+      "url": "https://www.potsdam.de/de/veranstaltungskalender",
+      "town": "Potsdam",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.3989,
+      "centroid_lng": 13.0657,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "Drupal 10. 16 dot-dates found server-rendered, several confirmed future (20.09.2026, 28.08.2026, 22.12.2026) but the page mixes in a few 2024/2025-dated entries (archive links) on the same fetch -- an LLM extractor needs to be told to skip past dates, not fabricate an assumption they're all upcoming. No JSON-LD/RSS found. robots.txt clean (Drupal boilerplate), no aibot block, /de/veranstaltungskalender not disallowed."
+    },
+    {
+      "name": "Stadt Strausberg - Veranstaltungen",
+      "url": "https://www.stadt-strausberg.de/veranstaltungen/",
+      "town": "Strausberg",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.5798,
+      "centroid_lng": 13.8843,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "WordPress. Use /veranstaltungen/ (the archive listing), NOT /veranstaltungskalender/ -- the latter only carries generic SEO WebPage JSON-LD (no Event data). 12 dot-dates verified live on /veranstaltungen/. robots.txt disallows /feed/, /trackback/, /comments/ (standard WP) but not /veranstaltungen/; no aibot block."
+    },
+    {
+      "name": "Stadt Ludwigsfelde - Veranstaltungen",
+      "url": "https://www.ludwigsfelde.de/veranstaltung/",
+      "town": "Ludwigsfelde",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.3009,
+      "centroid_lng": 13.2585,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "WordPress + WPBakery Page Builder. 1 JSON-LD block + 4 dot-dates verified (23.07.2026, 08.08.2026, 14.08.2026, 14.08.2026). robots.txt only disallows /wp-admin/; no aibot block."
+    },
+    {
+      "name": "Stadt Hennigsdorf - Aktuelle Veranstaltungen",
+      "url": "https://www.hennigsdorf.de/Rathaus-Service/Aktuelles/Veranstaltungen/",
+      "town": "Hennigsdorf",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.6333,
+      "centroid_lng": 13.2039,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "Runs iKISS (confirmed: 53 occurrences of the data-ikiss-mfid markup attribute in the fetched page) -- see _meta note re: iKISS/termine-regional.de. Only 2 dot-dates verified live on this specific URL (28.08.2026, 30.08.2026) -- low yield, a better deep-link inside the site likely exists but wasn't found within this session's budget. robots.txt clean (cache/output/suche.phtml boilerplate shared with Oranienburg/Kleinmachnow/Velten), no aibot block."
+    },
+    {
+      "name": "Gemeinde Kleinmachnow - Veranstaltungskalender",
+      "url": "https://www.kleinmachnow.de/Kultur-Freizeit/Freizeit/Veranstaltungen/",
+      "town": "Kleinmachnow",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.4111,
+      "centroid_lng": 13.2308,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Runs iKISS (confirmed: 83 occurrences of data-ikiss-mfid). 28 dot-dates verified live, real future events across a June-August 2026 spread (13.06, 01.07, 03.07, 04.08, 11.08, 21.08.2026 among them). robots.txt clean, no aibot block."
+    },
+    {
+      "name": "Ofenstadt Velten - Veranstaltungen",
+      "url": "https://velten.de/Verwaltung-Politik/Aktuelles/Veranstaltungen/",
+      "town": "Velten",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.6883,
+      "centroid_lng": 13.1706,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Runs iKISS (confirmed: 87 occurrences of data-ikiss-mfid). 27 dot-dates verified live (15.04.2026-27.07.2026 range and beyond, e.g. 'Ausstellung: Mixt(o)ur' 15.04-27.07.2026). robots.txt clean, no aibot block."
+    },
+    {
+      "name": "Stadt Werder (Havel) - Veranstaltungskalender",
+      "url": "https://www.werder-havel.de/tourismus/veranstaltungen/veranstaltungskalender.html",
+      "town": "Werder (Havel)",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.3739,
+      "centroid_lng": 12.9339,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "WordPress + EventON plugin (ADAPTER_CANDIDATES key 'wp-eventon' matched). By far the highest ring yield seen: 429 dot-date occurrences on one fetch of a 1.2MB page (an annual listing, heavily templated -- likely well over 100 unique events once de-duplicated, not independently counted). robots.txt clean, standard WP boilerplate, no aibot block. Page size means real per-crawl LLM cost; worth checking EventON's own AJAX/REST endpoint for a $0 route before committing this to the LLM route (not verified this session)."
+    },
+    {
+      "name": "Stadt Erkner - Veranstaltungskalender (Sitemap)",
+      "url": "https://www.erkner.de/veranstaltungen-sitemap.xml",
+      "town": "Erkner",
+      "region": "Berlin 40km",
+      "country": "DE",
+      "centroid_lat": 52.4229,
+      "centroid_lng": 13.7469,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Dedicated events sitemap, 499 <loc> entries, all under /freizeit-und-tourismus/stadtgeschichte-und-kultur/veranstaltungskalender/2026/. Spot-checked the first entry ('Weihnachtsliedersingen'): real JSON-LD Event confirmed live, startDate 2026-12-19T15:30:00+01:00, full description. This is a two-hop pattern (sitemap discovery -> per-page JSON-LD) structurally identical to the existing kalkalpen adapter in crawl.mjs -- see adapter-candidate note in the final report. Only 1 of 499 detail pages was fetched this session; the rest are unverified but the pattern (URL shape + JSON-LD presence) is consistent. robots.txt: the sitemap itself is disallowed only for named search-engine bots (Googlebot/Bingbot/Slurp/DuckDuckBot/YandexBot/Baiduspider); the general 'User-agent: *' group is 'Allow: /' -- no restriction on us."
+    }
+  ],
+  "rejected": [
+    {
+      "name": "Stadt Falkensee - Veranstaltungen",
+      "url": "https://www.falkensee.de/veranstaltungen/",
+      "reason": "robots",
+      "evidence": "Raw robots.txt at falkensee.de lists 'User-agent: ClaudeBot' and 'User-agent: GPTBot' (grouped with ~15 other bots incl. DataForSeoBot, Bytespider, meta-externalagent) followed by 'Disallow: /' -- read directly, not a parser artifact."
+    },
+    {
+      "name": "Stadt Teltow - Veranstaltungen",
+      "url": "https://www.teltow.de/veranstaltungen/index.php",
+      "reason": "robots",
+      "evidence": "Identical robots.txt template to Falkensee: explicit 'User-agent: ClaudeBot' / 'User-agent: GPTBot' group with 'Disallow: /'."
+    },
+    {
+      "name": "Stadt Oranienburg - Veranstaltungskalender",
+      "url": "https://www.oranienburg.de/Stadtleben/Kultur-Freizeit/Veranstaltungskalender/index.php?object=tx",
+      "reason": "no_future_events",
+      "evidence": "Two URL variants fetched (base object=tx, and an alternate with NavID/kuo params that 301-redirected); neither rendered dated event text server-side within this session (0 dot-dates). Site runs the same iKISS template confirmed working on Hennigsdorf/Kleinmachnow/Velten, so a working deep-link almost certainly exists but wasn't found within budget -- worth a second pass, not a hard block."
+    },
+    {
+      "name": "Stadt Bernau bei Berlin - Veranstaltungskalender",
+      "url": "https://www.bernau.de/de/tourismus-kultur/veranstaltungen/artikel-veranstaltungskalender.html",
+      "reason": "no_future_events",
+      "evidence": "Tried 3 URLs: bernau.de's two events paths plus the city-marketing portal it links to (best-bernau.de/veranstaltungen/index.html, 'the official calendar managed by Bernauer Stadtmarketing GmbH' per search results). 0 dot-dates on all three -- real page text present but no calendar content server-rendered, likely a JS-loaded widget in every case tried."
+    },
+    {
+      "name": "Stadt Koenigs Wusterhausen - Events",
+      "url": "https://www.koenigs-wusterhausen.de/Events-KW",
+      "reason": "no_future_events",
+      "evidence": "Native page textlen only 1495 chars, 0 dot-dates. The external Kulturwerk.info page it links out to (kulturwerk.info/Alle-Veranstaltungen-in-Koenigs-Wusterhausen) also returned 0 dot-dates -- both appear JS-rendered."
+    },
+    {
+      "name": "Gemeinde Birkenwerder - Veranstaltungen",
+      "url": "https://www.birkenwerder.de/tourismus-und-kultur/tourismus/veranstaltungen",
+      "reason": "no_future_events",
+      "evidence": "TYPO3 site; tried 2 URL paths (tourismus-und-kultur/... and rathaus/aktuelles/termine/veranstaltungen), 0 dot-dates on both despite ~13KB of real page text each."
+    },
+    {
+      "name": "Kindaling Berlin",
+      "url": "https://www.kindaling.de/veranstaltungen/berlin",
+      "reason": "tos",
+      "evidence": "Nationwide commercial marketplace for paid kids' courses/camps/birthday-party bookings across 12+ cities (Berlin, Muenchen, Hamburg, Wien, Zuerich, ...). robots.txt disallows /providers, /account, /activities, /tickets -- structurally a third-party booking aggregator/marketplace, not a primary publisher of its own event facts; excluded per hard rule 1 (facts + linkback, official/publisher only, aggregators out)."
+    },
+    {
+      "name": "Berlin-Familie.de - Veranstaltungen",
+      "url": "https://www.berlin-familie.de/de/stadt-und-land/veranstaltungen/",
+      "reason": "no_calendar",
+      "evidence": "Markets itself as a 'daily updated' family events calendar in search results, but both the linked page and a second candidate URL (/de/veranstaltungen/) are editorial 'was tun?' link pages with only 1 dot-date found across both fetches -- and that single date was in the past (25.11.2025). No robots.txt file exists (404, treated as unrestricted) so this is a content gap, not a block."
+    }
+  ]
+}
