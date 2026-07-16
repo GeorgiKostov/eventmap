@@ -37,6 +37,11 @@ const ZOOM_TIER = 11.5;
 // into a per-zoom ramp. Pins fade in, clusters fade out, across the same band.
 const PIN_FADE_IN = ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, 1];
 const CLUSTER_FADE_OUT = (peak) => ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, peak, HANDOFF_HIGH, 0];
+// Highlighted-pin treatment (George-approved prototype, design-system.md sanctioned
+// exception to "selection is the only ring/scale"): a pure data expression (no
+// ['zoom'] inside), so nesting it under other case/match is fine — only camera
+// (zoom) expressions must stay top-level.
+const IS_HIGHLIGHTED = ['in', ['get', 'highlight'], ['literal', ['gold', 'editorial']]];
 
 function mapLibreLocale(t) {
   return {
@@ -183,11 +188,24 @@ function isOnlineVenue(ev) {
 const PIN_S = 28;                     // pin body box (DOM .pin2 was 32; sprite adds pad)
 const PIN_PAD = 3;                    // room for the 2px white border
 const PIN_BOX = PIN_S + PIN_PAD * 2;  // 34px shown at icon-size 1
+// Highlighted pins reuse the same PIN_S body but need a wider box: an outline
+// ring (stroke-width 7 in the highlight color) is drawn beneath the normal
+// fill+white-stroke pin, and only its outer half stays visible once the
+// normal pin's own 2px white border is drawn on top (~2.5px visible ring).
+const PIN_PAD_HL = 5;
+const PIN_BOX_HL = PIN_S + PIN_PAD_HL * 2; // 38
 const HALO_S = 44;                    // selection halo silhouette — rings the 1.28× selected pin
 const HALO_BOX = 46;
 const TOWN_BUBBLE_S = 40;             // town-group dashed bubble diameter
 const TOWN_BUBBLE_BOX = 44;
 const SPRITE_RATIO = 3;               // supersample so pins stay crisp on hidpi
+// George-approved highlight colors (design-system.md sanctioned exception):
+// gold = paid placement, editorial = CI raspberry (same as --accent).
+const HIGHLIGHT_COLORS = { gold: '#E8A800', editorial: '#c93a5b' };
+// Gold "occasional shine": a brief specular streak every GLINT_PERIOD_MS,
+// lasting GLINT_SWEEP_MS. See makeGlintImage below.
+const GLINT_PERIOD_MS = 5500;
+const GLINT_SWEEP_MS = 800;
 
 // Teardrop (event) = circle with a sharp-ish bottom-left corner, matching the CSS
 // border-radius 50% 50% 50% 4px; place = full circle. r = s/2 so the top/right are
@@ -198,13 +216,19 @@ function pinSilhouette(s, place) {
   return `M${r} 0A${r} ${r} 0 0 1 ${s} ${r}A${r} ${r} 0 0 1 ${r} ${s}L${bl} ${s}`
     + `A${bl} ${bl} 0 0 1 0 ${s - bl}L0 ${r}A${r} ${r} 0 0 1 ${r} 0Z`;
 }
-function pinSpriteSvg(cat) {
+// hl: null (normal) | 'gold' | 'editorial' — draws an outline ring in the
+// highlight color BENEATH the normal fill+white-stroke pin (see PIN_PAD_HL).
+function pinSpriteSvg(cat, hl = null) {
   const place = PLACE_CATS.includes(cat);
   const color = CATS[cat].color;                       // token: CATS[cat].color
-  const glyph = 15, g = PIN_PAD + (PIN_S - glyph) / 2; // glyph centered on body
+  const pad = hl ? PIN_PAD_HL : PIN_PAD;
+  const box = hl ? PIN_BOX_HL : PIN_BOX;
+  const glyph = 15, g = pad + (PIN_S - glyph) / 2; // glyph centered on body
   const paths = (ICON_PATHS[cat] || ICON_PATHS.family).map((d) => `<path d="${d}"/>`).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_BOX}" height="${PIN_BOX}" viewBox="0 0 ${PIN_BOX} ${PIN_BOX}">`
-    + `<g transform="translate(${PIN_PAD} ${PIN_PAD})"><path d="${pinSilhouette(PIN_S, place)}" fill="${color}" stroke="#fff" stroke-width="2"/></g>`
+  const sil = pinSilhouette(PIN_S, place);
+  const ring = hl ? `<path d="${sil}" fill="none" stroke="${HIGHLIGHT_COLORS[hl]}" stroke-width="7"/>` : '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${box}" height="${box}" viewBox="0 0 ${box} ${box}">`
+    + `<g transform="translate(${pad} ${pad})">${ring}<path d="${sil}" fill="${color}" stroke="#fff" stroke-width="2"/></g>`
     + `<g transform="translate(${g} ${g}) scale(${glyph / 24})" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths}</g>`
     + `</svg>`;
 }
@@ -226,6 +250,72 @@ function townBubbleSvg() {
   const pad = (TOWN_BUBBLE_BOX - TOWN_BUBBLE_S) / 2, r = TOWN_BUBBLE_S / 2;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${TOWN_BUBBLE_BOX}" height="${TOWN_BUBBLE_BOX}" viewBox="0 0 ${TOWN_BUBBLE_BOX} ${TOWN_BUBBLE_BOX}">`
     + `<circle cx="${pad + r}" cy="${pad + r}" r="${r - 1}" fill="rgba(246,246,243,0.95)" stroke="rgba(33,43,40,0.72)" stroke-width="2" stroke-dasharray="4 4"/></svg>`;
+}
+// Gold-only star badge — reuses the existing top-left badge corner slot
+// (pin-community's spot; gold/community don't co-occur in practice, see the
+// pin-community filter guard where the layer is installed).
+function badgeStarSvg() {
+  const s = 18, r = s / 2, cx = r, cy = r, outer = 5.3, inner = 2.2;
+  let d = '';
+  for (let i = 0; i < 10; i++) {
+    const rad = (Math.PI / 5) * i - Math.PI / 2;
+    const rr = i % 2 === 0 ? outer : inner;
+    d += `${i === 0 ? 'M' : 'L'}${(cx + rr * Math.cos(rad)).toFixed(2)} ${(cy + rr * Math.sin(rad)).toFixed(2)} `;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">`
+    + `<circle cx="${cx}" cy="${cy}" r="${r - 1}" fill="${HIGHLIGHT_COLORS.gold}" stroke="#fff" stroke-width="1.5"/>`
+    + `<path d="${d.trim()}Z" fill="#fff"/></svg>`;
+}
+// Animated StyleImage for the gold "occasional shine" (MapLibre's documented
+// "pulsing dot" pattern — an addImage object implementing render()). One per
+// silhouette shape (teardrop/circle), clipped to the pin outline so the streak
+// never spills past the pin edge. render() returns false outside the sweep
+// window (no repaint scheduled — cost is ~zero between sweeps) and schedules a
+// single triggerRepaint() timer for the next sweep's start instead of polling
+// every frame; during the sweep it returns true and re-triggers every frame.
+function makeGlintImage(map, place) {
+  const size = Math.round(PIN_BOX_HL * SPRITE_RATIO);
+  const canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const clip = new Path2D(pinSilhouette(PIN_S * SPRITE_RATIO, place));
+  const off = PIN_PAD_HL * SPRITE_RATIO;
+  const start = performance.now();
+  let wakeTimer = null;
+  let cleared = true; // whether the blank post-sweep frame has been UPLOADED
+  return {
+    width: size, height: size, data: new Uint8Array(size * size * 4),
+    render() {
+      const t = (performance.now() - start) % GLINT_PERIOD_MS;
+      ctx.clearRect(0, 0, size, size);
+      if (t >= GLINT_SWEEP_MS) {
+        if (!wakeTimer) wakeTimer = setTimeout(() => { wakeTimer = null; map.triggerRepaint(); }, GLINT_PERIOD_MS - t);
+        // Upload the blank frame ONCE (return true = re-upload): returning false
+        // with cleared data would leave the last sweep frame on the GPU — a
+        // throttled tab can otherwise freeze a mid-sweep streak onto the pin.
+        if (cleared) return false;
+        cleared = true;
+        this.data.set(ctx.getImageData(0, 0, size, size).data);
+        return true;
+      }
+      cleared = false;
+      const p = t / GLINT_SWEEP_MS; // 0..1 sweep progress
+      const x = -size * 0.3 + p * size * 1.6;
+      ctx.save();
+      ctx.translate(off, off);
+      ctx.clip(clip);
+      ctx.translate(x, 0);
+      ctx.rotate((24 * Math.PI) / 180);
+      ctx.fillStyle = 'rgba(255,255,255,0.28)';
+      ctx.fillRect(-size * 0.22, -size, size * 0.44, size * 3);
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.fillRect(size * 0.06, -size, size * 0.18, size * 3);
+      ctx.restore();
+      this.data.set(ctx.getImageData(0, 0, size, size).data);
+      map.triggerRepaint();
+      return true;
+    },
+  };
 }
 // Rasterize an SVG string to ImageData at SPRITE_RATIO for map.addImage.
 function rasterizeSprite(svg, cssW, cssH) {
@@ -252,9 +342,18 @@ async function registerPinSprites(map) {
   };
   await Promise.all([
     ...Object.keys(CATS).map((cat) => add(`pin-${cat}`, pinSpriteSvg(cat), PIN_BOX, PIN_BOX)),
+    ...Object.keys(CATS).map((cat) => add(`pin-gold-${cat}`, pinSpriteSvg(cat, 'gold'), PIN_BOX_HL, PIN_BOX_HL)),
+    ...Object.keys(CATS).map((cat) => add(`pin-ed-${cat}`, pinSpriteSvg(cat, 'editorial'), PIN_BOX_HL, PIN_BOX_HL)),
     ...Object.keys(CATS).map((cat) => add(`halo-${cat}`, haloSpriteSvg(cat), HALO_BOX, HALO_BOX)),
     add('town-bubble', townBubbleSvg(), TOWN_BUBBLE_BOX, TOWN_BUBBLE_BOX),
+    add('badge-star', badgeStarSvg(), 18, 18),
   ]);
+  // Shine animation is skipped entirely (never registered, never installed as a
+  // layer — see the pin-glint-shine install below) under prefers-reduced-motion.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!map.hasImage('glint-event')) map.addImage('glint-event', makeGlintImage(map, false));
+    if (!map.hasImage('glint-place')) map.addImage('glint-place', makeGlintImage(map, true));
+  }
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
 // within ~30m. Used both to collapse event pins per venue and to list "more at
@@ -1136,11 +1235,19 @@ export default function Home() {
     // rasterize it on demand so a pin never renders as a blank box.
     map.on('styleimagemissing', (e) => {
       const put = (svg, w, h) => rasterizeSprite(svg, w, h).then((d) => { if (!map.hasImage(e.id)) map.addImage(e.id, d, { pixelRatio: SPRITE_RATIO }); });
-      const pinCat = e.id.startsWith('pin-') ? e.id.slice(4) : null;
+      const goldCat = e.id.startsWith('pin-gold-') ? e.id.slice(9) : null;
+      const edCat = e.id.startsWith('pin-ed-') ? e.id.slice(7) : null;
+      const pinCat = !goldCat && !edCat && e.id.startsWith('pin-') ? e.id.slice(4) : null;
       const haloCat = e.id.startsWith('halo-') ? e.id.slice(5) : null;
-      if (pinCat && CATS[pinCat]) put(pinSpriteSvg(pinCat), PIN_BOX, PIN_BOX);
+      if (goldCat && CATS[goldCat]) put(pinSpriteSvg(goldCat, 'gold'), PIN_BOX_HL, PIN_BOX_HL);
+      else if (edCat && CATS[edCat]) put(pinSpriteSvg(edCat, 'editorial'), PIN_BOX_HL, PIN_BOX_HL);
+      else if (pinCat && CATS[pinCat]) put(pinSpriteSvg(pinCat), PIN_BOX, PIN_BOX);
       else if (haloCat && CATS[haloCat]) put(haloSpriteSvg(haloCat), HALO_BOX, HALO_BOX);
       else if (e.id === 'town-bubble') put(townBubbleSvg(), TOWN_BUBBLE_BOX, TOWN_BUBBLE_BOX);
+      else if (e.id === 'badge-star') put(badgeStarSvg(), 18, 18);
+      else if ((e.id === 'glint-event' || e.id === 'glint-place') && !map.hasImage(e.id) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        map.addImage(e.id, makeGlintImage(map, e.id === 'glint-place'));
+      }
     });
     // ONE click handler routes every map tap with explicit priority — cluster
     // bubble → pin → overview point → deselect. Layer-specific on('click', layer)
@@ -1193,13 +1300,16 @@ export default function Home() {
         if (cb) { zoomToBubble(cb); return; }
       }
       // 2. Pins (rendered from HANDOFF_LOW up), with a few-px tolerance box.
+      // Highlighted pins live on their own layer (base `pins` filters them out),
+      // so BOTH layers must be queried — else a paid pin is unclickable.
       let item = null;
-      if (map.getLayer('pins')) {
+      const pinLayers = ['pins', 'pins-highlight'].filter((l) => map.getLayer(l));
+      if (pinLayers.length) {
         const pad = 6;
         const box = [[e.point.x - pad, e.point.y - pad], [e.point.x + pad, e.point.y + pad]];
         // Nearest hit to the tap, not [0] — query order follows source order, so
         // with overlapping pins the first entry can be an occluded pin.
-        const hits = map.queryRenderedFeatures(box, { layers: ['pins'] });
+        const hits = map.queryRenderedFeatures(box, { layers: pinLayers });
         let best = null; let bestD = Infinity;
         for (const h of hits) {
           const p = map.project(h.geometry.coordinates);
@@ -1516,6 +1626,10 @@ export default function Home() {
         ...series.anchor,
         _seriesCount: series.members.length,
         _seriesIds: series.members.map((member) => member.id),
+        // The chosen anchor (lib/map-groups.js, picked by venue frequency) may not
+        // itself be the highlighted occurrence — a highlight must never be hidden
+        // by series collapse, so any member's highlight wins over the anchor's.
+        highlight: series.members.find((member) => member.highlight)?.highlight ?? series.anchor.highlight ?? null,
       });
     }
     return items;
@@ -1531,7 +1645,10 @@ export default function Home() {
       const group = venueGroups.get(ev.id);
       if (!group || seen.has(group)) continue;
       seen.add(group);
-      const representative = group.members.find((member) => member._seriesCount) || group.members[0];
+      // Highlight-presence beats the series/first-member picks: a paid or
+      // editorial pin must never be hidden behind an ordinary group member.
+      const representative = group.members.find((member) => member.highlight)
+        || group.members.find((member) => member._seriesCount) || group.members[0];
       const memberIds = group.members.flatMap((member) => member._seriesIds || [member.id]);
       reps.push({
         ...representative,
@@ -1577,6 +1694,9 @@ export default function Home() {
           color: CATS[cat].color, // token: CATS[cat].color (GL paint can't read --cc)
           community: isCommunitySubmitted(ev),
           count,
+          // Backend-owned field; a row that doesn't carry it yet (or ever) must
+          // read as "not highlighted", never throw or render a broken sprite.
+          highlight: ev.highlight || null,
         },
       };
     });
@@ -1749,9 +1869,11 @@ export default function Home() {
           'icon-opacity': ['interpolate', ['linear'], ['zoom'], HANDOFF_LOW, 0, HANDOFF_HIGH, ['case', SEL, 0.3, 0]],
         },
       });
-      // Base pins.
+      // Base pins — excludes highlighted features (pins-highlight below owns those)
+      // so a gold/editorial pin is never drawn twice.
       map.addLayer({
         id: 'pins', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        filter: ['!', IS_HIGHLIGHTED],
         layout: {
           'icon-image': ['concat', 'pin-', ['get', 'cat']],
           'icon-allow-overlap': true, 'text-allow-overlap': true,
@@ -1759,6 +1881,36 @@ export default function Home() {
         },
         paint: { 'icon-opacity': PIN_FADE_IN },
       });
+      // Highlighted pins (George-approved prototype, design-system.md sanctioned
+      // exception to "selection is the only ring/scale"): outline-ring sprite +
+      // size bump, data-driven by `highlight` — 'gold' (paid) ×1.15, 'editorial'
+      // ×1.10. Drawn above the base pins, below the selection overlay (a selected
+      // highlighted pin shows the normal 1.28× sprite via pins-selected — the
+      // ring/badge/shine step aside during selection is an accepted simplification).
+      map.addLayer({
+        id: 'pins-highlight', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        filter: IS_HIGHLIGHTED,
+        layout: {
+          'icon-image': ['case', ['==', ['get', 'highlight'], 'gold'], ['concat', 'pin-gold-', ['get', 'cat']], ['concat', 'pin-ed-', ['get', 'cat']]],
+          'icon-size': ['case', ['==', ['get', 'highlight'], 'gold'], 1.15, 1.1],
+          'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center',
+        },
+        paint: { 'icon-opacity': PIN_FADE_IN },
+      });
+      // Gold-only "occasional shine" — an animated StyleImage overlay matched to
+      // the gold pin's own scale. Never installed under prefers-reduced-motion
+      // (registerPinSprites skips registering the glint images entirely).
+      if (map.hasImage('glint-event') || map.hasImage('glint-place')) {
+        map.addLayer({
+          id: 'pin-glint-shine', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+          filter: ['==', ['get', 'highlight'], 'gold'],
+          layout: {
+            'icon-image': ['match', ['get', 'cat'], PLACE_CATS, 'glint-place', 'glint-event'],
+            'icon-size': 1.15, 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-anchor': 'center',
+          },
+          paint: { 'icon-opacity': PIN_FADE_IN },
+        });
+      }
       // Selected pin drawn on top at 1.28× — the scale bump. Fully opaque only for
       // the selected feature, so it covers the base pin; invisible otherwise.
       map.addLayer({
@@ -1801,9 +1953,12 @@ export default function Home() {
         },
       });
       // Community (genuinely user-submitted) trust dot, --community, top-left.
+      // Excludes gold-highlighted features — the star badge (below) owns that
+      // corner slot for gold pins; in practice a paid placement is never also a
+      // community submission, but the filter guards the corner either way.
       map.addLayer({
         id: 'pin-community', type: 'circle', source: 'result-pins', minzoom: HANDOFF_LOW,
-        filter: ['==', ['get', 'community'], true],
+        filter: ['all', ['==', ['get', 'community'], true], ['!=', ['get', 'highlight'], 'gold']],
         paint: {
           'circle-color': '#e59500', 'circle-radius': 5.5, // token: --community #e59500
           'circle-stroke-width': 1.5, 'circle-stroke-color': '#ffffff',
@@ -1812,8 +1967,23 @@ export default function Home() {
           'circle-opacity': PIN_FADE_IN, 'circle-stroke-opacity': PIN_FADE_IN,
         },
       });
+      // Gold star badge, same top-left corner slot as pin-community above.
+      map.addLayer({
+        id: 'pin-badge-star', type: 'symbol', source: 'result-pins', minzoom: HANDOFF_LOW,
+        filter: ['==', ['get', 'highlight'], 'gold'],
+        layout: {
+          'icon-image': 'badge-star', 'icon-allow-overlap': true, 'icon-ignore-placement': true,
+          'icon-anchor': 'center', 'icon-pitch-alignment': 'viewport',
+        },
+        paint: {
+          'icon-translate': [-12, -12], 'icon-translate-anchor': 'viewport',
+          'icon-opacity': PIN_FADE_IN,
+        },
+      });
       map.on('mouseenter', 'pins', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'pins', () => { map.getCanvas().style.cursor = ''; });
+      map.on('mouseenter', 'pins-highlight', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'pins-highlight', () => { map.getCanvas().style.cursor = ''; });
     };
     // spritesReady only flips after 'load' has fired (registration runs in the
     // load handler), so install can run directly. The old isStyleLoaded() check
@@ -2467,7 +2637,9 @@ export default function Home() {
                     {ev.all_day ? t.allDay : hasTime(ev.starts_at) ? ev.starts_at.slice(11, 16) : t.timeTbd}{locDistMeta(ev)}
                   </span>
                 </span>
-                {(community || online || ev.is_free === 1) && <span className="rowbadges">
+                {(community || online || ev.is_free === 1 || ev.highlight === 'gold') && <span className="rowbadges">
+                  {/* Legal disclosure — gold (paid) only, never editorial (design-system.md). */}
+                  {ev.highlight === 'gold' && <span className="source-tag gold">{t.adTag}</span>}
                   {community && <span className="source-tag community">{t.communitySource}</span>}
                   {online && <span className="source-tag">{t.onlineBadge}</span>}
                   {ev.is_free === 1 && <span className="tag">{t.freeTag}</span>}
@@ -2493,7 +2665,8 @@ export default function Home() {
                       {t.cats[cat]}{locDistMeta(pl)}
                     </span>
                   </span>
-                  {(community || online || (!st.always && !st.unknown)) && <span className="rowbadges">
+                  {(community || online || (!st.always && !st.unknown) || pl.highlight === 'gold') && <span className="rowbadges">
+                    {pl.highlight === 'gold' && <span className="source-tag gold">{t.adTag}</span>}
                     {community && <span className="source-tag community">{t.communitySource}</span>}
                     {online && <span className="source-tag">{t.onlineBadge}</span>}
                     {!st.always && !st.unknown && <span className={`tag ${st.open ? '' : 'closed'}`}>{st.open ? t.openNow : t.closedNow}</span>}
@@ -2568,7 +2741,11 @@ export default function Home() {
           {onClose && <button className="closebtn" onClick={onClose} aria-label={t.close}><X size={18} weight="bold" /></button>}
         </div>
         <div className="dbody">
-          <h2>{ev.title}</h2>
+          <div className="dtitle-row">
+            <h2>{ev.title}</h2>
+            {/* Legal disclosure — gold (paid) only, never editorial (design-system.md). */}
+            {ev.highlight === 'gold' && <span className="source-tag gold">{t.adTag}</span>}
+          </div>
           {/* Crowd-sourced correction, surfaced only once REPORT_MIN independent
               people agree (server-side). A wrong event destroys trust faster than
               a missing one — so say so loudly, above the details themselves. */}
@@ -3116,6 +3293,7 @@ export default function Home() {
             <span><i className="legend-pin event" />{t.legendEvent}</span>
             <span><i className="legend-pin place" />{t.legendPlace}</span>
             <span><i className="legend-pin event community" />{t.legendCommunity}</span>
+            <span><i className="legend-pin event gold" />{t.legendHighlight}</span>
             <span><i className="legend-pin event count" />{t.moreAtVenue}</span>
             <span><i className="legend-town-group">5</i>{t.legendTownGroup}</span>
             <span><i className="legend-cluster">12</i>{t.legendCluster}</span>

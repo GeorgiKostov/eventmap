@@ -192,3 +192,20 @@ create table if not exists reactions (
   unique (event_id, kind, ip_hash)
 );
 create index if not exists reactions_event_idx on reactions(event_id, kind);
+
+-- Paid/editorial placement (admin desk, app/admin/highlights/page.js). A row is
+-- one ACTIVE PERIOD, not a toggle — history accrues (new period = new row,
+-- never an update-in-place), so "who was highlighted when" stays auditable.
+-- Only gold (paid) + editorial (showcased) for now (George's call). Consulted
+-- by mapPins' per-event LATERAL join (lib/db.js) to pick the strongest
+-- currently-active tier. scripts/migrate-highlights.mjs
+create table if not exists highlights (
+  id         bigint generated always as identity primary key,
+  event_id   bigint not null references events(id) on delete cascade,
+  tier       text not null check (tier in ('gold','editorial')),
+  starts_at  text not null,   -- Vienna wall-clock DATE 'YYYY-MM-DD', first active day
+  ends_at    text not null,   -- inclusive last active day
+  note       text,            -- internal: who paid / why showcased
+  created_at timestamptz default now()
+);
+create index if not exists highlights_event_idx on highlights(event_id);

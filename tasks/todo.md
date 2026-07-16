@@ -21,6 +21,51 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       immutable-cached per weekend URL so a mid-week Regenerate can show a stale thumb until
       hard-refresh; no onError fallback on desk card imgs.
 
+## Highlighted/sponsored pins (2026-07-16, George: "highlight or elevate certain locations… sponsor pays or showcase e.g. Pflasterspektakel") — SHIPPED
+- [x] **BUILT (George picked B+star for gold, editorial as suggested).** `highlights` table (migration
+      applied to prod, 0 rows), lib/db.js `highlightJoin` threaded through mapPins/searchEvents/
+      eventsByIds/getEvent + cap exemption (active highlight = first sort key, can't be trimmed by
+      PLACE_CAP or LIMIT 800), /api/admin/highlights (GET/POST/clear, isAdmin), /admin/highlights desk
+      (search → tier → period → note; active vs scheduled/past lists). Map: `pin-gold-*`/`pin-ed-*`
+      outline sprites (ring outside white border, 1.15×/1.1×), `badge-star` layer (community dot yields
+      the corner), glint = animated StyleImage that sleeps between ~5.5s sweeps (skipped entirely under
+      prefers-reduced-motion), legend row, „Anzeige"/Sponsored/Реклама tag on gold list rows + detail
+      (editorial unlabeled by design). Architect review caught: highlighted pins were UNCLICKABLE (click
+      handler queried only the `pins` layer, which now filters them out) + glint stale-frame on throttled
+      tabs — both fixed. Verified: build green, 79 tests, DB roundtrip on prod (gold flows to mapPins/
+      search/getEvent, expired periods ignored, first-row cap exemption), API guards 403/400/422/404,
+      desk login + list + clear driven in browser, Sponsored tag on row + detail. Test rows cleaned.
+- [ ] **George: real-browser map check** (WebGL doesn't render in the agent pane): gold pin = ring +
+      star + shine sweep every ~5.5s; editorial = raspberry ring only; both clickable; selection still
+      works on them (selected state shows the normal 1.28× sprite — accepted simplification).
+- [ ] **Before the FIRST PAID gold goes live** (compliance doc 2026-07-12): payer identity surfaced on
+      the detail view + a reachable ranking-disclosure note. Editorial showcases need neither.
+- [ ] Later: custom gold icons (needs a marker-grammar amendment), billing history views, digest
+      inclusion (needs its own ad label), self-serve intake.
+
+## Highlight prototyping (2026-07-16, same thread) — superseded by the shipped build above
+- [x] Visual prototype (Sonnet agent): 8 comparison panels on simulated basemap with REAL pin sprites/colors
+      (artifact https://claude.ai/code/artifact/69c1af62-1405-470c-a349-353902c4bbbf; source in session
+      scratchpad highlight-proto.html). Variants: ember/fire glow, gold/silver/bronze pulsing-halo tiers
+      (one grammar, three intensities), radar ping (on-brand), custom-icon showcase, density stress test.
+      All GL-feasible: static ring = extra sprite; pulses/pings = animated map.addImage (pulsing-dot pattern).
+- [x] Implementation plan (Opus agent, in session transcript 2026-07-16): separate `highlights` table
+      (tier enum bronze|silver|gold|editorial, Vienna date-only period, note; = future billing ledger),
+      query-time active join in mapPins (no cron; event expiry drops highlight for free), cap exemption so
+      paid pins never fall past LIMIT 800, /admin/highlights desk cloned from Thursday desk, search via
+      existing /api/events?q=.
+- [x] **v2 per George (2026-07-16): one grammar, gold-only paid + editorial, NO pulsing background.**
+      Treatment = golden outline ring outside the white pin border, pin 1.15×. Artifact updated (same URL)
+      with animation options A static / B occasional shine sweep / C ray ticks / D ring blend in-out /
+      E star-badge-only, F editorial outline in CI raspberry #c93a5b (static, 1.1×, no badge), G density
+      test w/ gold combo (outline+star+shine) + editorial next to a family pin (CI-collision check).
+      Recommended: B+star combo for gold; D fallback; drop C. Silver/bronze/ember dropped per George.
+- [ ] **George's calls before building:** (1) pick gold animation (A/B/D/E or B+star combo); (2) paid
+      gold REQUIRES the „Anzeige" label on list/card (docs/decisions/2026-07-12-paid-placement-compliance.md
+      + adDisclosure promise) — pin styling alone is not enough; editorial gets NO label; (3) does paid
+      also lift list ORDER (triggers P2B ranking-disclosure page)? (4) family-category editorial picks are
+      raspberry-on-raspberry (white border keeps it legible — see artifact panel G).
+
 ## Per-event social posting + cross-ledger dedup (2026-07-15, George: "post individual fotos… different days… dont get stuff already posted") — SHIPPED (551047a)
 - [x] Each digest event posts on its own (desk row: IG/FB/Preview; "post next unposted"; CLI --item/--next),
       sharing one `publishWithLedger` core with the bulk carousel. Per-event ledger key

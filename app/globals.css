@@ -12,6 +12,7 @@
   --warn: #b26a1b;
   --warn-soft: #fdf2e4; /* crowd-reported problem banner (.dflag) */
   --community: #e59500; /* ring around genuinely user-submitted pins */
+  --gold: #e8a800; /* paid-highlight ring/badge + "Anzeige" disclosure tag (design-system.md highlight treatment) */
   --shadow-sm: 0 1px 3px rgba(23, 32, 28, 0.08), 0 1px 2px rgba(23, 32, 28, 0.06);
   --shadow-md: 0 4px 16px rgba(23, 32, 28, 0.12);
   --shadow-lg: 0 12px 40px rgba(23, 32, 28, 0.18);
@@ -311,6 +312,10 @@ a { color: inherit; }
 }
 /* same --community trust token as the pin corner badge + legend dot */
 .source-tag.community { border-style: dashed; border-color: color-mix(in srgb, var(--community) 60%, var(--line)); color: var(--ink); }
+/* Legal disclosure on gold (paid) listings only — same --gold token as the map
+   pin ring + star badge. Solid border (not dashed) so it never reads as the
+   community/approximate grammar above. */
+.source-tag.gold { border-color: color-mix(in srgb, var(--gold) 55%, var(--line)); background: color-mix(in srgb, var(--gold) 14%, var(--panel2)); color: var(--ink); font-weight: 800; }
 .empty { padding: 30px 20px; text-align: center; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
 .empty button { color: var(--accent); font-weight: 700; margin-top: 6px; }
 /* Header chip for a town-group-scoped list (tapped a dashed town bubble on the
@@ -358,6 +363,9 @@ a { color: inherit; }
   border-radius: 99px; background: var(--community); border: 1px solid #fff;
 }
 .legend-pin.count::after { content: "3"; position: absolute; top: -6px; right: -6px; min-width: 11px; height: 11px; padding: 0 2px; border-radius: 7px; background: var(--ink); color: #fff; border: 1px solid #fff; font-size: 7px; line-height: 10px; text-align: center; }
+/* Gold-highlight ring — same --gold token as the map pin's outline ring +
+   star badge (design-system.md marker grammar: every signal needs a legend row). */
+.legend-pin.gold { box-shadow: 0 0 0 2px var(--gold), 0 1px 3px rgba(23, 32, 28, 0.28); }
 /* Dashed neutral bubble — the town-group marker (map-legend row + the
    'town-bubble' GL sprite share this look: pale fill, dashed border, count
    inside). Distinct from the solid dark .legend-cluster ("zoom in") — this one
@@ -548,6 +556,9 @@ a { color: inherit; }
 .dhero .closebtn { right: 12px; }
 .dbody { flex: 1 1 auto; padding: 18px 20px 24px; overflow-y: auto; }
 .dbody h2 { margin: 0 0 4px; font-family: var(--font-display); font-size: 22px; line-height: 1.2; letter-spacing: -0.01em; }
+/* Wraps the title + the gold-only "Anzeige"/"Sponsored" disclosure tag (legal
+   requirement — unmissable but not shouty, see .source-tag.gold above). */
+.dtitle-row { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
 .dwhen { color: var(--accent); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; margin-bottom: 12px; }
 .dwhen.place-open.open { color: var(--good); }
 .dwhen.place-open.closed { color: var(--warn); }
