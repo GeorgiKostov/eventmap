@@ -30,6 +30,7 @@ import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderf
 import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
 import { parseSiteswiftEvents } from '../lib/siteswift-events.js';
 import { kalkalpenDetailUrls, parseKalkalpenDetail } from '../lib/kalkalpen-events.js';
+import { fetchJeventsEvents } from '../lib/jevents-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
@@ -638,9 +639,10 @@ async function parseKalkalpenSource(sitemapXml, src) {
 }
 
 // Waterfall: JSON-LD → iCal → wien-erleben (cms-gated, two-hop) → GEM2GO
-// (cms-gated) → siteswift (cms-gated) → kalkalpen (cms-gated, two-hop) → DVV
-// hCalendar RSS (cms-gated) → sitepark/hwveranstaltung/wordpress-ical/
-// kinderfreunde (cms-gated) → generic RSS/Atom. First route
+// (cms-gated) → siteswift (cms-gated) → kalkalpen (cms-gated, two-hop) →
+// jevents (cms-gated, two-hop: month.calendar listings → icalrepeat.detail
+// pages) → DVV hCalendar RSS (cms-gated) → sitepark/hwveranstaltung/
+// wordpress-ical/kinderfreunde (cms-gated) → generic RSS/Atom. First route
 // that yields ≥1 valid event wins and the LLM call is skipped entirely.
 // (Naturfreunde is not in this waterfall — its registered source URL is a
 // POST-only JSON API that returns nothing meaningful on a plain GET, so it's
@@ -680,6 +682,11 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'kalkalpen') {
     const kalkalpenEvents = await parseKalkalpenSource(html, src);
     if (kalkalpenEvents.length) return { route: 'kalkalpen', events: kalkalpenEvents };
+  }
+
+  if (src.cms === 'jevents') {
+    const jeventsEvents = await fetchJeventsEvents(src);
+    if (jeventsEvents.length) return { route: 'jevents', events: jeventsEvents };
   }
 
   if (src.cms === 'dvv') {

@@ -18,6 +18,7 @@ import fs from 'fs';
 import path from 'path';
 import { listSourcesForDedup, closeDb } from '../lib/db.js';
 import { decodeEntities } from '../lib/entities.js';
+import { fingerprintCms, structuredSignals, looksLikeCalendar } from '../lib/cms-fingerprint.js';
 
 const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
 const BOT_TOKEN = 'umkreisbot';
@@ -177,28 +178,13 @@ function eventPageCandidates(siteUrl, html) {
     .map((c) => c.url);
 }
 
-// --- CMS fingerprint (heuristics lifted from scripts/crawl.mjs's GEM2GO
-// waterfall — see its variant comments — plus generic structured-data
-// fallbacks the task asked for) ---
-function fingerprintCms(html, url) {
-  if (/veranstaltungcmsliste/i.test(html)) return { cms: 'gem2go', signal: 'veranstaltungcmsliste container' };
-  if (/rasterListEntry|bemCardContainer|vaCollapsibleListItem/.test(html)) return { cms: 'gem2go', signal: 'gem2go variant marker' };
-  if (/class="[^"]*ris_table[^"]*"/.test(html) && /td_va/.test(html)) return { cms: 'gem2go', signal: 'ris-style table (td_va)' };
-  if (/\/system\/web\/.*\.aspx.*menuonr=/i.test(url)) return { cms: 'ris', signal: 'system/web/*.aspx?menuonr= URL pattern' };
-  return null;
-}
-function structuredSignals(html) {
-  const jsonld = /<script[^>]+type="application\/ld\+json"[^>]*>[\s\S]*?"@type"\s*:\s*"Event"/i.test(html);
-  const ical = /type="text\/calendar"|href="[^"]*\.ics(\?|")|webcal:/i.test(html);
-  const rss = /type="application\/(rss|atom)\+xml"/i.test(html);
-  return { jsonld, ical, rss };
-}
-// Weak confirmation this is actually an event calendar, not an empty/
-// administrative page: some 4-digit year plus a German date-ish token,
-// or an explicit event-page structured signal.
-function looksLikeCalendar(html) {
-  return /\b20\d{2}\b/.test(html) && /veranstalt|termin/i.test(html);
-}
+// CMS fingerprint + structured-signal detection now live in
+// lib/cms-fingerprint.js (extracted 2026-07-16 so scripts/fingerprint-sources.mjs
+// can reuse the exact same markers instead of hand-rolling a second copy).
+// Note: that module's fingerprintCms() no longer classifies the bare
+// `/system/web/*.aspx?menuonr=` URL pattern as cms='ris' — HTML-level
+// verification (2026-07-16 fingerprint sweep) showed those pages render the
+// identical gem2go markup, so they're classified 'gem2go' there instead.
 
 // --- async pool ---
 async function pool(items, concurrency, worker) {
