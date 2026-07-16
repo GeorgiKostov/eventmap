@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getChannel, weekendWindow } from '../../../../lib/city-channels.js';
-import { loadDigestFor } from '../../../../lib/digest.js';
+import { loadDigestFor, MIN_INDEXABLE_ITEMS } from '../../../../lib/digest.js';
 import { eventsByIds } from '../../../../lib/db.js';
 import { CATS } from '../../../../lib/icons.js';
 
@@ -91,7 +91,7 @@ export async function generateMetadata({ params }) {
     // A thin page is worse than no page: if the weekend produced almost nothing,
     // keep it reachable by link but out of the index — a stack of near-empty
     // city pages is exactly what Google treats as a doorway farm.
-    robots: digest.items.length >= 3 ? undefined : { index: false, follow: true },
+    robots: digest.items.length >= MIN_INDEXABLE_ITEMS ? undefined : { index: false, follow: true },
     openGraph: {
       title,
       description,

@@ -2,58 +2,16 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { CATS } from '../../../lib/icons.js';
+import { S, AdminShell, formatVienna } from '../../../lib/admin-ui.js';
 
 // The Thursday desk (docs/ops/weekly-automation.md §3). Everything George needs
 // for the weekly growth motion on one screen: this weekend's picks, the 6
 // carousel cards to download, the caption to paste, the email preview, and the
 // send button. ~10 minutes, once a week, per city.
 //
-// Auth is a PASSWORD, not a URL token: you type it once, the server sets an
-// httpOnly signed cookie, and you stay logged in on that device for 30 days. A
-// `?token=` in the URL would sit in browser history, in the Referer of every
-// outbound link, and in any screen-share. See lib/admin-auth.js.
-
-const S = {
-  page: { minHeight: '100vh', background: '#F2F2EE', color: '#212B28', fontFamily: 'system-ui, sans-serif', padding: '24px 16px' },
-  // marginLeft/Right, not the `margin` shorthand: this object gets spread
-  // together with S.card (which sets marginBottom), and React warns — rightly —
-  // that mixing shorthand with longhand for the same property is a styling bug
-  // waiting to happen.
-  wrap: { maxWidth: 960, marginLeft: 'auto', marginRight: 'auto' },
-  card: { background: '#fff', borderRadius: 14, padding: 20, marginBottom: 16 },
-  h1: { fontSize: 24, fontWeight: 800, margin: '0 0 4px' },
-  muted: { color: '#4A5652', fontSize: 14 },
-  btn: { background: '#C93A5B', color: '#fff', border: 0, borderRadius: 9, padding: '11px 16px', fontWeight: 700, fontSize: 14, cursor: 'pointer' },
-  ghost: { background: '#fff', color: '#212B28', border: '1px solid #DCDCD6', borderRadius: 9, padding: '10px 14px', fontWeight: 600, fontSize: 13, cursor: 'pointer' },
-  row: { display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' },
-  item: { display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 0', borderTop: '1px solid #EEEEE9' },
-  pre: { whiteSpace: 'pre-wrap', background: '#F7F7F4', borderRadius: 10, padding: 14, fontSize: 13, lineHeight: 1.6, margin: 0 },
-  tab: (on) => ({ ...S.ghost, background: on ? '#212B28' : '#fff', color: on ? '#fff' : '#212B28', borderColor: on ? '#212B28' : '#DCDCD6' }),
-  subhead: { fontWeight: 700, fontSize: 13, margin: '18px 0 8px' },
-  dot: (color) => ({ width: 8, height: 8, borderRadius: 999, background: color || '#999', display: 'inline-block', marginRight: 7, flexShrink: 0 }),
-  thumb: { width: 72, height: 90, objectFit: 'cover', borderRadius: 8, border: '1px solid #E4E4DD', background: '#fff', display: 'block' },
-  chip: { fontSize: 12, fontWeight: 700, borderRadius: 999, padding: '2px 9px', textDecoration: 'none', display: 'inline-block' },
-  chipPosted: { color: '#2E9C8C', background: '#EAF7F3' },
-  chipCarousel: { color: '#6D7876', background: '#F0F0EC', fontWeight: 600 },
-  tierChip: { fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 999, marginLeft: 6, letterSpacing: 0.2 },
-  previewPanel: { border: '1px dashed #DCDCD6', borderRadius: 10, padding: 14, marginBottom: 16, background: '#FAFAF7' },
-};
-
-// Vienna-pinned, compact: "Mi 15.7. 14:02" (de-AT locale, per CLAUDE.md rule 3
-// — this is a display formatter only, not a time computation, but it still
-// must show the wall-clock Vienna time a post actually went out at).
-function formatVienna(iso) {
-  if (!iso) return '';
-  try {
-    const parts = new Intl.DateTimeFormat('de-AT', {
-      timeZone: 'Europe/Vienna', weekday: 'short', day: '2-digit', month: 'numeric', hour: '2-digit', minute: '2-digit',
-    }).formatToParts(new Date(iso));
-    const get = (t) => parts.find((p) => p.type === t)?.value || '';
-    return `${get('weekday')} ${get('day')}.${get('month')}. ${get('hour')}:${get('minute')}`;
-  } catch {
-    return '';
-  }
-}
+// Auth/nav/logout chrome lives in AdminShell (lib/admin-ui.js) — this page
+// only owns what's below that: channel picker, previews, publish buttons,
+// ledgers.
 
 const TIER_LABEL = {
   2: { label: 'official+', style: { background: '#FBEEF1', color: '#C93A5B' } },
@@ -73,9 +31,21 @@ function SourceLine({ source, tier }) {
   );
 }
 
+// The desk body must be a CHILD of AdminShell, never the component that renders
+// it: React runs a parent's effects regardless of what that parent returns, so
+// holding the desk's state here would fire every load while still logged out
+// (one 403 each) and — since `authed` lives inside the shell — never re-fire on
+// login, leaving a freshly-logged-in desk empty. As a child it mounts the moment
+// the shell confirms the session, and mounting is exactly what runs the loads.
 export default function ThursdayPage() {
-  const [authed, setAuthed] = useState(null); // null = still checking
-  const [password, setPassword] = useState('');
+  return (
+    <AdminShell title="Thursday desk" subtitle="Weekend picks → carousel + caption + newsletter. Post manually, send when it looks right.">
+      <ThursdayDesk />
+    </AdminShell>
+  );
+}
+
+function ThursdayDesk() {
   const [channel, setChannel] = useState('linz');
   const [data, setData] = useState(null);
   const [social, setSocial] = useState(null);
@@ -86,42 +56,12 @@ export default function ThursdayPage() {
   // { kind: 'bulk'|'item', target, images: [url,...], caption, title }
   const [preview, setPreview] = useState(null);
 
-  // Ask the server whether this browser already holds a valid session cookie.
+  // Mounted only once logged in (see ThursdayPage), so this only needs the
+  // ?channel= deep link, not an auth check.
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     if (p.get('channel')) setChannel(p.get('channel'));
-    fetch('/api/admin/login')
-      .then((r) => r.json())
-      .then((j) => setAuthed(!!j.authed))
-      .catch(() => setAuthed(false));
   }, []);
-
-  async function login(e) {
-    e.preventDefault();
-    setBusy('login');
-    setErr('');
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'login failed');
-      setPassword('');
-      setAuthed(true);
-    } catch (e2) {
-      setErr(e2.message);
-    } finally {
-      setBusy('');
-    }
-  }
-
-  async function logout() {
-    await fetch('/api/admin/login', { method: 'DELETE' });
-    setAuthed(false);
-    setData(null);
-  }
 
   const load = useCallback(async (slug) => {
     setBusy('load');
@@ -152,12 +92,10 @@ export default function ThursdayPage() {
   }, []);
 
   useEffect(() => {
-    if (authed) {
-      load(channel);
-      loadSocial(channel);
-      setPreview(null); // stale card/caption from another channel would mislead
-    }
-  }, [authed, channel, load, loadSocial]);
+    load(channel);
+    loadSocial(channel);
+    setPreview(null); // stale card/caption from another channel would mislead
+  }, [channel, load, loadSocial]);
 
   async function act(action, extra = {}) {
     setBusy(action);
@@ -225,60 +163,13 @@ export default function ThursdayPage() {
     }
   }
 
-  if (authed === null) {
-    return (
-      <div style={S.page}>
-        <div style={{ ...S.wrap, ...S.card }}><p style={S.muted}>…</p></div>
-      </div>
-    );
-  }
-
-  if (!authed) {
-    return (
-      <div style={S.page}>
-        <div style={{ maxWidth: 380, marginLeft: 'auto', marginRight: 'auto', ...S.card, marginTop: '12vh' }}>
-          <h1 style={S.h1}>Thursday desk</h1>
-          <p style={{ ...S.muted, margin: '0 0 16px' }}>Enter the admin password.</p>
-          <form onSubmit={login}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              autoFocus
-              autoComplete="current-password"
-              style={{
-                width: '100%', boxSizing: 'border-box', padding: '12px 14px', fontSize: 15,
-                border: '1px solid #DCDCD6', borderRadius: 9, marginBottom: 10,
-              }}
-            />
-            <button type="submit" style={{ ...S.btn, width: '100%' }} disabled={busy === 'login' || !password}>
-              {busy === 'login' ? 'Checking…' : 'Log in'}
-            </button>
-          </form>
-          {err ? <p style={{ color: '#C93A5B', fontSize: 13, margin: '12px 0 0' }}>{err}</p> : null}
-        </div>
-      </div>
-    );
-  }
-
   // Cards need no token: they're our own marketing art, and a public URL is
   // what an Instagram/Facebook Graph API post would have to fetch later anyway.
   const cardUrl = (path) => path;
 
   return (
-    <div style={S.page}>
-      <div style={S.wrap}>
+    <>
         <div style={S.card}>
-          <div style={{ ...S.row, justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <h1 style={S.h1}>Thursday desk</h1>
-              <p style={{ ...S.muted, margin: '0 0 14px' }}>
-                Weekend picks → carousel + caption + newsletter. Post manually, send when it looks right.
-              </p>
-            </div>
-            <button style={S.ghost} onClick={logout}>Log out</button>
-          </div>
           <div style={S.row}>
             {(data?.channels || [{ slug: 'linz', label: 'Linz' }]).map((c) => (
               <button key={c.slug} style={S.tab(c.slug === channel)} onClick={() => setChannel(c.slug)}>
@@ -608,7 +499,6 @@ export default function ThursdayPage() {
             ) : null}
           </>
         ) : null}
-      </div>
-    </div>
+    </>
   );
 }

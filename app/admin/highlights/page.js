@@ -1,33 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { S, AdminShell } from '../../../lib/admin-ui.js';
 
 // Highlights desk: set/clear paid ("gold") and editorial event placement
 // (db/schema.sql `highlights`, app/api/admin/highlights/route.js). Search an
 // event, pick a tier and a date range, hit "Set highlight" — mapPins picks up
 // the strongest active period automatically (lib/db.js highlightJoin()).
 //
-// Auth scaffold copied verbatim from app/admin/thursday/page.js — same
-// password-cookie flow (lib/admin-auth.js), same style object.
+// Auth/nav/logout chrome lives in AdminShell (lib/admin-ui.js).
 
-const S = {
-  page: { minHeight: '100vh', background: '#F2F2EE', color: '#212B28', fontFamily: 'system-ui, sans-serif', padding: '24px 16px' },
-  wrap: { maxWidth: 720, marginLeft: 'auto', marginRight: 'auto' },
-  card: { background: '#fff', borderRadius: 14, padding: 20, marginBottom: 16 },
-  h1: { fontSize: 24, fontWeight: 800, margin: '0 0 4px' },
-  muted: { color: '#4A5652', fontSize: 14 },
-  btn: { background: '#C93A5B', color: '#fff', border: 0, borderRadius: 9, padding: '11px 16px', fontWeight: 700, fontSize: 14, cursor: 'pointer' },
-  ghost: { background: '#fff', color: '#212B28', border: '1px solid #DCDCD6', borderRadius: 9, padding: '10px 14px', fontWeight: 600, fontSize: 13, cursor: 'pointer' },
-  row: { display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' },
-  item: { display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 0', borderTop: '1px solid #EEEEE9' },
-  input: { width: '100%', boxSizing: 'border-box', padding: '11px 13px', fontSize: 14, border: '1px solid #DCDCD6', borderRadius: 9 },
-  subhead: { fontWeight: 700, fontSize: 13, margin: '18px 0 8px' },
-  chip: { fontSize: 12, fontWeight: 700, borderRadius: 999, padding: '2px 9px', display: 'inline-block' },
-  tierBtn: (on, color) => ({
-    ...S.ghost, borderColor: on ? color : '#DCDCD6', color: on ? color : '#212B28',
-    background: on ? `${color}1A` : '#fff', fontWeight: 700,
-  }),
-};
+// Narrower than the shared S.wrap (960): this desk is a search form, not a
+// wide dashboard.
+const WRAP = { maxWidth: 720, marginLeft: 'auto', marginRight: 'auto' };
 
 const TIERS = [
   { id: 'gold', label: 'Gold', color: '#E8A800' },
@@ -48,9 +33,18 @@ function addDays(dateStr, n) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC' }).format(t);
 }
 
+// Desk body is a CHILD of AdminShell, not its parent — see the same note in
+// app/admin/thursday/page.js: a parent's effects run whatever it renders, so
+// loading here would 403 while logged out and never retry after login.
 export default function HighlightsPage() {
-  const [authed, setAuthed] = useState(null);
-  const [password, setPassword] = useState('');
+  return (
+    <AdminShell title="Highlights desk" subtitle="Set or clear paid/editorial event placement.">
+      <HighlightsDesk />
+    </AdminShell>
+  );
+}
+
+function HighlightsDesk() {
   const [busy, setBusy] = useState('');
   const [err, setErr] = useState('');
   const [note, setNote] = useState('');
@@ -68,13 +62,6 @@ export default function HighlightsPage() {
   const [endsAt, setEndsAt] = useState(todayStr(14));
   const [formNote, setFormNote] = useState('');
 
-  useEffect(() => {
-    fetch('/api/admin/login')
-      .then((r) => r.json())
-      .then((j) => setAuthed(!!j.authed))
-      .catch(() => setAuthed(false));
-  }, []);
-
   const loadHighlights = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/highlights');
@@ -86,36 +73,8 @@ export default function HighlightsPage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (authed) loadHighlights();
-  }, [authed, loadHighlights]);
-
-  async function login(e) {
-    e.preventDefault();
-    setBusy('login');
-    setErr('');
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'login failed');
-      setPassword('');
-      setAuthed(true);
-    } catch (e2) {
-      setErr(e2.message);
-    } finally {
-      setBusy('');
-    }
-  }
-
-  async function logout() {
-    await fetch('/api/admin/login', { method: 'DELETE' });
-    setAuthed(false);
-    setHighlights(null);
-  }
+  // AdminShell doesn't mount this component until the session is confirmed.
+  useEffect(() => { loadHighlights(); }, [loadHighlights]);
 
   // Debounced global event search (≥2 chars, 400ms) — same endpoint the map's
   // own search box uses.
@@ -202,56 +161,11 @@ export default function HighlightsPage() {
     }
   }
 
-  if (authed === null) {
-    return (
-      <div style={S.page}>
-        <div style={{ ...S.wrap, ...S.card }}><p style={S.muted}>…</p></div>
-      </div>
-    );
-  }
-
-  if (!authed) {
-    return (
-      <div style={S.page}>
-        <div style={{ maxWidth: 380, marginLeft: 'auto', marginRight: 'auto', ...S.card, marginTop: '12vh' }}>
-          <h1 style={S.h1}>Highlights desk</h1>
-          <p style={{ ...S.muted, margin: '0 0 16px' }}>Enter the admin password.</p>
-          <form onSubmit={login}>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              autoFocus
-              autoComplete="current-password"
-              style={{ ...S.input, marginBottom: 10 }}
-            />
-            <button type="submit" style={{ ...S.btn, width: '100%' }} disabled={busy === 'login' || !password}>
-              {busy === 'login' ? 'Checking…' : 'Log in'}
-            </button>
-          </form>
-          {err ? <p style={{ color: '#C93A5B', fontSize: 13, margin: '12px 0 0' }}>{err}</p> : null}
-        </div>
-      </div>
-    );
-  }
-
   const active = (highlights || []).filter((h) => h.active);
   const inactive = (highlights || []).filter((h) => !h.active);
 
   return (
-    <div style={S.page}>
-      <div style={S.wrap}>
-        <div style={S.card}>
-          <div style={{ ...S.row, justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <h1 style={S.h1}>Highlights desk</h1>
-              <p style={{ ...S.muted, margin: '0 0 4px' }}>Set or clear paid/editorial event placement.</p>
-            </div>
-            <button style={S.ghost} onClick={logout}>Log out</button>
-          </div>
-        </div>
-
+    <div style={WRAP}>
         {err ? (
           <div style={{ ...S.card, borderLeft: '4px solid #C93A5B' }}>
             <strong>Error:</strong> {err}
@@ -347,7 +261,6 @@ export default function HighlightsPage() {
             <HighlightRow key={h.id} h={h} busy={busy} onClear={clear} />
           ))}
         </div>
-      </div>
     </div>
   );
 }
