@@ -2,6 +2,86 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Physical distribution + festival partnerships (2026-07-16, George: "stickers which we can stick around cities, generic, okolo.events, events around you with a qr code, use our CI, we need a cheap bulk provider, give it to friends to spread around, also think of other ways" · "i contacted a friend at ars electronica… they give us data, we list it and highlight it, in exchange they add us to their marketing materials, and let us use them as a reference… we probably dont need to charge them unless u say this is good practice") — QUEUED, nothing built
+
+### Stickers
+- [ ] **Art: generic on purpose = one SKU, reprintable forever.** CI raspberry `#c93a5b` + the
+      wordmark SVG (`docs/design/design-system.md` is the source of truth — cite it, don't invent
+      tokens), `okolo.events`, the value line in the local language ("Was ist los um dich herum?"),
+      QR. Vinyl if it goes outdoors, paper if indoor-only (cheaper — and see the legal item).
+- [ ] **The QR target is the real decision, and "generic" costs us attribution.**
+      `/weekend/<city>` already exists as the stable per-city link (built for exactly this — bio/QR,
+      listed on /admin/pages), but a generic sticker can't know the city. The map geolocates, so
+      generic → `okolo.events` works. The loss is knowing what worked. Cheap fix: **one short code
+      per friend/batch** — identical art, `okolo.events/l/<code>` → `utm_source=sticker&utm_campaign=<code>`.
+      5 codes answers "whose patch converted" for ~nothing. Needs a `/l/<code>` route (doesn't exist).
+- [ ] **Cheap bulk provider — QUOTE it, don't guess.** Ask ~1,000 units, 5–7 cm, vinyl outdoor +
+      paper indoor: **druck.at** (AT), **Flyeralarm** (AT/DE), Onlineprinters/diedruckerei,
+      WIRmachenDRUCK, Helloprint, StickerApp, Sticker Mule (fastest, priciest). No price recorded
+      here on purpose — none of them has been checked, and a made-up anchor is worse than none.
+- [ ] **⚠️ LEGAL — flyposting is an actual offence, and this is a kids product.** Stickers on public
+      infrastructure, lampposts or someone else's property in Austria = "wilde Plakatierung"
+      (Verwaltungsübertretung, city-level fine); if it's hard to remove it's Sachbeschädigung
+      (§125 StGB). The fine is survivable — "family app fined for graffiti" is not, and it would land
+      in exactly the local press we want on our side. **Placement rule: consented surfaces only**
+      (the venue said yes) + official Ankündigungssäulen. Friends get the rule *in writing, with the
+      stickers*, or the rule doesn't exist.
+- [ ] **The distribution list is a query we already own.** `places` holds 1,269 curated family places
+      — indoor play, pools, climbing halls, libraries, museums, playgrounds. Filter to Linz + indoor
+      + staffed and you have the venues where "can we leave a few stickers?" gets a yes *and* where a
+      bored parent is already holding a phone. Beats handing friends a roll and hoping.
+
+### Other ways to spread it (ranked by cost-per-subscriber, cheapest first)
+- [ ] **Window cling for partner venues** ("Unsere Events auf Okolo") — consented by construction,
+      outlives a sticker, and it doubles as the "claim your event" on-ramp (partnerships §6 ladder).
+- [ ] **Table cards / Bierdeckel in family cafés** — same printers, sits exactly where a parent is
+      bored. Cheaper per impression than anything stuck to a wall.
+- [ ] **Playground QR poster + Kindergarten/Volksschule newsletters** — already growth-system §5.3;
+      the only realistic way into the class WhatsApp groups you cannot join cold.
+- [ ] **Warm contacts we already crawl**: Kinderfreunde, Familienbund, libraries, Eltern-Kind-Zentren.
+      They're registered sources — that makes them introductions, not cold calls.
+- [ ] Kinderarzt waiting rooms; Ars-style festival programme booklets (their print run, our line).
+
+### Festival partnerships — the Ars Electronica shape
+- [ ] **We just spent a whole session proving why this is worth building.** Pflasterspektakel is the
+      same shape as Ars: one festival, many venues, per-act schedule. Scraping it cost a bespoke
+      adapter, a date trap (grid rewritten daily, no date on the page), a near-miss where all 35
+      stages would have auto-merged, and its own workflow — and the happy path *still* can't be
+      verified until 23 July. If the festival hands us the grid, we get it correctly, for free, on
+      day one. **The pipeline pitch is not speculative; it's the fix for a cost we've already paid.**
+- [ ] **⚠️ Hard rule 7 constrains the ask: they must PUBLISH the data at a re-fetchable URL, not
+      email us a file.** A CSV that arrives once by mail is precisely the `works=false` +
+      "refresh only with script X" antipattern that rotted Sindelfingen. A published Google Sheet
+      (CSV export URL) counts — it has a stable URL. The ask is "put it somewhere we can re-read",
+      and the ladder ranks by *their* effort (partnerships §6): feed URL › JSON-LD › sheet › form.
+- [ ] **George's question — do we charge? My answer: no cash, but this is not a favour.** Reasons:
+      (1) growth-system §8 is explicit — *don't sell before we can quote real reach*; we have 1
+      confirmed subscriber, and pitching a paid slot into that burns the advertiser relationship we'd
+      want at 4,000. (2) What we actually want from Ars is worth more than any invoice we could send
+      today: a named reference, a line in the marketing of an event with a real audience, and the
+      template for festival #2. **Charge them the reciprocity instead, and write it down** — data at
+      a URL + the marketing placement + permission to name them, against listing + highlight, on one
+      page. A written barter is good practice; a free favour is the thing that gets deprioritised
+      internally the week it matters. Revisit cash once we can quote reach.
+- [ ] **⚠️ Architect flag — the barter may legally BE consideration, and that changes the label.**
+      "They add us to their marketing materials" is a benefit in kind flowing to us for the
+      placement. Under the conservative read of ECG §6 / MedienG §26, consideration isn't only cash —
+      which would make this a **paid placement** ("Anzeige" + payer identity + the ranking-disclosure
+      page in `docs/decisions/2026-07-12-paid-placement-compliance.md`), not an editorial showcase.
+      **This is live, not hypothetical: `Ars Electronica Festival 2026` is already a GOLD row in prod
+      (07-16→09-09).** Two clean ways out, pick one before the deal is real: (a) run it **editorial**
+      and take no obligation on their marketing (if they list us, they list us because they want to);
+      (b) call it **gold** and ship the two labelling obligations first. What we must not do is take
+      the marketing placement *and* carry it as unlabelled editorial. Not a lawyer — but the cheap
+      option here is a 10-minute call, not a defence.
+- [ ] **Then generalise it: the "map service for decentralized events" product.** Partnerships §6
+      already specifies it (ingestion spec + live preview/validator: "paste a URL, see exactly the
+      events we'd extract") and names the trigger — *build it the day a real organizer asks*. That
+      trigger has **not** fired yet: George reached out to Ars, Ars hasn't said yes. **If they say
+      yes, it fires** — and the deliverable is the one-pager + the validator, still not an API.
+      New partnership CATEGORY: §3 tracks data *vendors* (feratel, GEM2GO, Linz open data); this is
+      distribution barter with an *organizer* and needs its own section before festival #2.
+
 ## Pflasterspektakel per-act schedule (2026-07-16, George: "check pflasterspektakel schedule in linz next weekend, can we get specific locations and times for each act and artist") — ADAPTER SHIPPED, capture runs 23–25 July
 - [x] **The answer to the question: not yet, and by design.** Festival is **23–25 July** (DO 16–23,
       FR & SA 14–23). The Tagesprogramm reads "Aktuell ist noch kein Tagesprogramm verfügbar" because
