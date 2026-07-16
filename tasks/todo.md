@@ -21,6 +21,33 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       immutable-cached per weekend URL so a mid-week Regenerate can show a stale thumb until
       hard-refresh; no onError fallback on desk card imgs.
 
+## Admin hub + published-pages desk (2026-07-16, George: "a nice /admin interface where I log in and all this stuff is easily accessible without special subdomains… + a view of all published blog/newsletter based pages so i can review and copy their links") — SHIPPED (9393e49)
+- [x] **`/admin` is the one door now.** Hub with cards + live counts; persistent nav (Home · Thursday ·
+      Highlights · Pages) + logout on every desk; one password login, 30-day cookie, no subdomains,
+      no `?token=`. `lib/admin-ui.js` = the shared shell (S tokens, formatVienna, AdminShell) — the
+      login block was duplicated across 2 desks and about to be 4.
+- [x] **`/admin/pages`** — every frozen weekend digest snapshot IS the public SEO page
+      (`/weekend/<city>/<friday>`), so the list needed nothing new stored. Per row: weekend, pick count,
+      subject, **Copy link** + **Open ↗**, and Indexed / Noindex-thin / Sent (Vienna time) / IG / FB
+      badges. Per city: the stable `/weekend/<city>` link (bio/QR/pinned message). Live data: 6 pages,
+      Linz 2026-07-17 = 9 items, sent, IG+FB posted; the other 5 cities built-but-unsent.
+- [x] `app/admin/layout.js` gives ALL admin pages `robots:noindex` — only the Thursday desk had it, so
+      /admin/highlights shipped that morning without it (robots.txt covered it; the meta tag didn't).
+- [x] `MIN_INDEXABLE_ITEMS` exported from lib/digest.js — the weekend page's real noindex rule and the
+      desk's "Indexed" badge now read the SAME constant (a second hardcoded 3 would have drifted into a
+      lying badge). `listDigestPages()` = 2 queries not an N+1; exact ledger keys, since `posted:*` also
+      holds per-EVENT rows this view must not count.
+- [x] **Review fix — the agent's build broke auth gating and its comment asserted the opposite.** Each
+      page held state and RETURNED `<AdminShell>`; React runs a parent's effects regardless of what it
+      renders, so every desk fetched while logged out (403s — observed in the network log, not assumed)
+      and, with `authed` now inside the shell, would never re-fire on login → a freshly-logged-in desk
+      would sit empty. Desk bodies are children of the shell now. Verified: logged-out loads of /admin,
+      /admin/thursday, /admin/pages fire the login check and NOTHING else.
+- [ ] **George: one login check** — I'm not permitted to type a password into a form, so the
+      logged-IN render after a *fresh* login is the one path I couldn't drive myself (the logged-out
+      path is proven; the authed JSX was verified while a session already existed). Log in once at
+      /admin and confirm each desk populates.
+
 ## Highlighted/sponsored pins (2026-07-16, George: "highlight or elevate certain locations… sponsor pays or showcase e.g. Pflasterspektakel") — SHIPPED
 - [x] **BUILT (George picked B+star for gold, editorial as suggested).** `highlights` table (migration
       applied to prod, 0 rows), lib/db.js `highlightJoin` threaded through mapPins/searchEvents/

@@ -2,6 +2,30 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-16 — A parent's effects run no matter what it renders; "the shell gates it" is not a gate
+
+Extracting the duplicated admin login into one `AdminShell` looked clean, and the desks kept their own
+state and simply returned `<AdminShell>…</AdminShell>`. The refactor then deleted `authed` from each
+desk's load-effect deps, with a comment stating "AdminShell doesn't mount this component until the
+session is confirmed". **That comment is backwards.** The desk was the PARENT — it renders the shell,
+so React mounts the desk and runs its effects *before the shell has decided anything*. Two consequences:
+every logged-out visit fired the desk's admin fetches (403 each — visible in the network log), and
+because `authed` now lived inside the shell, nothing the desk depended on ever changed at login, so
+those effects would never re-fire — a freshly-logged-in desk would render empty forever. The previous
+code had `authed` in the dep array for exactly this reason; lifting the state upward silently deleted
+the mechanism the deps existed to serve.
+**Lessons:** (1) a component you *return* cannot gate the component that returns it — to make "children
+only run when X" true, the work has to BE the child (desk body as `<AdminShell><Desk/></AdminShell>`),
+which is what makes mounting the gate; (2) when a refactor moves state out of a component, grep the dep
+arrays that named it — a removed dep is a deleted trigger, and React will not warn; (3) the agent
+reported "verified in the browser" and was right about what it saw: it tested with a 30-day session
+cookie already set, so the broken path (fresh login) never ran. **Verifying an auth change requires
+actually being logged out first** — the default state of a returning user is the state you already have.
+Caught by clearing the cookie and reading the network log, not by reading the diff.
+(Also: `npm run build` while the preview dev server is running corrupts the shared `.next` and 500s the
+dev server — the 2026-07-12 lesson, re-learned. Stop the server first. And a commit message passed to
+`git commit -m "…"` in bash silently eats `backticked` words via command substitution — use `-F`.)
+
 ## 2026-07-16 — Splitting features onto a new GL layer silently detaches every layer-name consumer
 
 The highlights build moved gold/editorial pins off the base `pins` layer onto their own

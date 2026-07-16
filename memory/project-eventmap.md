@@ -35,6 +35,18 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - **Concurrent session caution**: another session committed source-quality ranking (5333ae3) and swept
   this batch's lib/db.js helpers into its commit. Stage explicit paths only.
 
+## Where things stand (2026-07-16 latest — /admin is one hub, 9393e49)
+- **One door: `/admin`.** Hub (cards + counts) → Thursday · Highlights · **Pages**, persistent nav +
+  logout on every desk, one password, 30-day cookie, no subdomains/tokens. `lib/admin-ui.js` = shared
+  shell (S tokens, formatVienna, AdminShell); `app/admin/layout.js` = noindex for all admin pages.
+- **`/admin/pages` answers "where are my SEO pages":** every frozen digest snapshot IS the public
+  `/weekend/<city>/<friday>` page. Row = weekend · picks · subject · Copy link · Open · Indexed /
+  Noindex-thin / Sent / IG / FB. Per city the stable `/weekend/<city>` (bio/QR) link. Live: 6 pages,
+  Linz 07-17 (9 items, sent, IG+FB), 5 cities built-but-unsent. `MIN_INDEXABLE_ITEMS` now shared so
+  the badge can't drift from the real noindex rule.
+- **George owes one login check**: I may not type a password into a form, so the fresh-login render is
+  the only path unverified by me (logged-out path proven clean; authed JSX verified with a live session).
+
 ## Where things stand (2026-07-16 — highlighted/sponsored pins SHIPPED, cf81564)
 - **Gold (paid) + editorial event placement is live in code** (George picked the treatments off an
   iterated prototype artifact 69c1af62…): gold = golden outline ring outside the white pin border,
