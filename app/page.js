@@ -325,6 +325,18 @@ function makeGlintImage(map, place) {
     },
   };
 }
+// The ONE place the glint images are registered. They are the only sprites that
+// aren't rasterized SVG, so they don't go through registerPinSprites' `add()` /
+// styleimagemissing's `put()` — and both of those carry `{ pixelRatio:
+// SPRITE_RATIO }`. Registering a glint by hand silently dropped it, and
+// map.addImage defaults pixelRatio to 1: the 114px supersampled bitmap then drew
+// at 114 CSS px against a 38 CSS px pin — a glow 3× the pin, in the wrong shape
+// (George: "the golden glow is much bigger than the actual pin"). Bundling the
+// option with the construction is what makes that unrepresentable.
+function addGlintImage(map, id) {
+  if (map.hasImage(id)) return;
+  map.addImage(id, makeGlintImage(map, id === 'glint-place'), { pixelRatio: SPRITE_RATIO });
+}
 // Rasterize an SVG string to ImageData at SPRITE_RATIO for map.addImage.
 function rasterizeSprite(svg, cssW, cssH) {
   return new Promise((resolve, reject) => {
@@ -359,8 +371,8 @@ async function registerPinSprites(map) {
   // Shine animation is skipped entirely (never registered, never installed as a
   // layer — see the pin-glint-shine install below) under prefers-reduced-motion.
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    if (!map.hasImage('glint-event')) map.addImage('glint-event', makeGlintImage(map, false));
-    if (!map.hasImage('glint-place')) map.addImage('glint-place', makeGlintImage(map, true));
+    addGlintImage(map, 'glint-event');
+    addGlintImage(map, 'glint-place');
   }
 }
 // Venue matching: identical venue name in the same town (case-insensitive) OR
@@ -1253,8 +1265,8 @@ export default function Home() {
       else if (haloCat && CATS[haloCat]) put(haloSpriteSvg(haloCat), HALO_BOX, HALO_BOX);
       else if (e.id === 'town-bubble') put(townBubbleSvg(), TOWN_BUBBLE_BOX, TOWN_BUBBLE_BOX);
       else if (e.id === 'badge-star') put(badgeStarSvg(), 18, 18);
-      else if ((e.id === 'glint-event' || e.id === 'glint-place') && !map.hasImage(e.id) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        map.addImage(e.id, makeGlintImage(map, e.id === 'glint-place'));
+      else if ((e.id === 'glint-event' || e.id === 'glint-place') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        addGlintImage(map, e.id);
       }
     });
     // ONE click handler routes every map tap with explicit priority — cluster
