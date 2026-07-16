@@ -1,0 +1,67 @@
+name: Pflasterspektakel Tagesprogramm
+
+# Captures the Pflasterspektakel Linz daily grid — who plays at which Spielort,
+# hour by hour — during the only three days a year it exists.
+#
+# Why this source needs a workflow of its own, when 1,700+ others ride the
+# nightly crawl:
+#
+# 1. TIMING. The festival writes the grid fresh each day and publishes it "kurz
+#    vor Programmstart" (DO 16:00, FR & SA 14:00). The nightly crawl fires at
+#    04:00 UTC (~06:00 Vienna) — hours before the day's grid is up. It would only
+#    ever see yesterday's page, and lib/pflaster-events.js would (correctly)
+#    refuse to date it, so the nightly crawl can NEVER capture this source. These
+#    runs land inside the festival's own opening hours instead.
+#
+# 2. IT IS NOT ARCHIVED. The festival's archive keeps the artists but never the
+#    grid; once the day rolls over, that day's line-up is gone from the web. Miss
+#    the window and there is no backfill — last year's schedule survives only
+#    because the Wayback Machine happened to catch one day of it.
+#
+# 3. IT SELF-HEALS THE SOURCE. `--url` ignores tier and cadence (crawl.mjs). A
+#    source that yields events on 3 days a year drifts toward tier='dead' on the
+#    nightly crawl's zero_streak, which would silently skip it next July — the
+#    classic rot pattern (hard rule 7). A targeted run crawls it regardless, and
+#    a successful yield resets zero_streak and revives the tier.
+#
+# The date window is deliberately wider than the festival (17–27 July): the dates
+# move by a few days each year, and a run outside the festival is harmless — the
+# adapter's Vienna-date guard yields nothing, the page is hash-skipped for free,
+# and `exclusive` means it never reaches a paid LLM call. Cost is ~44 one-page
+# fetches a year.
+
+on:
+  schedule:
+    # 12:00 / 14:00 / 16:00 / 19:00 UTC = 14:00 / 16:00 / 18:00 / 21:00 Vienna,
+    # on 17–27 July. Brackets both start times (FR & SA 14:00, DO 16:00) and
+    # catches same-day updates; repeats within a day are hash-skipped for free.
+    - cron: '0 12,14,16,19 17-27 7 *'
+  workflow_dispatch: {} # run on demand from the Actions tab
+
+concurrency:
+  # SAME group as the nightly crawl on purpose. Nominatim rate-limits per IP, not
+  # per host, so two crawl processes throttle each other (tasks/lessons.md
+  # 2026-07-12). Queue behind a running crawl rather than race it.
+  group: crawl
+  cancel-in-progress: false
+
+jobs:
+  tagesprogramm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15 # one page, ~35 events; nothing like the full pass
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Crawl the Tagesprogramm
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # No GEMINI/ANTHROPIC key needed: cms='pflaster' is an `exclusive`
+          # structured route, so this source never takes the LLM path.
+        run: node scripts/crawl.mjs --url https://pflasterspektakel.at/de/programm/tagesprogramm/

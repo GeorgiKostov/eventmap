@@ -28,6 +28,7 @@ import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfin
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
 import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderfreunde-events.js';
 import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
+import { parsePflasterEvents } from '../lib/pflaster-events.js';
 import { parseSiteswiftEvents } from '../lib/siteswift-events.js';
 import { kalkalpenDetailUrls, parseKalkalpenDetail } from '../lib/kalkalpen-events.js';
 import { fetchJeventsEvents } from '../lib/jevents-events.js';
@@ -694,6 +695,17 @@ async function tryStructuredExtraction(html, src) {
     if (dvvEvents.length) return { route: 'dvv', events: dvvEvents };
   }
 
+  // `exclusive`: this adapter OWNS the source, so an empty result means "nothing
+  // today", not "try the LLM next". Pflasterspektakel publishes its grid on three
+  // days a year; the other 362 the page still describes the festival (dates,
+  // opening hours, artist list), so an LLM let loose on it would burn a paid call
+  // per crawl to mint a duplicate of the festival row we already hold from
+  // Linz-Termine. The grid is the only event DATA on that page, and this parser
+  // is the only thing that can date it (lib/pflaster-events.js).
+  if (src.cms === 'pflaster') {
+    return { route: 'pflaster', events: parsePflasterEvents(html, src), exclusive: true };
+  }
+
   if (src.cms === 'sitepark-ical') {
     const events = [];
     for (const item of parseSiteparkRssItems(html)) {
@@ -1069,7 +1081,7 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
 
   let events, route;
   const structured = await tryStructuredExtraction(html, src);
-  if (structured.events.length) {
+  if (structured.events.length || structured.exclusive) {
     ({ events, route } = structured);
     console.log(`  structured route: ${route} (${events.length} candidate event(s))`);
   } else {

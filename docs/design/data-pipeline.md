@@ -96,10 +96,10 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 | `town`, `region` | `town` = Gemeinde; `region` is normally the Bundesland (`Oberösterreich`\|`Salzburg`\|…), with an exact named-scope token such as `Stuttgart 40km` while a country rollout is deliberately radius-limited. |
 | `works` | false = known-dead/unfetchable (JS-only SPA, TLS issue) — excluded from crawl candidates entirely. |
 | `notes` | Free text — quirks, why `works=false`, robots-block, etc. |
-| `cms` | `ris`\|`gem2go`\|`dvv`\|`sitepark-ical`\|`other`\|`unknown`\|null. Gates CMS-specific parsers in the waterfall. |
+| `cms` | `ris`\|`gem2go`\|`dvv`\|`sitepark-ical`\|`pflaster`\|`other`\|`unknown`\|null. Gates CMS-specific parsers in the waterfall. |
 | `discovered_at` | When first registered. |
 | `page_hash` | sha256 of the stripped page text from the last crawl — change-detection. |
-| `feed_kind` | Which route won the *last* crawl: `jsonld`\|`ical`\|`gem2go`\|`dvv`\|`rss`\|`llm`\|`siteswift`\|`kalkalpen`\|`naturfreunde`\|`kinderfreunde`\|null. |
+| `feed_kind` | Which route won the *last* crawl: `jsonld`\|`ical`\|`gem2go`\|`dvv`\|`rss`\|`llm`\|`siteswift`\|`kalkalpen`\|`naturfreunde`\|`kinderfreunde`\|`pflaster`\|null. |
 | `crawl_count`, `events_last`, `events_sum`, `zero_streak`, `last_changed`, `tier` | Content-rating / tiering, see §3. |
 | `etag`, `last_modified` | Last response's caching headers (2026-07-14). The next crawl sends `If-None-Match`/`If-Modified-Since`; a **304 skips the transfer entirely** — cheaper than `page_hash`, which still needs the body. Generic shell only. |
 | `default_categories` | Categories every event from this source inherits, **appended never substituted** (2026-07-14). The extractor reads an *event's* words, not its publisher's identity — a children's museum's 144 events extracted as `culture` and were invisible to the For-kids filter. Set only for unambiguously single-audience sources (FRida & freD, Kinderfreunde, Naturfreunde's family target-group, Familienbund, ASVÖ, Alpenverein Jugend&Familie); forcing `family` onto a diocese or a library would be hard-rule-5 fabrication in the category column. `scripts/migrate-source-categories.mjs`. |
@@ -180,7 +180,9 @@ compared to `sources.page_hash`. Unchanged (and no `--force`) → skip extractio
 municipal calendars change slowly, so most recrawls cost a fetch and a compare.
 
 **Structured-first waterfall** (`tryStructuredExtraction`), first route to yield ≥1 event wins and
-the LLM is skipped:
+the LLM is skipped. One exception: a route may return `exclusive: true` to declare that it OWNS the
+source, so an empty result means "nothing published right now" and the LLM is skipped anyway. Use it
+only where a page reliably contains prose an LLM would mistake for event data (so far: `pflaster`).
 
 1. **JSON-LD** (`parseJsonLdEvents`) — `schema.org/Event` blocks; category inferred from `@type`,
    `is_free` from `offers`. `description` is always `null` here — facts only, never source prose.
@@ -204,6 +206,21 @@ the LLM is skipped:
 6. **RSS/Atom** (`parseRssEvents`) — only treated as an event source if entries carry an explicit
    event-date tag (`startdate`/`dtstart`/`eventdate`, …) beyond the ordinary publish date; otherwise
    it's a news feed, falls through.
+7. **Pflasterspektakel Tagesprogramm** (`parsePflasterEvents`, `cms='pflaster'`) — the festival's
+   daily Spielort × hour-slot × artist grid. The one **`exclusive`** route (see above): street art in
+   Linz is a three-days-a-year source, and on the other 362 the page still describes the festival, so
+   an LLM fallback would burn a paid call per crawl to mint a duplicate of the festival row we already
+   hold. Two properties make it unlike every other adapter, and both are load-bearing:
+   **it is undated** — one grid, overwritten daily, no date and no day switcher, so the day is taken
+   from the source's own Yoast `article:modified_time` and any grid that does not match the Vienna
+   crawl day is refused rather than mislabelled (our 04:00 UTC nightly crawl would otherwise read
+   yesterday's grid as today's — which is why capture runs from its own workflow inside festival
+   hours, `.github/workflows/pflasterspektakel.yml`);
+   **it is never archived** — the festival's archive keeps artists but not the grid, so a missed day
+   is gone from the web with no backfill. Emits one event per Spielort per day (~35), not per act
+   (~275). Stage names are local shorthand ("Brunnen", "Haltestelle") that no geocoder can place, so
+   `scripts/register-pflaster-source.mjs` seeds them into the venues registry from verified OSM
+   elements; the registry rung then short-circuits before Nominatim.
 
 Named regional scope guards run after geocoding and before `upsertEvent()`. The first is
 `stuttgart-40km`: sources are explicitly tagged `country='DE', region='Stuttgart 40km'`; event

@@ -1,0 +1,489 @@
+[
+ {
+  "kuerzel": "H1",
+  "name": "Dreifaltigkeitssäule",
+  "area": "Hauptplatz",
+  "coords": {
+   "lat": 48.3058492,
+   "lng": 14.2864417
+  },
+  "osm": "way/142974788",
+  "osm_name": "Dreifaltigkeitssäule",
+  "specific": true,
+  "fallback_of": null,
+  "note": "historic=monument, exact name match"
+ },
+ {
+  "kuerzel": "H2",
+  "name": "Brunnen",
+  "area": "Hauptplatz",
+  "coords": {
+   "lat": 48.305761,
+   "lng": 14.2866135
+  },
+  "osm": "relation/1934891",
+  "osm_name": "Hauptplatz",
+  "specific": false,
+  "fallback_of": "Hauptplatz",
+  "note": "no amenity=fountain found inside the Hauptplatz polygon (checked with area(3601934891) query); nearby fountains (Neptunbrunnen, Sirenenbrunnen, Planetenbrunnen) are outside the square proper, so falling back to the square itself rather than guessing which one"
+ },
+ {
+  "kuerzel": "H3",
+  "name": "Haltestelle",
+  "area": "Hauptplatz",
+  "coords": {
+   "lat": 48.3065072,
+   "lng": 14.2861712
+  },
+  "osm": "way/71738991",
+  "osm_name": "Hauptplatz",
+  "specific": true,
+  "fallback_of": null,
+  "note": "public_transport=platform, services=tram, name=Hauptplatz — a real tram stop platform on the square"
+ },
+ {
+  "kuerzel": "H4",
+  "name": "Altes Rathaus",
+  "area": "Hauptplatz",
+  "coords": {
+   "lat": 48.3060574,
+   "lng": 14.2868523
+  },
+  "osm": "node/280843904",
+  "osm_name": "Altes Rathaus",
+  "specific": true,
+  "fallback_of": null,
+  "note": "tourism info point tagged exactly Altes Rathaus"
+ },
+ {
+  "kuerzel": "H5",
+  "name": "Bank Austria",
+  "area": "Hauptplatz",
+  "coords": {
+   "lat": 48.3050566,
+   "lng": 14.2874731
+  },
+  "osm": "node/791236220",
+  "osm_name": "Bank Austria",
+  "specific": true,
+  "fallback_of": null,
+  "note": "amenity=bank, brand=Bank Austria, right at the edge of Hauptplatz"
+ },
+ {
+  "kuerzel": "S1",
+  "name": "Kunstuni-Innenhof Hauptplatz",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3066561,
+   "lng": 14.2855845
+  },
+  "osm": "node/6974914276",
+  "osm_name": "Kunstuniversität Linz: Bibliothek",
+  "specific": false,
+  "fallback_of": "Kunstuniversität Linz (Hauptplatz building)",
+  "note": "no separate 'Innenhof' (courtyard) feature in OSM; used the Kunstuni building POI nearest Hauptplatz as fallback"
+ },
+ {
+  "kuerzel": "S2",
+  "name": "Klanghof Rathaus",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3060574,
+   "lng": 14.2868523
+  },
+  "osm": "node/280843904",
+  "osm_name": "Altes Rathaus",
+  "specific": false,
+  "fallback_of": "Altes Rathaus",
+  "note": "searched name~Klanghof in the Linz-centre bbox — no OSM element found (the Rathaus inner courtyard isn't separately mapped); used the Altes Rathaus building instead"
+ },
+ {
+  "kuerzel": "S3",
+  "name": "Schlossmuseum Rosengarten",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3053351,
+   "lng": 14.282825
+  },
+  "osm": "way/35900994",
+  "osm_name": "Schlossmuseum Linz",
+  "specific": false,
+  "fallback_of": "Schlossmuseum Linz",
+  "note": "searched name~Rosengarten in a wide bbox (48.290-48.315,14.270-14.310) — no OSM element found; used the museum building instead"
+ },
+ {
+  "kuerzel": "S4",
+  "name": "Landhaus Arkadenhof",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3041547,
+   "lng": 14.2855055
+  },
+  "osm": "relation/1309304",
+  "osm_name": "Landhaus",
+  "specific": false,
+  "fallback_of": "Landhaus",
+  "note": "searched name~Arkadenhof in a wide bbox — no OSM element found (courtyard not separately mapped); used the Landhaus building"
+ },
+ {
+  "kuerzel": "S5",
+  "name": "Bischofshof",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3016829,
+   "lng": 14.2874423
+  },
+  "osm": "relation/379951",
+  "osm_name": "Bischofshof",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, multipolygon relation"
+ },
+ {
+  "kuerzel": "S6",
+  "name": "OK-Platz",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3028653,
+   "lng": 14.2905135
+  },
+  "osm": "node/1862131664",
+  "osm_name": "OK Offenes Kulturhaus Oberösterreich",
+  "specific": false,
+  "fallback_of": "OK Offenes Kulturhaus Oberösterreich",
+  "note": "no separate 'OK-Platz' square/place feature found; used the OK Centrum arts_centre building"
+ },
+ {
+  "kuerzel": "S7",
+  "name": "Kunstuni-Innenhof Domgasse",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3057212,
+   "lng": 14.2893538
+  },
+  "osm": "node/4391392189",
+  "osm_name": "Kunstuniversität, Standort Domgasse",
+  "specific": false,
+  "fallback_of": "Kunstuniversität, Standort Domgasse",
+  "note": "no separate courtyard feature; used the Kunstuni Domgasse campus POI"
+ },
+ {
+  "kuerzel": "S8",
+  "name": "Herbert-Bayer-Platz",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3067426,
+   "lng": 14.2917742
+  },
+  "osm": "relation/1933437",
+  "osm_name": "Herbert-Bayer-Platz",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, highway=pedestrian multipolygon near the OK/Ursulinenhof area. Note: a separate, unrelated 'Herbert-Bayer-Brunnen' fountain (way/350853186) sits ~700m further NE at 48.310164,14.2930138 — not used, this square is the correct match"
+ },
+ {
+  "kuerzel": "S9",
+  "name": "Lentos Freiraum",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3085449,
+   "lng": 14.2887956
+  },
+  "osm": "way/13959723",
+  "osm_name": "Lentos Kunstmuseum Linz",
+  "specific": false,
+  "fallback_of": "Lentos Kunstmuseum Linz",
+  "note": "no separate 'Freiraum' feature; used the museum building"
+ },
+ {
+  "kuerzel": "S10",
+  "name": "Donaulände",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3073507,
+   "lng": 14.2864138
+  },
+  "osm": "way/25752931",
+  "osm_name": "Untere Donaulände",
+  "specific": true,
+  "fallback_of": null,
+  "note": "direct name match, riverside street segment nearest the centre/Lentos"
+ },
+ {
+  "kuerzel": "P1",
+  "name": "Adalbert-Stifter-Platz",
+  "area": "Pfarrplatz",
+  "coords": {
+   "lat": 48.3072027,
+   "lng": 14.2880951
+  },
+  "osm": "way/29337336",
+  "osm_name": "Adalbert-Stifter-Platz",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, residential-tagged square/street way"
+ },
+ {
+  "kuerzel": "P2",
+  "name": "Pfarrplatz Papiertiger",
+  "area": "Pfarrplatz",
+  "coords": {
+   "lat": 48.3061046,
+   "lng": 14.2883342
+  },
+  "osm": "way/29337342",
+  "osm_name": "Pfarrplatz",
+  "specific": false,
+  "fallback_of": "Pfarrplatz",
+  "note": "'Papiertiger' is an informal sub-spot on the square, not separately mapped; used the Pfarrplatz way itself"
+ },
+ {
+  "kuerzel": "P3",
+  "name": "Pfarrplatz Bäume",
+  "area": "Pfarrplatz",
+  "coords": {
+   "lat": 48.3061046,
+   "lng": 14.2883342
+  },
+  "osm": "way/29337342",
+  "osm_name": "Pfarrplatz",
+  "specific": false,
+  "fallback_of": "Pfarrplatz",
+  "note": "'Bäume' (trees) is an informal sub-spot on the square, not separately mapped; used the Pfarrplatz way itself"
+ },
+ {
+  "kuerzel": "P4",
+  "name": "Pfarrplatz",
+  "area": "Pfarrplatz",
+  "coords": {
+   "lat": 48.3061046,
+   "lng": 14.2883342
+  },
+  "osm": "way/29337342",
+  "osm_name": "Pfarrplatz",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, living_street way in the square"
+ },
+ {
+  "kuerzel": "P5",
+  "name": "Domgasse Post",
+  "area": "Pfarrplatz",
+  "coords": {
+   "lat": 48.3055626,
+   "lng": 14.2888411
+  },
+  "osm": "node/206243230",
+  "osm_name": "Post Filiale 4010",
+  "specific": true,
+  "fallback_of": null,
+  "note": "amenity=post_office, addr:street=Domgasse, addr:housenumber=1 — verified via direct node fetch"
+ },
+ {
+  "kuerzel": "A1",
+  "name": "Hofgasse",
+  "area": "Altstadt",
+  "coords": {
+   "lat": 48.3059454,
+   "lng": 14.2855008
+  },
+  "osm": "way/95967631",
+  "osm_name": "Hofgasse",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, pedestrian way"
+ },
+ {
+  "kuerzel": "A2",
+  "name": "Alter Markt",
+  "area": "Altstadt",
+  "coords": {
+   "lat": 48.3055452,
+   "lng": 14.2845659
+  },
+  "osm": "way/1108480202",
+  "osm_name": "Alter Markt",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, pedestrian way (square)"
+ },
+ {
+  "kuerzel": "A3",
+  "name": "Tummelplatz",
+  "area": "Altstadt",
+  "coords": {
+   "lat": 48.3050151,
+   "lng": 14.2841008
+  },
+  "osm": "way/13958203",
+  "osm_name": "Tummelplatz",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, pedestrian way"
+ },
+ {
+  "kuerzel": "A4",
+  "name": "Landhaus",
+  "area": "Altstadt",
+  "coords": {
+   "lat": 48.3041547,
+   "lng": 14.2855055
+  },
+  "osm": "relation/1309304",
+  "osm_name": "Landhaus",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, building=yes relation"
+ },
+ {
+  "kuerzel": "A5",
+  "name": "Bildergarten",
+  "area": "Altstadt",
+  "coords": null,
+  "osm": null,
+  "osm_name": null,
+  "specific": false,
+  "fallback_of": null,
+  "note": "festival-internal name for a children's painting area — searched name~Bildergarten in the Linz-centre bbox, no match; not expected in OSM"
+ },
+ {
+  "kuerzel": "L1",
+  "name": "Annagasse",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.3045377,
+   "lng": 14.2878703
+  },
+  "osm": "way/26319621",
+  "osm_name": "Annagasse",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, pedestrian way"
+ },
+ {
+  "kuerzel": "L2",
+  "name": "Taubenmarkt",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.3039011,
+   "lng": 14.2882054
+  },
+  "osm": "way/143161778",
+  "osm_name": "Taubenmarkt",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, tram/bus platform way at the Taubenmarkt stop"
+ },
+ {
+  "kuerzel": "L3",
+  "name": "Kleiderbauer",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.3025131,
+   "lng": 14.2893132
+  },
+  "osm": "way/108457309",
+  "osm_name": "Landstraße",
+  "specific": false,
+  "fallback_of": "Landstraße",
+  "note": "searched name~Kleiderbauer in a Linz-wide bbox (48.25-48.35,14.20-14.40) — no shop found at all in OSM; used the Landstraße street instead"
+ },
+ {
+  "kuerzel": "L4",
+  "name": "Spittelwiese",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.3027169,
+   "lng": 14.2883509
+  },
+  "osm": "way/145343703",
+  "osm_name": "Spittelwiese",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, pedestrian way"
+ },
+ {
+  "kuerzel": "L5",
+  "name": "Ursulinenkirche",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.302532,
+   "lng": 14.2898754
+  },
+  "osm": "way/14039247",
+  "osm_name": "Ursulinenkirche",
+  "specific": true,
+  "fallback_of": null,
+  "note": "amenity=place_of_worship, exact name match"
+ },
+ {
+  "kuerzel": "L6",
+  "name": "Harrachstraße",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.3022491,
+   "lng": 14.2911665
+  },
+  "osm": "way/95669668",
+  "osm_name": "Harrachstraße",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, residential way"
+ },
+ {
+  "kuerzel": "L7",
+  "name": "Martin-Luther-Platz",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.300432,
+   "lng": 14.2914687
+  },
+  "osm": "way/136619369",
+  "osm_name": "Martin-Luther-Platz",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, pedestrian way (square)"
+ },
+ {
+  "kuerzel": "X1",
+  "name": "Traxlmayr",
+  "area": "Promenade",
+  "coords": {
+   "lat": 48.3043448,
+   "lng": 14.2871703
+  },
+  "osm": "node/791236376",
+  "osm_name": "Cafe Traxlmayr",
+  "specific": true,
+  "fallback_of": null,
+  "note": "amenity=cafe, addr:housenumber=16 (Promenade 16), exact match for the famous Café Traxlmayr"
+ },
+ {
+  "kuerzel": "X2",
+  "name": "Landhauspark Brücke",
+  "area": "Promenade",
+  "coords": {
+   "lat": 48.3037783,
+   "lng": 14.2855713
+  },
+  "osm": "way/156478885",
+  "osm_name": "Landhausbrücke",
+  "specific": true,
+  "fallback_of": null,
+  "note": "exact name match, the bridge over the Landhauspark moat"
+ },
+ {
+  "kuerzel": "X3",
+  "name": "Herrenstrasse 12",
+  "area": "Promenade",
+  "coords": {
+   "lat": 48.3023497,
+   "lng": 14.2862627
+  },
+  "osm": "way/95601163",
+  "osm_name": "Herrenstraße 12 (building)",
+  "specific": true,
+  "fallback_of": null,
+  "note": "building=apartments, addr:street=Herrenstraße, addr:housenumber=12 — verified via direct way fetch, exact address match"
+ }
+]
