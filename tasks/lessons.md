@@ -2,6 +2,46 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-16 — A signal that lives on one surface isn't a feature; and a freeze makes "now" the wrong question
+
+George shipped highlighted pins in the morning and by evening asked for them "in newsletter, event
+static pages, list view, basically everywhere". The build had been *complete* by its own brief and
+still wrong by the product's: gold/editorial existed only where it had been designed — the map. In
+the list, **editorial rendered nothing at all** and gold had a legal label with no styling; the event
+page and the newsletter couldn't even *see* a highlight (`weekendPicks` had no join). **When you add
+a concept, enumerate every surface that renders that entity and decide per surface — the surfaces you
+skip don't read as "not yet", they read as broken.** The tell was there in the code: the map detail
+had the „Anzeige" tag, `/event/[id]` didn't — the same event, two answers to a compliance question.
+
+**The freeze made "active today" the wrong question.** Reusing `highlightJoin(today)` for the digest
+would have compiled, passed, and looked right — but the digest is built Thursday and **frozen**, so a
+gold period covering only Sat–Sun evaluates to "not highlighted" on Thursday and that answer is
+baked into a snapshot describing Fri–Sun. The paying customer silently gets nothing. **A cached or
+frozen artifact must ask about the window it DESCRIBES, not the instant it was built** — the same
+family as "a cache stamp taken during a failure window outlives the failure" (2026-07-15). Generalizing
+`highlightJoin(from, to = from)` made the point-in-time case a default rather than a special case, so
+no existing caller changed.
+
+**Where I nearly reported a bug that wasn't mine.** Driving the list, a THIRD event lit up editorial
+when I had set two highlights. My first instinct was series/venue-group leakage (there is real
+highlight-propagation code in `groupEventSeries`). Reading the table instead of the code: **the
+`highlights` table wasn't empty** — George had set three real rows that day (Ars Electronica gold,
+Pflasterspektakel + Altstadt-Klangzeit editorial), which is *why* he filed this request. The todo and
+memory both said "0 rows"; they were stale by hours. **Check the live data before blaming your diff —
+and treat "0 rows" in a doc as a claim with a timestamp, not a fact.** Two things fell out of it:
+his gold is *live in prod*, so the pre-launch compliance items may be due now; and my "unexpected"
+result was the feature working.
+
+**One invariant worth the test I wrote:** treatment and label are a UNIT. A refactor that keeps the
+gold ring and drops the „Anzeige" tag is a compliance failure no build, type check or eyeball catches
+— it just looks nice. So both derive from one field and a test asserts styled ⇔ labelled, including
+the degradation paths (frozen snapshot without the field, unknown tier). **When two outputs must never
+diverge, don't write them as two independent conditions and trust discipline** — same rule as
+`kid-cats.js` and `lib/entities.js`. (Also: verifying the signup with no mail provider configured was
+the *good* case — it proved the honest-503 path, "never tell someone to check an inbox for a mail that
+was never sent", still holds through a brand-new form. And `git status` caught a concurrent session's
+Pflasterspektakel adapter in the tree; explicit staging, as ever.)
+
 ## 2026-07-16 — A policy that only lives in prose is not a policy; and my own token list nearly killed Linz-Termine
 
 Two lessons from enforcing the named-AI-bot rule, and the second one is about me.

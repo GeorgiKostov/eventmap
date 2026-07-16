@@ -2,6 +2,55 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Highlights everywhere + page signups (2026-07-16, George: "gold/editorial should appear in newsletter, event static pages, list view, basically everywhere" · "pages need newsletter subscription at the bottom" · "/event/7 says okolo not okolo.linz, no back button") — SHIPPED (af3c9ba)
+- [x] **The highlight was a MAP-ONLY signal.** List view: editorial rendered *nothing*, gold had the
+      „Anzeige" tag but no styling. Event pages + newsletter were highlight-blind entirely — and
+      `weekendPicks` had no `highlights` join at all, so the digest could not see one.
+- [x] **George's call: BADGE ONLY, NO RANK CHANGE in the newsletter.** Payment buys visibility, never
+      a slot or a position; `rankPick` untouched. A deliberate DIVERGENCE from mapPins (where
+      highlight is the first sort key + cap-exempt), documented at both sites so it can't read as
+      drift: the map mustn't let a dense viewport trim a paid pin; the digest is an editorial pick,
+      and letting payment reorder it would contradict family-first AND make the P2B Art. 5
+      ranking-disclosure page due. Verified live against a control: pick order byte-identical
+      before/after highlighting.
+- [x] **`highlightJoin(from, to = from)`** — point-in-time generalized to period overlap. The digest
+      needs it: built Thursday and FROZEN, "active today" would bake Thursday's answer into a
+      Fri–Sun snapshot and silently drop a weekend-only gold. All existing callers unchanged.
+- [x] **Treatment ⇔ label is ONE unit** (colour alone is not disclosure, ECG §6 / MedienG §26): gold
+      is styled and labelled together or neither. 8 new tests pin it incl. frozen-snapshot + unknown-
+      tier degradation. Editorial rings, never labelled, by design. List ring reuses the EXISTING
+      `.legend-pin.gold` grammar on `.thumb` (row's other channels are taken: border-left =
+      range-match, background = .active).
+- [x] **Event page**: city handle + back arrow from `channelForPoint(event coords)` — the event's own
+      location, so branding is right however the reader arrived and can't be spoofed; back goes to
+      the map centred on that city (a reader from search has no history). **~40% of events fall
+      outside every catchment** → bare "okolo.", no signup (verified).
+- [x] **Signup on event + weekend pages** (`app/newsletter-signup.js`): the page's channel IS the
+      area, so the only field is an email; area stated, never silently prefilled. The weekend page's
+      `nlCta` copy had existed UNUSED since it shipped — this is the section it was written for.
+      `source` closed enum (newsletter_popup|weekend_page|event_page) so "did the SEO pages convert?"
+      is answerable; `notifyOperator` was hardcoding newsletter_popup and misreporting every ping.
+- [x] Fixed in passing, both on the surface George flagged: every event tab read **"… · Okolo · Okolo"**
+      (page title ended in "· Okolo" AND the root layout appends `template: '%s · Okolo'`) → now
+      `absolute` + city-branded; a long Facebook `source_url` overflowed the page.
+- [ ] **George: decide whether EDITORIAL should be able to earn a newsletter slot.** "No rank change"
+      was answered about *gold* (paid) and I applied it to editorial too, conservatively. Consequence:
+      **your Pflasterspektakel editorial showcase reaches the digest only if it independently makes
+      the family top-9** — it did NOT make this weekend's Linz picks. There is no legal barrier to you
+      choosing what goes in your own newsletter; this is purely a product call.
+- [ ] **Social cards still carry no highlight** — deliberate and currently *honest* (no treatment AND
+      no label = the consistent pairing). Adding the ring there means adding the ad label there too.
+- [ ] **A REAL gold is live in prod**: `Ars Electronica Festival 2026`, 07-16→09-09. If that is a
+      genuine PAID placement rather than a test, the two pre-launch obligations are due NOW, not
+      later: payer identity on the detail view + a reachable ranking-disclosure note
+      (docs/decisions/2026-07-12-paid-placement-compliance.md).
+- [ ] Map DETAIL view still has no editorial treatment (gold's „Anzeige" tag is there). Left alone
+      rather than inventing grammar George hasn't seen — the shipped treatments came off an
+      approved prototype. Editorial = raspberry = the accent already used throughout that panel.
+- [ ] 3 stale `@example.com` test subscribers from earlier sessions (timing-test/nomailtest/hangtest)
+      inflate the subscriber count — the one metric being watched. Inert (unconfirmed ⇒ never mailed).
+      Say the word and they're gone.
+
 ## Named-AI-bot policy enforced in code (2026-07-16, George: Variant B / bytespider-no / honor-Stuttgart) — SHIPPED
 - [x] **The policy existed only in our heads.** `ai_bot_policy` was a `blocked_reason` set BY HAND;
       `robotsAllowed()` returns **true** for every site that names ClaudeBot (our UA is never listed),

@@ -17,7 +17,37 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
-## Where things stand (2026-07-16 latest — AI-bot policy enforced; Germany discovery done, not registered)
+## Where things stand (2026-07-16 latest — highlights read the same on every surface, af3c9ba)
+- **The highlight was map-only; now it's a system.** List rows ring their marker (the existing
+  `.legend-pin.gold` grammar, on `.thumb` — the row's other channels are taken by range-match and
+  .active); event pages + the newsletter ring the card. **Editorial was previously INVISIBLE in the
+  list**; gold was labelled but unstyled.
+- **George's call: newsletter = BADGE ONLY, NO RANK CHANGE.** `weekendPicks` now joins highlights but
+  `rankPick` is untouched — payment buys visibility, never a slot or a position. This DIVERGES from
+  mapPins (highlight = first sort key, cap-exempt) **on purpose**, documented at both sites: the map
+  mustn't let a dense viewport trim a paid pin; the digest is an editorial pick, and paid reordering
+  would contradict family-first + trigger the P2B Art. 5 ranking-disclosure page. Verified against a
+  control: pick order byte-identical before/after.
+- **`highlightJoin(from, to = from)`** — the digest is built Thursday and FROZEN, so a point-in-time
+  "active today" test would bake Thursday's answer into a Fri–Sun snapshot and silently drop a
+  weekend-only gold. Live surfaces still pass one arg (unchanged).
+- **Invariant, test-pinned: treatment ⇔ label.** Gold is styled and labelled together or neither
+  (colour alone is not disclosure). Editorial rings, never labelled. Frozen pre-highlight snapshots
+  degrade to ordinary picks (no ring, no label) — the honest pairing.
+- **Event page** brands + backs via `channelForPoint(event coords)` — derived from the EVENT, so it's
+  right however the reader arrived and can't be spoofed. **~40% of events are outside every
+  catchment** → bare "okolo.", no signup. Signup added to event + weekend pages
+  (`app/newsletter-signup.js`, one email field, area = the page's channel, `source` closed enum).
+- **The `highlights` table is NOT empty — George is using the desk.** 3 real rows: Ars Electronica
+  **gold** (07-16→09-09), Pflasterspektakel + Altstadt-Klangzeit editorial. **If the Ars gold is a
+  genuine paid placement, payer-identity + ranking-disclosure are due NOW.** NB a consequence of
+  "no rank change": his Pflasterspektakel showcase reaches the digest only if it independently makes
+  the family top-9 — it did not make this weekend's picks. Open question for him (editorial ≠ gold
+  legally: nothing stops him editing his own newsletter).
+- **A CONCURRENT session owns a Pflasterspektakel adapter** (lib/pflaster-events.js, a workflow, a
+  register script, scripts/crawl.mjs + data-pipeline.md edits). Staged explicit paths only.
+
+## Where things stand (2026-07-16 — AI-bot policy enforced; Germany discovery done, not registered)
 - **`aiPolicyAllowed()` ships (lib/crawl-net.js)**: a site naming ClaudeBot/GPTBot with a Disallow over
   our path is now skipped in code, not by an agent remembering to. Deliberately SEPARATE from
   `robotsAllowed()` (RFC 9309 genuinely permits us — our UA is never on those lists; that's the whole
