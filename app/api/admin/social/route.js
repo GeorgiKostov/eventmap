@@ -54,6 +54,7 @@ export async function GET(req) {
       posted: { instagram: null, facebook: null },
       snapshot: false,
       items: [],
+      weekend: null,
     });
   }
 
@@ -77,6 +78,11 @@ export async function GET(req) {
         id: it.id,
         title: it.title,
         cat: it.cat,
+        // Optional — only present on digest snapshots built after the ranking
+        // layer started tagging picks. Older frozen snapshots won't have
+        // these; the client must treat them as absent, not as "community".
+        source: it.source ?? null,
+        tier: it.tier ?? null,
         slide: itemSlide(digest, it),
         posted: {
           instagram: igItem ? JSON.parse(igItem) : viaCarousel(igBulk),
@@ -90,6 +96,9 @@ export async function GET(req) {
     posted: { instagram: igBulk, facebook: fbBulk },
     snapshot: true,
     items,
+    // So the client can address a single event's card:
+    // /api/social/card?channel=<slug>&event=<id>&weekend=<friday>
+    weekend: friday,
   });
 }
 
