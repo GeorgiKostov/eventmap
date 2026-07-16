@@ -175,6 +175,14 @@ const SENTINEL_VENUES = new Set([
 function isOnlineVenue(ev) {
   return SENTINEL_VENUES.has((ev.venue || '').trim().toLowerCase());
 }
+// Row modifier for an active highlight — 'hl-gold' | 'hl-editorial' | ''. The
+// tier comes from the server (lib/db.js highlightJoin), so an unknown/absent
+// value must degrade to "not highlighted" rather than emit a class with no rule
+// (same defensive shape as the pin's `highlight: ev.highlight || null`).
+const HL_ROW_CLASS = { gold: 'hl-gold', editorial: 'hl-editorial' };
+function hlClass(ev) {
+  return HL_ROW_CLASS[ev.highlight] || '';
+}
 
 /* ---------------- GL pin sprites ----------------
  * MapLibre paint/layout can't read CSS vars, so pin sprites are rasterized from
@@ -2629,7 +2637,7 @@ export default function Home() {
           return (
             <div key={ev.id}>
               {head}
-              <button className={`row ${whenMode === 'range' ? 'range-match' : ''} ${selected?.id === ev.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(ev)}>
+              <button className={`row ${hlClass(ev)} ${whenMode === 'range' ? 'range-match' : ''} ${selected?.id === ev.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(ev)}>
                 <span className="thumb"><CatIcon cat={cat} size={17} /></span>
                 <span className="tx">
                   <span className="t">{ev.title}</span>
@@ -2657,7 +2665,7 @@ export default function Home() {
               const community = isCommunitySubmitted(pl);
               const online = isOnlineVenue(pl);
               return (
-                <button key={pl.id} className={`row ${selected?.id === pl.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(pl)}>
+                <button key={pl.id} className={`row ${hlClass(pl)} ${selected?.id === pl.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(pl)}>
                   <span className="thumb"><CatIcon cat={cat} size={17} /></span>
                   <span className="tx">
                     <span className="t">{pl.title}</span>

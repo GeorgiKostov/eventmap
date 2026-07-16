@@ -4,6 +4,12 @@ import { getChannel, weekendWindow } from '../../../../lib/city-channels.js';
 import { loadDigestFor, MIN_INDEXABLE_ITEMS } from '../../../../lib/digest.js';
 import { eventsByIds } from '../../../../lib/db.js';
 import { CATS } from '../../../../lib/icons.js';
+import { STRINGS } from '../../../../lib/i18n.js';
+import NewsletterSignup from '../../../newsletter-signup.js';
+
+// Highlight ring colours — same two as the map pins (app/page.js
+// HIGHLIGHT_COLORS) and the newsletter (lib/digest.js HIGHLIGHT).
+const HIGHLIGHT = { gold: '#E8A800', editorial: '#C93A5B' };
 
 // The weekly digest, as a permanent public page. Phase 2 of the newsletter
 // (George: "a sharable page per city per week so we reuse the content and have
@@ -188,9 +194,22 @@ export default async function WeekendPage({ params }) {
       <ol style={{ listStyle: 'none', padding: 0, margin: '28px 0 0' }}>
         {items.map((it, i) => {
           const color = CATS[it.cat]?.color || '#C93A5B';
+          // Frozen snapshots predate `highlight`, so it may simply be absent —
+          // no treatment and no label then, which is the honest pairing (an
+          // unbadged, unstyled row is just an organic pick, and highlights never
+          // reorder this list anyway — see weekendPicks).
+          const hl = HIGHLIGHT[it.highlight] || null;
           const body = (
             <>
-              <h2 style={{ fontSize: 19, margin: '0 0 4px', lineHeight: 1.3 }}>{it.title}</h2>
+              <h2 style={{ fontSize: 19, margin: '0 0 4px', lineHeight: 1.3 }}>
+                {it.title}
+                {/* Gold (paid) only — legal disclosure travels with the styling. */}
+                {it.highlight === 'gold' && (
+                  <span style={{ display: 'inline-block', marginLeft: 8, fontSize: 10, fontWeight: 800, color: '#212B28', background: '#FDF3DA', border: `1px solid ${HIGHLIGHT.gold}`, borderRadius: 99, padding: '3px 8px', verticalAlign: 'middle' }}>
+                    {(STRINGS[channel.lang] || STRINGS.en).adTag}
+                  </span>
+                )}
+              </h2>
               <div style={{ color, fontWeight: 700, fontSize: 14 }}>
                 {it.when}
                 {it.venue ? <span style={{ color: '#4A5652', fontWeight: 400 }}> · {it.venue}</span> : null}
@@ -206,7 +225,7 @@ export default async function WeekendPage({ params }) {
             </>
           );
           return (
-            <li key={it.id} style={{ display: 'flex', gap: 14, background: '#fff', border: '1px solid #E4E4DD', borderLeft: `5px solid ${color}`, borderRadius: 14, padding: 18, marginBottom: 12 }}>
+            <li key={it.id} style={{ display: 'flex', gap: 14, background: '#fff', border: hl ? `2px solid ${hl}` : '1px solid #E4E4DD', borderLeft: `5px solid ${color}`, borderRadius: 14, padding: 18, marginBottom: 12 }}>
               <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: 99, background: color, color: '#fff', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
               <div style={{ flex: 1 }}>
                 {it.linked ? (
@@ -226,6 +245,18 @@ export default async function WeekendPage({ params }) {
         </a>
         <p style={{ color: '#4A5652', fontSize: 14, margin: '12px 0 0' }}>{c.mapSub(channel.label)}</p>
       </section>
+
+      {/* The conversion point. This page is the SEO surface — someone arrives on
+          "was ist los in Linz am Wochenende", reads the picks, and this is where
+          they can say "yes, weekly". The area is the channel this page is already
+          about, so it costs one field. (`c.nlCta` has existed unused since the
+          page shipped — this is the section it was written for.) */}
+      <NewsletterSignup
+        lang={channel.lang}
+        area={{ label: channel.label, lat: channel.lat, lng: channel.lng }}
+        source="weekend_page"
+        title={c.nlCta}
+      />
 
       <p style={{ marginTop: 28, fontSize: 14 }}>
         <Link href={`/weekend/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.archive} →</Link>

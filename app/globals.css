@@ -290,6 +290,15 @@ a { color: inherit; }
   display: grid; place-items: center; color: #fff; background: var(--cc);
   box-shadow: var(--shadow-sm);
 }
+/* Highlight in the list = a ring around the row's MARKER — the same grammar as
+   the map pin's outline ring and as .legend-pin.gold below, so one signal reads
+   the same on every surface. It rings the thumb rather than restyling the row
+   because the row's other channels are already spoken for: border-left means
+   range-match and background means .active, and a highlighted row can be either.
+   Gold additionally carries the "Anzeige" tag in .rowbadges (legal disclosure —
+   colour alone is never disclosure); editorial rings but is never labelled. */
+.row.hl-gold .thumb { box-shadow: 0 0 0 2px var(--gold), var(--shadow-sm); }
+.row.hl-editorial .thumb { box-shadow: 0 0 0 2px var(--accent), var(--shadow-sm); }
 .row .tx { flex: 1 1 auto; min-width: 0; }
 .row .t { font-weight: 650; font-size: 14px; line-height: 1.3; margin: 0 0 2px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row .m { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
@@ -1028,6 +1037,37 @@ a { color: inherit; }
 }
 @keyframes okolo-slide { 0% { left: -42%; width: 42%; } 50% { width: 62%; } 100% { left: 100%; width: 42%; } }
 @keyframes okolo-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---- newsletter signup on the public server-rendered pages (app/newsletter-signup.js,
+   used by /weekend/… and /event/…). Those pages are otherwise plain documents with
+   inline styles, so this is the one block of shared chrome they pull from here. ---- */
+.pagenl {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; margin-top: 26px;
+}
+.pagenl-title { font-family: var(--font-display); font-size: 19px; line-height: 1.25; margin: 0 0 6px; }
+.pagenl-blurb { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 0 0 14px; }
+.pagenl-label {
+  display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+/* Wraps below 380px rather than crushing the button to an unreadable stub. */
+.pagenl-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.pagenl-input {
+  flex: 1 1 200px; min-width: 0; border: 1px solid var(--line); border-radius: 11px;
+  background: var(--panel2); padding: 11px 12px; font-size: 15px; color: var(--ink); outline: none;
+}
+.pagenl-input:focus-visible { border-color: var(--accent); }
+.pagenl-btn {
+  flex: 0 0 auto; background: var(--accent); color: #fff; font-weight: 700; font-size: 14px;
+  border-radius: 11px; padding: 11px 20px; cursor: pointer;
+}
+.pagenl-btn:disabled { opacity: 0.6; cursor: default; }
+.pagenl-area { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
+.pagenl-err { font-size: 13px; color: var(--accent); font-weight: 650; margin: 10px 0 0; }
+.pagenl-consent { font-size: 11.5px; line-height: 1.5; color: var(--muted); margin: 10px 0 0; }
+.pagenl-consent a { color: var(--muted); text-decoration: underline; }
+.pagenl-done { font-size: 15px; line-height: 1.6; color: var(--ink); font-weight: 650; margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }

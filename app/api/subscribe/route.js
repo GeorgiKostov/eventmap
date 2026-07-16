@@ -15,6 +15,13 @@ const EVENT_CATEGORIES = new Set(EVENT_CATS);
 // fall in that region, not just be a syntactically valid world coordinate — so
 // a crafted (0,0) can't pollute targeting exports.
 const AREA_BOUNDS = { latMin: 40, latMax: 50, lngMin: 8, lngMax: 30 };
+// Where the signup happened. A CLOSED enum, not a free string: `source` is an
+// anonymous write that lands in a column we read when judging the four-weekend
+// test ("did the SEO pages actually convert?"), so an open field would be both
+// unmoderatable and useless for grouping. Anything unrecognised falls back to
+// the map popup rather than being rejected — a mis-set source must never cost
+// us a real subscriber.
+const SIGNUP_SOURCES = new Set(['newsletter_popup', 'weekend_page', 'event_page']);
 const MESSAGES = {
   de: {
     limited: 'Zu viele Anfragen — bitte später wieder.',
@@ -79,8 +86,9 @@ export async function POST(req) {
     ? body.lang
     : channelForPoint(areaLat, areaLng)?.lang || (areaLng > 20 ? 'bg' : 'de');
 
+  const source = SIGNUP_SOURCES.has(body.source) ? body.source : 'newsletter_popup';
   const { pending, token } = await addSubscriber(email, {
-    source: 'newsletter_popup',
+    source,
     lang,
     areaLabel,
     areaLat,
@@ -112,7 +120,7 @@ export async function POST(req) {
       console.error('[subscribe] no mail provider accepted the confirmation — set RESEND_API_KEY or SMTP_USER/SMTP_PASS');
       return NextResponse.json({ error: msg.mailDown }, { status: 503 });
     }
-    await notifyNewSubscriber(email, { lang, source: 'newsletter_popup' });
+    await notifyNewSubscriber(email, { lang, source });
   }
   return NextResponse.json({ ok: true, pending });
 }
