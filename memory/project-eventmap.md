@@ -17,6 +17,24 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-16 — crawl-optimization batch, Germany prep)
+- **George is setting up local Nominatim on his box** (docs/ops/local-box-setup.md) for the Germany
+  scan; regeocode/enrich/merge-dups backfills stay parked until it's up.
+- **Hygiene batch SHIPPED (e326335)**: blocked_reason states (migration applied to prod; robots skips
+  no longer feed zero_streak), crawl-time fuzzy dedup (findDuplicate fallback behind content_hash +
+  crawl-only `titleSubstitution` guard — templated titles like "Josefstadt spielt"↔"Meidling spielt"
+  bail instead of auto-deleting a real event), geocode negative-cache fixes (429/5xx never cached),
+  scripts/rot-report.mjs (269 flagged first run) + SYSTEMIC guard in crawl summary. 103 tests.
+- **In flight**: CMS fingerprint sweep dry run over ~840 LLM-route sources (scripts/fingerprint-
+  sources.mjs + lib/cms-fingerprint.js, dry-run only until architect review); jevents adapter for
+  visitsofia.bg; SOTA research → docs/research/crawl-sota-2026.md. Research so far: batch APIs = 50%
+  LLM cost cut; trafilatura-class preprocessing = 80-90% token cut; Microdata = 46% of structured-data
+  sites (JSON-LD-only parsing has a real miss rate); Germany = TYPO3 ~20% + WordPress ~18% of Gemeinden,
+  iKISS syncs with termine-regional.de (nationwide portal — vet as bulk shortcut before building
+  adapters); OPARL = council meetings only, red herring.
+- **Concurrent session caution**: another session committed source-quality ranking (5333ae3) and swept
+  this batch's lib/db.js helpers into its commit. Stage explicit paths only.
+
 ## Where things stand (2026-07-15 latest+1 — per-event social posting + cross-ledger dedup)
 - **Individual-photo posting on the desk** (551047a): each digest event posts on its own (IG/FB/Preview
   per row, "post next unposted", CLI `--item`/`--next`), sharing one `publishWithLedger` core with the

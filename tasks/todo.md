@@ -120,8 +120,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       pays for the key; I asserted a cause without measuring (lesson recorded).**
 - [ ] **Optional: paced manual recovery** of the ~500 still-stuck sources (mostly countryside, George
       deprioritized) — or just let the next cron run self-heal them (they're now first in line).
-- [ ] **Rot detector** (EU-scale doc) still worth building: alert on works=true past cadence + climbing
-      zero_streak, so a starved/blocked source can't silently sit at 0 again.
+- [x] **Rot detector SHIPPED (e326335)**: scripts/rot-report.mjs (stale >2× cadence / zero_streak≥3 /
+      blocked_reason / honest-zero per tier; 269 flagged on first run) + a `⚠ SYSTEMIC` guard in the
+      crawl summary when >50% of attempted sources yield 0. Plus `blocked_reason` column (migration
+      applied to prod): robots skips are states now, never zero_streak fuel.
 - [ ] Corollary: "0/N upserted (route: llm)" on Kids&Co St.Pölten + Vorarlberger Familienverband =
       extraction fine, all events dropped at geocode (no resolvable location). Correct by hard-rule-5
       but they yield 0 usable — needs a town/location the geocoder accepts.
@@ -414,13 +416,15 @@ Critical/Major against the code, then fixed all. Build green, 52 tests pass (+3 
       has no region param + no committed probe/register script — registration path is ad-hoc SQL;
       (b) crawl.mjs header comment states wrong waterfall order (code: JSON-LD→iCal→GEM2GO→RSS);
       (c) design-doc §5/§6 sources-table description + counts badly stale.
-- [ ] **Crawl-time fuzzy dedup**: content_hash still the only crawl-path guard; wire findDuplicate
-      into crawl.mjs after the concurrent session lands its changes.
+- [x] **Crawl-time fuzzy dedup SHIPPED (e326335)**: findDuplicate wired into both crawl paths as a
+      fallback behind content_hash (bounded same-day+town query, enrich-only merge, first-seen
+      attribution kept) + a crawl-only `titleSubstitution` guard — templated titles that swap one
+      content word ("Josefstadt spielt" ↔ "Meidling spielt") bail instead of auto-deleting a real event.
 - [ ] **Regeocode repair run**: `node --env-file=.env.local scripts/regeocode.mjs` (dry-run) once
       Nominatim rate-limit has cooled (first dry-run was pre-fix and had bad long-distance matches —
       discard it); sanity-check no multi-km cross-region jumps, then `--write`.
-- [ ] Geocode wart: network errors during Nominatim lookups are cached as negative hits
-      (pre-existing in `tryQuery`) — stop caching on catch, or 429 storms poison the cache.
+- [x] Geocode wart FIXED (e326335): transient 429/5xx no longer cached as negative hits — poiQuery's
+      town sub-lookup (was poisoning the outer poi key) + reverseGeocode (had no 429 guard at all).
 - [x] **Supabase Postgres port** — `lib/db.js` on the `postgres` client over the transaction pooler;
       dedicated `umkreis` schema; starts_at/ends_at kept as Vienna-TEXT; booleans/arrays normalized
       to the old SQLite shape so no consumer changed. 95 events imported, map/detail/writes verified live.
