@@ -15,19 +15,24 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       recurring ~13s/0-tool failure; re-dispatched, fine on retry.)
 - [x] **First $0 win registered + verified**: RheinMain4Family (microdata route, **79/79**, covers
       Frankfurt+Mainz+Wiesbaden+Darmstadt in one source). The muenchen.de Microdata rung generalizes.
-- [ ] **Register the rest, $0-structured first** (all verified, in the research doc): koeln.de iCal
-      (30 VEVENTs), Bonn iCal+RSS, Stadt Köln per-event iCal, Mainz RSS (10), Offenbach RSS (30),
-      kulturlotse.de RSS. NB feed-URL sources: confirm how the waterfall consumes a DIRECT feed url
-      (findIcsLink/findFeedLink match `href=*.ics` / `<link rel=alternate>`, NOT the query-param
-      `?ical=1` / `?sp:out=rss` forms — may need registering the feed URL directly or a small
-      discovery tweak).
+- [x] **Direct-feed rung SHIPPED**: when a source url IS an iCal/RSS endpoint, parse the body directly
+      (the query-param feeds findIcsLink can't discover). koeln.de iCal → route:ical, 30/30 verified.
+- [x] **22 metro sources registered + crawled** (register-catalog gated 5 on ai-bot/robots policy):
+      Hamburg 78 · Köln 257 · Frankfurt 113 · Stuttgart 83 events. Two more MICRODATA wins for the
+      muenchen.de rung — **Hänneschen Puppenspiele Köln 197** + RheinMain4Family 79. **DE now:
+      1,925 events · 1,814 places · 67 sources · 946 family** (from 706/319/8). Catalogs:
+      data/catalog/metro-{hamburg,cologne,frankfurt,stuttgart}-40km-2026-07-17.json.
+- [ ] **Sitepark/kulturlotse RSS is pubDate-only → currently LLM route, not $0** (Mainz/Offenbach/Bonn/
+      kulturlotse: date is in the item TITLE, not a machine tag; parseRssEvents correctly declines).
+      A small Sitepark-title-date parser would make ~4-6 official kids calendars $0 — worth it.
 - [ ] **Two-hop JSON-LD adapters** (detail-page `@graph` Event, visitberlin pattern proven): Hamburg
-      Tourismus + visitberlin.de itself. One adapter shape serves both.
-- [ ] **LLM-route venues** (register, they yield their window): Köln — KÄNGURU, COMEDIA, Hänneschen;
-      Frankfurt — Zoo Frankfurt (two-hop /event/), KIKAWI, Papageno, Grüne Soße; Stuttgart — Junges
-      Schloss, FITZ, JES, SMNS Naturkunde, Esslingen iCal; Hamburg — Bücherhallen, Hagenbeck, NABU.
+      Tourismus + visitberlin.de itself. One adapter shape serves both. (Not built yet.)
+- [ ] **Skipped on policy (ai-bot/robots), needs George or an allowed path**: Bücherhallen Hamburg,
+      hamburg.de kids, Stadt Bonn, Offenbach (all name ClaudeBot); Düsseldorf /kiju (robots). These
+      are official/high-yield — outreach or a permitted endpoint.
 - [ ] **Blocked/JS, revisit**: frankfurt.de (403 to non-browser UA — send a real UA), Luftballon
-      Stuttgart (~1,000/mo, find the XHR endpoint), Wilhelma (WAF), stuttgart-tourist.de (2,042 JS).
+      Stuttgart (~1,000/mo, find the XHR endpoint), Wilhelma (WAF), stuttgart-tourist.de (2,042 JS),
+      Zoo Frankfurt two-hop /event/ links, Esslingen iCal (grab .ics from rendered DOM).
 - [ ] **Add itemscope/itemtype=Event to `structuredSignals()`** so the next fingerprint sweep measures
       how many of the ~840 LLM-route sources are secretly Microdata $0 (the muenchen/RheinMain pattern).
 

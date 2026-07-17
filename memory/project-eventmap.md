@@ -21,12 +21,18 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   $0-rss / $0-2hop / LLM / JS / BLOCKED). First $0 win registered + crawl-verified: **RheinMain4Family
   79/79 via the microdata route, covering Frankfurt+Mainz+Wiesbaden+Darmstadt in one source** — the
   muenchen.de Microdata rung generalizes across cities, as predicted.
-- **Registration is IN FLIGHT, not done.** Next batch (all verified, in the doc): the $0 feed sources
-  (koeln.de iCal 30, Bonn iCal+RSS, Stadt Köln per-event iCal, Mainz/Offenbach RSS, kulturlotse RSS —
-  NB confirm the waterfall consumes a DIRECT feed URL; findIcsLink/findFeedLink match `href=*.ics` /
-  `<link rel=alternate>`, not the `?ical=1`/`?sp:out=rss` query forms), then two-hop JSON-LD adapters
-  (Hamburg Tourismus + visitberlin, same shape), then the LLM-route venues (KÄNGURU, COMEDIA,
-  Hänneschen, Zoo Frankfurt, Junges Schloss/FITZ/JES, Bücherhallen…).
+- **Registration batch DONE (2026-07-17): DE now 1,925 events · 1,814 places · 67 sources · 946
+  family** (from 706/319/8 at session start). Shipped: a **direct-feed rung** (parse the body when a
+  source url IS an iCal/RSS endpoint — the `?ical=1`/`?sp:out=rss` feeds findIcsLink can't discover;
+  koeln.de iCal verified route:ical 30/30) + **22 metro sources** registered & scope-crawled
+  (Hamburg 78 · Köln 257 · Frankfurt 113 · Stuttgart 83). Two more MICRODATA wins: **Hänneschen
+  Puppenspiele Köln 197** + RheinMain4Family 79. Scopes: Berlin 20 · Munich 15 · Stuttgart 14
+  (deepened) · Frankfurt 8 · Hamburg 5 · Köln 5. register-catalog gated 5 on policy (Bücherhallen/
+  hamburg.de/Bonn/Offenbach name ClaudeBot; Düsseldorf robots).
+- **Still open**: Sitepark/kulturlotse RSS is pubDate-only (date in the item title → LLM, not $0; a
+  small Sitepark-title parser unlocks ~4-6 official kids calendars); two-hop JSON-LD adapter (Hamburg
+  Tourismus + visitberlin, same shape, not built); the policy-skipped official sources (outreach);
+  Hamburg PLACES (Overpass still owed a re-run). Details: docs/research/germany-metro-sources-2026-07-17.md.
 - **Cross-cutting**: DE tourism boards are NOT reliably JSON-LD (visitberlin + Hamburg Tourismus yes
   via detail `@graph`; KölnTourismus/Düsseldorf/visitfrankfurt/stuttgart-tourist no — always check).
   Recurring agent failure: ~2 of every batch no-op in ~13s with 0 tool calls; just re-dispatch.
