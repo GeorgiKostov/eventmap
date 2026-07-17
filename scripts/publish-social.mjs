@@ -25,7 +25,7 @@ import { loadDigest, renderCaption, renderItemCaption } from '../lib/digest.js';
 import { metaGet, metaSet, metaClaim, metaDelete } from '../lib/db.js';
 import {
   socialConfigured,
-  missingSocialEnv,
+  missingSocialConfig,
   cardUrls,
   postedKey,
   publishAndLedger,
@@ -65,8 +65,8 @@ if (!digest.items.length) {
   process.exit(1);
 }
 
-const configured = socialConfigured();
-const missing = missingSocialEnv(target);
+const configured = socialConfigured(channel);
+const missing = missingSocialConfig(target, channel);
 const dryRun = flag('dry-run') || missing.length > 0;
 
 const itemIdArg = val('item', null);
@@ -74,7 +74,7 @@ const nextFlag = flag('next');
 
 console.log(`\n=== ${channel.label} (${channel.handle}) → ${target} · ${digest.label} ===`);
 console.log(`configured: instagram=${configured.instagram} facebook=${configured.facebook}`);
-if (missing.length) console.log(`missing env: ${missing.join(', ')}`);
+if (missing.length) console.log(`not configured: ${missing.join(', ')}`);
 
 if (itemIdArg != null || nextFlag) {
   // ---- single-item / "next unposted" path ----

@@ -5,7 +5,7 @@ import { metaGet, metaSet, metaClaim, metaDelete } from '../../../../lib/db.js';
 import { isAdmin } from '../../../../lib/admin-auth.js';
 import {
   socialConfigured,
-  missingSocialEnv,
+  missingSocialConfig,
   cardUrls,
   postedKey,
   publishAndLedger,
@@ -47,7 +47,7 @@ export async function GET(req) {
   if (!channel) return NextResponse.json({ error: 'unknown channel' }, { status: 400 });
 
   const digest = await loadDigest(channel);
-  const configured = socialConfigured();
+  const configured = socialConfigured(channel);
   if (!digest) {
     return NextResponse.json({
       configured,
@@ -161,7 +161,7 @@ export async function POST(req) {
       return NextResponse.json({ dryRun: true, imageUrls, caption, item: { id: item.id, title: item.title } });
     }
 
-    const missing = missingSocialEnv(target);
+    const missing = missingSocialConfig(target, channel);
     if (missing.length) {
       return NextResponse.json(
         { error: `No ${target} credentials — nothing was posted. Set ${missing.join(', ')}.` },
@@ -203,7 +203,7 @@ export async function POST(req) {
     return NextResponse.json({ dryRun: true, imageUrls, caption });
   }
 
-  const missing = missingSocialEnv(target);
+  const missing = missingSocialConfig(target, channel);
   if (missing.length) {
     return NextResponse.json(
       { error: `No ${target} credentials — nothing was posted. Set ${missing.join(', ')}.` },

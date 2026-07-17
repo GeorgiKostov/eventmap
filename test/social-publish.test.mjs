@@ -3,11 +3,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   socialConfigured,
-  missingSocialEnv,
+  missingSocialConfig,
   cardUrls,
   postedKey,
   facebookMessage,
   publishInstagramCarousel,
+  publishFacebookPost,
   publishAndLedger,
   itemPostedKey,
   itemSlide,
@@ -19,8 +20,10 @@ import {
 import { renderCaption, renderItemCaption, weekendUrl } from '../lib/digest.js';
 
 // Snapshot + restore the handful of env vars each test touches, so tests
-// never leak state into each other or into the rest of the suite.
-const ENV_KEYS = ['META_ACCESS_TOKEN', 'IG_USER_ID', 'FB_PAGE_ID', 'NEXT_PUBLIC_BASE_URL'];
+// never leak state into each other or into the rest of the suite. The Meta ids
+// are NOT env any more (they're per-channel, in lib/city-channels.js) — only the
+// shared token is.
+const ENV_KEYS = ['META_ACCESS_TOKEN', 'NEXT_PUBLIC_BASE_URL'];
 function withEnv(vars, fn) {
   const saved = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
   for (const k of ENV_KEYS) delete process.env[k];
@@ -35,49 +38,69 @@ function withEnv(vars, fn) {
   }
 }
 
-test('socialConfigured: nothing set → both false', () => {
+const BOTH = { slug: 'both', fbPageId: '456', igUserId: '123' };
+const FB_ONLY = { slug: 'fbonly', fbPageId: '456', igUserId: null };
+
+test('socialConfigured: no token → both false even with ids', () => {
   withEnv({}, () => {
-    assert.deepEqual(socialConfigured(), { instagram: false, facebook: false });
+    assert.deepEqual(socialConfigured(BOTH), { instagram: false, facebook: false });
   });
 });
 
-test('socialConfigured: token alone is not enough for either target', () => {
+test('socialConfigured: token alone is not enough — a channel with no ids posts nowhere', () => {
   withEnv({ META_ACCESS_TOKEN: 'tok' }, () => {
-    assert.deepEqual(socialConfigured(), { instagram: false, facebook: false });
+    assert.deepEqual(socialConfigured({ slug: 'bare', fbPageId: null, igUserId: null }), {
+      instagram: false,
+      facebook: false,
+    });
   });
 });
 
-test('socialConfigured: token + IG_USER_ID → instagram only', () => {
-  withEnv({ META_ACCESS_TOKEN: 'tok', IG_USER_ID: '123' }, () => {
-    assert.deepEqual(socialConfigured(), { instagram: true, facebook: false });
+test('socialConfigured: is per-channel — Page but no IG → facebook only', () => {
+  withEnv({ META_ACCESS_TOKEN: 'tok' }, () => {
+    assert.deepEqual(socialConfigured(FB_ONLY), { instagram: false, facebook: true });
   });
 });
 
-test('socialConfigured: token + FB_PAGE_ID → facebook only', () => {
-  withEnv({ META_ACCESS_TOKEN: 'tok', FB_PAGE_ID: '456' }, () => {
-    assert.deepEqual(socialConfigured(), { instagram: false, facebook: true });
+test('socialConfigured: token + both ids → both true', () => {
+  withEnv({ META_ACCESS_TOKEN: 'tok' }, () => {
+    assert.deepEqual(socialConfigured(BOTH), { instagram: true, facebook: true });
   });
 });
 
-test('socialConfigured: all three set → both true', () => {
-  withEnv({ META_ACCESS_TOKEN: 'tok', IG_USER_ID: '123', FB_PAGE_ID: '456' }, () => {
-    assert.deepEqual(socialConfigured(), { instagram: true, facebook: true });
-  });
-});
-
-test('missingSocialEnv names the exact vars, per target', () => {
+test('missingSocialConfig names the token AND the per-channel field, per target', () => {
   withEnv({}, () => {
-    assert.deepEqual(missingSocialEnv('instagram'), ['META_ACCESS_TOKEN', 'IG_USER_ID']);
-    assert.deepEqual(missingSocialEnv('facebook'), ['META_ACCESS_TOKEN', 'FB_PAGE_ID']);
+    assert.deepEqual(missingSocialConfig('instagram', FB_ONLY), [
+      'META_ACCESS_TOKEN',
+      "igUserId for 'fbonly' in lib/city-channels.js",
+    ]);
   });
   withEnv({ META_ACCESS_TOKEN: 'tok' }, () => {
-    assert.deepEqual(missingSocialEnv('instagram'), ['IG_USER_ID']);
-    assert.deepEqual(missingSocialEnv('facebook'), ['FB_PAGE_ID']);
+    assert.deepEqual(missingSocialConfig('instagram', FB_ONLY), [
+      "igUserId for 'fbonly' in lib/city-channels.js",
+    ]);
+    assert.deepEqual(missingSocialConfig('facebook', FB_ONLY), []);
+    assert.deepEqual(missingSocialConfig('instagram', BOTH), []);
+    assert.deepEqual(missingSocialConfig('facebook', BOTH), []);
   });
-  withEnv({ META_ACCESS_TOKEN: 'tok', IG_USER_ID: '1', FB_PAGE_ID: '2' }, () => {
-    assert.deepEqual(missingSocialEnv('instagram'), []);
-    assert.deepEqual(missingSocialEnv('facebook'), []);
-  });
+});
+
+// The regression that motivated per-channel ids: the ids used to come from flat
+// env, so publishing a Vienna digest posted it to the LINZ accounts and reported
+// success. A channel missing an id must FAIL — the one thing it must never do is
+// quietly find some other city's account and post there.
+// No withEnv here: the guard is deliberately env-independent, so it refuses
+// before a token is ever consulted (withEnv restores synchronously and would not
+// span these awaits anyway).
+test('publish refuses a channel with no id rather than falling back to another city', async () => {
+  await assert.rejects(
+    () => publishInstagramCarousel({ channel: FB_ONLY, imageUrls: ['https://x/1'], caption: 'hi' }),
+    /has no igUserId/,
+  );
+  await assert.rejects(
+    () => publishFacebookPost({ channel: { slug: 'nopage', fbPageId: null }, imageUrls: ['https://x/1'], message: 'hi' }),
+    /has no fbPageId/,
+  );
 });
 
 test('cardUrls: cover + one per item, weekend pinned, base from env', () => {
@@ -136,9 +159,11 @@ test('facebookMessage: matches renderCaption when the caption already carries th
   assert.equal(facebookMessage(fixtureDigest), caption);
 });
 
+// Channel is a fully-configured one on purpose: with no igUserId the id guard
+// would reject first and this would pass without ever reaching the caption check.
 test('publishInstagramCarousel: rejects an over-limit caption BEFORE any network call', async () => {
   await assert.rejects(
-    () => publishInstagramCarousel({ imageUrls: ['https://x/1', 'https://x/2'], caption: 'x'.repeat(2201) }),
+    () => publishInstagramCarousel({ channel: BOTH, imageUrls: ['https://x/1', 'https://x/2'], caption: 'x'.repeat(2201) }),
     /2200/,
   );
 });

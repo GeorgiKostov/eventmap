@@ -92,26 +92,43 @@ as-is — it only reads the three env vars.
    Access" even for own-account use, request that (it's an automated check
    for own assets, not a human review).
 
-## 4. Get the ids
+## 4. Get the ids — one pair PER CITY
+
+Each city is its own Facebook Page + its own Instagram professional account, so
+each has its own id pair. One call lists every Page the token manages together
+with the IG account linked to it:
 
 ```sh
-# FB_PAGE_ID — lists Pages this token can manage
-curl 'https://graph.facebook.com/v23.0/me/accounts?access_token=TOKEN'
-
-# IG_USER_ID — the Instagram business account linked to that Page
-curl 'https://graph.facebook.com/v23.0/<PAGE_ID>?fields=instagram_business_account&access_token=TOKEN'
+curl 'https://graph.facebook.com/v23.0/me/accounts?fields=id,name,instagram_business_account{id,username}&access_token=TOKEN'
 ```
 
-## 5. Env vars
+If a Page comes back with **no `instagram_business_account` field at all**, that
+Page has no IG account attached — the fix is in Meta (convert the IG account to
+professional, then link it to the Page), not in our code. Re-run this call; the
+id appears once the link exists.
 
-Set these on **Vercel (Production)** and in **`.env.local`** for local runs:
+## 5. Where the ids go (NOT env)
+
+The ids live on the channel's row in [`lib/city-channels.js`](../../lib/city-channels.js) —
+they're public identifiers, and there is one pair per city, which a flat env var
+can't express:
+
+```js
+{ slug: 'wien', …, fbPageId: '1171182632750527', igUserId: '17841441328273588' }
+```
+
+Leave a surface `null` until its id is verified against the call above. A channel
+with a `null` id refuses to publish; it never falls back to another city's
+account. Copying a neighbouring city's id to make a post go through is the exact
+bug this shape exists to prevent — it posts to a real audience.
+
+Only the **token** is env. Set it on **Vercel (Production)** and in `.env.local`:
 
 ```
 META_ACCESS_TOKEN=<system user token from step 3>
-IG_USER_ID=<from step 4>
-FB_PAGE_ID=<from step 4>
 ```
 
+The token is shared by every channel — only the ids differ per city.
 `META_GRAPH_VERSION` is optional (defaults to `v23.0`).
 
 **Important:** Meta fetches the carousel/post images from public URLs
