@@ -2,7 +2,10 @@
   "_meta": {
     "scope": "munich-40km",
     "built_at": "2026-07-16",
-    "center": { "lat": 48.1351, "lng": 11.5820 },
+    "center": {
+      "lat": 48.1351,
+      "lng": 11.582
+    },
     "radius_km": 40,
     "notes": "Discovery-only sweep, all rows live-fetched with UmkreisBot/0.1 UA, robots.txt read and honored per host. Backbone (München proper) weighted heavily per brief: official city calendar (muenchen.de, Drupal + schema.org microdata — no JSON-LD/ICS/RSS), municipal library (muenchner-stadtbibliothek.de, TYPO3, 901 events), and two family/kids editorial publishers (muenchenmitkind.de, eintrittfrei-muenchen.de). Ring: 13 towns probed (Dachau, Freising, Erding, Fürstenfeldbruck, Starnberg, Germering, Unterschleißheim, Garching, Ismaning, Wolfratshausen, Ebersberg, Gauting, plus kid-dachau.de as a family bonus) — NOT exhaustive, a characterization sample. Biggest structural finding: 'RCE-Events' (img-cdn.rce-event.de / rce_wrapper markup on TYPO3) is a white-label Bavarian regional-calendar vendor seen at 5 of 13 ring towns; only tenants hosted on their OWN subdomain (Freising, and presumably Dachau's Landkreis instance) are crawlable — 3 others (Fürstenfeldbruck, Wolfratshausen, Germering) embed it via an iframe to the shared host www.rce-event.de, whose robots.txt disallows everything except /veranstaltungen/, blocking /output.php outright. München's own open-data portal (opendata.muenchen.de) has no events dataset (checked CKAN package_search — only visitor-count statistics exist) and additionally disallows /api/ in robots.txt regardless. München Tourismus (muenchen.travel / munich.travel) is fully Cloudflare-blocked (403 'Attention Required') on every path tried."
   },
@@ -15,7 +18,7 @@
       "region": "München 40km",
       "country": "DE",
       "centroid_lat": 48.1351,
-      "centroid_lng": 11.5820,
+      "centroid_lng": 11.582,
       "cms": null,
       "confidence": "high",
       "kind": "city",
@@ -28,7 +31,7 @@
       "region": "München 40km",
       "country": "DE",
       "centroid_lat": 48.1351,
-      "centroid_lng": 11.5820,
+      "centroid_lng": 11.582,
       "cms": null,
       "confidence": "high",
       "kind": "city",
@@ -41,7 +44,7 @@
       "region": "München 40km",
       "country": "DE",
       "centroid_lat": 48.1351,
-      "centroid_lng": 11.5820,
+      "centroid_lng": 11.582,
       "cms": null,
       "confidence": "medium",
       "kind": "family",
@@ -54,7 +57,7 @@
       "region": "München 40km",
       "country": "DE",
       "centroid_lat": 48.1351,
-      "centroid_lng": 11.5820,
+      "centroid_lng": 11.582,
       "cms": null,
       "confidence": "high",
       "kind": "library",
@@ -67,7 +70,7 @@
       "region": "München 40km",
       "country": "DE",
       "centroid_lat": 48.1351,
-      "centroid_lng": 11.5820,
+      "centroid_lng": 11.582,
       "cms": null,
       "confidence": "high",
       "kind": "family",
@@ -110,7 +113,9 @@
       "cms": null,
       "confidence": "high",
       "kind": "municipal",
-      "notes": "TYPO3 with a bespoke 'tx_starnbergevent' extension (single-instance, not a reusable adapter target). Live-verified 2026-07-16: 12 events server-rendered (.vak-box/.vak-date/.vak-cat/.headline markup) with real titles/venues/times, e.g. 'Das Lochmannhaus' at Museum Starnberger See, 11:00–18:00. robots.txt allows (typo3conf/ext explicitly allowed)."
+      "notes": "TYPO3 with a bespoke 'tx_starnbergevent' extension (single-instance, not a reusable adapter target). Live-verified 2026-07-16: 12 events server-rendered (.vak-box/.vak-date/.vak-cat/.headline markup) with real titles/venues/times, e.g. 'Das Lochmannhaus' at Museum Starnberger See, 11:00–18:00. robots.txt allows (typo3conf/ext explicitly allowed).",
+      "register": false,
+      "register_reason": "Measured 2026-07-17: 8,670 chars of static HTML with 0 date strings and 0 structured data — no event data on the page at all. 0-yield trap."
     },
     {
       "name": "Gemeinde Ismaning – Veranstaltungen (Kultur & Freizeit)",

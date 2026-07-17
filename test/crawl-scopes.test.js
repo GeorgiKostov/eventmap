@@ -30,3 +30,31 @@ test('probed source points accept explicit centroid fields and reject missing co
   assert.deepEqual(sourceCatalogPoint({ centroid_lat: '48.8', centroid_lng: '9.2' }), { lat: 48.8, lng: 9.2 });
   assert.equal(sourceCatalogPoint({ town: 'Esslingen am Neckar' }), null);
 });
+
+test('Berlin and Munich scopes match their catalogs and stay independent of each other', () => {
+  const berlin = crawlScope('berlin-40km');
+  const munich = crawlScope('munich-40km');
+  assert.deepEqual(berlin.center, { lat: 52.52, lng: 13.405 });
+  assert.deepEqual(munich.center, { lat: 48.1351, lng: 11.582 });
+  for (const s of [berlin, munich]) {
+    assert.equal(s.country, 'DE');
+    assert.equal(s.radiusKm, 40);
+  }
+  // The regions are the exact strings the probed catalogs' rows carry —
+  // a mismatch makes scopeForSource() return null and the boundary vanish.
+  assert.equal(berlin.sourceRegion, 'Berlin 40km');
+  assert.equal(munich.sourceRegion, 'München 40km');
+  assert.equal(scopeForSource({ country: 'DE', region: 'Berlin 40km' }), berlin);
+  assert.equal(scopeForSource({ country: 'DE', region: 'München 40km' }), munich);
+  // Berlin's ring must not swallow Munich's, nor Stuttgart's.
+  assert.equal(isWithinCrawlScope(munich.center, berlin), false);
+  assert.equal(isWithinCrawlScope(berlin.center, munich), false);
+  assert.equal(isWithinCrawlScope({ lat: 52.4, lng: 13.2 }, berlin), true); // Kleinmachnow-ish
+  assert.equal(isWithinCrawlScope({ lat: 48.4, lng: 11.75 }, munich), true); // Freising-ish
+});
+
+test('an unknown scope id is null, never a silently widened default', () => {
+  assert.equal(crawlScope('hamburg-40km'), null);
+  assert.equal(crawlScope('koln-40km'), null);
+  assert.equal(crawlScope(''), null);
+});

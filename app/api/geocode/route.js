@@ -14,7 +14,8 @@ const GEO_LIMIT = { perHour: 120, perDay: 600 };
 // Nominatim's usage policy explicitly forbids autocomplete, Photon is built
 // for it. Kept self-contained here (not in lib/geocode.js) since it needs no
 // DB access — a small in-memory cache is enough and avoids a geocache
-// roundtrip per keystroke. Biased toward Linz via lat/lon, filtered to AT.
+// roundtrip per keystroke. Ranking is biased toward the caller's country;
+// hits from any served country are accepted.
 const SUGGEST_UA = 'umkreis-prototype/0.1 (address suggest; contact: bobojojok@gmail.com)';
 const suggestCache = new Map();
 
@@ -30,15 +31,30 @@ function photonLabel(props) {
   return parts.join(', ') || props.name || '';
 }
 
-// The map covers both AT and BG, so suggest must too — otherwise a Bulgarian
-// user typing "Бургас"/"София" gets zero results (the events are on the map but
+// The map covers AT, BG and DE, so suggest must too — otherwise a user typing
+// "Бургас"/"София"/"Potsdam" gets zero results (the events are on the map but
 // unreachable via search). Bias the ranking toward the user's country, but
-// accept both countries' hits. Photon has no 'bg' locale → 'en' for BG (it
-// still matches Cyrillic queries and returns local Cyrillic names).
+// accept every served country's hits. Photon has no 'bg' locale → 'en' for BG
+// (it still matches Cyrillic queries and returns local Cyrillic names).
 const SUGGEST_BIAS = {
   AT: { lat: 48.3069, lon: 14.2858, lang: 'de' }, // Linz
   BG: { lat: 42.6977, lon: 23.3219, lang: 'en' }, // Sofia
+  DE: { lat: 52.5174, lon: 13.3951, lang: 'de' }, // Berlin
 };
+
+// The countries this API will answer for — ONE closed set, derived from the
+// bias table so the two can't drift. Every AT/BG pair in this file used to be
+// spelled out separately (a ['AT','BG'] filter, two `=== 'BG' ? 'BG' : 'AT'`
+// parses, and a binary `? 'AT' : 'BG'` fallback flip), which meant adding a
+// third country silently did nothing: DE hits were filtered out of suggest and
+// the fallback could never reach DE. Hard rule 8 — a city we crawl but nobody
+// can type their way to is invisible.
+const SERVICE_COUNTRIES = Object.keys(SUGGEST_BIAS);
+const requestedCountry = (raw) => {
+  const c = String(raw || '').toUpperCase();
+  return SERVICE_COUNTRIES.includes(c) ? c : 'AT';
+};
+
 async function photonSuggest(q, country = 'AT') {
   const bias = SUGGEST_BIAS[country] || SUGGEST_BIAS.AT;
   const key = `${country}|${q.toLowerCase()}`;
@@ -53,7 +69,7 @@ async function photonSuggest(q, country = 'AT') {
     if (res.ok) {
       const data = await res.json();
       results = (data.features || [])
-        .filter((f) => ['AT', 'BG'].includes((f.properties?.countrycode || '').toUpperCase()))
+        .filter((f) => SERVICE_COUNTRIES.includes((f.properties?.countrycode || '').toUpperCase()))
         .map((f) => ({
           label: photonLabel(f.properties || {}),
           lat: f.geometry.coordinates[1],
@@ -83,7 +99,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   if (searchParams.get('suggest') === '1') {
     const sq = (searchParams.get('q') || '').trim();
-    const country = searchParams.get('country') === 'BG' ? 'BG' : 'AT';
+    const country = requestedCountry(searchParams.get('country'));
     const results = sq.length >= 2 ? await photonSuggest(sq, country) : [];
     return NextResponse.json({ results });
   }
@@ -92,12 +108,20 @@ export async function GET(req) {
     if (q.trim().length >= 2 && (await limit(req, 'geocode', GEO_LIMIT))) {
       return NextResponse.json({ result: null }, { status: 429 });
     }
-    const country = searchParams.get('country') === 'BG' ? 'BG' : 'AT';
+    const country = requestedCountry(searchParams.get('country'));
     let result = q.trim().length >= 2 ? await forwardGeocode(q, country) : null;
-    // The map covers AT+BG; if the requested country has no hit, try the other
-    // so a search-field submit ("Бургас", "Sozopol") resolves regardless of the
-    // caller's country default. (Autocomplete/suggest already spans both.)
-    if (!result && q.trim().length >= 2) result = await forwardGeocode(q, country === 'BG' ? 'AT' : 'BG');
+    // If the caller's country has no hit, try the others, so a search-field
+    // submit ("Бургас", "Sozopol", "Potsdam") resolves regardless of the
+    // caller's default. (Autocomplete/suggest already spans all of them.)
+    // Worst case is one lookup per served country — bounded, cached, and only
+    // on a miss; the places.js gazetteer answers the common cases first.
+    if (!result && q.trim().length >= 2) {
+      for (const alt of SERVICE_COUNTRIES) {
+        if (alt === country) continue;
+        result = await forwardGeocode(q, alt);
+        if (result) break;
+      }
+    }
     return NextResponse.json({ result });
   }
   const lat = parseFloat(searchParams.get('lat'));

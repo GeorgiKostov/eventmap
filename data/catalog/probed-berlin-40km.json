@@ -2,7 +2,10 @@
   "_meta": {
     "scope": "berlin-40km",
     "built_at": "2026-07-16",
-    "center": { "lat": 52.5200, "lng": 13.4050 },
+    "center": {
+      "lat": 52.52,
+      "lng": 13.405
+    },
     "radius_km": 40,
     "notes": "Discovery-only pass, no DB writes. Berlin backbone hand-found + live-verified per the 'big cities aren't Gemeinde' lesson (official berlin.de/tickets pages, Land Berlin Familienportal, visitBerlin, top family/kids publishers). Ring: 14 Brandenburg municipalities probed (not exhaustive) to characterize CMS mix and hit rate. Single highest-value finding: four ring towns (Oranienburg, Hennigsdorf, Kleinmachnow, Velten) confirmed running iKISS (data-ikiss-mfid markup) — the CMS with a bidirectional interface to termine-regional.de named in the brief; flagged as a lead only, not built on. Second finding: Werder (Havel) runs WordPress + EventON (429 dot-dates on one page, largest ring yield seen). Third: Erkner exposes a dedicated /veranstaltungen-sitemap.xml (499 URLs) whose detail pages carry real JSON-LD Event objects — a two-hop pattern structurally identical to the existing kalkalpen adapter."
   },
@@ -14,8 +17,8 @@
       "town": "Berlin",
       "region": "Berlin 40km",
       "country": "DE",
-      "centroid_lat": 52.5200,
-      "centroid_lng": 13.4050,
+      "centroid_lat": 52.52,
+      "centroid_lng": 13.405,
       "cms": null,
       "confidence": "high",
       "kind": "municipal",
@@ -27,8 +30,8 @@
       "town": "Berlin",
       "region": "Berlin 40km",
       "country": "DE",
-      "centroid_lat": 52.5200,
-      "centroid_lng": 13.4050,
+      "centroid_lat": 52.52,
+      "centroid_lng": 13.405,
       "cms": null,
       "confidence": "high",
       "kind": "family",
@@ -53,8 +56,8 @@
       "town": "Berlin",
       "region": "Berlin 40km",
       "country": "DE",
-      "centroid_lat": 52.5200,
-      "centroid_lng": 13.4050,
+      "centroid_lat": 52.52,
+      "centroid_lng": 13.405,
       "cms": null,
       "confidence": "high",
       "kind": "family",
@@ -66,8 +69,8 @@
       "town": "Berlin",
       "region": "Berlin 40km",
       "country": "DE",
-      "centroid_lat": 52.5200,
-      "centroid_lng": 13.4050,
+      "centroid_lat": 52.52,
+      "centroid_lng": 13.405,
       "cms": null,
       "confidence": "high",
       "kind": "tourism",
@@ -79,8 +82,8 @@
       "town": "Berlin",
       "region": "Berlin 40km",
       "country": "DE",
-      "centroid_lat": 52.5200,
-      "centroid_lng": 13.4050,
+      "centroid_lat": 52.52,
+      "centroid_lng": 13.405,
       "cms": null,
       "confidence": "high",
       "kind": "family",
@@ -92,8 +95,8 @@
       "town": "Berlin",
       "region": "Berlin 40km",
       "country": "DE",
-      "centroid_lat": 52.5200,
-      "centroid_lng": 13.4050,
+      "centroid_lat": 52.52,
+      "centroid_lng": 13.405,
       "cms": null,
       "confidence": "high",
       "kind": "family",
@@ -123,7 +126,9 @@
       "cms": null,
       "confidence": "medium",
       "kind": "municipal",
-      "notes": "Drupal 10. 16 dot-dates found server-rendered, several confirmed future (20.09.2026, 28.08.2026, 22.12.2026) but the page mixes in a few 2024/2025-dated entries (archive links) on the same fetch -- an LLM extractor needs to be told to skip past dates, not fabricate an assumption they're all upcoming. No JSON-LD/RSS found. robots.txt clean (Drupal boilerplate), no aibot block, /de/veranstaltungskalender not disallowed."
+      "notes": "Drupal 10. 16 dot-dates found server-rendered, several confirmed future (20.09.2026, 28.08.2026, 22.12.2026) but the page mixes in a few 2024/2025-dated entries (archive links) on the same fetch -- an LLM extractor needs to be told to skip past dates, not fabricate an assumption they're all upcoming. No JSON-LD/RSS found. robots.txt clean (Drupal boilerplate), no aibot block, /de/veranstaltungskalender not disallowed.",
+      "register": false,
+      "register_reason": "Measured 2026-07-17: static HTML is navigation only (11,501 chars, 0 ld+json); the calendar is client-rendered. All three local LLM candidates correctly extracted 0 events from it. Registering it buys a paid call and 0 events on every crawl. Needs the JS-SPA treatment (find the underlying API) first."
     },
     {
       "name": "Stadt Strausberg - Veranstaltungen",
@@ -214,7 +219,9 @@
       "cms": null,
       "confidence": "high",
       "kind": "municipal",
-      "notes": "Dedicated events sitemap, 499 <loc> entries, all under /freizeit-und-tourismus/stadtgeschichte-und-kultur/veranstaltungskalender/2026/. Spot-checked the first entry ('Weihnachtsliedersingen'): real JSON-LD Event confirmed live, startDate 2026-12-19T15:30:00+01:00, full description. This is a two-hop pattern (sitemap discovery -> per-page JSON-LD) structurally identical to the existing kalkalpen adapter in crawl.mjs -- see adapter-candidate note in the final report. Only 1 of 499 detail pages was fetched this session; the rest are unverified but the pattern (URL shape + JSON-LD presence) is consistent. robots.txt: the sitemap itself is disallowed only for named search-engine bots (Googlebot/Bingbot/Slurp/DuckDuckBot/YandexBot/Baiduspider); the general 'User-agent: *' group is 'Allow: /' -- no restriction on us."
+      "notes": "Dedicated events sitemap, 499 <loc> entries, all under /freizeit-und-tourismus/stadtgeschichte-und-kultur/veranstaltungskalender/2026/. Spot-checked the first entry ('Weihnachtsliedersingen'): real JSON-LD Event confirmed live, startDate 2026-12-19T15:30:00+01:00, full description. This is a two-hop pattern (sitemap discovery -> per-page JSON-LD) structurally identical to the existing kalkalpen adapter in crawl.mjs -- see adapter-candidate note in the final report. Only 1 of 499 detail pages was fetched this session; the rest are unverified but the pattern (URL shape + JSON-LD presence) is consistent. robots.txt: the sitemap itself is disallowed only for named search-engine bots (Googlebot/Bingbot/Slurp/DuckDuckBot/YandexBot/Baiduspider); the general 'User-agent: *' group is 'Allow: /' -- no restriction on us.",
+      "register": false,
+      "register_reason": "Measured 2026-07-17: a SITEMAP (499 <loc>, 0 dates, 0 ld+json), not an event listing. cms=null would feed the LLM a list of URLs = 0 yield + a paid call every crawl + a fabrication risk. Needs a kalkalpen-style two-hop adapter before it can be registered."
     }
   ],
   "rejected": [

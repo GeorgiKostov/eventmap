@@ -20,9 +20,10 @@ import {
 import { geocodeEvent } from '../lib/geocode.js';
 import { findDuplicate, mergePlan, titleSubstitution } from '../lib/dedup.js';
 import { decodeEntities, stripTags, cleanText } from '../lib/entities.js';
-import { makeStartsAt, makeEndsAt } from '../lib/event-time.js';
+import { makeStartsAt, makeEndsAt, splitLocalDateTime } from '../lib/event-time.js';
 import { extractFromPage } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
+import { parseMicrodataEvents } from '../lib/microdata-events.js';
 import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
 import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfingen-events.js';
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
@@ -36,6 +37,7 @@ import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
 import { politeFetch, robotsAllowed, aiPolicyAllowed } from '../lib/crawl-net.js';
+import { pathToFileURL } from 'node:url';
 
 // One end-time builder for every adapter. Keeps a known end DATE even when the
 // end TIME is unknown (date-only ends_at), and drops an end that isn't strictly
@@ -70,17 +72,6 @@ function htmlToText(html) {
 }
 
 // --- structured-data-first extraction; LLM fallback stays in crawlSource ---
-
-// Extracts a leading "YYYY-MM-DD" and optional "HH:MM" from any ISO-ish
-// datetime, discarding a trailing timezone offset/Z. Hard rule: storage is
-// Vienna wall-clock, never a UTC conversion — so we take the literal digits
-// as written rather than parsing through Date/UTC.
-function splitLocalDateTime(iso) {
-  if (!iso) return { date: null, time: null };
-  const m = String(iso).match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?/);
-  if (!m) return { date: null, time: null };
-  return { date: m[1], time: m[2] || null };
-}
 
 const JSONLD_TYPE_CATEGORY = {
   musicevent: 'music', festival: 'festival', sportsevent: 'sport',
@@ -652,6 +643,13 @@ async function parseKalkalpenSource(sitemapXml, src) {
 async function tryStructuredExtraction(html, src) {
   const jsonld = parseJsonLdEvents(html, src);
   if (jsonld.length) return { route: 'jsonld', events: jsonld };
+
+  // Same schema.org facts, other serialization. Sits directly behind JSON-LD
+  // because it is the same $0 quality of evidence — and ahead of everything
+  // else because a site publishing Microdata must never reach the paid LLM
+  // (muenchen.de: 100 Events, 0 ld+json).
+  const microdata = parseMicrodataEvents(html, src);
+  if (microdata.length) return { route: 'microdata', events: microdata };
 
   const icsHref = findIcsLink(html);
   if (icsHref) {
@@ -1326,6 +1324,12 @@ async function main() {
 
 // Guarded so scripts/rot-report.mjs can `import { TIER_CADENCE_DAYS }` from
 // this file without triggering a full crawl as an import side effect.
-if (import.meta.url === `file://${process.argv[1]}`) {
+// pathToFileURL, not `file://${argv[1]}`: on Windows argv[1] is a backslashed
+// drive path ("Z:\...\crawl.mjs") while import.meta.url is "file:///Z:/.../
+// crawl.mjs", so the string compare NEVER matched and main() silently never
+// ran — `npm run crawl` exited 0 with no output and crawled nothing. Found
+// 2026-07-17 on the Windows crawl box (docs/ops/local-box-setup.md), which is
+// the machine this cron is meant to move to.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((e) => { console.error(e); process.exitCode = 1; }).finally(closeDb);
 }
