@@ -163,10 +163,26 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       added ones). Fix: the festival's own Kürzel goes in the title ("Pflasterspektakel A4: Landhaus")
       — which is also what's printed on its Festivalplan. 0 collisions now, even with every stage
       forced to one start time. Regression test pinned.
-- [ ] **George — decisions:** (1) **4 duplicate festival rows** live right now (ids 3226, 32513, 14,
-      2766) from 3 sources, all town-precision "Linz Innenstadt". Best facts = **2766** (real
-      16:00–23:00 span) but best linkback = **14** (`linztermine.at/event/718976`, the real permalink;
-      2766 points at a monthly listing page). Wants a merge, not a pick. (2) **`is_free` left null**:
+- [x] **The 4 duplicate festival rows are merged to 1** (`scripts/merge-pflaster-dups.mjs`, applied to
+      prod): survivor **14** (linztermine's real event permalink) enriched with 2766's
+      **23.07 16:00 → 25.07 23:00**, corroborated by the festival's own "DO 16 – 23 Uhr, FR & SA
+      14 – 23 Uhr"; 2766/3226/32513 → status='removed' (reversible). They were NOT from the new
+      adapter — all four were crawled 07-10..15, i.e. **before crawl-time fuzzy dedup shipped
+      (e326335, 07-16)**; today's matcher merges all four. They never self-heal: each row keeps
+      matching its own content_hash and is updated in place, and the fuzzy path only runs for NEW
+      events. content_hash deliberately NOT recomputed (it encodes the event as its source published
+      it; re-hashing could only cause a miss + a fresh duplicate).
+- [ ] **Two corrections worth carrying** (I got both wrong first time): (a) `UPDATABLE_FIELDS` governs
+      only `updateEventFields()` — **upsertEvent's own update branch overwrites `starts_at`,
+      `source_url` and most fields unconditionally**, so "it's not in UPDATABLE_FIELDS" is NOT a reason
+      an edit survives a crawl. (b) The enrichment on 14 is stable only because **row 14 is an
+      orphan**: `source_name='linztermine.at'` matches no registered source (all 24 such rows are from
+      the 2026-07-10 mining run), and live source id 1 "Linz-Termine" publishes the title with a
+      trailing "Linz" → different hash → that's what produced 2766. **Trade-off accepted: we kept the
+      unmaintained row and retired the crawled one**, so a cancellation in the next 8 days would
+      update a removed row while published 14 still says it's on. Fine for a 38-year-old festival with
+      `cancelled` reports available; revisit if this event must be trusted to change.
+- [ ] **George — decisions:** (1) **`is_free` left null**:
       no ticket/entry control, but the site says artists "spielen für das **Hutgeld** des Publikums"
       and the FAQ tells you where to get 2€ coins — so "free" is a claim the source doesn't make.
       Your call whether the Free filter should include it. (3) **`family` not set** — street art is a

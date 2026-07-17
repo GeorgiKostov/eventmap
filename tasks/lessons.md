@@ -82,6 +82,24 @@ The fix stayed in my own adapter (put the festival's Kürzel in the title) rathe
 matcher — 28k events depend on that matcher, and a source-local ambiguity is not a reason to
 re-tune everyone's dedup. It also happens to be what the festival prints on its own Festivalplan.
 
+**(3) I asserted a safety property from the wrong table, and it was false.** Merging the four legacy
+Pflasterspektakel duplicates, I enriched the survivor's `starts_at` and told George the crawl could
+never overwrite it "because `starts_at` isn't in `UPDATABLE_FIELDS`". It isn't — but that set governs
+only `updateEventFields()`, the fuzzy-MERGE path. `upsertEvent`'s own update branch, the one an actual
+crawl takes, does `starts_at=${ev.starts_at}` unconditionally and rewrites `source_url` too. I had read
+a real constant, in the right file, and drawn a conclusion about a code path it does not control. The
+edit turned out to be stable anyway — but for a completely different reason (the survivor is an
+**orphan**: its `source_name` matches no registered source, so nothing computes its content_hash) —
+which is worse, not better: a right answer resting on a wrong reason is a landmine for whoever relies
+on the reason next. **Before claiming "X can't happen", find the code path that would DO x and read
+it — a guard elsewhere in the same module is not a guard here.** Same shape as the parent-effects
+comment (2026-07-16) that asserted the opposite of the code.
+And the correction surfaced a trade-off the original framing had hidden entirely: **we kept the
+unmaintained row and retired the crawled one.** The orphan is stable precisely because nothing
+maintains it, so a cancellation would update the removed row while our published one still says the
+event is on. That was worth saying out loud to George rather than quietly enjoying the "it's stable"
+result.
+
 **Also worth knowing:** a source can be *seasonal* — this one publishes event data on 3 days a year
 and reads "no programme available" the other 362. That fights every mechanism we have: `zero_streak`
 would rot it to `tier='dead'` and the cron would skip it next July (the classic hard-rule-7 rot).
