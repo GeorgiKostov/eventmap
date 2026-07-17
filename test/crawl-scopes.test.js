@@ -53,8 +53,24 @@ test('Berlin and Munich scopes match their catalogs and stay independent of each
   assert.equal(isWithinCrawlScope({ lat: 48.4, lng: 11.75 }, munich), true); // Freising-ish
 });
 
+test('the German metro-2 scopes (Hamburg, Köln, Frankfurt) resolve and stay separate', () => {
+  const hh = crawlScope('hamburg-40km');
+  const cgn = crawlScope('cologne-40km');
+  const ffm = crawlScope('frankfurt-40km');
+  for (const s of [hh, cgn, ffm]) { assert.equal(s.country, 'DE'); assert.equal(s.radiusKm, 40); }
+  assert.equal(hh.sourceRegion, 'Hamburg 40km');
+  assert.equal(cgn.sourceRegion, 'Köln 40km');
+  assert.equal(ffm.sourceRegion, 'Frankfurt 40km');
+  assert.equal(scopeForSource({ country: 'DE', region: 'Köln 40km' }), cgn);
+  // no two metro centers fall inside another's ring
+  for (const [a, b] of [[hh, cgn], [cgn, ffm], [hh, ffm]]) {
+    assert.equal(isWithinCrawlScope(a.center, b), false);
+    assert.equal(isWithinCrawlScope(b.center, a), false);
+  }
+});
+
 test('an unknown scope id is null, never a silently widened default', () => {
-  assert.equal(crawlScope('hamburg-40km'), null);
-  assert.equal(crawlScope('koln-40km'), null);
+  assert.equal(crawlScope('leipzig-40km'), null);
+  assert.equal(crawlScope('bremen-40km'), null);
   assert.equal(crawlScope(''), null);
 });
