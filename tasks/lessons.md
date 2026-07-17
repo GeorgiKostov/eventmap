@@ -2,6 +2,52 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-17 — An empty extract from a real source is indistinguishable from a quiet week
+
+George: the local Ollama models "process events okaish — maybe theres something of higher quality".
+The model was the least of it. Three findings, and the ranking flipped on each one.
+
+**(1) The contract was being ASKED for, not enforced — next to a comment explaining why that fails.**
+The Ollama path sent `format:'json'` while `CRAWL_SCHEMA` sat 140 lines up in the same file, and
+`TEXT_KEY_HINT` existed *because* "providers without native schema enforcement free-form field
+names, which silently drops every event downstream". Ollama is not such a provider — it compiles a
+JSON Schema to a GBNF grammar and constrains every token. Measured: qwen2.5 dropped
+`date_end`/`time_end` from all 8 Innsbruck events (→ all 8 discarded by crawl.mjs) and emitted
+categories like `"Diverse Musikveranstaltungen"`, outside our enum. Under the schema: 14 events,
+keys exact, enum unbreakable, *and faster*. The irony worth keeping: **Gemini can't use that schema
+(its OpenAPI subset rejects our `["string","null"]` dialect) — so the workaround written for Gemini
+was silently applied to the one provider that didn't need it.** When a comment says "providers
+without X do Y", check whether *this* provider has X.
+
+**(2) A zero looked exactly like an honest zero, and only a reference row exposed it.** Every local
+model returned `{"events":[]}` for **linztermine.at** — the tier-2 source the whole Linz validation
+test leans on — and I read that as the page having no events. It has five. They're listed under
+"Heute in Linz" with a time but **no date**; the date is only inferable from "Heute ist der
+17.07.2026" elsewhere on the page. Gemini makes that inference; of five local models only gemma4:12b
+does. Nothing errored. `ungrounded` was 0. A source that quietly returns nothing looks identical to
+a quiet week, forever. **Hard rule 5 stops us inventing events; nothing was watching the other
+direction — and an extractor that silently finds nothing is the failure mode that survives every
+green check.** Always benchmark against the incumbent (Gemini), never against zero.
+
+**(3) I nearly shipped two "facts" from a research survey; both were false on the actual box.** The
+survey said Ollama defaults to a 4k context under 24 GB VRAM (so we'd been seeing ~15% of each
+page) — plausible, alarming, and wrong: `ollama ps` said **32768**. It also said Gemma 4's thinking
+is off by default. Measured: gemma4 emits **7.9k chars** of reasoning unprompted and qwen3.5
+**22.7k**, which re-feeds as input, inflates prompt tokens ~5× and eats the context until the JSON
+truncates mid-string. That single wrong claim made my first bake-off rank gemma4 last (233s, invalid
+JSON) when with `think:false` it wins at 11s. **A survey's capability claim is a hypothesis; the
+box is the authority — and the cheapest instrument usually already exists** (`ollama ps`,
+`prompt_eval_count`, `done_reason`). Same shape as the Gemini-cap and Stuttgart-robots errors: the
+diagnosis in the ticket is a hypothesis, even when a confident agent wrote it.
+
+**Corollaries.** (a) The real speed bug was **VRAM, not the model**: the doc reasoned from "the box
+has 64 GB RAM" when the binding constraint is 16 GB of VRAM — an auto-sized 32k KV cache pushed
+qwen2.5:14b to an 18 GB footprint, spilling 12 of 49 layers to CPU at **11.3 tok/s** vs **60.6**
+pinned. One config line, 5.4×. (b) A timeout is a routing decision in disguise: the arbitrary 180s
+ceiling meant every dense page silently went back to *paid* Gemini — the exact outcome the free
+provider exists to prevent. (c) Constrained decoding guarantees valid JSON only if generation
+*finishes*; output shares the context window, so `done_reason='length'` yields perfectly-grammatical
+JSON cut in half. Name which end truncated instead of letting `JSON.parse` throw a position number.
 ## 2026-07-17 — "Too many kids events" was not a tagging problem; and the links we hand out went nowhere
 
 George: "almost every event is for kids… it's also aimed at young people without kids who want to

@@ -2,6 +2,42 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Ollama local-extraction retune (2026-07-17, George: "remove the models we cant use, check online for alternatives… delete models we discard") — SHIPPED
+- [x] **The model was the small half.** `format:'json'` meant the contract was *asked for* in prose
+      while `CRAWL_SCHEMA` sat unused in the same file — qwen2.5 dropped `date_end`/`time_end` from
+      all 8 Innsbruck events (**all 8 silently discarded by crawl.mjs**) and invented categories
+      (`"Diverse Musikveranstaltungen"`). Now `format: CRAWL_SCHEMA` → GBNF-constrained: keys exact,
+      enum unbreakable, faster. NB Gemini *cannot* use this schema (OpenAPI subset rejects
+      `["string","null"]`) — Ollama can, so the Gemini-era workaround was being applied to the one
+      provider that didn't need it.
+- [x] **`num_ctx` pinned (32768).** Ollama auto-sized to the model's trained max; qwen2.5:14b's KV
+      cache pushed an 18 GB footprint onto a 16 GB card → 12/49 layers on CPU → **11.3 tok/s vs 60.6**
+      pinned, identical output. gemma4's cache is cheap: 8.4 GB / 100% GPU at both 16k and 32k, and
+      the headroom is load-bearing (output shares the window; a dense listing needs ~10k tokens).
+- [x] **`think: false` unconditionally.** Every current model thinks by DEFAULT (gemma4 7.9k chars,
+      qwen3.5 22.7k) → re-feeds as input → ~5× prompt tokens → context exhausted → truncated JSON.
+      This alone made gemma4 look last (233s, invalid) before it won (11s). Verified accepted by all.
+- [x] **Timeout 180s → 600s (`OLLAMA_TIMEOUT_MS`).** Dense pages (gotoburgas ~112 events, ~250s) blew
+      the old ceiling and silently fell back to **paid** Gemini — the outcome this provider exists to
+      prevent. Plus explicit truncation warnings for both ends of the window (silent loss otherwise).
+- [x] **Default `qwen2.5:14b` → `gemma4:12b`** (Apache-2.0 since 03/2026, 7.6 GB, fits VRAM). Bake-off
+      of 5 models × 4 real pages (2 DE, 2 BG) through the real `extractFromPage()`, Gemini as the
+      reference row. Decider: **linztermine.at** (tier-2, the Linz test's source) lists events with a
+      time but no date — inferable only from "Heute ist der 17.07.2026" elsewhere on the page. Gemini
+      finds 5; **gemma4 is the only local model that does** — the other four return `[]`, which reads
+      as an honest "quiet week". qwen2.5 also **fabricated 3 titles** on Burgas.
+- [x] **Deleted 4 models (~33 GB freed)**: qwen2.5:14b (wrong keys, fabricates), gemma3:12b (0 events
+      on German + Gemma Terms licence), qwen3:14b (0 on linztermine), qwen3.5:9b (ignores the 25-cap,
+      runs to 18k tokens → invalid JSON). Only `gemma4:12b` remains. Ollama upgraded 0.17.1 → 0.32.1
+      (gemma4 cannot load on the old build). Box measured: Ryzen 9 7900X / 63 GB / **RTX 4070 Ti
+      SUPER 16 GB** — VRAM is the binding constraint, not the 64 GB the runbook reasoned from.
+- [ ] **Honest gap — Ollama is a cost fallback, NOT a Gemini replacement.** Gemini finds 27 events on
+      the Innsbruck page where gemma4 finds 13. Nobody hand-counted that page, so which is *right* is
+      unproven — worth one manual count before any plan leans on local extraction for coverage.
+      Gemini stays the default extractor; `EXTRACT_PROVIDER=ollama` is opt-in for batch/backfill.
+- [ ] Not tested: a page with genuinely **no** events (the researcher's point — fabrication only
+      shows where there's nothing to find), and gemma4's recall on GEM2GO-class German municipal
+      pages. Both belong in the bake-off before the box's nightly crawl trusts the local route.
 ## Digest rebalance + weekend-page discovery (2026-07-17, George: "almost every event is for kids… also aimed at young people without kids who want to explore art events, maybe half half… 10 best events" · "a way to access the list of events eg this week in linz from our triple-dot menu, changes based on where you are on the map") — SHIPPED (e254758)
 - [x] **It was ~100% kids BY CONSTRUCTION**, not by tagging: buildDigest took every family
       event first and only topped up below DIGEST_MIN, and rankPick makes family strictly

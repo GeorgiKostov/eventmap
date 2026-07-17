@@ -1,4 +1,11 @@
-# Local crawl box — setup runbook (Ryzen / 64 GB)
+# Local crawl box — setup runbook (Ryzen 9 7900X / 64 GB / RTX 4070 Ti SUPER 16 GB)
+
+**The box, measured 2026-07-17** (§3b's numbers assume exactly this): Ryzen 9 7900X (12C/24T),
+63.1 GB RAM, **NVIDIA RTX 4070 Ti SUPER with 16 GB VRAM** (driver 596.21, compute 8.9). The 16 GB
+is the binding constraint for local models — not the 64 GB of RAM, which is what the earlier draft
+of this doc wrongly reasoned from. A model + its KV cache must fit in **16 GB** or layers spill to
+CPU and throughput drops ~5×. (`nvidia-smi` reports it correctly; Windows' `Win32_VideoController`
+says "4 GB" — that field is a 32-bit overflow, ignore it.)
 
 **Goal:** run the whole extraction stack on George's PC — the crawler, the location-enrichment
 second hop, and (the actual reason the box matters) **self-hosted Nominatim + Photon**, which
@@ -138,11 +145,14 @@ this is about independence and rate-limit immunity more than cost. The provider 
 `EXTRACT_PROVIDER=ollama` in `lib/extract.js`, with automatic fall-through to Gemini→Claude if
 Ollama is down — a stopped model can never break a crawl.
 
-```bash
-# inside Ubuntu/WSL — native installer (no Docker needed; GPU acceleration works via WSL2
-# if the box has an NVIDIA card, otherwise it runs CPU-only, which is fine for nightly batch)
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull qwen2.5:14b            # ~9 GB; strong German/Bulgarian, fits easily in 64 GB RAM
+**Ollama runs natively on Windows here, not in WSL** — that's what's installed on the box, and it
+gets the GPU without any passthrough. Keep it that way; `OLLAMA_URL` points the crawl at it either
+way. **Needs Ollama ≥ 0.32** — gemma4 does not exist in older builds (the box sat on 0.17.1 and
+literally could not load it).
+
+```powershell
+winget upgrade --id Ollama.Ollama    # or install once with `winget install Ollama.Ollama`
+ollama pull gemma4:12b               # 7.6 GB — the box's model, benchmarked below
 ```
 
 Add to `.env.local` on the box:
@@ -150,14 +160,69 @@ Add to `.env.local` on the box:
 ```bash
 EXTRACT_PROVIDER=ollama
 OLLAMA_URL=http://localhost:11434   # default; change if Ollama runs elsewhere
-OLLAMA_MODEL=qwen2.5:14b
+OLLAMA_MODEL=gemma4:12b
+# OLLAMA_NUM_CTX=32768              # default in code; see "the two settings" below
 ```
 
-**Before trusting it**, benchmark against Gemini on real pages: crawl ~20 LLM-route sources with
-and without `EXTRACT_PROVIDER=ollama` and diff the extracted events (dates exact? venues not
-hallucinated? unknown fields null?). Hard rule 5 applies to local models exactly as to hosted
-ones — if the local model fabricates, it's out, regardless of price. Try `qwen2.5:32b` (~20 GB)
-if 14b quality disappoints; the box has the RAM.
+### Why gemma4:12b (measured 2026-07-17 on this box, not chosen from benchmarks)
+
+Five models were run against the same four real pages — two German (innsbrucktermine.at,
+linztermine.at), two Bulgarian (obshtinaruse.bg, gotoburgas.com) — through the real
+`extractFromPage()`, with `gemini-2.5-flash-lite` (what production uses today) as the reference row.
+
+| model | Innsbruck (DE) | Linz-Termine (DE) | Русе (BG) | Burgas (BG) | verdict |
+|---|---|---|---|---|---|
+| **gemini-2.5-flash-lite** *(reference)* | 27 | 5 | 6 | ~110 | the bar |
+| **gemma4:12b** | 13 | **5** | 6 | **107** | **shipped** |
+| qwen3:14b | 14 | **0** | 6 | 19 | misses implied dates |
+| qwen3.5:9b | 12 | **0** | 6 | ✗ invalid | ignores the 25-event cap, runs to 18k tokens |
+| qwen2.5:14b *(the old default)* | 8→14 | 0 | 5 | 24, **3 fabricated** | wrong keys, invents titles |
+| gemma3:12b | **0** | **0** | 6 | 15 | blind on German; Gemma Terms licence |
+
+The decider is **linztermine.at**, the tier-2 source the Linz validation test leans on. Its homepage
+lists events under "Heute in Linz" with a time but **no date** — the date is only inferable from
+"Heute ist der 17.07.2026" elsewhere on the page. Gemma 4 is the only local model that makes that
+inference; every other one returns an empty array and looks like an honest "no events here". That
+failure is invisible in aggregate (a zero from a real source reads exactly like a quiet week) and it
+is why a reference row is not optional.
+
+**Be honest about the gap: this is a cost fallback, not a Gemini replacement.** Gemini finds 27
+events on the Innsbruck page where gemma4 finds 13. Nobody hand-counted that page, so which is
+*right* is unproven — but do not assume parity. Gemini stays the default extractor; Ollama is for
+batch/backfill work where rate limits and per-call cost dominate.
+
+Licences (checked, because we ship commercially): gemma4 is **Apache-2.0** since March 2026 — a real
+change from the old Gemma Terms, which is why gemma3 is not the answer. qwen3.5/qwen3 are Apache-2.0
+too. Avoid **LFM2.5** (its licence cuts off commercial use at $10M revenue) and any `:cloud` tag
+(defeats $0 and does not support structured outputs).
+
+### The two settings that mattered more than the model
+
+1. **`format` takes the JSON schema, not `'json'`.** Ollama compiles a schema to a GBNF grammar and
+   constrains every token. With plain `format:'json'`, qwen2.5 emitted categories like
+   `"Diverse Musikveranstaltungen"` and dropped `date_end`/`time_end` entirely — and since
+   `crawl.mjs` reads exact keys, **every one of those events was silently discarded downstream**.
+   That, not the model, is most of what "it works okaish" was. Gemini *cannot* use this schema (its
+   OpenAPI subset rejects our `["string","null"]` dialect); Ollama can. It does **not** prevent
+   fabrication — only malformed output.
+2. **Pin `num_ctx`.** Ollama sizes the window to the model's trained max and the KV cache with it.
+   `qwen2.5:14b` auto-picked 32768 → an 18 GB footprint on a 16 GB card → 12 of 49 layers spilled to
+   CPU → **11.3 tok/s**; pinned so it fits, **60.6 tok/s** for byte-identical output. gemma4's cache
+   is cheap enough that 32768 costs nothing (8.4 GB / 100% GPU at both 16k and 32k) — and the
+   headroom is load-bearing, because output shares the window and a dense listing needs ~10k tokens
+   of JSON.
+
+Also: **every current model thinks by default** (gemma4 emitted 7.9k chars of reasoning, qwen3.5
+22.7k) — that re-feeds as input, inflates prompt tokens ~5× and eats the context until the JSON
+truncates. `lib/extract.js` sends `think: false` unconditionally (verified accepted by every model
+tested, thinking or not). Do not remove it.
+
+**Before trusting any change here**, re-run the bake-off rather than reading benchmarks: crawl real
+LLM-route sources with and without `EXTRACT_PROVIDER=ollama` and diff against Gemini — including a
+page you know has **no** events, since fabrication only shows up where there is nothing to find.
+Hard rule 5 applies to local models exactly as to hosted ones: if it fabricates, it's out, whatever
+it costs. (qwen2.5 invented 3 titles that appear nowhere in the Burgas page. That is the bar it
+failed.)
 
 ## 4. Scheduled crawl — moving off GitHub Actions
 

@@ -17,6 +17,37 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   ready. Only run `vercel deploy --prod --yes` yourself when a live-prod test is genuinely needed;
   announce it and verify the live API after.
 
+## Where things stand (2026-07-17 — local Ollama extraction retuned; gemma4:12b is the box's model)
+- **George's box, measured (not assumed): Ryzen 9 7900X / 63 GB RAM / RTX 4070 Ti SUPER 16 GB VRAM.**
+  **VRAM is the binding constraint**, not the 64 GB the runbook used to reason from. Ollama runs
+  natively on Windows (not WSL), upgraded **0.17.1 → 0.32.1** — gemma4 cannot load on the old build.
+- **Default model `qwen2.5:14b` → `gemma4:12b`** (Apache-2.0 since 03/2026, 7.6 GB, 8.4 GB loaded at
+  100% GPU). Chosen by a 5-model × 4-real-page bake-off (2 DE, 2 BG) through the REAL
+  `extractFromPage()`, with **gemini-2.5-flash-lite as the reference row**. **Deleted the other four
+  (~33 GB freed)**: qwen2.5:14b (wrong keys + **fabricated 3 titles**), gemma3:12b (**0 events on
+  German**, Gemma Terms licence), qwen3:14b + qwen3.5:9b (both 0 on linztermine; qwen3.5 also runs to
+  18k tokens → invalid JSON).
+- **The decider, worth remembering: linztermine.at** (tier-2, the Linz validation test's own source)
+  lists events with a time but **no date** — inferable only from "Heute ist der 17.07.2026" elsewhere
+  on the page. Gemini finds 5; **gemma4 is the ONLY local model that does**; the other four return
+  `[]`. **An empty extract from a real source is indistinguishable from a quiet week** — which is why
+  the Gemini reference row is mandatory in any future model comparison, never a zero baseline.
+- **Three config fixes mattered more than the model** (lib/extract.js): (1) `format: CRAWL_SCHEMA`
+  instead of `format:'json'` — Ollama grammar-constrains keys + the categories enum; the schema was
+  already in the file and unused, and **Gemini can't use it** (OpenAPI subset rejects
+  `["string","null"]`), so the Gemini-era prose workaround was being applied to the one provider that
+  didn't need it. (2) **`num_ctx` pinned to 32768** — auto-sizing pushed qwen2.5:14b to an 18 GB
+  footprint → 12/49 layers on CPU → **11.3 tok/s vs 60.6**. (3) **`think: false` unconditionally** —
+  every current model thinks by default (gemma4 7.9k chars, qwen3.5 22.7k), which re-feeds as input
+  and truncates the JSON; this alone had gemma4 ranked LAST in my first bake-off. Timeout 180s → 600s
+  (dense pages ~250s were silently falling back to **paid** Gemini).
+- **Honest gap: Ollama is a cost fallback, NOT a Gemini replacement** — Gemini 27 events vs gemma4 13
+  on the Innsbruck page (nobody hand-counted it, so which is right is unproven). Gemini stays the
+  default extractor; `EXTRACT_PROVIDER=ollama` is opt-in for batch/backfill.
+- NB `node_modules` was empty on this box (never installed here) — `npm install` done; 116 tests +
+  `npm run build` green with the change.
+
+## Where things stand (2026-07-16 latest — AI-bot policy enforced; Germany discovery done, not registered)
 ## Where things stand (2026-07-17 latest — the digest is two strands now, e254758)
 - **The newsletter was ~100% kids BY CONSTRUCTION** (buildDigest took every family event first;
   rankPick makes family strictly dominant) — not a tagging problem. Now `splitSections()` gives
