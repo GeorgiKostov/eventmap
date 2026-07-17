@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import fs from 'fs/promises';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getChannel } from '../../../../lib/city-channels.js';
+import { getChannel, brandName } from '../../../../lib/city-channels.js';
 import { loadDigest, loadDigestFor } from '../../../../lib/digest.js';
 import { CATS, P } from '../../../../lib/icons.js';
 
@@ -105,7 +105,7 @@ function coverSlide(digest) {
           {c.kicker}
         </div>
         <div style={{ fontSize: 104, fontWeight: 700, color: '#fff', letterSpacing: -3, lineHeight: 1.05, marginTop: 6 }}>
-          {digest.channel.label}
+          {brandName(digest.channel)}
         </div>
         <div style={{ fontSize: 46, color: '#fff', opacity: 0.9, marginTop: 14 }}>{digest.label}</div>
       </div>
