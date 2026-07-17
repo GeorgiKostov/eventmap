@@ -59,6 +59,10 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   announce it and verify the live API after.
 
 ## Where things stand (2026-07-17 — local Ollama extraction retuned; gemma4:12b is the box's model)
+- **Thursday desk editorial control (a6a250e, NOT yet deployed):** per-pick Replace (swap for
+  next-best in same strand, vetoes old id) + ▲/▼ reorder (within strand) on the digest, both edit
+  the frozen snapshot with no AI call. Ranking re-verified across all 10 channels — half-half split
+  already holds, rankPick untouched. Post-single (per-event IG/FB) already existed.
 - **SEO (cf41c48, NOT yet deployed):** fixed layout canonical '/' leaking into every subpage
   (event/legal/weekend-fallback pages all self-declared as homepage duplicates) + added
   Organization/WebSite JSON-LD for the "Okolo"→okolo.events entity link. George verified the domain

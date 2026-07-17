@@ -103,6 +103,26 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       find), and gemma4's recall on GEM2GO-class German municipal pages. Worth folding into the next
       bake-off if local extraction ever outlives the prototype phase.
 
+## Thursday desk editorial control (2026-07-17, George: "regenerate individually so we can replace them… reorganize order so I can decide which events come first… more editorial control… post single on fb/insta") — SHIPPED (a6a250e)
+- [x] **Replace** one pick for the next-best pool candidate — same strand, keeps the issue full
+      (Drop leaves it a pick shorter). Vetoes the old id (droppedIds) so Regenerate can't revive it,
+      and a second Replace walks further down the pool. `applyReplace` in lib/digest.js, no AI call.
+- [x] **Reorder** ▲/▼ within a strand — the only movement any renderer shows (mail/page/caption
+      group by section). Edge picks disable the arrow. `applyReorder`; intro NOT reset (count
+      unchanged). Strand boundaries come from the server (`sectionsOf` → snapshot.sections), one
+      source of truth shared with the desk's button-enable logic.
+- [x] **Post-single already existed** — per-event IG/FB buttons + `renderItemCaption` + per-event
+      ledger (itemPostedKey). Told George; no work needed there.
+- [x] **Ranking re-checked (half family / half everyone).** Measured the family-first pool across
+      ALL 10 channels: the family PREFIX never exceeds POOL_DEPTH=200 (Linz 41, Wien 47, rest <11),
+      so the "for everyone" strand is never starved and splitSections' half-half already holds
+      (@200 == unbounded on every channel). No ranking change needed — the earlier rebalance was
+      correct. Left rankPick untouched.
+- [x] `toItem()` extracted in lib/digest.js so a swapped-in pick is byte-identical in shape
+      (section/tier/badges/highlight) to a built one. 10 new pure tests; reorder+replace driven
+      end-to-end in the browser. NB: verification mutated the real Linz 07-17 snapshot (it's SENT) —
+      restored it clean afterward (fresh build, dropped []), so it's back to its posted state.
+
 ## Digest rebalance + weekend-page discovery (2026-07-17, George: "almost every event is for kids… also aimed at young people without kids who want to explore art events, maybe half half… 10 best events" · "a way to access the list of events eg this week in linz from our triple-dot menu, changes based on where you are on the map") — SHIPPED (e254758)
 - [x] **It was ~100% kids BY CONSTRUCTION**, not by tagging: buildDigest took every family
       event first and only topped up below DIGEST_MIN, and rankPick makes family strictly
