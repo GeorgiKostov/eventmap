@@ -18,6 +18,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   announce it and verify the live API after.
 
 ## Where things stand (2026-07-17 — local Ollama extraction retuned; gemma4:12b is the box's model)
+- **SEO (cf41c48, NOT yet deployed):** fixed layout canonical '/' leaking into every subpage
+  (event/legal/weekend-fallback pages all self-declared as homepage duplicates) + added
+  Organization/WebSite JSON-LD for the "Okolo"→okolo.events entity link. George verified the domain
+  in Search Console (first impression already logged) — needs a deploy to reach Google, then watch
+  Search Console "Pages" for event pages entering the index.
 - **George's box, measured (not assumed): Ryzen 9 7900X / 63 GB RAM / RTX 4070 Ti SUPER 16 GB VRAM.**
   **VRAM is the binding constraint**, not the 64 GB the runbook used to reason from. Ollama runs
   natively on Windows (not WSL), upgraded **0.17.1 → 0.32.1** — gemma4 cannot load on the old build.

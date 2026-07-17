@@ -901,3 +901,15 @@ coordinates — 6913 "differing pixels" that are all invisible edge AA reads as 
 STRUCTURE (lensΔ=0), and say in the tool's own output which number is the assertion and which is
 noise; (2) measuring a layout box to integer precision throws away up to a pixel and that error
 lands straight in the centring maths — measure subpixel (alpha coverage) when the maths divides by 2.
+
+## Next.js layout metadata is inherited — a layout-level canonical de-indexes every child (2026-07-17)
+`app/layout.js` set `alternates: { canonical: '/' }` for the homepage (the homepage is a client
+component, so its metadata has to live in the layout). But layout metadata merges into every page
+below it: any page without its own `alternates` — every event page, the `/weekend/<city>` fallback,
+both legal pages — shipped `<link rel="canonical" href="https://okolo.events/">`, i.e. told Google
+"I am a duplicate of the homepage, don't index me". Silent, invisible in the UI, and it directly
+sabotaged the pages the sitemap was promoting.
+**Lesson:** any SEO-relevant field set in a *layout* (`alternates`, `robots`, `openGraph.url`) is a
+default for the whole subtree, not a page setting. When adding one, grep every `generateMetadata`
+below it and give each indexable page its own override in the same change. Checking is cheap:
+`curl -sL <page> | grep canonical` on a handful of routes.
