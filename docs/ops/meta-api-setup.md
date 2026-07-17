@@ -5,8 +5,9 @@ Runbook for George to wire up `okolo`'s weekly carousel/Page post publishing
 buttons on `/admin/thursday`, `npm run social`). Until these env vars are
 set, every surface says so honestly — nothing pretends to have posted.
 
-One Meta Business account for the whole product (all city channels post
-through the same IG/FB pair) — per-city accounts are a later extension.
+One Meta Business account for the whole product, but **one Page + IG per city**,
+each with its own id pair on its `lib/city-channels.js` row (done 2026-07-17 for
+Linz + Vienna). The token below is shared by every city; only the ids differ.
 
 ## 0. Account structure (decided 2026-07-15)
 
@@ -28,8 +29,20 @@ shared across ALL projects (okolo, Storykept, …):
 
 Fallback: if an unverified portfolio caps system users at one, use a single
 system user carrying all assets and share the token (bigger leak blast
-radius, otherwise identical). Other projects reuse `lib/social-publish.js`
-as-is — it only reads the three env vars.
+radius, otherwise identical).
+
+**Another project (Storykept, …) reusing `lib/social-publish.js`:** the module is
+brand-agnostic — it takes `{ fbPageId, igUserId }` plus images, caption and ledger
+callbacks, and knows nothing about cities or events. But it now reads the ids from
+the passed channel and the TOKEN from a single `META_ACCESS_TOKEN` env var. That is
+fine under the fallback above (one shared token), and WRONG under the layering above
+(one scoped token per project): a second brand with its own token would hit exactly
+the bug the per-city ids just fixed — one global standing in for a per-brand value,
+posting to whoever the global happens to name. If Storykept gets `storykept-publisher`
+with its own token, the token has to move next to the ids (e.g. a per-brand env var
+named on the row) before two brands share this code. Everything ABOVE this module —
+digest building, card rendering, the weekend ledger — is okolo's events pipeline and
+does not transfer.
 
 ## 1. Facebook Page + Instagram professional account
 
