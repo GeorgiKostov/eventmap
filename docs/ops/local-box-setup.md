@@ -186,10 +186,27 @@ inference; every other one returns an empty array and looks like an honest "no e
 failure is invisible in aggregate (a zero from a real source reads exactly like a quiet week) and it
 is why a reference row is not optional.
 
-**Be honest about the gap: this is a cost fallback, not a Gemini replacement.** Gemini finds 27
-events on the Innsbruck page where gemma4 finds 13. Nobody hand-counted that page, so which is
-*right* is unproven — but do not assume parity. Gemini stays the default extractor; Ollama is for
-batch/backfill work where rate limits and per-call cost dominate.
+### Live on the box — George's call, 2026-07-17
+
+**`EXTRACT_PROVIDER=ollama` is set on the box: the nightly crawl runs local.** George's reasoning:
+no users yet, so don't spend money; dropping 2–3 events at prototype stage is not a big deal;
+switch back to Gemini once there are users. Recorded rather than argued — but with the trigger below,
+because this decision has an expiry date and nothing else would remind us.
+
+**⚠ Switch `EXTRACT_PROVIDER` back to Gemini before the four-weekend Linz coverage test runs for
+real** (i.e. as soon as there are actual subscribers). That test's go/no-go metric *is* coverage —
+if it runs on the cheaper extractor we would be measuring our own recall, not Linz's supply, and a
+gap this silent is indistinguishable from a thin week. One line in `.env.local`, no code change.
+
+**The measured gap, so the trade is explicit.** gemma4 is a strict *subset* of Gemini — across all
+four pages it invented **nothing** (0 ungrounded titles, 0 events Gemini didn't also find), which is
+the bar hard rule 5 actually sets, and qwen2.5 failed it. It hits **exact parity on 3 of 4 pages**
+(linztermine 5=5, Русе 6=6, Burgas 107≈110). On the dense Innsbruck listing it silently missed **4
+real events** (verified present in the page text — incl. a festival the next day). The raw "13 vs 27"
+headline was misleading: Gemini repeats one title across its occurrence dates, which our series
+dedup collapses anyway. Blast radius is the **LLM route only** — structured sources (GEM2GO/JSON-LD/
+iCal) are untouched, and `extractFromImage` (poster scan) never consults `EXTRACT_PROVIDER`, so
+user-facing intake stays on Gemini.
 
 Licences (checked, because we ship commercially): gemma4 is **Apache-2.0** since March 2026 — a real
 change from the old Gemma Terms, which is why gemma3 is not the answer. qwen3.5/qwen3 are Apache-2.0

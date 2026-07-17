@@ -41,9 +41,20 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   every current model thinks by default (gemma4 7.9k chars, qwen3.5 22.7k), which re-feeds as input
   and truncates the JSON; this alone had gemma4 ranked LAST in my first bake-off. Timeout 180s → 600s
   (dense pages ~250s were silently falling back to **paid** Gemini).
-- **Honest gap: Ollama is a cost fallback, NOT a Gemini replacement** — Gemini 27 events vs gemma4 13
-  on the Innsbruck page (nobody hand-counted it, so which is right is unproven). Gemini stays the
-  default extractor; `EXTRACT_PROVIDER=ollama` is opt-in for batch/backfill.
+- **GEORGE'S CALL (2026-07-17): the box's nightly crawl runs LOCAL.** "no users, we dont want to spend
+  money… if we drop 2-3 events its not a big deal… when we have users we can switch back to gemini."
+  `EXTRACT_PROVIDER=ollama` + `OLLAMA_MODEL=gemma4:12b` are set in `.env.local` on the box — live.
+  Blast radius is the **LLM route only**: structured sources (GEM2GO/JSON-LD/iCal) untouched,
+  `extractFromImage` never reads EXTRACT_PROVIDER so poster scan stays on Gemini, and Vercel has its
+  own env so prod is unaffected.
+- **⚠ TRIPWIRE (open): flip `EXTRACT_PROVIDER` back to Gemini before the four-weekend Linz coverage
+  test runs for real** — that test's go/no-go metric IS coverage, so running it on the cheaper
+  extractor measures our own recall rather than Linz's supply. One line in `.env.local`.
+- **The gap, measured (the raw "27 vs 13" was misleading)**: Gemini emits one row per occurrence date
+  of the same title (series dedup collapses those). Honest figure: **gemma4 missed 4 real events** on
+  the dense Innsbruck listing and found **0 Gemini didn't** — a strict subset that **invents nothing**
+  (0 ungrounded across all 4 pages), which is the bar hard rule 5 sets and qwen2.5 failed (it
+  fabricated 3 titles). Parity on 3 of 4 pages: linztermine **5=5**, Русе 6=6, Burgas 107≈110.
 - NB `node_modules` was empty on this box (never installed here) — `npm install` done; 116 tests +
   `npm run build` green with the change.
 

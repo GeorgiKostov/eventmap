@@ -31,13 +31,25 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       runs to 18k tokens → invalid JSON). Only `gemma4:12b` remains. Ollama upgraded 0.17.1 → 0.32.1
       (gemma4 cannot load on the old build). Box measured: Ryzen 9 7900X / 63 GB / **RTX 4070 Ti
       SUPER 16 GB** — VRAM is the binding constraint, not the 64 GB the runbook reasoned from.
-- [ ] **Honest gap — Ollama is a cost fallback, NOT a Gemini replacement.** Gemini finds 27 events on
-      the Innsbruck page where gemma4 finds 13. Nobody hand-counted that page, so which is *right* is
-      unproven — worth one manual count before any plan leans on local extraction for coverage.
-      Gemini stays the default extractor; `EXTRACT_PROVIDER=ollama` is opt-in for batch/backfill.
-- [ ] Not tested: a page with genuinely **no** events (the researcher's point — fabrication only
-      shows where there's nothing to find), and gemma4's recall on GEM2GO-class German municipal
-      pages. Both belong in the bake-off before the box's nightly crawl trusts the local route.
+- [x] **The 13-vs-27 gap measured, not left as a caveat.** Counted against the raw page: Gemini emits
+      the same title once per occurrence date (our series dedup collapses those), so the honest figure
+      is **gemma4 missed 4 real events** on the dense Innsbruck listing (verified in the page text,
+      incl. a festival the next day) and found **0 that Gemini didn't**. It is a strict subset —
+      **invents nothing** (0 ungrounded across all 4 pages), which is the bar hard rule 5 sets and
+      qwen2.5 failed. Parity on 3 of 4 pages (linztermine **5=5**, Русе 6=6, Burgas 107≈110).
+- [x] **George's call (2026-07-17): run the nightly crawl LOCAL.** "no users, we dont want to spend
+      money… if we drop 2-3 events its not a big deal… when we have users we can switch back to
+      gemini." `EXTRACT_PROVIDER=ollama` + `OLLAMA_MODEL=gemma4:12b` are set on the box — live now.
+      Blast radius is the LLM route only (structured sources untouched; `extractFromImage` never reads
+      EXTRACT_PROVIDER, so poster scan stays on Gemini; Vercel has its own env, prod unaffected).
+- [ ] **⚠ TRIPWIRE — flip `EXTRACT_PROVIDER` back to Gemini before the four-weekend Linz coverage test
+      runs for real** (i.e. once there are actual subscribers). That test's go/no-go metric IS
+      coverage; running it on the cheaper extractor measures our own recall, not Linz's supply, and
+      this failure mode is silent by construction. One line in `.env.local`, no code change.
+- [ ] Not tested: a page with genuinely **no** events (fabrication only shows where there's nothing to
+      find), and gemma4's recall on GEM2GO-class German municipal pages. Worth folding into the next
+      bake-off if local extraction ever outlives the prototype phase.
+
 ## Digest rebalance + weekend-page discovery (2026-07-17, George: "almost every event is for kids… also aimed at young people without kids who want to explore art events, maybe half half… 10 best events" · "a way to access the list of events eg this week in linz from our triple-dot menu, changes based on where you are on the map") — SHIPPED (e254758)
 - [x] **It was ~100% kids BY CONSTRUCTION**, not by tagging: buildDigest took every family
       event first and only topped up below DIGEST_MIN, and rankPick makes family strictly
