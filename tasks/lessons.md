@@ -882,3 +882,22 @@ pick a winner. And "the user chose option 2" is not cover for shipping a defect 
 mention: re-surface the concrete consequence (the actual German sentence, the actual JSON-LD) and
 let them re-decide. An abstract warning ("stops using the German name") does not read as
 "Wochenende in Vienna".
+
+## Recover the design, don't re-derive it (2026-07-17)
+Asked to save the cover generator, the instinct was to rewrite the deleted next/og route from the
+README's description. That would have produced a lookalike: the wordmark, lens, dashed orbit, seven
+pin positions and two shadow stacks are unrecoverable from prose, so city #11 would have sat visibly
+off cities #1–10 — the exact opposite of the ask ("keep styling the same"). What worked instead was
+treating the committed PNGs as the spec: cut the art into plates and typeset only the word that
+changes, so the style is the same PIXELS rather than a re-derivation of them. The layout that had to
+be reconstructed (which is real logic — a wider name moves the lens) was *solved*, not guessed: the
+ten covers over-determine it, so measuring lens centres gave centre=818, GAP=73 and per-element
+rounding, and the proof it was right is that it predicts Innsbruck and Stuttgart, which were never
+used to fit it.
+**Lesson:** when the source of an artifact is lost but the artifact survives, the artifact is the
+spec. Reverse-engineer against it and let it referee — a diff is a test. Two traps this ran into
+first: (1) a raw pixel diff is the wrong oracle when the original rasterised at fractional
+coordinates — 6913 "differing pixels" that are all invisible edge AA reads as failure, so assert the
+STRUCTURE (lensΔ=0), and say in the tool's own output which number is the assertion and which is
+noise; (2) measuring a layout box to integer precision throws away up to a pixel and that error
+lands straight in the centring maths — measure subpixel (alpha coverage) when the maths divides by 2.

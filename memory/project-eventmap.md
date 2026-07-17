@@ -271,9 +271,15 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   carousel cover slide use `brandName(channel)` = `brand ?? label`; only wien sets `brand:'Vienna'`.
   `label` stays 'Wien' because it is NOT display-only: German copy interpolates it, the AI
   copywriter takes it as `city`, and it is schema.org addressLocality + the gazetteer key. Cover PNGs
-  are keyed by SLUG, so Vienna's file is still `okolo-wien-cover.png`. The brandgen route that made
-  the covers was never committed — retypeset one word in place instead (params in
-  `assets/social/README.md`); a rebuild would drift Vienna's art off the other nine.
+  are keyed by SLUG, so Vienna's file is still `okolo-wien-cover.png`.
+- **FB covers: `node scripts/gen-cover.mjs --channel <slug>`** (2026-07-17). The original brandgen
+  route was never committed (f2dc435 = PNGs only) and is unrecoverable, so the generator composites
+  frozen PLATES cut from the committed art (`assets/social/_parts/`) and typesets only the city name
+  — styling can't drift because it's the same pixels. Layout solved from the art: row centred at
+  x=818, column = widest child, GAP 73, so long names/Cyrillic taglines push the lens right.
+  `--verify` asserts lensΔ=0 on all ten (its edgePx is subpixel AA, not a failure). Plates are
+  frozen → they no longer track CATS/icons and --verify can't notice; a new language needs a tagline
+  plate before its first city.
 - Review process note: the implementer agent had left `fake-test-token` values in .env.local, which
   flipped every configured() check to true — a plain `npm run social` would have fired real Graph
   calls. Caught by driving the CLI; values blanked (lesson recorded).
