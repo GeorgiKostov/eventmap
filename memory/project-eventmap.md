@@ -256,9 +256,10 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   returns an id; atomic `metaClaim` in-flight marker makes concurrent publishes lose cleanly and
   turns a mid-publish serverless kill into an explicit "post MAY be live — check before force"
   instead of a silent duplicate. Dry-run/Preview works with zero credentials (verified end-to-end
-  against the frozen Linz 2026-07-17 snapshot). **Meta setup DONE for Linz + Vienna (2026-07-17)**:
-  system user `okolo-publisher`, token expiry Never, five scopes. Real posting needs deployed card
-  URLs, so the first Vienna post follows the next deploy.
+  against the frozen Linz 2026-07-17 snapshot). **Meta setup DONE and PROVEN for Linz + Vienna
+  (2026-07-17)**: system user `okolo-publisher`, token expiry Never, five scopes. Vienna's first post
+  went out live — two-city publishing works end-to-end (per-channel ids route correctly, cards
+  render, Meta accepts). Posting needs deployed card URLs, so a first post always follows a deploy.
   Posting to own Page/IG ≠ the banned group-bot pattern; group seeding stays manual.
 - **Meta ids are per-city and live in `lib/city-channels.js`, never env** (2026-07-17). Each city is
   its own Page + IG account with its own pair; only the shared META_ACCESS_TOKEN is env. Until this,

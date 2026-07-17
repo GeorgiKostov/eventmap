@@ -478,8 +478,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       (linz 1153097914561205/@okolo.linz, wien 1171182632750527/@okolo.vienna). Only
       META_ACCESS_TOKEN is env. `IG_USER_ID`/`FB_PAGE_ID` are dead — inert, but worth deleting from
       Vercel + .env.local so nobody sets them expecting an effect.
-- [ ] Vienna first post: needs the DEPLOYED card URLs (Meta fetches images from public URLs), so it
-      follows the next deploy. Desk: Preview → Post at `?channel=wien`.
+- [x] Vienna first post — LIVE (2026-07-17, confirmed by George). Two-city posting is proven
+      end-to-end: per-channel ids route correctly, cards render, Meta accepts. Linz + Vienna are the
+      working pattern for every city after them.
 - [ ] Per-city Meta accounts for the remaining 8 channels — all sit at `fbPageId/igUserId: null` and
       REFUSE to publish (by design, no fallback). Each new city = create Page + IG professional
       account, link them, assign both assets to the `okolo-publisher` system user, then paste the
