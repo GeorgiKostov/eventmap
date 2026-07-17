@@ -1,29 +1,30 @@
 {
   "_meta": {
-    "run_at": "2026-07-16T06:57:54.386Z",
-    "target_set_size": 931,
-    "fingerprinted": 931,
-    "elapsed_ms": 347963,
+    "run_at": "2026-07-17T22:14:15.425Z",
+    "target_set_size": 994,
+    "fingerprinted": 994,
+    "elapsed_ms": 367296,
     "mode": "dry-run",
     "bucket_counts": {
-      "no-signal": 325,
-      "routed": 19,
-      "blocked": 46,
-      "adapter-candidate": 208,
-      "already-routable-gap": 82,
-      "structured-signal": 248,
+      "no-signal": 336,
+      "routed": 20,
+      "blocked": 48,
+      "adapter-candidate": 222,
+      "already-routable-gap": 83,
+      "structured-signal": 282,
       "js-spa": 3
     },
     "proposed_cms_counts": {
-      "gem2go": 19
+      "gem2go": 19,
+      "sitepark-ical": 1
     },
     "adapter_candidate_counts": {
-      "typo3-generic": 87,
-      "wordpress-generic": 50,
-      "ris-kommunal": 22,
+      "typo3-generic": 96,
+      "wordpress-generic": 55,
+      "ris-kommunal": 21,
       "wp-the-events-calendar": 2,
-      "drupal": 11,
-      "joomla-generic": 15,
+      "drupal": 13,
+      "joomla-generic": 14,
       "joomla-jevents": 2,
       "wix": 8,
       "contao": 10,
@@ -52,7 +53,6 @@
         "https://www.zemendorf-stoettera.at/veranstaltungen-1/detailansicht?tx_gbevents_main%5Baction%5D=show&tx_gbevents_main%5Bcontroller%5D=Event&tx_gbevents_main%5Bevent%5D=655&cHash=65ab14095fc275440e3916378acd996c",
         "https://www.seeundberg.at/planen/veranstaltungen/?lkID=237acaf2-4403-4ff9-b0f9-ae4f83440218",
         "https://feistritz-bleiburg.gv.at/buergerservice/veranstaltungskalender",
-        "https://hermagor.at/freizeit-tourismus/veranstaltungskalender/",
         "https://kirchbach.gv.at/unser-kirchbach/termine-veranstaltungen",
         "https://www.klagenfurt.at/stadtservice/veranstalterservice",
         "https://lesachtal.gv.at/unsere-gemeinde/neuigkeiten/neuigkeiten-detail/logistikpakete-fuer-feste-events-und-veranstaltungen",
@@ -87,7 +87,6 @@
         "https://www.ligist.gv.at/aktuelles/veranstaltungen/",
         "http://www.maria-lankowitz.at/aktuelles/veranstaltungen",
         "http://www.puch-weiz.at/veranstaltungen-termine",
-        "https://www.riegersburg.gv.at/aktuelles/veranstaltungskalender/app",
         "https://www.rosental-kainach.at/aktuelles-bilder/veranstaltungen",
         "https://www.st-anna-aigen.gv.at/veranstaltungen/termine",
         "https://www.st-kathrein-hauenstein.at/tourismus/veranstaltungskalender",
@@ -117,12 +116,22 @@
         "https://haydnhaus.at/programm/kinder-familien/sommerferien-im-museum/",
         "https://www.klagenfurt.at/stadtinfo/veranstaltungen",
         "https://mein-klagenfurt.at/mein-klagenfurt/events-veranstaltungen/eventkalender-klagenfurt-am-woerthersee",
-        "https://www.wienerwald.info/baden/veranstaltungen"
+        "https://www.wienerwald.info/baden/veranstaltungen",
+        "https://fez-berlin.de/programm",
+        "https://www.muenchner-stadtbibliothek.de/veranstaltungen/",
+        "https://veranstaltungen.freising.de/freising/",
+        "https://www.theater-on.de/programm/",
+        "https://www.barnim-naturpark.de/erleben-lernen/termine-veranstaltungen/",
+        "https://www.oekowerk.de/angebote/veranstaltungsprogramm",
+        "https://www.mtfk.de/spielplan",
+        "https://www.lbv-muenchen.de/veranstaltungen/veranstaltungen-exkursionen/",
+        "https://www.kikawi.de/kalender.html",
+        "https://www.junges-schloss.de/angebote/veranstaltungen/",
+        "https://www.naturkundemuseum-bw.de/besuch/veranstaltungen"
       ],
       "wordpress-generic": [
         "https://www.gmunden.at/sport/sportveranstaltungen/",
         "https://www.schaerding.at/schaerding-entdecken/events-und-veranstaltungen/tagungen-und-seminare/",
-        "https://puppetruse.com/%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%B0",
         "https://puppetruse.com/",
         "https://sabor.gela.bg/",
         "https://www.eisenstadt.gv.at/freizeit/veranstaltungskalender/",
@@ -158,6 +167,7 @@
         "https://www.serfaus.gv.at/aktuelles-services/veranstaltungen/",
         "https://www.wattens.com/service-a-z/veranstaltungen/",
         "https://hard.at/aktiv-in-hard/veranstaltungen/",
+        "https://www.sibra-bregenzerwald.com/veranstaltungskalender/",
         "https://www.eisenstadt.gv.at/freizeit/veranstaltungskalender/music-in-the-city/",
         "https://kulturquartier.leoben.at/museum/junges-museum/termine/",
         "https://kulturquartier.leoben.at/stadtbibliothek/",
@@ -169,7 +179,12 @@
         "https://nesebar.bg/",
         "https://sandanski.bg/",
         "https://www.chitalishte-sz.eu/886/%D0%BA%D1%83%D0%BB%D1%82%D1%83%D1%80%D0%B5%D0%BD-%D0%BA%D0%B0%D0%BB%D0%B5%D0%BD%D0%B4%D0%B0%D1%80-%D1%81%D0%BE%D0%B7%D0%BE%D0%BF%D0%BE%D0%BB-2026/",
-        "https://bileti.vnpuppet.com/"
+        "https://bileti.vnpuppet.com/",
+        "https://www.ludwigsfelde.de/veranstaltung/",
+        "https://www.kindermuseum-muenchen.de/veranstaltungen/",
+        "https://www.koeln.de/?post_type=tribe_events&ical=1&eventDisplay=list",
+        "https://norderstedt-tourismus.de/veranstaltungskalender/",
+        "https://www.jes-stuttgart.de/kalender/"
       ],
       "ris-kommunal": [
         "https://www.badpirawarth.at/Freizeit_Vereine/Veranstaltungen/Heurigenkalender",
@@ -178,7 +193,6 @@
         "http://www.glinzendorf.gv.at/system/web/veranstaltung.aspx?detailonr=227942658-1835&menuonr=225011878",
         "https://www.moosbrunn.gv.at/system/web/veranstaltung.aspx?detailonr=227922126-2088&menuonr=220648654&sprache=1",
         "https://www.antiesenhofen.at/system/web/veranstaltung.aspx?typ=0&gnr_search=1710&vdatum=01.07.2026&bdatum=31.07.2026&loop=1&useronr=0&menuonr=219285120",
-        "https://www.pirching-traubenberg.gv.at/system/web/veranstaltung.aspx?detailonr=225394662-1316&menuonr=225240409&sprache=1",
         "https://kanzian.at/Unsere_Gemeinde/Veranstaltungen",
         "https://www.ernstbrunn.gv.at/Unsere_Gemeinde/Infrastruktur/Bildungseinrichtungen/Musikschule_Weinviertel-Mitte/Veranstaltungen",
         "https://www.gaaden.at/Unsere_Gemeinde/Natur_im_Garten/aktuelle_Veranstaltungen",
@@ -210,7 +224,9 @@
         "https://www.poellauberg.at/veranstaltungen",
         "https://cloudnow.at/",
         "https://www.waldbach-moenichwald.gv.at/artikel/veranstaltungen",
-        "https://www.turistko.bg/"
+        "https://www.turistko.bg/",
+        "https://www.visitberlin.de/de/veranstaltungskalender-berlin",
+        "https://www.kinderkulturkalender-berlin.de/"
       ],
       "joomla-generic": [
         "https://visitchepelare.bg/bg",
@@ -219,7 +235,6 @@
         "https://www.mariasdorf.at/index.php/buergerservice/termine/veranstaltungskalender-2026",
         "https://www.berg-drautal.gv.at/berg-er-leben/veranstaltungen.html",
         "https://www.buchbach-liesling.at/index.php/veranstaltungen",
-        "https://www.schrattenbach.at/kalender-wochenansicht/24-veranstaltungen/11984-kleinkindertreffen",
         "https://baumgartenberg.at/kultur-bildung/veranstaltungsstaette",
         "https://www.istsuper.com/termine-veranstaltungen",
         "https://st.stefan.at/index.php/veranstaltungen",
@@ -248,12 +263,12 @@
         "https://www.wiener-neustadt.at/de/veranstaltungen",
         "https://www.vorau.at/veranstaltungen",
         "https://www.kufstein.com/de/kultur/veranstaltungskalender.html",
-        "https://gemeinde.lochau.at/veranstaltungskalender.html",
         "https://www.museum-wn.at/de/konzerte-veranstaltungen/kinder-und-familien",
         "https://montforthausfeldkirch.com/de/besuchen/eventkalender",
         "https://www.hausdernatur.at/de/veranstaltungen-kinder-familie.html",
         "https://www.innsbrucktermine.at/en",
-        "https://www.innsbrucktermine.at/en/c/familie/kinder-familienveranstaltungen"
+        "https://www.innsbrucktermine.at/en/c/familie/kinder-familienveranstaltungen",
+        "https://www.planetarium-hamburg.de/de/veranstaltungen-tickets/familienveranstaltungen"
       ],
       "wp-eventon": [
         "https://zugspitzarena.com/de/News-Events/Veranstaltungskalender"
@@ -541,6 +556,12 @@
       "evidence": null,
       "feedUrl": "https://www.krenglbach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -666,6 +687,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -806,6 +833,12 @@
       "evidence": null,
       "feedUrl": "https://www.attnang-puchheim.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -867,6 +900,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -1048,6 +1087,12 @@
       "evidence": null,
       "feedUrl": "https://www.amstetten.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -1155,6 +1200,12 @@
       "evidence": null,
       "feedUrl": "https://www.hannersdorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1192,7 +1243,13 @@
       "evidence": null,
       "feedUrl": "https://marktstmartin.at/index.php?p=events/veranstaltung-am-12-07-2026-weisenblasen.ics",
       "bucket": "structured-signal",
-      "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": true,
+        "rss": true
+      },
+      "notes": "listing page carries microdata+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
           "type": "ics",
@@ -1212,6 +1269,12 @@
       "evidence": null,
       "feedUrl": "https://nikitsch.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1260,6 +1323,12 @@
       "evidence": null,
       "feedUrl": "https://www.gemeinde-pama.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1284,6 +1353,12 @@
       "evidence": null,
       "feedUrl": "webcal://www.riedlingsdorf.at/index.php?option=com_dpcalendar&task=ical.download&id=10",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1308,6 +1383,12 @@
       "evidence": null,
       "feedUrl": "https://schattendorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -1332,6 +1413,12 @@
       "evidence": null,
       "feedUrl": "https://www.tadten.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1360,6 +1447,12 @@
       "evidence": null,
       "feedUrl": "https://www.trausdorf-wulka.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1380,7 +1473,13 @@
       "evidence": null,
       "feedUrl": "https://wiesen.gv.at/wp-json/",
       "bucket": "structured-signal",
-      "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
+      "signals": {
+        "jsonld": true,
+        "microdata": true,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+microdata+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
           "type": "wp-json",
@@ -1400,6 +1499,12 @@
       "evidence": null,
       "feedUrl": "https://dellach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1420,6 +1525,12 @@
       "evidence": null,
       "feedUrl": "https://www.feld-am-see.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -1483,6 +1594,12 @@
       "evidence": null,
       "feedUrl": "https://kappel-am-krappfeld.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1537,6 +1654,12 @@
       "evidence": null,
       "feedUrl": "webcal://www.trebesing.at/index.php?option=com_dpcalendar&task=ical.download&id=107",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1565,6 +1688,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportical/11/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1585,6 +1714,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/31/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1605,6 +1740,12 @@
       "evidence": null,
       "feedUrl": "https://burgschleinitz-kuehnring.at/ics/570-tag-der-blasmusik-in-zogelsdorf.ics",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1625,6 +1766,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/9/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1645,6 +1792,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/32/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1665,6 +1818,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/33/403/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1685,6 +1844,12 @@
       "evidence": null,
       "feedUrl": "https://www.frankenfels.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -1723,6 +1888,12 @@
       "evidence": null,
       "feedUrl": "https://www.grossdietmanns.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -1751,6 +1922,12 @@
       "evidence": null,
       "feedUrl": "https://hafnerbach.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -1775,6 +1952,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportical/10/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1795,6 +1978,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/24/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1828,6 +2017,12 @@
       "evidence": null,
       "feedUrl": "webcal://www.kirchberg-wagram.at/index.php?option=com_dpcalendar&task=ical.download&id=182",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1852,6 +2047,12 @@
       "evidence": null,
       "feedUrl": "https://www.kottes-purk.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -1902,6 +2103,12 @@
       "evidence": null,
       "feedUrl": "webcal://www.loich.gv.at/index.php?option=com_dpcalendar&task=ical.download&id=58",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1962,6 +2169,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/22/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -1982,6 +2195,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/6/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2002,6 +2221,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/44/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2035,6 +2260,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/25/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2118,6 +2349,12 @@
       "evidence": null,
       "feedUrl": "https://www.ringelsdorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2181,6 +2418,12 @@
       "evidence": null,
       "feedUrl": "webcal://www.sierndorf.at/calendar-node-field-datum/ical/all/calendar.ics",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2205,6 +2448,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportical/20/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2251,6 +2500,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/5/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2271,6 +2526,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportical/34/511/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2291,6 +2552,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/7/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2311,6 +2578,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/52/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2344,6 +2617,12 @@
       "evidence": null,
       "feedUrl": "https://voesendorf.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2368,6 +2647,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/27/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2388,6 +2673,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportical/36/0/0/1",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2421,6 +2712,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/15/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2441,6 +2738,12 @@
       "evidence": null,
       "feedUrl": "https://woelbling.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -2465,6 +2768,12 @@
       "evidence": null,
       "feedUrl": "https://www.wuerflach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2489,6 +2798,12 @@
       "evidence": null,
       "feedUrl": "webcal://login.gemeindeserver.net/event/exportwebcal/38/0/0/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2509,6 +2824,12 @@
       "evidence": null,
       "feedUrl": "https://www.ziersdorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2687,6 +3008,12 @@
       "evidence": null,
       "feedUrl": "https://altaussee.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2711,6 +3038,12 @@
       "evidence": null,
       "feedUrl": "https://gemeinde-grosssteinbach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2733,14 +3066,16 @@
       },
       "proposed": {},
       "evidence": null,
-      "feedUrl": "https://www.liezen.at/ics/59be1da6-5c21-4c36-77aa-1dbd22e1bc4a/soulful-tango.ics",
+      "feedUrl": "https://www.liezen.at/ics/ddfb6e37-43ae-eb2d-a16e-d2c80817f5a6/sommerbuehne-liezen-oldies-night.ics",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
-        {
-          "type": "ics",
-          "url": "https://www.liezen.at/ics/59be1da6-5c21-4c36-77aa-1dbd22e1bc4a/soulful-tango.ics"
-        },
         {
           "type": "ics",
           "url": "https://www.liezen.at/ics/ddfb6e37-43ae-eb2d-a16e-d2c80817f5a6/sommerbuehne-liezen-oldies-night.ics"
@@ -2748,6 +3083,10 @@
         {
           "type": "ics",
           "url": "https://www.liezen.at/ics/ebd2aa28-ec54-b90e-a179-b2cb413c555f/bruno-groening-freundeskreis.ics"
+        },
+        {
+          "type": "ics",
+          "url": "https://www.liezen.at/ics/59be1da6-5c21-4c36-77aa-1dbd22e1bc4a/soulful-tango.ics"
         }
       ]
     },
@@ -2763,6 +3102,12 @@
       "evidence": null,
       "feedUrl": "https://www.lu-wi.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2787,6 +3132,12 @@
       "evidence": null,
       "feedUrl": "http://www.mortantsch.info/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -2807,6 +3158,12 @@
       "evidence": null,
       "feedUrl": "https://www.niklasdorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -2829,9 +3186,8 @@
       },
       "proposed": {},
       "evidence": null,
-      "bucket": "adapter-candidate",
-      "adapterCandidate": "ris-kommunal",
-      "notes": "RiS-Kommunal (non-GEM2GO instance)"
+      "blockedReason": "fetch failed: fetch failed",
+      "bucket": "blocked"
     },
     {
       "id": "814",
@@ -2845,6 +3201,12 @@
       "evidence": null,
       "feedUrl": "https://www.poels-oberkurzheim.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -2869,6 +3231,12 @@
       "evidence": null,
       "feedUrl": "webcal://www.raaba-grambach.gv.at/index.php?option=com_dpcalendar&task=ical.download&id=14",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": false
+      },
       "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
@@ -2889,6 +3257,12 @@
       "evidence": null,
       "feedUrl": "https://rottenmann.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -2909,7 +3283,13 @@
       "evidence": null,
       "feedUrl": "webcal://www.gemeindekurier.at/index.php?option=com_dpcalendar&task=ical.download&id=23",
       "bucket": "structured-signal",
-      "notes": "listing page carries ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": true,
+        "rss": false
+      },
+      "notes": "listing page carries microdata+ical — not cms-gated, should auto-route; check why last feed_kind was 'ical'",
       "feedHints": [
         {
           "type": "webcal",
@@ -2942,6 +3322,12 @@
       "evidence": null,
       "feedUrl": "https://www.trieben.net/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -2959,9 +3345,9 @@
         "feed_kind": "llm"
       },
       "proposed": {},
-      "evidence": null,
-      "blockedReason": "fetch failed: The operation was aborted due to timeout",
-      "bucket": "blocked"
+      "evidence": "veranstaltungcmsliste container",
+      "bucket": "already-routable-gap",
+      "notes": "cms already correct; adapter did not match this page (possible markup variant gap)"
     },
     {
       "id": "828",
@@ -2988,6 +3374,12 @@
       "evidence": null,
       "feedUrl": "https://www.amlach.net/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -3012,6 +3404,12 @@
       "evidence": null,
       "feedUrl": "https://badhaering.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -3036,6 +3434,12 @@
       "evidence": null,
       "feedUrl": "https://ellboegen.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -3063,6 +3467,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": false
+      },
       "notes": "listing page carries jsonld — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
     },
     {
@@ -3103,6 +3513,12 @@
       "evidence": null,
       "feedUrl": "https://www.kartitsch.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -3178,6 +3594,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
     },
     {
@@ -3218,6 +3640,12 @@
       "evidence": null,
       "feedUrl": "https://gemeinde-ried.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -3242,6 +3670,12 @@
       "evidence": null,
       "feedUrl": "https://www.gemeinde-schattwald.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -3250,7 +3684,7 @@
         },
         {
           "type": "webcal",
-          "url": "webcal://www.gemeinde-schattwald.at/?post_type=tribe_events&#038;tribe-bar-date=2026-07-16&#038;ical=1&#038;eventDisplay=list"
+          "url": "webcal://www.gemeinde-schattwald.at/?post_type=tribe_events&#038;tribe-bar-date=2026-07-18&#038;ical=1&#038;eventDisplay=list"
         },
         {
           "type": "query-ical",
@@ -3359,6 +3793,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": false
+      },
       "notes": "listing page carries jsonld — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -3373,6 +3813,12 @@
       "evidence": null,
       "feedUrl": "https://www.tristach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -3422,6 +3868,12 @@
       "evidence": null,
       "feedUrl": "https://www.vorderhornbach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -3731,6 +4183,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -3961,9 +4419,14 @@
       },
       "proposed": {},
       "evidence": null,
-      "bucket": "adapter-candidate",
-      "adapterCandidate": "wordpress-generic",
-      "notes": "WordPress (no recognized events plugin)"
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries jsonld — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
       "id": "1090",
@@ -4002,6 +4465,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4016,6 +4485,12 @@
       "evidence": null,
       "feedUrl": "https://varnasummerfest.org/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4061,6 +4536,12 @@
       "evidence": null,
       "feedUrl": "https://vt.government.bg/index.php?rest_route=/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4105,6 +4586,12 @@
       "evidence": null,
       "feedUrl": "https://www.dtblagoevgrad.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4214,6 +4701,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4227,6 +4720,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4332,6 +4831,12 @@
       "evidence": null,
       "feedUrl": "https://podiumbg.eu/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4351,6 +4856,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4388,6 +4899,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4438,6 +4955,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4490,6 +5013,12 @@
       "evidence": null,
       "feedUrl": "https://spiritofpleven.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4576,6 +5105,12 @@
       "evidence": null,
       "feedUrl": "https://www.ruseopera.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4608,6 +5143,12 @@
       "evidence": null,
       "feedUrl": "https://ruseonthedanube.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -4726,6 +5267,12 @@
       "evidence": null,
       "feedUrl": "https://rife.bg/bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4806,6 +5353,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4832,6 +5385,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4930,6 +5489,12 @@
       "evidence": null,
       "feedUrl": "https://vt.government.bg/index.php?rest_route=/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4950,6 +5515,12 @@
       "evidence": null,
       "feedUrl": "https://teatarvtarnovo.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -4982,6 +5553,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -4996,6 +5573,12 @@
       "evidence": null,
       "feedUrl": "https://www.stageoftheages.bg/index.php/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5016,6 +5599,12 @@
       "evidence": null,
       "feedUrl": "https://varushasouth.art/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5071,6 +5660,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -5120,6 +5715,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -5170,6 +5771,12 @@
       "evidence": null,
       "feedUrl": "https://www.donnerskirchen.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5228,6 +5835,12 @@
       "evidence": null,
       "feedUrl": "https://www.frauenkirchen.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5260,6 +5873,12 @@
       "evidence": null,
       "feedUrl": "https://www.gols.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5319,6 +5938,12 @@
       "evidence": null,
       "feedUrl": "https://www.heiligenbrunn.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5351,6 +5976,12 @@
       "evidence": null,
       "feedUrl": "https://www.inzenhof.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5371,6 +6002,12 @@
       "evidence": null,
       "feedUrl": "https://www.jennersdorf.eu/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5531,6 +6168,12 @@
       "evidence": null,
       "feedUrl": "https://www.moenchhof.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5601,6 +6244,12 @@
       "evidence": null,
       "feedUrl": "https://www.neustift-lafnitz.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5632,6 +6281,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -5723,6 +6378,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -5737,6 +6398,12 @@
       "evidence": null,
       "feedUrl": "https://gemeindepodersdorfamsee.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5781,6 +6448,12 @@
       "evidence": null,
       "feedUrl": "https://rauchwart.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5815,6 +6488,12 @@
       "evidence": null,
       "feedUrl": "https://ritzing.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5846,6 +6525,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -5860,6 +6545,12 @@
       "evidence": null,
       "feedUrl": "https://www.gemeinde-standrae.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -5906,6 +6597,12 @@
       "evidence": null,
       "feedUrl": "https://www.sieggraben.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6048,6 +6745,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6088,6 +6791,12 @@
       "evidence": null,
       "feedUrl": "https://afritz.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6148,6 +6857,12 @@
       "evidence": null,
       "feedUrl": "https://www.bleiburg.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6205,6 +6920,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6233,6 +6954,12 @@
       "evidence": null,
       "feedUrl": "https://greifenburg.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6253,6 +6980,12 @@
       "evidence": null,
       "feedUrl": "https://gurk.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6271,9 +7004,14 @@
       },
       "proposed": {},
       "evidence": null,
-      "bucket": "adapter-candidate",
-      "adapterCandidate": "typo3-generic",
-      "notes": "TYPO3 (no recognized events extension)"
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
       "id": "1314",
@@ -6286,6 +7024,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6327,6 +7071,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6353,6 +7103,12 @@
       "evidence": null,
       "feedUrl": "https://www.lendorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6401,6 +7157,12 @@
       "evidence": null,
       "feedUrl": "https://ludmannsdorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6435,6 +7197,12 @@
       "evidence": null,
       "feedUrl": "https://www.maria-woerth.info/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6465,8 +7233,8 @@
       },
       "proposed": {},
       "evidence": null,
-      "bucket": "structured-signal",
-      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+      "blockedReason": "fetch failed: The operation was aborted due to timeout",
+      "bucket": "blocked"
     },
     {
       "id": "1327",
@@ -6479,6 +7247,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6492,6 +7266,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6517,6 +7297,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6531,6 +7317,12 @@
       "evidence": null,
       "feedUrl": "https://gemeinde-rangersdorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6565,6 +7357,12 @@
       "evidence": null,
       "feedUrl": "https://rennweg-katschberg.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6585,6 +7383,12 @@
       "evidence": null,
       "feedUrl": "https://rosegg.gv.at/de_de/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6630,6 +7434,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6710,6 +7520,12 @@
       "evidence": null,
       "feedUrl": "https://www.stockenboi.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6730,6 +7546,12 @@
       "evidence": null,
       "feedUrl": "https://techelsberg.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6800,6 +7622,12 @@
       "evidence": null,
       "feedUrl": "https://www.bisamberg.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -6869,6 +7697,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -6908,8 +7742,21 @@
       },
       "proposed": {},
       "evidence": null,
-      "blockedReason": "fetch failed: fetch failed",
-      "bucket": "blocked"
+      "feedUrl": "https://ebenthal.at/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://ebenthal.at/wp-json/"
+        }
+      ]
     },
     {
       "id": "1358",
@@ -6923,7 +7770,13 @@
       "evidence": null,
       "feedUrl": "https://eggendorf-noe.at/wp-json/",
       "bucket": "structured-signal",
-      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries microdata+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
           "type": "wp-json",
@@ -7033,6 +7886,12 @@
       "evidence": null,
       "feedUrl": "https://www.grafenbach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7101,6 +7960,12 @@
       "evidence": null,
       "feedUrl": "https://www.gruenbach-schneeberg.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7135,6 +8000,12 @@
       "evidence": null,
       "feedUrl": "https://www.gutenbrunn.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7234,6 +8105,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -7314,6 +8191,12 @@
       "evidence": null,
       "feedUrl": "https://www.kirchschlag.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7334,6 +8217,12 @@
       "evidence": null,
       "feedUrl": "https://klausen-leopoldsdorf.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7430,6 +8319,12 @@
       "evidence": null,
       "feedUrl": "https://www.mailberg.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7450,6 +8345,12 @@
       "evidence": null,
       "feedUrl": "https://www.mannsdorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7484,6 +8385,12 @@
       "evidence": null,
       "feedUrl": "https://www.mitterbach.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7516,6 +8423,12 @@
       "evidence": null,
       "feedUrl": "https://www.ottenschlag.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7596,6 +8509,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -7622,6 +8541,12 @@
       "evidence": null,
       "feedUrl": "https://randegg.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7656,6 +8581,12 @@
       "evidence": null,
       "feedUrl": "https://www.sallingberg.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -7688,9 +8619,14 @@
       },
       "proposed": {},
       "evidence": null,
-      "bucket": "adapter-candidate",
-      "adapterCandidate": "joomla-generic",
-      "notes": "Joomla (no recognized events component)"
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
       "id": "1412",
@@ -7765,6 +8701,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -8033,6 +8975,12 @@
       "evidence": null,
       "feedUrl": "https://www.waldkirchen-thaya.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -8262,6 +9210,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -8380,6 +9334,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -8528,6 +9488,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -8574,7 +9540,13 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
-      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries microdata+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
       "id": "1478",
@@ -8693,6 +9665,12 @@
       "evidence": null,
       "feedUrl": "https://feldbach.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -8753,6 +9731,12 @@
       "evidence": null,
       "feedUrl": "https://floing.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -8772,6 +9756,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -8859,6 +9849,12 @@
       "evidence": null,
       "feedUrl": "https://www.gralla.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -8891,6 +9887,12 @@
       "evidence": null,
       "feedUrl": "https://gratwein-strassengel.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -8911,6 +9913,12 @@
       "evidence": null,
       "feedUrl": "https://gemeinde-greinbach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9000,6 +10008,12 @@
       "evidence": null,
       "feedUrl": "https://hartberg-umgebung.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9072,6 +10086,12 @@
       "evidence": null,
       "feedUrl": "https://www.ilztal.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9259,6 +10279,12 @@
       "evidence": null,
       "feedUrl": "https://www.kumberg.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9345,6 +10371,12 @@
       "evidence": null,
       "feedUrl": "https://newsroom.leibnitz.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9426,6 +10458,12 @@
       "evidence": null,
       "feedUrl": "https://www.mariazell.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9535,6 +10573,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -9561,6 +10605,12 @@
       "evidence": null,
       "feedUrl": "https://www.nestelbach-graz.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9659,6 +10709,12 @@
       "evidence": null,
       "feedUrl": "https://www.passail.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9679,6 +10735,12 @@
       "evidence": null,
       "feedUrl": "https://peggau.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9699,6 +10761,12 @@
       "evidence": null,
       "feedUrl": "https://pernegg.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9719,6 +10787,12 @@
       "evidence": null,
       "feedUrl": "https://www.premstaetten.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9767,6 +10841,12 @@
       "evidence": null,
       "feedUrl": "https://www.poelfing-brunn.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9787,6 +10867,12 @@
       "evidence": null,
       "feedUrl": "https://www.naturpark-poellauertal.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9855,9 +10941,8 @@
       },
       "proposed": {},
       "evidence": null,
-      "bucket": "adapter-candidate",
-      "adapterCandidate": "typo3-generic",
-      "notes": "TYPO3 (no recognized events extension)"
+      "blockedReason": "fetch failed: fetch failed",
+      "bucket": "blocked"
     },
     {
       "id": "1562",
@@ -9913,6 +10998,12 @@
       "evidence": null,
       "feedUrl": "https://tourismus.st-barbara.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -9966,6 +11057,12 @@
       "evidence": null,
       "feedUrl": "https://st-johann-haide.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10022,6 +11119,12 @@
       "evidence": null,
       "feedUrl": "https://www.st-marein-graz.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10132,6 +11235,12 @@
       "evidence": null,
       "feedUrl": "https://www.europadorf.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10152,6 +11261,12 @@
       "evidence": null,
       "feedUrl": "https://www.st-peter-judenburg.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10271,6 +11386,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -10285,6 +11406,12 @@
       "evidence": null,
       "feedUrl": "https://gemeinde.semriach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10420,6 +11547,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -10502,6 +11635,12 @@
       "evidence": null,
       "feedUrl": "https://www.tillmitsch.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10617,6 +11756,12 @@
       "evidence": null,
       "feedUrl": "https://www.wenigzell.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10637,6 +11782,12 @@
       "evidence": null,
       "feedUrl": "https://werndorf.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10755,6 +11906,12 @@
       "evidence": null,
       "feedUrl": "https://www.doelsach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10774,6 +11931,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -10812,6 +11975,12 @@
       "evidence": null,
       "feedUrl": "https://www.haeselgehr.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10865,6 +12034,12 @@
       "evidence": null,
       "feedUrl": "https://www.vzjenbach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -10913,6 +12088,12 @@
       "evidence": null,
       "feedUrl": "https://www.kematenintirol.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11031,6 +12212,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -11128,6 +12315,12 @@
       "evidence": null,
       "feedUrl": "https://www.marktgemeinde-sillian.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11248,6 +12441,12 @@
       "evidence": null,
       "feedUrl": "https://wildermieming.gv.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11294,6 +12493,12 @@
       "evidence": null,
       "feedUrl": "https://altach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11406,6 +12611,12 @@
       "evidence": null,
       "feedUrl": "https://ambach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11461,6 +12672,12 @@
       "evidence": null,
       "feedUrl": "https://www.hohenems.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11493,6 +12710,12 @@
       "evidence": null,
       "feedUrl": "https://koblach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11526,6 +12749,12 @@
       "evidence": null,
       "feedUrl": "https://www.lauterach.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11544,9 +12773,14 @@
       },
       "proposed": {},
       "evidence": null,
-      "bucket": "adapter-candidate",
-      "adapterCandidate": "contao",
-      "notes": "Contao"
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
       "id": "1679",
@@ -11584,6 +12818,12 @@
       "evidence": null,
       "feedUrl": "https://maeder.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11616,8 +12856,16 @@
       },
       "proposed": {},
       "evidence": null,
-      "blockedReason": "fetch failed: fetch failed",
-      "bucket": "blocked"
+      "feedUrl": "https://www.sibra-bregenzerwald.com/wp-json/",
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "wordpress-generic",
+      "notes": "WordPress (no recognized events plugin)",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.sibra-bregenzerwald.com/wp-json/"
+        }
+      ]
     },
     {
       "id": "1684",
@@ -11757,6 +13005,12 @@
       "evidence": null,
       "feedUrl": "https://kidsundco-baden.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -11885,7 +13139,13 @@
       "evidence": null,
       "feedUrl": "https://familie.or.at/wp-json/",
       "bucket": "structured-signal",
-      "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
+      "signals": {
+        "jsonld": true,
+        "microdata": true,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+microdata+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
           "type": "wp-json",
@@ -11904,6 +13164,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": false
+      },
       "notes": "listing page carries jsonld — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
     },
     {
@@ -11930,6 +13196,12 @@
       "evidence": null,
       "feedUrl": "https://www.schubi-du.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12181,6 +13453,12 @@
       "evidence": null,
       "feedUrl": "https://wissenswertwelt.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -12314,19 +13592,6 @@
       "notes": "TYPO3 (no recognized events extension)"
     },
     {
-      "id": "1964",
-      "name": "Визит София — календар",
-      "url": "https://visitsofia.bg/bg/component/jevents/",
-      "current": {
-        "cms": null,
-        "feed_kind": "llm"
-      },
-      "proposed": {},
-      "evidence": null,
-      "bucket": "structured-signal",
-      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
-    },
-    {
       "id": "1965",
       "name": "Община Балчик",
       "url": "https://www.balchik.bg/bg/kulturen-kalendar",
@@ -12435,6 +13700,12 @@
       "evidence": null,
       "feedUrl": "https://banskojazzfest.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12467,15 +13738,8 @@
       },
       "proposed": {},
       "evidence": null,
-      "feedUrl": "https://visit-bansko.bg/wp-json/",
-      "bucket": "structured-signal",
-      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
-      "feedHints": [
-        {
-          "type": "wp-json",
-          "url": "https://visit-bansko.bg/wp-json/"
-        }
-      ]
+      "blockedReason": "http 404",
+      "bucket": "blocked"
     },
     {
       "id": "1976",
@@ -12502,6 +13766,12 @@
       "evidence": null,
       "feedUrl": "https://usetibansko.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12543,7 +13813,13 @@
       "evidence": null,
       "feedUrl": "webcal://dramagabrovo.com/?post_type=tribe_events&#038;ical=1&#038;eventDisplay=list",
       "bucket": "structured-signal",
-      "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
           "type": "webcal",
@@ -12677,6 +13953,12 @@
       "evidence": null,
       "feedUrl": "https://library-haskovo.org/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12697,6 +13979,12 @@
       "evidence": null,
       "feedUrl": "https://haskovomuseum.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12717,6 +14005,12 @@
       "evidence": null,
       "feedUrl": "https://galleryhaskovo.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12737,6 +14031,12 @@
       "evidence": null,
       "feedUrl": "https://mainevent.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12756,6 +14056,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": false
+      },
       "notes": "listing page carries jsonld — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
     },
     {
@@ -12795,6 +14101,12 @@
       "evidence": null,
       "feedUrl": "https://buzludzha-project.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12828,6 +14140,12 @@
       "evidence": null,
       "feedUrl": "https://visitkazanlak.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12860,6 +14178,12 @@
       "evidence": null,
       "feedUrl": "https://kazanlak.info/index.php?rest_route=/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -12892,6 +14216,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -13070,6 +14400,12 @@
       "evidence": null,
       "feedUrl": "https://theatrepazardzhik.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13103,6 +14439,12 @@
       "evidence": null,
       "feedUrl": "https://pazardzhiksymphony.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13140,6 +14482,12 @@
       "evidence": null,
       "feedUrl": "https://pzdnes.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13172,6 +14520,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -13186,6 +14540,12 @@
       "evidence": null,
       "feedUrl": "https://www.pomorie.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13206,6 +14566,12 @@
       "evidence": null,
       "feedUrl": "https://www.pomorie.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13226,6 +14592,12 @@
       "evidence": null,
       "feedUrl": "https://www.pomorie.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13246,6 +14618,12 @@
       "evidence": null,
       "feedUrl": "https://www.pomorie.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13290,6 +14668,12 @@
       "evidence": null,
       "feedUrl": "https://prosveta1888.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13314,6 +14698,12 @@
       "evidence": null,
       "feedUrl": "https://www.pomorie.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13379,6 +14769,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": false
+      },
       "notes": "listing page carries jsonld — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
     },
     {
@@ -13393,6 +14789,12 @@
       "evidence": null,
       "feedUrl": "https://sandanski.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13452,6 +14854,12 @@
       "evidence": null,
       "feedUrl": "https://apollonia.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13472,6 +14880,12 @@
       "evidence": null,
       "feedUrl": "https://apollonia.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13505,6 +14919,12 @@
       "evidence": null,
       "feedUrl": "https://velingrad.bg/main/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13550,6 +14970,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": false
+      },
       "notes": "listing page carries jsonld — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
     },
     {
@@ -13624,6 +15050,12 @@
       "evidence": null,
       "feedUrl": "https://sofiasummerfest.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13644,6 +15076,12 @@
       "evidence": null,
       "feedUrl": "https://sghg.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13664,6 +15102,12 @@
       "evidence": null,
       "feedUrl": "https://nationalgallery.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13695,6 +15139,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -13709,6 +15159,12 @@
       "evidence": null,
       "feedUrl": "https://sofiaphilharmonic.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13754,6 +15210,12 @@
       "evidence": null,
       "feedUrl": "https://musictheatre.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13774,6 +15236,12 @@
       "evidence": null,
       "feedUrl": "https://clubcheta.com/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13818,6 +15286,12 @@
       "evidence": null,
       "feedUrl": "https://roditeli.org/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13849,6 +15323,12 @@
       "proposed": {},
       "evidence": null,
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
     },
     {
@@ -13863,6 +15343,12 @@
       "evidence": null,
       "feedUrl": "https://programata.bg/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13921,6 +15407,12 @@
       "evidence": null,
       "feedUrl": "https://www.naturpark-attersee-traunsee.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13941,6 +15433,12 @@
       "evidence": null,
       "feedUrl": "https://www.asvoe.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
       "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
       "feedHints": [
         {
@@ -13961,6 +15459,12 @@
       "evidence": null,
       "feedUrl": "https://ooe.familienbund.at/wp-json/",
       "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
       "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
       "feedHints": [
         {
@@ -14032,6 +15536,1146 @@
       "proposed": {},
       "evidence": null,
       "bucket": "no-signal"
+    },
+    {
+      "id": "2925",
+      "name": "Berlin.de Events & Festivals (offizieller Veranstaltungskalender)",
+      "url": "https://www.berlin.de/events/",
+      "current": {
+        "cms": null,
+        "feed_kind": "jsonld"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
+    },
+    {
+      "id": "2926",
+      "name": "Berlin.de Kinder-Tickets (Familien/Kinder-Veranstaltungen)",
+      "url": "https://www.berlin.de/tickets/kinder/",
+      "current": {
+        "cms": null,
+        "feed_kind": "jsonld"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
+    },
+    {
+      "id": "2927",
+      "name": "Berlin.de Bezirk-Beispiel: Veranstaltungen in Pankow",
+      "url": "https://www.berlin.de/special/stadtteile/pankow/veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "jsonld"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'"
+    },
+    {
+      "id": "2929",
+      "name": "visitBerlin Veranstaltungskalender",
+      "url": "https://www.visitberlin.de/de/veranstaltungskalender-berlin",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "drupal",
+      "notes": "Drupal"
+    },
+    {
+      "id": "2930",
+      "name": "Berlin mit Kind - Veranstaltungskalender (HIMBEER)",
+      "url": "https://berlinmitkind.de/veranstaltungskalender/",
+      "current": {
+        "cms": null,
+        "feed_kind": null
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://berlinmitkind.de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'null'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://berlinmitkind.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2931",
+      "name": "Kinderkulturkalender Berlin",
+      "url": "https://www.kinderkulturkalender-berlin.de/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "drupal",
+      "notes": "Drupal"
+    },
+    {
+      "id": "2932",
+      "name": "FEZ-Berlin Programm",
+      "url": "https://fez-berlin.de/programm",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2933",
+      "name": "Stadt Strausberg - Veranstaltungen",
+      "url": "https://www.stadt-strausberg.de/veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.stadt-strausberg.de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.stadt-strausberg.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2934",
+      "name": "Stadt Ludwigsfelde - Veranstaltungen",
+      "url": "https://www.ludwigsfelde.de/veranstaltung/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.ludwigsfelde.de/wp-json/",
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "wordpress-generic",
+      "notes": "WordPress (no recognized events plugin)",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.ludwigsfelde.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2935",
+      "name": "Stadt Hennigsdorf - Aktuelle Veranstaltungen",
+      "url": "https://www.hennigsdorf.de/Rathaus-Service/Aktuelles/Veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2936",
+      "name": "Gemeinde Kleinmachnow - Veranstaltungskalender",
+      "url": "https://www.kleinmachnow.de/Kultur-Freizeit/Freizeit/Veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2937",
+      "name": "Ofenstadt Velten - Veranstaltungen",
+      "url": "https://velten.de/Verwaltung-Politik/Aktuelles/Veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2938",
+      "name": "Stadt Werder (Havel) - Veranstaltungskalender",
+      "url": "https://www.werder-havel.de/tourismus/veranstaltungen/veranstaltungskalender.html",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.werder-havel.de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.werder-havel.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2939",
+      "name": "muenchen.de Veranstaltungskalender – Familie & Kinder",
+      "url": "https://www.muenchen.de/veranstaltungen/event/familie-kinder",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2940",
+      "name": "muenchen.de Veranstaltungskalender – Feste & Festivals",
+      "url": "https://www.muenchen.de/veranstaltungen/event/feste-festivals",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2941",
+      "name": "München mit Kind – Veranstaltungskalender (HIMBEER Verlag)",
+      "url": "https://muenchenmitkind.de/veranstaltungskalender/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://muenchenmitkind.de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://muenchenmitkind.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2942",
+      "name": "Münchner Stadtbibliothek – Veranstaltungen",
+      "url": "https://www.muenchner-stadtbibliothek.de/veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2943",
+      "name": "Eintritt.Frei München – Kategorie Kinder",
+      "url": "https://www.eintrittfrei-muenchen.de/veranstaltungen/kategorie/kinder/",
+      "current": {
+        "cms": null,
+        "feed_kind": "jsonld"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.eintrittfrei-muenchen.de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": true,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+ical+rss — not cms-gated, should auto-route; check why last feed_kind was 'jsonld'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.eintrittfrei-muenchen.de/wp-json/"
+        },
+        {
+          "type": "webcal",
+          "url": "webcal://www.eintrittfrei-muenchen.de/?post_type=tribe_events&#038;tribe_events_cat=kinder&#038;ical=1&#038;eventDisplay=list"
+        },
+        {
+          "type": "query-ical",
+          "url": "https://www.eintrittfrei-muenchen.de/?ical=1"
+        }
+      ]
+    },
+    {
+      "id": "2944",
+      "name": "Landkreis Freising Veranstaltungskalender (RCE-Events)",
+      "url": "https://veranstaltungen.freising.de/freising/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2945",
+      "name": "Stadt Erding – Veranstaltungen",
+      "url": "https://www.erding.de/veranstaltungen-übersicht",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2946",
+      "name": "Gemeinde Ismaning – Veranstaltungen (Kultur & Freizeit)",
+      "url": "https://ismaning.de/veranstaltungen/kategorie/kultur-freizeit/",
+      "current": {
+        "cms": null,
+        "feed_kind": "jsonld"
+      },
+      "proposed": {},
+      "evidence": null,
+      "blockedReason": "challenge/bot-block page (status 200)",
+      "bucket": "blocked"
+    },
+    {
+      "id": "2947",
+      "name": "GRIPS Theater — Spielplan",
+      "url": "https://www.grips-theater.de/de/spielplan",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2948",
+      "name": "Theater o.N. — Programm",
+      "url": "https://www.theater-on.de/programm/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2949",
+      "name": "SJD Die Falken Berlin — Termine",
+      "url": "https://falken-berlin.de/termine",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2950",
+      "name": "NABU Berlin — Termine",
+      "url": "https://berlin.nabu.de/natur-und-landschaft/natur-erleben/termine/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2951",
+      "name": "Naturpark Barnim — Termine",
+      "url": "https://www.barnim-naturpark.de/erleben-lernen/termine-veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2952",
+      "name": "Ökowerk Berlin (Grunewald) — Veranstaltungsprogramm",
+      "url": "https://www.oekowerk.de/angebote/veranstaltungsprogramm",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2953",
+      "name": "Münchner Marionettentheater — Programm",
+      "url": "https://www.muema-theater.de/programm/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2954",
+      "name": "Münchner Theater für Kinder — Spielplan",
+      "url": "https://www.mtfk.de/spielplan",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2955",
+      "name": "in-muenchen.de — Tipps für Kids",
+      "url": "https://www.in-muenchen.de/themes/tipps-fur-kids",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.in-muenchen.de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": true,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries jsonld+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.in-muenchen.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2956",
+      "name": "Kindermuseum München — Veranstaltungen",
+      "url": "https://www.kindermuseum-muenchen.de/veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.kindermuseum-muenchen.de/wp-json/",
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "wordpress-generic",
+      "notes": "WordPress (no recognized events plugin)",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.kindermuseum-muenchen.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2957",
+      "name": "ÖBZ — Ökologisches Bildungszentrum München",
+      "url": "https://oebz.de/programm/Veranstaltungskalender",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2958",
+      "name": "LBV München — Veranstaltungen & Exkursionen",
+      "url": "https://www.lbv-muenchen.de/veranstaltungen/veranstaltungen-exkursionen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2959",
+      "name": "NaturFreunde Bezirk München — Veranstaltungen",
+      "url": "https://www.naturfreunde-bezirk-muenchen.de/veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2960",
+      "name": "RheinMain4Family — Events",
+      "url": "https://www.rheinmain4family.de/events.html",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2961",
+      "name": "koeln.de — Events (iCal)",
+      "url": "https://www.koeln.de/?post_type=tribe_events&ical=1&eventDisplay=list",
+      "current": {
+        "cms": null,
+        "feed_kind": "ical"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "wordpress-generic",
+      "notes": "WordPress (no recognized events plugin)"
+    },
+    {
+      "id": "2962",
+      "name": "Hamburg mit Kind (hamburg-magazin.de) — Kinder am Wochenende",
+      "url": "https://www.hamburg-magazin.de/kinder-wochenende.html",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2963",
+      "name": "Tierpark Hagenbeck — Veranstaltungen",
+      "url": "https://www.hagenbeck.de/de/tierpark/veranstaltungen/event_uebersicht.php",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2964",
+      "name": "Planetarium Hamburg — Familienveranstaltungen",
+      "url": "https://www.planetarium-hamburg.de/de/veranstaltungen-tickets/familienveranstaltungen",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "contao",
+      "notes": "Contao"
+    },
+    {
+      "id": "2965",
+      "name": "NABU Hamburg — Termine",
+      "url": "https://hamburg.nabu.de/spenden-und-mitmachen/termine/index.html",
+      "current": {
+        "cms": null,
+        "feed_kind": null
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'null'"
+    },
+    {
+      "id": "2966",
+      "name": "Norderstedt Tourismus — Veranstaltungskalender",
+      "url": "https://norderstedt-tourismus.de/veranstaltungskalender/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://norderstedt-tourismus.de/wp-json/",
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "wordpress-generic",
+      "notes": "WordPress (no recognized events plugin)",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://norderstedt-tourismus.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2967",
+      "name": "KÄNGURU (kaenguru-online.de) — Kalender",
+      "url": "https://www.kaenguru-online.de/kalender/natur-und-umwelt",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries microdata+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2968",
+      "name": "COMEDIA Theater Köln — Termine",
+      "url": "https://comedia-koeln.de/buehne/termine/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2969",
+      "name": "Hänneschen Puppenspiele der Stadt Köln — Programm",
+      "url": "https://www.haenneschen.de/spillplan/programmuebersicht/",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2970",
+      "name": "NABU Köln — Veranstaltungen",
+      "url": "https://www.nabu-koeln.de/veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2971",
+      "name": "Senckenberg Naturmuseum Frankfurt — Kalender",
+      "url": "https://museumfrankfurt.senckenberg.de/de/kalender/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://museumfrankfurt.senckenberg.de/de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries microdata+rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://museumfrankfurt.senckenberg.de/de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2972",
+      "name": "Zoo Frankfurt — Veranstaltungen",
+      "url": "https://www.zoo-frankfurt.de/de/zoobesuch-planen/was-ist-los-im-zoo",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2973",
+      "name": "KIKAWI — Kinder-Veranstaltungskalender Wiesbaden",
+      "url": "https://www.kikawi.de/kalender.html",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2974",
+      "name": "Papageno Musiktheater am Palmengarten — Kinderprogramm",
+      "url": "https://papageno-theater.de/programm/kinderprogramm",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2975",
+      "name": "Theater Grüne Soße — Spielplan",
+      "url": "https://www.theatergruenesosse.de/spielplan/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "no-signal"
+    },
+    {
+      "id": "2976",
+      "name": "NABU Frankfurt — Termine",
+      "url": "https://www.nabu-frankfurt.de/termine/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'"
+    },
+    {
+      "id": "2977",
+      "name": "Mainz — Veranstaltungskalender Kinder & Jugendliche",
+      "url": "https://www.mainz.de/leben-und-arbeit/alt-und-jung/veranstaltungskalender-kinder.php",
+      "current": {
+        "cms": null,
+        "feed_kind": null
+      },
+      "proposed": {
+        "cms": "sitepark-ical"
+      },
+      "evidence": "Sitepark sp:out / vendor string",
+      "bucket": "routed"
+    },
+    {
+      "id": "2978",
+      "name": "Junges Schloss — Kindermuseum Stuttgart",
+      "url": "https://www.junges-schloss.de/angebote/veranstaltungen/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2979",
+      "name": "FITZ — Zentrum für Figurentheater (Kinder)",
+      "url": "https://www.fitz-stuttgart.de/kinder/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.fitz-stuttgart.de/wp-json/",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.fitz-stuttgart.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2980",
+      "name": "JES — Junges Ensemble Stuttgart",
+      "url": "https://www.jes-stuttgart.de/kalender/",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://www.jes-stuttgart.de/wp-json/",
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "wordpress-generic",
+      "notes": "WordPress (no recognized events plugin)",
+      "feedHints": [
+        {
+          "type": "wp-json",
+          "url": "https://www.jes-stuttgart.de/wp-json/"
+        }
+      ]
+    },
+    {
+      "id": "2981",
+      "name": "Staatliches Museum für Naturkunde Stuttgart — Veranstaltungen",
+      "url": "https://www.naturkundemuseum-bw.de/besuch/veranstaltungen",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "adapter-candidate",
+      "adapterCandidate": "typo3-generic",
+      "notes": "TYPO3 (no recognized events extension)"
+    },
+    {
+      "id": "2982",
+      "name": "Stadtbibliothek Stuttgart — Kinderveranstaltungen",
+      "url": "https://veranstaltungen-stadtbibliothek-stuttgart.de/index.php?zielgruppe=3",
+      "current": {
+        "cms": null,
+        "feed_kind": "llm"
+      },
+      "proposed": {},
+      "evidence": null,
+      "feedUrl": "https://veranstaltungen-stadtbibliothek-stuttgart.de/?a&zielgruppe=3&format=17",
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'llm'",
+      "feedHints": [
+        {
+          "type": "query-ical",
+          "url": "https://veranstaltungen-stadtbibliothek-stuttgart.de/?a&zielgruppe=3&format=17"
+        },
+        {
+          "type": "query-ical",
+          "url": "https://veranstaltungen-stadtbibliothek-stuttgart.de/?a&zielgruppe=3&format=10"
+        },
+        {
+          "type": "query-ical",
+          "url": "https://veranstaltungen-stadtbibliothek-stuttgart.de/?a&zielgruppe=3&format=13"
+        }
+      ]
+    },
+    {
+      "id": "2983",
+      "name": "NABU Stuttgart — Termine",
+      "url": "https://www.nabu-stuttgart.de/termine/",
+      "current": {
+        "cms": null,
+        "feed_kind": null
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": false,
+        "ical": false,
+        "rss": true
+      },
+      "notes": "listing page carries rss — not cms-gated, should auto-route; check why last feed_kind was 'null'"
+    },
+    {
+      "id": "2984",
+      "name": "muenchen.de Veranstaltungskalender – Konzerte",
+      "url": "https://www.muenchen.de/veranstaltungen/event/konzerte",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2985",
+      "name": "muenchen.de Veranstaltungskalender – Theater",
+      "url": "https://www.muenchen.de/veranstaltungen/event/theater",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2986",
+      "name": "muenchen.de Veranstaltungskalender – Ausstellungen & Museen",
+      "url": "https://www.muenchen.de/veranstaltungen/event/ausstellung-museen",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2987",
+      "name": "muenchen.de Veranstaltungskalender – Klassik",
+      "url": "https://www.muenchen.de/veranstaltungen/event/klassik",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2988",
+      "name": "muenchen.de Veranstaltungskalender – Musical",
+      "url": "https://www.muenchen.de/veranstaltungen/event/musical",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
+    },
+    {
+      "id": "2989",
+      "name": "muenchen.de Veranstaltungskalender – Lesungen",
+      "url": "https://www.muenchen.de/veranstaltungen/event/lesungen",
+      "current": {
+        "cms": null,
+        "feed_kind": "microdata"
+      },
+      "proposed": {},
+      "evidence": null,
+      "bucket": "structured-signal",
+      "signals": {
+        "jsonld": false,
+        "microdata": true,
+        "ical": false,
+        "rss": false
+      },
+      "notes": "listing page carries microdata — not cms-gated, should auto-route; check why last feed_kind was 'microdata'"
     }
   ]
 }

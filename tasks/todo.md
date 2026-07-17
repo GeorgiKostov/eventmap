@@ -39,8 +39,21 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] **Blocked/JS, revisit**: frankfurt.de (403 to non-browser UA — send a real UA), Luftballon
       Stuttgart (~1,000/mo, find the XHR endpoint), Wilhelma (WAF), stuttgart-tourist.de (2,042 JS),
       Zoo Frankfurt two-hop /event/ links, Esslingen iCal (grab .ics from rendered DOM).
-- [ ] **Add itemscope/itemtype=Event to `structuredSignals()`** so the next fingerprint sweep measures
-      how many of the ~840 LLM-route sources are secretly Microdata $0 (the muenchen/RheinMain pattern).
+- [x] **Microdata added to the fingerprint sweep + full sweep run (2026-07-18).** structuredSignals()
+      now detects microdata (+ @graph/subtype JSON-LD, which the old exact-"Event" regex missed). Full
+      sweep over the LLM-route catalog found: **microdata 22 · jsonld 37 · ical 65 · rss 232** signals
+      (rss mostly municipal NEWS feeds, correctly declined by parseRssEvents). Verified the microdata
+      rung genuinely extracts on AT sources (not just DE): familie.or.at 18 (route:microdata),
+      wiesen.gv.at 28 (route:jsonld), lochau 10 — these auto-$0 on next crawl now the rung is live.
+      hermagor/Senckenberg-style empty-datetime ones correctly yield 0 (signal ≠ extraction).
+- [x] **BONUS from the sweep: 20 routable cms proposals APPLIED** (19 gem2go + 1 sitepark-ical) —
+      marker-confirmed AT sources that were mis-routed to the paid LLM, now route the deterministic
+      $0 parser first (LLM fallback if the markup variant misses). The 07-16 sweep proposed these but
+      was never --write'd. Report: data/catalog/fingerprint-report.json.
+- [ ] **New-adapter ROI from the same sweep** (unchanged since 07-16, still the biggest cost lever):
+      typo3-generic **96** · wordpress-generic **55** · ris-kommunal 21 · contao 10 · drupal 13
+      (BG: visitplovdiv) · joomla 14+2. A generic TYPO3 or WordPress-events adapter would convert the
+      largest LLM-route cluster to $0. typo3-generic (leonding/wels) is the top candidate.
 
 ## Germany supply deepening: places + aggregator research + adapters (2026-07-17, George: "probe for places, research linztermine-like calendars, then municipalities, big cities only") — SHIPPED
 - [x] **Places mined from OSM/Overpass for Berlin + Munich** (`scripts/mine-places.mjs`, generalized
