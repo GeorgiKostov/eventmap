@@ -1,0 +1,17 @@
+{
+  "_meta": {
+    "scope": "berlin-40km",
+    "built_at": "2026-07-17",
+    "center": { "lat": 52.52, "lng": 13.405 },
+    "radius_km": 40,
+    "source": "Research agent (family/kids calendars + family/nature/club orgs), each URL live-fetched and verified to carry dated upcoming events in STATIC HTML. JS-only sources (Schaubude, Kindaling, DAV Berlin widget, Museum für Naturkunde) and blocked ones (Musenkuss 401) were excluded. familienportal.berlin.de handled separately (cms=familienportal paginated adapter). umweltkalender-berlin.de deferred — one 352k-char page needs its own adapter."
+  },
+  "proposed": [
+    { "name": "GRIPS Theater — Spielplan", "url": "https://www.grips-theater.de/de/spielplan", "town": "Berlin", "region": "Berlin 40km", "country": "DE", "centroid_lat": 52.52, "centroid_lng": 13.405, "cms": null, "kind": "family", "notes": "Berlin youth/children's theatre, ~200+ dated shows with age tags, static HTML cards." },
+    { "name": "Theater o.N. — Programm", "url": "https://www.theater-on.de/programm/", "town": "Berlin", "region": "Berlin 40km", "country": "DE", "centroid_lat": 52.52, "centroid_lng": 13.405, "cms": null, "kind": "family", "notes": "Prenzlauer Berg family theatre, ages 2+, ~12-15 dated shows, static HTML." },
+    { "name": "SJD Die Falken Berlin — Termine", "url": "https://falken-berlin.de/termine", "town": "Berlin", "region": "Berlin 40km", "country": "DE", "centroid_lat": 52.52, "centroid_lng": 13.405, "cms": null, "kind": "verein", "notes": "Kinderfreunde-equivalent (SJD). Listing page, NOT /feed (that is a blog feed w/o event dates). ~12-15 dated events." },
+    { "name": "NABU Berlin — Termine", "url": "https://berlin.nabu.de/natur-und-landschaft/natur-erleben/termine/", "town": "Berlin", "region": "Berlin 40km", "country": "DE", "centroid_lat": 52.52, "centroid_lng": 13.405, "cms": null, "kind": "nature", "notes": "Nature-conservation events incl. NAJU children's groups, ~14 dated, static HTML table." },
+    { "name": "Naturpark Barnim — Termine", "url": "https://www.barnim-naturpark.de/erleben-lernen/termine-veranstaltungen/", "town": "Berlin", "region": "Berlin 40km", "country": "DE", "centroid_lat": 52.52, "centroid_lng": 13.405, "cms": null, "kind": "nature", "notes": "Naturpark on Berlin's fringe; ranger tours, pony rides, kids escape games. ~12 dated." },
+    { "name": "Ökowerk Berlin (Grunewald) — Veranstaltungsprogramm", "url": "https://www.oekowerk.de/angebote/veranstaltungsprogramm", "town": "Berlin", "region": "Berlin 40km", "country": "DE", "centroid_lat": 52.52, "centroid_lng": 13.405, "cms": null, "kind": "nature", "notes": "Grunewald nature centre; children's theatre/storytelling, Kinder/Familien tags. ~12 dated." }
+  ]
+}

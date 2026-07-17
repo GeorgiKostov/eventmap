@@ -1,0 +1,18 @@
+{
+  "_meta": {
+    "scope": "munich-40km",
+    "built_at": "2026-07-17",
+    "center": { "lat": 48.1351, "lng": 11.582 },
+    "radius_km": 40,
+    "source": "Research agent, each URL live-fetched and verified (dated events in static HTML). Excluded JS-only (KITZ, Deutsches Museum) and login-walled sources."
+  },
+  "proposed": [
+    { "name": "Münchner Marionettentheater — Programm", "url": "https://www.muema-theater.de/programm/", "town": "München", "region": "München 40km", "country": "DE", "centroid_lat": 48.1351, "centroid_lng": 11.582, "cms": null, "kind": "family", "notes": "~60-70 dated shows with times + ages, clean chronological static HTML." },
+    { "name": "Münchner Theater für Kinder — Spielplan", "url": "https://www.mtfk.de/spielplan", "town": "München", "region": "München 40km", "country": "DE", "centroid_lat": 48.1351, "centroid_lng": 11.582, "cms": null, "kind": "family", "notes": "Children's theatre, ages 4-10, ~16+ dated shows, robots-clean, static HTML." },
+    { "name": "in-muenchen.de — Tipps für Kids", "url": "https://www.in-muenchen.de/themes/tipps-fur-kids", "town": "München", "region": "München 40km", "country": "DE", "centroid_lat": 48.1351, "centroid_lng": 11.582, "cms": null, "kind": "family", "notes": "~70+ family events (theatre, workshops, concerts) with dates/locations, static HTML cards, some JSON-LD." },
+    { "name": "Kindermuseum München — Veranstaltungen", "url": "https://www.kindermuseum-muenchen.de/veranstaltungen/", "town": "München", "region": "München 40km", "country": "DE", "centroid_lat": 48.1351, "centroid_lng": 11.582, "cms": null, "kind": "family", "notes": "Children's museum, ages 4-12, ~8 dated events, static HTML." },
+    { "name": "ÖBZ — Ökologisches Bildungszentrum München", "url": "https://oebz.de/programm/Veranstaltungskalender", "town": "München", "region": "München 40km", "country": "DE", "centroid_lat": 48.1351, "centroid_lng": 11.582, "cms": null, "kind": "nature", "notes": "~50+ dated events; Kinderwerkstatt, Familienvormittag, Ferienprogramm. Static HTML." },
+    { "name": "LBV München — Veranstaltungen & Exkursionen", "url": "https://www.lbv-muenchen.de/veranstaltungen/veranstaltungen-exkursionen/", "town": "München", "region": "München 40km", "country": "DE", "centroid_lat": 48.1351, "centroid_lng": 11.582, "cms": null, "kind": "nature", "notes": "Landesbund für Vogel- und Naturschutz; ~40+ dated, Ferienprogramm (6-10), family festivals. WordPress static HTML." },
+    { "name": "NaturFreunde Bezirk München — Veranstaltungen", "url": "https://www.naturfreunde-bezirk-muenchen.de/veranstaltungen/", "town": "München", "region": "München 40km", "country": "DE", "centroid_lat": 48.1351, "centroid_lng": 11.582, "cms": null, "kind": "verein", "notes": "Naturfreunde-equivalent; family/youth outings, iCal download link per event (generic iCal waterfall may catch it $0)." }
+  ]
+}
