@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getChannel, CHANNELS, channelForPoint } from '../../../../lib/city-channels.js';
-import { loadOrBuildDigest, saveDigest, applyDrop, renderNewsletter, renderCaption } from '../../../../lib/digest.js';
+import {
+  loadOrBuildDigest,
+  saveDigest,
+  applyDrop,
+  applyReplace,
+  applyReorder,
+  poolFor,
+  sectionsOf,
+  renderNewsletter,
+  renderCaption,
+} from '../../../../lib/digest.js';
 import { confirmedSubscribers, metaGet, metaSet } from '../../../../lib/db.js';
 import { sendNewsletter, mailConfigured } from '../../../../lib/mail.js';
 import { isAdmin } from '../../../../lib/admin-auth.js';
@@ -9,7 +19,12 @@ import { isAdmin } from '../../../../lib/admin-auth.js';
 //   GET                → the frozen weekly snapshot + caption + email preview + audience size
 //   POST regenerate    → rebuild the picks (new AI copy), overwrite the snapshot
 //   POST drop          → remove a bad pick and re-freeze (George's editorial veto)
+//   POST replace       → swap ONE pick for the next-best candidate in its strand
+//   POST reorder       → move ONE pick up/down within its strand
 //   POST send          → mail the digest to this city's confirmed subscribers
+//
+// drop/replace/reorder are the editorial layer: each edits the frozen snapshot
+// in place and re-freezes it, with NO AI call — only `regenerate` rebuilds.
 //
 // Sending is DELIBERATELY a manual button, not a cron: an auto-sent newsletter
 // nobody looked at is how you mail 500 parents a wrong event. The cron only
@@ -41,6 +56,16 @@ async function snapshot(channel, { force = false } = {}) {
   });
   return {
     digest,
+    // The strands, grouped exactly as the mail/page/caption render them. Computed
+    // here rather than in the desk because sectionsOf lives in lib/digest.js,
+    // which imports the DB layer — a client component can't touch it. It also
+    // keeps ONE definition of where a strand starts and ends, so the desk's
+    // up/down buttons can't drift from applyReorder's swap-within-strand rule.
+    sections: sectionsOf(digest.items, channel.lang).map((g) => ({
+      key: g.key,
+      title: g.title,
+      ids: g.items.map((it) => it.id),
+    })),
     caption: renderCaption(digest),
     subject: preview.subject,
     html: preview.html,
@@ -74,6 +99,40 @@ export async function POST(req) {
   if (body.action === 'drop') {
     const digest = await loadOrBuildDigest(channel);
     await saveDigest(applyDrop(digest, body.id));
+    return NextResponse.json(await snapshot(channel));
+  }
+
+  if (body.action === 'replace') {
+    const digest = await loadOrBuildDigest(channel);
+    // Unknown id vs. exhausted strand are different failures — applyReplace
+    // returns null for both, so distinguish them here (a pick regenerated away
+    // in another tab is a 404, not "nothing left to swap in").
+    if (!digest.items.some((it) => it.id === String(body.id))) {
+      return NextResponse.json({ error: 'item not in current digest — it may have been regenerated away' }, { status: 404 });
+    }
+    // The candidate pool for the SNAPSHOT's weekend, not for "now": editing a
+    // frozen issue must draw from the same window it was built from.
+    const next = applyReplace(digest, body.id, await poolFor(channel, digest.window));
+    if (!next) {
+      return NextResponse.json(
+        { error: 'nothing left to swap in for this strand — drop the pick instead' },
+        { status: 409 },
+      );
+    }
+    await saveDigest(next);
+    return NextResponse.json(await snapshot(channel));
+  }
+
+  if (body.action === 'reorder') {
+    if (body.dir !== 'up' && body.dir !== 'down') {
+      return NextResponse.json({ error: 'dir must be up or down' }, { status: 400 });
+    }
+    const digest = await loadOrBuildDigest(channel);
+    const next = applyReorder(digest, body.id, body.dir);
+    // Already at the edge of its strand — a no-op, not a failure. Return the
+    // snapshot unchanged so the desk simply doesn't move.
+    if (!next) return NextResponse.json(await snapshot(channel));
+    await saveDigest(next);
     return NextResponse.json(await snapshot(channel));
   }
 

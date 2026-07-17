@@ -97,8 +97,8 @@ function ThursdayDesk() {
     setPreview(null); // stale card/caption from another channel would mislead
   }, [channel, load, loadSocial]);
 
-  async function act(action, extra = {}) {
-    setBusy(action);
+  async function act(action, extra = {}, busyKey = action) {
+    setBusy(busyKey);
     setErr('');
     setNote('');
     try {
@@ -207,9 +207,37 @@ function ThursdayDesk() {
                 </button>
               </div>
 
-              {data.digest.items.map((it, i) => (
-                <div key={it.id} style={S.item}>
-                  <div style={{ fontWeight: 800, color: '#C93A5B', width: 22 }}>{i + 1}</div>
+              {data.digest.items.map((it, i) => {
+                // Reorder is within a strand (see applyReorder): the ↑/↓ buttons
+                // must know where this pick sits in ITS section, not the whole
+                // issue, so an edge pick in the family strand can't try to swap
+                // past the "for everyone" heading. The section id-lists come from
+                // the server (sectionsOf), the single source of strand boundaries.
+                const strand = (data.sections || []).find((s) => s.ids.includes(it.id));
+                const posInStrand = strand ? strand.ids.indexOf(it.id) : i;
+                const strandLen = strand ? strand.ids.length : data.digest.items.length;
+                const busyRow = busy === `row-${it.id}`;
+                return (
+                <div key={it.id} style={{ ...S.item, opacity: busyRow ? 0.5 : 1 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 22 }}>
+                    <button
+                      style={S.reorderBtn(posInStrand === 0)}
+                      disabled={!!busy || posInStrand === 0}
+                      title="Move up"
+                      onClick={() => act('reorder', { id: it.id, dir: 'up' }, `row-${it.id}`)}
+                    >
+                      ▲
+                    </button>
+                    <div style={{ fontWeight: 800, color: '#C93A5B' }}>{i + 1}</div>
+                    <button
+                      style={S.reorderBtn(posInStrand === strandLen - 1)}
+                      disabled={!!busy || posInStrand === strandLen - 1}
+                      title="Move down"
+                      onClick={() => act('reorder', { id: it.id, dir: 'down' }, `row-${it.id}`)}
+                    >
+                      ▼
+                    </button>
+                  </div>
                   <div style={{ flex: 1 }}>
                     <a href={`/event/${it.id}`} target="_blank" rel="noreferrer" style={{ fontWeight: 700, color: '#212B28', textDecoration: 'none' }}>
                       {it.title}
@@ -220,11 +248,22 @@ function ThursdayDesk() {
                     {it.teaser ? <div style={S.muted}>{it.teaser}</div> : null}
                     <div style={{ ...S.muted, fontSize: 12 }}>{it.badges.join(' · ')}</div>
                   </div>
-                  <button style={S.ghost} disabled={!!busy} onClick={() => act('drop', { id: it.id })}>
-                    Drop
-                  </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <button
+                      style={S.ghost}
+                      disabled={!!busy}
+                      title="Swap this pick for the next-best event in the same strand"
+                      onClick={() => act('replace', { id: it.id }, `row-${it.id}`)}
+                    >
+                      {busyRow ? '…' : '↻ Replace'}
+                    </button>
+                    <button style={S.ghost} disabled={!!busy} onClick={() => act('drop', { id: it.id }, `row-${it.id}`)}>
+                      Drop
+                    </button>
+                  </div>
                 </div>
-              ))}
+                );
+              })}
               {!data.digest.items.length ? <p style={S.muted}>No events match this weekend in this catchment.</p> : null}
             </div>
 
