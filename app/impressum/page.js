@@ -41,7 +41,7 @@ async function copy() {
 
 export async function generateMetadata() {
   const t = await copy();
-  return { title: t.title, description: t.description, robots: { index: true, follow: true } };
+  return { title: t.title, description: t.description, robots: { index: true, follow: true }, alternates: { canonical: '/impressum' } };
 }
 
 export default async function ImpressumPage() {

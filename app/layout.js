@@ -37,13 +37,41 @@ export const viewport = {
   themeColor: '#C93A5B',
 };
 
+// Organization + WebSite JSON-LD: ties the brand word "Okolo" to this domain in
+// Google's knowledge graph. Event pages already carry Event schema; this is the
+// site-level identity that makes a search for the NAME resolve to okolo.events
+// ("okolo" alone is a common Slavic word, so the entity association matters).
+const SITE_LD = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${BASE_URL}/#organization`,
+      name: 'Okolo',
+      url: BASE_URL,
+      logo: `${BASE_URL}/icon-512.png`,
+      email: 'hello@okolo.events',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${BASE_URL}/#website`,
+      name: 'Okolo',
+      url: BASE_URL,
+      publisher: { '@id': `${BASE_URL}/#organization` },
+    },
+  ],
+};
+
 export default async function RootLayout({ children }) {
   const requestHeaders = await headers();
   const detectedLang = requestHeaders.get('x-okolo-lang');
   const lang = LANGS.includes(detectedLang) ? detectedLang : 'en';
   return (
     <html lang={lang}>
-      <body><LanguageProvider initialLang={lang}>{children}</LanguageProvider><SWRegister /><Analytics /></body>
+      <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_LD) }} />
+        <LanguageProvider initialLang={lang}>{children}</LanguageProvider><SWRegister /><Analytics />
+      </body>
     </html>
   );
 }

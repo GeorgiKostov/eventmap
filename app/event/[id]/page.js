@@ -90,6 +90,9 @@ export async function generateMetadata({ params }) {
     // event tab read "… · Okolo · Okolo" (live bug, visible in the browser).
     title: { absolute: when ? `${ev.title} — ${when} · ${brand}` : `${ev.title} · ${brand}` },
     description: ev.description || `${ev.title}${ev.town ? ` ${t.inTown} ${ev.town}` : ''}${when ? ` ${t.onDate} ${when}.` : '.'}`,
+    // Override the root layout's canonical '/': without this every event page
+    // declares itself a duplicate of the homepage and Google drops it.
+    alternates: { canonical: `/event/${id}` },
     openGraph: {
       title: ev.title,
       description: ev.description || undefined,

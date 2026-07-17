@@ -16,6 +16,18 @@ const COPY = {
   en: { archive: 'Earlier weekends', none: 'This weekend is still being put together — check back shortly.', back: 'To the map' },
 };
 
+export async function generateMetadata({ params }) {
+  const { city } = await params;
+  const channel = getChannel(city);
+  if (!channel) return {};
+  // Own title + canonical: without these the archive fallback inherits the
+  // homepage's metadata from the root layout, canonical '/' included.
+  return {
+    title: channel.label,
+    alternates: { canonical: `/weekend/${channel.slug}` },
+  };
+}
+
 export default async function CityWeekendIndex({ params }) {
   const { city } = await params;
   const channel = getChannel(city);
