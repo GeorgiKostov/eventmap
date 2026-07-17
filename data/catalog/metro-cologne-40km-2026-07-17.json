@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "scope": "cologne-40km",
+    "built_at": "2026-07-17",
+    "center": {
+      "lat": 50.9384,
+      "lng": 6.96
+    },
+    "radius_km": 40,
+    "source": "Research agent (docs/research/germany-metro-sources-2026-07-17.md), SSR-HTML sources verified to carry dated events. JS-rendered/blocked/two-hop excluded."
+  },
+  "proposed": [
+    {
+      "name": "KÄNGURU (kaenguru-online.de) — Kalender",
+      "url": "https://www.kaenguru-online.de/kalender/natur-und-umwelt",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9384,
+      "centroid_lng": 6.96,
+      "cms": null,
+      "kind": "family",
+      "notes": "Rhineland family magazine (HIMBEER-equiv), category pages SSR"
+    },
+    {
+      "name": "COMEDIA Theater Köln — Termine",
+      "url": "https://comedia-koeln.de/buehne/termine/",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9384,
+      "centroid_lng": 6.96,
+      "cms": null,
+      "kind": "family",
+      "notes": "childrens/youth theatre, 100+ age-rated shows"
+    },
+    {
+      "name": "Hänneschen Puppenspiele der Stadt Köln — Programm",
+      "url": "https://www.haenneschen.de/spillplan/programmuebersicht/",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9384,
+      "centroid_lng": 6.96,
+      "cms": null,
+      "kind": "family",
+      "notes": "municipal puppet theatre, 200+ shows"
+    },
+    {
+      "name": "Düsseldorf — Kinder & Jugend Veranstaltungen",
+      "url": "https://www.duesseldorf.de/kiju/veranstaltungen",
+      "town": "Düsseldorf",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9384,
+      "centroid_lng": 6.96,
+      "cms": null,
+      "kind": "family",
+      "notes": "official kids/family listing"
+    },
+    {
+      "name": "Stadt Bonn — Veranstaltungskalender",
+      "url": "https://www.bonn.de/bonn-erleben/ausgehen-und-erleben/veranstaltungskalender.php",
+      "town": "Bonn",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9384,
+      "centroid_lng": 6.96,
+      "cms": null,
+      "kind": "city_calendar",
+      "notes": "Familien/Kinder Zielgruppen filter"
+    },
+    {
+      "name": "NABU Köln — Veranstaltungen",
+      "url": "https://www.nabu-koeln.de/veranstaltungen/",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9384,
+      "centroid_lng": 6.96,
+      "cms": null,
+      "kind": "nature",
+      "notes": "~26 excursions, family-oriented"
+    }
+  ]
+}

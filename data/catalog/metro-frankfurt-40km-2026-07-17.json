@@ -1,0 +1,110 @@
+{
+  "_meta": {
+    "scope": "frankfurt-40km",
+    "built_at": "2026-07-17",
+    "center": {
+      "lat": 50.1106,
+      "lng": 8.6821
+    },
+    "radius_km": 40,
+    "source": "Research agent (docs/research/germany-metro-sources-2026-07-17.md), SSR-HTML sources verified to carry dated events. JS-rendered/blocked/two-hop excluded."
+  },
+  "proposed": [
+    {
+      "name": "Senckenberg Naturmuseum Frankfurt — Kalender",
+      "url": "https://museumfrankfurt.senckenberg.de/de/kalender/",
+      "town": "Frankfurt am Main",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "museum",
+      "notes": "47 family events, Ferienprogramm"
+    },
+    {
+      "name": "Zoo Frankfurt — Veranstaltungen",
+      "url": "https://www.zoo-frankfurt.de/de/zoobesuch-planen/was-ist-los-im-zoo",
+      "town": "Frankfurt am Main",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "nature",
+      "notes": "Ferienprogramm, /event/ detail links"
+    },
+    {
+      "name": "KIKAWI — Kinder-Veranstaltungskalender Wiesbaden",
+      "url": "https://www.kikawi.de/kalender.html",
+      "town": "Wiesbaden",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "family",
+      "notes": "dedicated Wiesbaden kids calendar"
+    },
+    {
+      "name": "Papageno Musiktheater am Palmengarten — Kinderprogramm",
+      "url": "https://papageno-theater.de/programm/kinderprogramm",
+      "town": "Frankfurt am Main",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "family",
+      "notes": "childrens music theatre"
+    },
+    {
+      "name": "Theater Grüne Soße — Spielplan",
+      "url": "https://www.theatergruenesosse.de/spielplan/",
+      "town": "Frankfurt am Main",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "family",
+      "notes": "junges Theater, kids 4+"
+    },
+    {
+      "name": "NABU Frankfurt — Termine",
+      "url": "https://www.nabu-frankfurt.de/termine/",
+      "town": "Frankfurt am Main",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "nature",
+      "notes": "NAJU kids group 6-12"
+    },
+    {
+      "name": "Mainz — Veranstaltungskalender Kinder & Jugendliche",
+      "url": "https://www.mainz.de/leben-und-arbeit/alt-und-jung/veranstaltungskalender-kinder.php",
+      "town": "Mainz",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "family",
+      "notes": "official kids calendar (Sitepark, prose dates -> LLM)"
+    },
+    {
+      "name": "Offenbach — Veranstaltungskalender",
+      "url": "https://www.offenbach.de/kultur-und-tourismus/veranstaltungen/kalender/index.php",
+      "town": "Offenbach am Main",
+      "region": "Frankfurt 40km",
+      "country": "DE",
+      "centroid_lat": 50.1106,
+      "centroid_lng": 8.6821,
+      "cms": null,
+      "kind": "city_calendar",
+      "notes": "official (Sitepark, prose dates -> LLM)"
+    }
+  ]
+}

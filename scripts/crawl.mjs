@@ -642,6 +642,25 @@ async function parseKalkalpenSource(sitemapXml, src) {
 // special-cased at the top of crawlSource() instead, see
 // crawlNaturfreundeSource() below.)
 async function tryStructuredExtraction(html, src) {
+  // Direct feed: when the registered `url` IS an iCal/RSS endpoint (rather than
+  // an HTML page that LINKS to one), the fetched body is the feed itself, so no
+  // href/`<link rel=alternate>` discovery can find it and htmlToText would just
+  // mangle it. Many German municipal feeds are query-param URLs the discovery
+  // rungs below can't recognise (`?ical=1` on WP tribe_events; Sitepark
+  // `?sp:out=rss`), so a source registered at its feed URL lands here first.
+  // Gated on the body actually being a feed — an HTML page never starts with
+  // BEGIN:VCALENDAR, and parseRssEvents already declines a news feed with no
+  // event-date tag, so this can't hijack a normal page.
+  const head = html.slice(0, 4096).trimStart();
+  if (/^BEGIN:VCALENDAR/i.test(head)) {
+    const icsEvents = parseIcsEvents(html, src.town);
+    if (icsEvents.length) return { route: 'ical', events: icsEvents };
+  }
+  if (/^<\?xml|^<(?:rss|feed)\b/i.test(head)) {
+    const rssEvents = parseRssEvents(html, src.town);
+    if (rssEvents.length) return { route: 'rss', events: rssEvents };
+  }
+
   const jsonld = parseJsonLdEvents(html, src);
   if (jsonld.length) return { route: 'jsonld', events: jsonld };
 

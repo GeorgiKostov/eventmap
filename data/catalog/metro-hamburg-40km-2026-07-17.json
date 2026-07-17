@@ -1,0 +1,98 @@
+{
+  "_meta": {
+    "scope": "hamburg-40km",
+    "built_at": "2026-07-17",
+    "center": {
+      "lat": 53.5502,
+      "lng": 10.0013
+    },
+    "radius_km": 40,
+    "source": "Research agent (docs/research/germany-metro-sources-2026-07-17.md), SSR-HTML sources verified to carry dated events. JS-rendered/blocked/two-hop excluded."
+  },
+  "proposed": [
+    {
+      "name": "Hamburg mit Kind (hamburg-magazin.de) — Kinder am Wochenende",
+      "url": "https://www.hamburg-magazin.de/kinder-wochenende.html",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5502,
+      "centroid_lng": 10.0013,
+      "cms": null,
+      "kind": "family",
+      "notes": "regional kids magazine; itemtype=Event but prose dates -> LLM"
+    },
+    {
+      "name": "Bücherhallen Hamburg — Termine",
+      "url": "https://www.buecherhallen.de/termine.html",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5502,
+      "centroid_lng": 10.0013,
+      "cms": null,
+      "kind": "library",
+      "notes": "33-branch library, Kinder/Jugendliche filter"
+    },
+    {
+      "name": "hamburg.de — Veranstaltungen für Kinder",
+      "url": "https://www.hamburg.de/freizeit/kinder/veranstaltungen",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5502,
+      "centroid_lng": 10.0013,
+      "cms": null,
+      "kind": "family",
+      "notes": "official city kids, curated"
+    },
+    {
+      "name": "Tierpark Hagenbeck — Veranstaltungen",
+      "url": "https://www.hagenbeck.de/de/tierpark/veranstaltungen/event_uebersicht.php",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5502,
+      "centroid_lng": 10.0013,
+      "cms": null,
+      "kind": "nature",
+      "notes": "zoo, Ferienprogramme ab 6"
+    },
+    {
+      "name": "Planetarium Hamburg — Familienveranstaltungen",
+      "url": "https://www.planetarium-hamburg.de/de/veranstaltungen-tickets/familienveranstaltungen",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5502,
+      "centroid_lng": 10.0013,
+      "cms": null,
+      "kind": "family",
+      "notes": "family shows"
+    },
+    {
+      "name": "NABU Hamburg — Termine",
+      "url": "https://hamburg.nabu.de/spenden-und-mitmachen/termine/index.html",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5502,
+      "centroid_lng": 10.0013,
+      "cms": null,
+      "kind": "nature",
+      "notes": "500+ nature walks/yr, NAJU kids"
+    },
+    {
+      "name": "Norderstedt Tourismus — Veranstaltungskalender",
+      "url": "https://norderstedt-tourismus.de/veranstaltungskalender/",
+      "town": "Norderstedt",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5502,
+      "centroid_lng": 10.0013,
+      "cms": null,
+      "kind": "city_calendar",
+      "notes": "ring town, family subset"
+    }
+  ]
+}

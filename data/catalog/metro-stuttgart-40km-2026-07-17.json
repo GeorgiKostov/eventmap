@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "scope": "stuttgart-40km",
+    "built_at": "2026-07-17",
+    "center": {
+      "lat": 48.7758,
+      "lng": 9.1829
+    },
+    "radius_km": 40,
+    "source": "Research agent (docs/research/germany-metro-sources-2026-07-17.md), SSR-HTML sources verified to carry dated events. JS-rendered/blocked/two-hop excluded."
+  },
+  "proposed": [
+    {
+      "name": "Junges Schloss — Kindermuseum Stuttgart",
+      "url": "https://www.junges-schloss.de/angebote/veranstaltungen/",
+      "town": "Stuttgart",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.7758,
+      "centroid_lng": 9.1829,
+      "cms": null,
+      "kind": "family",
+      "notes": "childrens museum"
+    },
+    {
+      "name": "FITZ — Zentrum für Figurentheater (Kinder)",
+      "url": "https://www.fitz-stuttgart.de/kinder/",
+      "town": "Stuttgart",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.7758,
+      "centroid_lng": 9.1829,
+      "cms": null,
+      "kind": "family",
+      "notes": "puppet theatre kids program"
+    },
+    {
+      "name": "JES — Junges Ensemble Stuttgart",
+      "url": "https://www.jes-stuttgart.de/kalender/",
+      "town": "Stuttgart",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.7758,
+      "centroid_lng": 9.1829,
+      "cms": null,
+      "kind": "family",
+      "notes": "childrens/youth theatre"
+    },
+    {
+      "name": "Staatliches Museum für Naturkunde Stuttgart — Veranstaltungen",
+      "url": "https://www.naturkundemuseum-bw.de/besuch/veranstaltungen",
+      "town": "Stuttgart",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.7758,
+      "centroid_lng": 9.1829,
+      "cms": null,
+      "kind": "museum",
+      "notes": "family tours ab 5"
+    },
+    {
+      "name": "Stadtbibliothek Stuttgart — Kinderveranstaltungen",
+      "url": "https://veranstaltungen-stadtbibliothek-stuttgart.de/index.php?zielgruppe=3",
+      "town": "Stuttgart",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.7758,
+      "centroid_lng": 9.1829,
+      "cms": null,
+      "kind": "library",
+      "notes": "zielgruppe=3 children filter"
+    },
+    {
+      "name": "NABU Stuttgart — Termine",
+      "url": "https://www.nabu-stuttgart.de/termine/",
+      "town": "Stuttgart",
+      "region": "Stuttgart 40km",
+      "country": "DE",
+      "centroid_lat": 48.7758,
+      "centroid_lng": 9.1829,
+      "cms": null,
+      "kind": "nature",
+      "notes": "~100 nature events, kids groups"
+    }
+  ]
+}
