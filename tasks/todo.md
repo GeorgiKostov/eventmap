@@ -25,8 +25,14 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] **Sitepark/kulturlotse RSS is pubDate-only → currently LLM route, not $0** (Mainz/Offenbach/Bonn/
       kulturlotse: date is in the item TITLE, not a machine tag; parseRssEvents correctly declines).
       A small Sitepark-title-date parser would make ~4-6 official kids calendars $0 — worth it.
-- [ ] **Two-hop JSON-LD adapters** (detail-page `@graph` Event, visitberlin pattern proven): Hamburg
-      Tourismus + visitberlin.de itself. One adapter shape serves both. (Not built yet.)
+- [x] **Two-hop JSON-LD adapter SHIPPED** (lib/twohop-events.js, cms=twohop): visitberlin.de/de/
+      kategorie/familie live, route:twohop, **49 current family events $0**. parseJsonLdEvents
+      extracted to lib/jsonld-events.js (one definition, crawl.mjs imports it). Caught + fixed the
+      series-premiere trap: JSON-LD top-level startDate = premiere, so recurring shows came in dated
+      2022 with endDate 2027 → bounded date_start to [today-31d, horizon] (76 cand → 49 clean).
+- [ ] **Hamburg Tourismus two-hop: BLOCKED** — its listing is fully JS-rendered (0 static detail
+      links) and its sitemap has no event URLs, so detail links can't be enumerated without headless
+      rendering. The two-hop config map (TWOHOP_SOURCES) is ready for it once a link source is found.
 - [ ] **Skipped on policy (ai-bot/robots), needs George or an allowed path**: Bücherhallen Hamburg,
       hamburg.de kids, Stadt Bonn, Offenbach (all name ClaudeBot); Düsseldorf /kiju (robots). These
       are official/high-yield — outreach or a permitted endpoint.
