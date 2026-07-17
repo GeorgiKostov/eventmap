@@ -134,8 +134,9 @@ async function fingerprintSource(src) {
     }
   } else {
     const signals = structuredSignals(html);
-    if (signals.jsonld || signals.ical || signals.rss) {
+    if (signals.jsonld || signals.microdata || signals.ical || signals.rss) {
       out.bucket = 'structured-signal';
+      out.signals = signals;
       out.notes = `listing page carries ${Object.entries(signals).filter(([, v]) => v).map(([k]) => k).join('+')} — not cms-gated, should auto-route; check why last feed_kind was '${out.current.feed_kind}'`;
     } else {
       const candidate = detectAdapterCandidate(html);
@@ -183,6 +184,8 @@ async function main() {
   const proposedCmsCount = {};
   const adapterClusterCount = {};
   const adapterClusterExamples = {};
+  const signalCount = { jsonld: 0, microdata: 0, ical: 0, rss: 0 };
+  const signalExamples = { jsonld: [], microdata: [], ical: [], rss: [] };
   for (const r of results) {
     bucketCount[r.bucket || 'error'] = (bucketCount[r.bucket || 'error'] || 0) + 1;
     if (r.proposed?.cms) proposedCmsCount[r.proposed.cms] = (proposedCmsCount[r.proposed.cms] || 0) + 1;
@@ -190,12 +193,19 @@ async function main() {
       adapterClusterCount[r.adapterCandidate] = (adapterClusterCount[r.adapterCandidate] || 0) + 1;
       (adapterClusterExamples[r.adapterCandidate] ||= []).push(r.url);
     }
+    if (r.signals) for (const [k, v] of Object.entries(r.signals)) {
+      if (v) { signalCount[k]++; if (signalExamples[k].length < 3) signalExamples[k].push(r.url); }
+    }
   }
 
   console.log('\n--- Summary ---');
   console.log(`Fingerprinted: ${results.length} in ${(elapsedMs / 1000).toFixed(0)}s (${(elapsedMs / results.length).toFixed(0)}ms/source avg)`);
   console.log('\nBy bucket:');
   for (const [k, v] of Object.entries(bucketCount).sort((a, b) => b[1] - a[1])) console.log(`  ${k}: ${v}`);
+  console.log('\nStructured signals on LLM-route sources (should auto-route to $0 on next crawl):');
+  for (const [k, v] of Object.entries(signalCount).filter(([, v]) => v).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${k}: ${v} — e.g. ${signalExamples[k].slice(0, 2).join(', ')}`);
+  }
   console.log('\nProposed cms changes (routable, applied only with --write):');
   if (Object.keys(proposedCmsCount).length === 0) console.log('  (none)');
   for (const [k, v] of Object.entries(proposedCmsCount).sort((a, b) => b[1] - a[1])) console.log(`  -> ${k}: ${v}`);
