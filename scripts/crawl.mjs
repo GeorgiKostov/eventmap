@@ -24,6 +24,7 @@ import { makeStartsAt, makeEndsAt, splitLocalDateTime } from '../lib/event-time.
 import { extractFromPage } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseMicrodataEvents } from '../lib/microdata-events.js';
+import { fetchFamilienportalEvents } from '../lib/familienportal-events.js';
 import { parseSiteparkRssItems, siteparkIcalUrl } from '../lib/sitepark-events.js';
 import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfingen-events.js';
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
@@ -686,6 +687,11 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'jevents') {
     const jeventsEvents = await fetchJeventsEvents(src);
     if (jeventsEvents.length) return { route: 'jevents', events: jeventsEvents };
+  }
+
+  if (src.cms === 'familienportal') {
+    const fpEvents = await fetchFamilienportalEvents(src);
+    if (fpEvents.length) return { route: 'familienportal', events: fpEvents };
   }
 
   if (src.cms === 'dvv') {
