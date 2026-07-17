@@ -9,6 +9,47 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-17 latest — THE BOX IS LIVE, Germany opens: Berlin + Munich, c758e41)
+- **Self-hosted Nominatim runs on George's box and it is the whole prize.** AT+BG+DE merged
+  (5,529 MB) at **`IMPORT_STYLE=full`**, ~104 GB DB on Z: NVMe (Docker's VHDX relocated there via
+  `customWslDistroDir`; C: had only 71 GB). `NOMINATIM_URL=http://localhost:8080` makes
+  `throttle()` a no-op. Measured: 10 DE towns **2,041ms** vs public's 11,000ms+ *serialized* floor;
+  German venues now resolve at **venue** precision. The DE geocache held **298 rows** — Germany was
+  ~100% cache-miss, which is precisely why it was geocode-bound.
+- **The runbook was wrong in five load-bearing ways and is now corrected + measured**
+  (docs/ops/local-box-setup.md): `IMPORT_STYLE=address` (excludes POIs → `poiQuery` returns nothing
+  → every venue degrades to a centroid AND the miss is cached = Bad Ischl at scale); image 5.1→5.3;
+  the whole WSL2+Ubuntu+systemd section (unnecessary — Docker Desktop + native Node + native Ollama);
+  Docker's `memoryMiB` (Hyper-V-only, ignored under WSL2); "qwen2.5:32b, the box has the RAM"
+  (**VRAM** binds — 16 GB). Plus the BIOS/SVM prerequisite that ate a morning.
+- **🚨 `scripts/crawl.mjs` ran NOTHING on Windows** — the ``file://${argv[1]}`` entrypoint guard can
+  never match a backslashed drive path. `npm run crawl` exited 0, printed nothing, crawled zero
+  sources — on the exact machine the nightly cron is meant to move to. Fixed with `pathToFileURL`.
+- **Germany: DE events 706 → 1,326**, sources 8 → **30** (Berlin 14 · München 8 · Stuttgart 8).
+  New `lib/microdata-events.js` rung: muenchen.de (Munich's OFFICIAL calendar) publishes **100
+  Events as Microdata, 0 ld+json** → **100/100 upserted at $0** instead of a paid LLM call. Its
+  **placeholder guard** matters: all 100 publish `startDate=T12:00:00Z` (noon-UTC date marker) while
+  the page shows 11 distinct real times — literal parsing = the `T09:00` fabrication in a schema.org
+  badge. Guard is deliberately narrow (uniform + canonical marker + ≥3 events) so a theatre whose
+  6 shows all start 19:30 keeps 19:30.
+- **Hard rule 8 closed in the same change**: places.js had ZERO DE entries; the geocode route
+  hard-filtered Photon to `['AT','BG']` with a binary `? 'AT' : 'BG'` flip that could never reach a
+  third country. 30 DE towns added (coords read off our own Nominatim). "Berlin" used to return an
+  Austrian *building*; Stuttgart had been unsearchable since 07-13.
+- **`EXTRACT_PROVIDER` is UNSET — the crawl runs on Gemini** (George's informed call). NB the
+  concurrent session's 5-model bake-off (docs §3b) is real and stands; my first "gemma4 is unusable"
+  measurement was **wrong** — I benchmarked a hand-rolled copy of `callOllamaText` instead of the
+  real, already-retuned function (c590e12: `format: CRAWL_SCHEMA`, `think:false`, `num_ctx` pinned).
+  Correct numbers: gemma4 near-parity on ordinary pages (5 vs 6), fabricates nothing, but **2 vs 26**
+  on a dense family listing. **Benchmark the real call path, never your model of it.**
+- **`scripts/register-catalog.mjs`** is the committed registration path (scope + robots + AI-policy +
+  opt-out gates, dry-run default) — replaces ad-hoc SQL. `upsertSource()` DOES take `region`; the
+  todo's claim otherwise is stale. 3 traps refused with measured reasons in the catalogs: Erkner
+  (a sitemap), Potsdam (nav-only/JS-rendered), Starnberg (no event data).
+- **Concurrent session active all day** — it owns docs/partnerships + the Meta runbook + the Ollama
+  §3b bake-off. A full-file `Write` of local-box-setup.md was blocked by the file-changed guard and
+  would have destroyed their work; edits there must stay surgical.
+
 ## DEPLOY POLICY (do not forget — also in CLAUDE.md §Deploying)
 - **Pushing to main does NOT deploy.** vercel.json sets `git.deploymentEnabled=false`
   (b73a855, "manual deployments only") — a deliberate guard against concurrent sessions

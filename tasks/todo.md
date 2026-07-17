@@ -2,6 +2,59 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Local crawl box LIVE + Germany opens: Berlin + Munich (2026-07-17, George: "setup llm+geocoding so we can mine and crawl quick" → "lets crawl the big cities germany") — SHIPPED (c758e41)
+- [x] **Self-hosted Nominatim is UP and it was the whole prize.** AT+BG+DE merged (5,529 MB),
+      `IMPORT_STYLE=full`, ~104 GB DB on Z: NVMe, osm2pgsql 33m52s + full import ~2h40m.
+      `NOMINATIM_URL=http://localhost:8080` → `throttle()` is a no-op. Measured: 10 DE towns in
+      **2,041ms** (public floor 11,000ms+ *serialized*); `geocodeEvent('Labyrinth Kindermuseum',
+      'Berlin')` → **venue** precision. DE geocache held **298 rows** — i.e. Germany was ~100%
+      cache-miss, which is exactly why it was geocode-bound and why the box matters.
+- [x] **The runbook said `IMPORT_STYLE=address`, which would have broken `poiQuery` silently** —
+      `address` excludes POIs, so every venue degrades to a town centroid AND the miss gets cached
+      (Bad Ischl at scale). Proved with the doc's own sanity check: `Posthof, Linz` returns
+      `amenity/arts_centre` on `full`, and only `highway/residential` (the *street*) on `address`.
+      Runbook corrected + measured numbers recorded.
+- [x] **🚨 `scripts/crawl.mjs` ran NOTHING on Windows** — ``import.meta.url === `file://${argv[1]}` ``
+      can never match a backslashed drive path, so `npm run crawl` exited 0, printed nothing,
+      crawled zero sources. On the exact box the cron is meant to move to. Fixed (`pathToFileURL`).
+- [x] **Generic Microdata rung shipped** (`lib/microdata-events.js`, wired behind JSON-LD): muenchen.de
+      = Munich's OFFICIAL calendar, **100 Events / 0 ld+json** → was headed for the paid LLM route.
+      Now `route: microdata`, **100/100 upserted, $0**. Includes a **placeholder guard**: all 100
+      publish `startDate=T12:00:00Z` (noon-UTC date marker) while the visible page shows 11 distinct
+      times — parsed literally that fabricates 12:00 on 100 events. 10 tests.
+- [x] **Berlin + Munich scopes registered**: 22 sources (14 + 8), **DE events 706 → 1,326**, 30 DE
+      sources across 3 scopes. Berlin crawl 486 events with **26 out-of-radius correctly skipped**.
+- [x] **Hard rule 8 closed in the same change**: `lib/places.js` had ZERO DE entries and the geocode
+      route hard-filtered Photon to `['AT','BG']` with a binary `? 'AT' : 'BG'` fallback flip that
+      could never reach a third country. 30 DE towns added (coords read off our own Nominatim);
+      `SERVICE_COUNTRIES` is now one closed set. "Berlin" returned an Austrian *building* before.
+- [x] **`scripts/register-catalog.mjs`** — registration was ad-hoc SQL (doc-agent finding (a); its
+      claim that `upsertSource()` lacks a `region` param is **stale**). Gates scope + robots +
+      AI-bot policy + opt-out, dry-run by default. Reusable for Hamburg/Köln.
+- [x] **3 measured 0-yield traps refused, with reasons recorded in the catalogs** (`register:false`):
+      Erkner (a *sitemap*, 499 locs / 0 dates), Potsdam (nav-only static HTML — all three local
+      models correctly found 0 events on it), Starnberg (0 dates, 0 structured data).
+- [x] **`EXTRACT_PROVIDER` UNSET — crawl runs on Gemini** (George, informed call, after I first
+      unset it on a *broken* benchmark). Real numbers: gemma4:12b is near-parity on ordinary pages
+      (hennigsdorf 5 vs 6) and fabricates nothing, but **2 vs 26** on the dense
+      kinderkulturkalender-berlin.de family listing. The earlier "local, no users yet" call was
+      priced at "2–3 events"; 8% recall on a family source doesn't fit that premise.
+- [ ] **Hamburg + Köln: not started** (no probed catalog → deliberately NOT in `crawl-scopes.js`;
+      a scope without a catalog claims coverage we don't have). Same two-Sonnet discovery pattern,
+      then `register-catalog.mjs`.
+- [ ] **Erkner + Potsdam are real sources we're leaving on the table**: Erkner needs a kalkalpen-style
+      two-hop (its sitemap's detail pages *do* carry JSON-LD Events — 499 of them); Potsdam needs the
+      JS-SPA treatment (find the underlying API).
+- [ ] **Negative geocache: 14,494 of 22,805 rows are `hit=false`.** Honest misses against *public*
+      Nominatim, but re-querying is ~free now. Worth a measured recheck pass — NOT a blind
+      `purgeNegativeGeocache()`.
+- [ ] **George: cut the cron over to the box** (runbook §4: Task Scheduler, then
+      `gh workflow disable "Scheduled crawl"` — **never both**). Also `w32tm` reports
+      `Source: Local CMOS Clock`, never NTP-synced; cadence gating uses host time.
+- [ ] Microdata prevalence is still **unmeasured** across the ~840 LLM-route sources — the rung now
+      exists, so add an `itemscope`/`itemtype=...Event` signal to `structuredSignals()` and let the
+      next fingerprint sweep report how much more is $0 (crawl-sota-2026.md ranked this adopt-now).
+
 ## Ollama local-extraction retune (2026-07-17, George: "remove the models we cant use, check online for alternatives… delete models we discard") — SHIPPED
 - [x] **The model was the small half.** `format:'json'` meant the contract was *asked for* in prose
       while `CRAWL_SCHEMA` sat unused in the same file — qwen2.5 dropped `date_end`/`time_end` from

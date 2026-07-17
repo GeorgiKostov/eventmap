@@ -2,6 +2,77 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-17 — I benchmarked a reimplementation of our own code and reported its failure as the model's
+
+Setting up the local box, I "measured" gemma4:12b at **194s/page, ignoring the event cap, truncating
+its JSON** and concluded it was unusable. George agreed to unset `EXTRACT_PROVIDER` on that basis.
+**Every one of those numbers came from a benchmark script I wrote myself**, which reimplemented
+`callOllamaText` from what I remembered of it: `format:'json'`, no schema, no `think:false`, no
+pinned `num_ctx`. A concurrent session had already retuned the real function (c590e12) to send
+`format: CRAWL_SCHEMA` (a GBNF grammar), `think:false` and `num_ctx: 32768`. Through the **real**
+`extractFromPage()` the same model runs in **13–17s with zero out-of-enum categories**. My strawman
+was the thing that was broken. Worse, I'd read a stale `ollama -v` (0.17.1) hours earlier and never
+re-checked; it was 0.32.1 by then, which is exactly what gemma4 needs.
+**Lessons:** (1) **benchmark the real call path, never your model of it** — if a test needs to
+reproduce production behavior, import the production function; a copy is a different program, and
+the interesting behavior lives precisely in the details you'd omit from a copy; (2) **before
+"correcting" a doc, read it and `git log` the code it describes** — I was one `Write` away from
+replacing a careful 5-model bake-off (with a Gemini reference row) with my strawman's conclusions,
+and only a file-changed guard stopped me. That is the `git add -A` entanglement lesson (2026-07-13)
+wearing doc clothes; (3) **an environment fact you measured hours ago is not a fact you know now**,
+especially on a box someone else is actively changing; (4) a decision I obtained from George by
+presenting bad data is not consent — when the data turns out wrong, the decision has to be re-asked,
+not quietly kept because it's convenient.
+
+**What the honest re-measurement found is worth keeping**: gemma4 is near-parity on ordinary
+municipal pages (hennigsdorf 5 vs Gemini 6) and fabricates **nothing** — but scored **2 vs 26** on a
+dense family listing (kinderkulturkalender-berlin.de). The recorded decision had been priced at
+"dropping 2–3 events"; at 8% recall on the shape of source the Linz test actually measures, that
+premise doesn't hold. **A model's average across four pages hides the page shape it can't see** —
+and a zero from a real source is indistinguishable from a quiet week, which is why the reference row
+is not optional.
+
+## 2026-07-17 — A green exit code proved the crawler ran. It hadn't — on Windows it never can
+
+`scripts/crawl.mjs` ended with ``if (import.meta.url === `file://${process.argv[1]}`)``. On Windows
+`argv[1]` is `Z:\...\crawl.mjs` (backslashes, drive letter) while `import.meta.url` is
+`file:///Z:/.../crawl.mjs` — **they can never be equal**, so `main()` never ran. `npm run crawl`
+exited **0**, printed **nothing**, and crawled **zero sources**. It looked like a fast, clean run.
+This sat in the one script whose entire purpose is to move to the Windows box
+(`docs/ops/local-box-setup.md`), and the runbook's own §4 was written on top of it.
+**Lessons:** (1) `file://` + a path is not a URL — use `pathToFileURL(p).href` for any
+entrypoint/`import.meta.url` comparison, always; (2) **the absence of output is a result** — I only
+caught this because I ran a real crawl and got silence where I expected a source list; had I trusted
+`exit 0`, the nightly cron would have "worked" forever while the DB quietly rotted (this is the
+"record WHAT failed" lesson from the other side: here nothing was recorded at all); (3) a script's
+happy path is not portable just because its dependencies are — the platform assumptions hide in the
+plumbing (entrypoint guards, path joins, `/tmp`), not in the logic.
+
+## 2026-07-17 — schema.org is a claim, not a fact: 100 events published the same "start time"
+
+muenchen.de — Munich's official calendar — publishes 100 `schema.org/Event` blocks as **Microdata**,
+every one with `startDate="…T12:00:00Z"`, while its own visible markup shows **11 distinct real
+clock times** (09:00 ×69, 17:00 ×54, 18:00 ×33…). Noon-UTC is a standard TZ-safe serialization of a
+**date-only** field (Drupal does this). A faithful parser would have stamped 12:00 — or 14:00 Vienna
+— on all 100: the `T${time || '09:00'}` fabrication of 2026-07-14, wearing a schema.org badge and
+therefore looking *more* trustworthy, not less.
+**Lessons:** (1) **structured data is a publisher's claim about its own content, and can disagree
+with the content** — validate a machine-readable field against the human-readable page before
+trusting it at scale; the `Z` suffix on a local municipal event was the tell; (2) the guard has to
+be narrow or it becomes the twin bug — dropping a *real* time is also data loss (the 2026-07-14
+lesson), so the rule is "a time EVERY event shares, at a canonical marker (midnight/noon), with ≥3
+events as evidence", which leaves a theatre whose six shows all start 19:30 alone; (3) **a uniform
+value across a whole page is evidence about the serializer, not about the world.**
+
+Same session, smaller: (a) my first Microdata regex anchored on `schema.org/Event` and silently
+matched **no subtypes** — `ChildrensEvent`/`MusicEvent`/`TheaterEvent` are the common case, and only
+a test caught it; the JSON-LD side had solved this years ago with `/event$/i` (**when adding a
+parallel implementation, read the sibling's edge cases first**). (b) I raised a false alarm on
+"2 muenchen.de rows have a description" (hard rule 1) — the timestamps showed they were `created`
+by the microdata insert with `description: null` and `updated` two minutes later by the crawl's own
+`fuzzy-merged: 2`, i.e. our own AI-written prose from another source. **A field's value doesn't
+prove which code wrote it; check the write path before filing the bug.**
+
 ## 2026-07-17 — An empty extract from a real source is indistinguishable from a quiet week
 
 George: the local Ollama models "process events okaish — maybe theres something of higher quality".

@@ -17,52 +17,74 @@ architecture), [`docs/design/data-pipeline.md`](../design/data-pipeline.md) (wha
 Everything below assumes the box reaches the internet and can hold ~150 GB (country extracts) or
 ~1 TB NVMe free (full Europe, later).
 
-## 0. OS layer — Windows walkthrough (George's box runs Windows)
+## 0. The prerequisite that ate a morning: SVM must be ON in the BIOS
 
-Nobody can install this remotely — but every step below is copy-paste, and once the repo is
-cloned you can open a Claude Code session **on the box itself** and let it drive the rest
-(`npm i -g @anthropic-ai/claude-code`, sign in, say "run docs/ops/local-box-setup.md").
+Docker on Windows runs Linux containers in a VM (WSL2 or Hyper-V). **A VM needs AMD-V.** No flag,
+no workaround. Check first — this is the whole gate:
 
-1. **WSL2 + Ubuntu** (admin PowerShell):
+```powershell
+systeminfo | Select-String "Virtualization Enabled"   # want: ... In Firmware: Yes
+```
+(Or Task Manager → Performance → CPU → Virtualization.) If **No**, on this board
+(Gigabyte X670 AORUS ELITE AX, BIOS F8a): reboot → **Del** → **F2** (Advanced Mode) →
+**Tweaker → Advanced CPU Settings → SVM Mode → Enabled** → **F10 → Yes**. Gigabyte moves it
+between BIOS revisions; fallback is **Settings → AMD CBS → CPU Common Options → SVM Enable**. It is
+*not* under Settings → Miscellaneous.
+
+Diagnostics worth keeping, all learned the hard way 2026-07-17:
+- **Secure Boot is irrelevant.** Disabling it does nothing for SVM and is a real security
+  downgrade. **DEP is a red herring** too — Docker's error names it, but it was already available.
+- **Fast Startup can mask a BIOS change** (`HiberbootEnabled=1`): "shut down" is a hybrid hibernate
+  that resumes the old kernel session. Use **Restart**, or `powercfg /hibernate off` (also frees a
+  ~RAM-sized `hiberfil.sys` on C:).
+- **A setting that reverts on reboot is a different bug.** Differential test: did another BIOS
+  change persist? (`HKLM:\SYSTEM\CurrentControlSet\Control\SecureBoot\State` →
+  `UEFISecureBootEnabled`). If yes, the CMOS battery is fine and it's SVM-specific — don't pull the
+  battery on generic internet advice.
+- WSL reporting a kernel version proves nothing: the package installs fine without SVM, it just
+  can never boot a distro. "No installed distributions" + a dead Docker engine is the tell.
+
+## 1. The Windows-native path — no Ubuntu distro, no systemd
+
+**This doc used to prescribe WSL2 + Ubuntu-24.04 + systemd + an "everything lives inside the WSL
+filesystem" rule. None of that is needed.** Docker Desktop creates its own `docker-desktop` distro;
+Node and Ollama run natively on Windows. What is actually required:
+
+1. **Docker's privileged service must run**, or the backend starts, sees `serviceIsRunning = false`
+   and silently shuts itself down in a loop:
    ```powershell
-   wsl --install -d Ubuntu-24.04     # reboot when prompted, set a unix user
+   # ADMIN PowerShell. "Access is denied" = not elevated (Win+X -> Terminal (Admin)).
+   Set-Service com.docker.service -StartupType Automatic   # or it dies again on every reboot
+   Start-Service com.docker.service
    ```
-2. **WSL config** — create `C:\Users\<you>\.wslconfig`:
+2. **Put Docker's disk on a big NVMe — before first start.** Default is `%LOCALAPPDATA%\Docker\wsl`
+   on C:, which has ~71 GB free here; the Nominatim DB is ~104 GB. In `%APPDATA%\Docker\settings.json`:
+   ```json
+   "customWslDistroDir": "Z:\\Docker\\wsl"
+   ```
+   **`dataFolder`, `memoryMiB`, `diskSizeMiB`, `cpus` in that file are Hyper-V settings and are
+   IGNORED under the WSL2 backend** — don't be alarmed by `memoryMiB: 2048`. WSL2 memory lives in
+   `%USERPROFILE%\.wslconfig`:
    ```ini
    [wsl2]
-   memory=48GB
-   processors=12
-   swap=16GB
+   memory=40GB
+   processors=16
+   swap=8GB
    ```
-   Then `wsl --shutdown` once so it applies.
-3. **systemd in WSL** (for the timers in §4) — inside Ubuntu:
-   ```bash
-   printf '[boot]\nsystemd=true\n' | sudo tee /etc/wsl.conf
-   ```
-   and `wsl --shutdown` again from PowerShell.
-4. **Docker Desktop for Windows** — download from docker.com, install with the **WSL2 backend**
-   (default), and in Settings → Resources → WSL integration enable the Ubuntu distro.
-   Settings → General → "Start Docker Desktop when you sign in" ON (the Nominatim container
-   must survive reboots; `--restart unless-stopped` handles the rest).
-5. **The two NTFS rules:** repo and all Docker volumes live **inside the WSL filesystem**
-   (`~/…`), never on `/mnt/c` — NTFS passthrough murders Nominatim import performance. And run
-   all commands below inside the Ubuntu shell, not PowerShell.
-6. **Sleep settings:** Windows Settings → Power → never sleep on AC (a sleeping box misses its
-   crawl timer; `Persistent=true` in §4 catches up, but a box that's awake is better).
+   Verify it landed: `Get-ChildItem Z:\Docker\wsl -Recurse -Filter *.vhdx`.
+   Also Settings → General → "Start Docker Desktop when you sign in" ON, or Nominatim isn't up at 04:00.
+3. **Drive choice matters.** Here: C: SATA SSD (too small), **Z: 970 EVO Plus NVMe (chosen)**,
+   V: NVMe, D: 4.5 TB but a **mirrored Storage Space over SATA HDDs** — huge and exactly wrong for a
+   random-write-heavy import. Nominatim's docs are blunt that fast NVMe is essential.
+4. **Node**: native Windows Node ≥20 is fine (v24.13.1 here) — no WSL, no nodesource.
+   **`npm install` is not optional and is not done on a fresh clone.**
 
-Native **Linux (Ubuntu 24.04)** remains the zero-caveat path if this PC ever gets repurposed.
+Native **Linux** remains the zero-caveat path if this PC is ever repurposed.
 
-## 1. Repo + runtime
+## 1b. Repo + env
 
-```bash
-sudo apt update && sudo apt install -y git curl osmium-tool
-# Node 22 LTS
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs
-git clone git@github.com:GeorgiKostov/eventmap.git && cd eventmap
-npm install
-```
-
-Create `.env.local` (copy values from the Mac's `.env.local` / Vercel env):
+Create `.env.local` (copy from the Mac; **Vercel env vars are write-only — `vercel env pull`
+returns empty values**, so they must be pasted by hand):
 
 ```bash
 DATABASE_URL=postgres://postgres.<ref>:<url-encoded-pw>@aws-0-eu-west-1.pooler.supabase.com:6543/postgres
@@ -101,23 +123,61 @@ osmium merge austria-latest.osm.pbf bulgaria-latest.osm.pbf germany-latest.osm.p
 docker volume create nominatim-data
 docker run -d --name nominatim --restart unless-stopped \
   -e PBF_PATH=/data/current.osm.pbf \
-  -e IMPORT_STYLE=address \
-  -e THREADS=12 \
+  -e IMPORT_STYLE=full \
+  -e THREADS=16 \
+  -e NOMINATIM_PASSWORD=okolo_local \
   -v ~/osm:/data \
   -v nominatim-data:/var/lib/postgresql/16/main \
   -p 8080:8080 \
   --shm-size=8g \
-  mediagis/nominatim:5.1
-docker logs -f nominatim        # wait for the import to finish (AT+BG in <1h, DE several hours)
-curl "http://localhost:8080/search?q=Posthof,+Linz&format=json" | head -c 300   # sanity
+  mediagis/nominatim:5.3
+docker logs -f nominatim        # BUILT 2026-07-17: osm2pgsql 33m52s, full import ~2h40m
+curl "http://localhost:8080/search?q=Posthof,+Linz&format=json" | head -c 300   # sanity — see below
 ```
 
+### ⚠ IMPORT_STYLE=full, NOT address — this doc said `address` until 2026-07-17, and it was wrong
+
+Nominatim's docs: `address` = *"all data necessary to compute addresses down to house number
+level"*; only `full` is the *"style that also includes points of interest."* But `geocodeEvent()`'s
+**first precise rung is `poiQuery()`** — a venue-**name** search requiring an
+`amenity|leisure|tourism|building|man_made` match. On an `address` import that rung returns nothing,
+every venue silently degrades to a town centroid, and — worse — `poiQuery` **caches the miss**, so
+one backfill would mass-poison the prod geocache with negatives that outlive the fix (the Bad Ischl
+lesson, at scale). Measured on our instance:
+
+```
+search?q=Posthof,+Linz
+  amenity/arts_centre  | Posthof       | 48.3117,14.3117   <- the venue   (only with `full`)
+  highway/residential  | Posthofstraße | 48.3143,14.3079   <- the street  (all `address` would have)
+```
+On `address` only the street exists, and `tryQuery` would pin events to it. **A confidently-wrong
+pin is worse than an honest town centroid.** Note the sanity check above was *always* a POI query —
+it would have returned empty and told us.
+
+### Why all three countries, not just the new one
+
+`NOMINATIM_URL` is a **global** switch — no per-country routing. Point it at a DE-only instance and
+every AT/BG lookup goes there too, gets a valid `200 + []`, and `tryQuery`/`poiQuery` **cache that
+as a genuine miss** (only 429/5xx throw and skip the cache). Every new Linz venue would earn a
+permanent false negative. AT+BG is +929 MB on Germany's 4,577 — cheap insurance.
+
+### Measured on this box (2026-07-17)
+
+| | |
+|---|---|
+| osm2pgsql load | **33m 52s** · full import through rank 30 **~2h 40m** |
+| DB size | **~104 GB** (planet figures in Nominatim's docs do NOT scale linearly down) |
+| Largest tables | planet_osm_nodes 36 GB · planet_osm_ways 22 GB · **placex 18 GB** · place 12 GB |
+| Wikipedia importance | **skipped — and it doesn't matter.** Local vs public returned *identical* top-1 hits on 5 ambiguous venue tests (incl. "FEZ, Berlin" → a taxi stand, which public gets "wrong" too). Don't re-import for it. |
+| Through our own code | `forwardGeocode` ×10 DE towns = **2041ms** (public floor: 11000ms+ serialized) · `geocodeEvent('Labyrinth Kindermuseum','Berlin')` → **venue** precision · `'Online'` → town, 0ms (sentinel guard intact) |
+
 Notes:
-- `IMPORT_STYLE=address` keeps the DB small while resolving venues/addresses — exactly our load.
-  Use `full` if POI-name search feels weak (bigger import, better `poiQuery` hits).
+- `nominatim refresh --drop` would free ~71 GB of update-only scaffolding (`planet_osm_*`, `place`)
+  — **but Docker's `ext4.vhdx` never shrinks**, so it frees space only *inside* the VHDX, not on the
+  host. Bad trade against losing incremental updates while 578 GB is free. Not done.
 - **Europe upgrade later:** same command with `europe-latest.osm.pbf`, `--shm-size=16g`, and the
-  1 TB disk. Add `-e UPDATE_MODE=continuous` if you want minutely OSM diffs; for our use a
-  quarterly re-import is honestly enough.
+  1 TB disk. Add `-e UPDATE_MODE=continuous` for minutely OSM diffs; for our use a quarterly
+  re-import is honestly enough.
 - The app side is already wired: `lib/geocode.js` reads **`NOMINATIM_URL`** and, when set, skips
   the 1.1 s throttle entirely. Unset = public instance + throttle, unchanged.
 
@@ -186,17 +246,42 @@ inference; every other one returns an empty array and looks like an honest "no e
 failure is invisible in aggregate (a zero from a real source reads exactly like a quiet week) and it
 is why a reference row is not optional.
 
-### Live on the box — George's call, 2026-07-17
+### Live on the box — George's call, 2026-07-17 (REVERSED same day, see below)
 
-**`EXTRACT_PROVIDER=ollama` is set on the box: the nightly crawl runs local.** George's reasoning:
-no users yet, so don't spend money; dropping 2–3 events at prototype stage is not a big deal;
-switch back to Gemini once there are users. Recorded rather than argued — but with the trigger below,
-because this decision has an expiry date and nothing else would remind us.
+**First call: `EXTRACT_PROVIDER=ollama`, the nightly crawl runs local.** George's reasoning: no
+users yet, so don't spend money; dropping 2–3 events at prototype stage is not a big deal; switch
+back to Gemini once there are users. Recorded rather than argued — with the expiry trigger below,
+because nothing else would remind us.
 
 **⚠ Switch `EXTRACT_PROVIDER` back to Gemini before the four-weekend Linz coverage test runs for
 real** (i.e. as soon as there are actual subscribers). That test's go/no-go metric *is* coverage —
 if it runs on the cheaper extractor we would be measuring our own recall, not Linz's supply, and a
 gap this silent is indistinguishable from a thin week. One line in `.env.local`, no code change.
+
+### REVERSED 2026-07-17 (same day): `EXTRACT_PROVIDER` is UNSET — the crawl runs on Gemini
+
+A second reference-row run, during the Germany/Berlin expansion, added a page shape the bake-off
+above didn't cover — and it breaks the premise of the first call:
+
+| page | Gemini | gemma4:12b |
+|---|---|---|
+| hennigsdorf.de (7,918 chars, ordinary municipal) | 6 | **5** — near parity, matches the table above |
+| **kinderkulturkalender-berlin.de (54,870 chars, dense family listing)** | **26** | **2** |
+
+The first call priced the trade at "2–3 events". That holds for Hennigsdorf. It does not hold at
+**8% recall** on a dense listing — and kinderkulturkalender is a *family* source in the Berlin
+scope, i.e. exactly the supply this product exists to surface. gemma4 still fabricated nothing
+(the hard-rule-5 bar it passes and qwen2.5 failed); it just silently doesn't *see* most of a dense
+page, which is the failure mode the expiry trigger above was written to avoid. At ~$1.30/month for
+both DE cities, the trade isn't worth it even with zero users. **Ollama 0.32.1 + gemma4 stay
+installed on Z: for experiments; the crawl is on Gemini.**
+
+**Caveat on the numbers above (and a lesson):** an earlier pass this session "measured" gemma4 at
+194s/page and unusable, and was **wrong** — it benchmarked a hand-rolled reimplementation of
+`callOllamaText` that used `format:'json'` with no schema, no `think:false` and no pinned `num_ctx`,
+i.e. the code *before* c590e12. Through the real `extractFromPage()` on Ollama 0.32.1, gemma4 runs
+in **13–17s** with zero out-of-enum categories. **Benchmark the real call path, not your model of
+it** — the two settings below are the entire difference.
 
 **The measured gap, so the trade is explicit.** gemma4 is a strict *subset* of Gemini — across all
 four pages it invented **nothing** (0 ungrounded titles, 0 events Gemini didn't also find), which is
@@ -247,39 +332,27 @@ failed.)
 defeat the tier cadence. Sequence: bring the box's timer up → watch one clean run → **disable the
 GitHub workflow** (`.github/workflows/crawl.yml`, `gh workflow disable "Scheduled crawl"`).
 
-systemd units (`/etc/systemd/system/`):
+**No systemd — this is Windows, and there is no Ubuntu distro (§1).** Task Scheduler, daily:
 
-```ini
-# okolo-crawl.service
-[Unit]
-Description=okolo scheduled crawl
-After=network-online.target docker.service
-[Service]
-Type=oneshot
-WorkingDirectory=/home/george/eventmap
-ExecStart=/usr/bin/node --env-file=.env.local scripts/crawl.mjs
+```powershell
+$action  = New-ScheduledTaskAction -Execute "node.exe" `
+  -Argument "--env-file=.env.local scripts/crawl.mjs" `
+  -WorkingDirectory "Z:\Projects\Repositories\eventmap"
+$trigger = New-ScheduledTaskTrigger -Daily -At 4am
+$set     = New-ScheduledTaskSettingsSet -StartWhenAvailable -WakeToRun `
+  -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Hours 6)
+Register-ScheduledTask -TaskName "okolo-crawl" -Action $action -Trigger $trigger -Settings $set
 ```
 
-```ini
-# okolo-crawl.timer
-[Unit]
-Description=daily okolo crawl
-[Timer]
-OnCalendar=*-*-* 04:00:00
-Persistent=true
-[Install]
-WantedBy=timers.target
-```
+`-StartWhenAvailable` is the `Persistent=true` equivalent: a missed 04:00 fires on next wake.
 
-```bash
-sudo systemctl daemon-reload && sudo systemctl enable --now okolo-crawl.timer
-systemctl list-timers | grep okolo     # confirm
-journalctl -u okolo-crawl.service -n 50  # logs after a run
-```
-
-`Persistent=true` matters on a PC that sleeps: a missed 04:00 fires on next wake. (Windows Task
-Scheduler alternative: daily task running
-`wsl.exe -d Ubuntu -e bash -lc 'cd ~/eventmap && node --env-file=.env.local scripts/crawl.mjs'`.)
+> **⚠ The bug this whole section rested on, found 2026-07-17.** `scripts/crawl.mjs` ran **nothing**
+> on Windows: its entrypoint guard was ``import.meta.url === `file://${process.argv[1]}` ``, and on
+> Windows `argv[1]` is a backslashed drive path (`Z:\...\crawl.mjs`) while `import.meta.url` is
+> `file:///Z:/.../crawl.mjs` — they can never be equal, so `main()` never ran. `npm run crawl`
+> exited **0, printed nothing, and crawled zero sources**. On the very machine this cron is meant to
+> move to. Fixed with `pathToFileURL` (commit c758e41). **If you ever see a silent, instant,
+> successful-looking crawl, that is the shape of it** — and note a green exit code proved nothing.
 
 ## 5. Backfills unlocked by the local Nominatim (run once it's up)
 
@@ -290,6 +363,7 @@ In this order — each shrinks the next:
 | Location enrichment, all countries | `node --env-file=.env.local scripts/enrich-locations.mjs --all --write` | hours of Nominatim waits → fetch-bound only |
 | Regeocode repair sweep | `node --env-file=.env.local scripts/regeocode.mjs` then `--write` | queued for weeks on the Mac → minutes |
 | Venue search backfill (needs Grok CLI or Gemini key) | per big-city-quality §1 Stage 3 — script TBD | model-bound, geocode-verification now free |
+| Negative-geocache recheck | 14,494 of 22,805 geocache rows are `hit=false` (measured 2026-07-17; DE holds only 298 rows total, which is *why* Germany was geocode-bound). They were honest misses against public Nominatim, but re-querying is ~free now. **Measure before purging** — `purgeNegativeGeocache()` is a big hammer. | blocked → cheap |
 | Fuzzy dedup sweep | `node --env-file=.env.local scripts/merge-dups.mjs [--write]` | unchanged (no geocode) — just belongs in the runbook |
 
 Politeness stays absolute even with infinite geocoding: `politeFetch`'s ≥1s/host + robots.txt
@@ -311,6 +385,9 @@ municipal servers faster.
 - Actions minutes worry (tasks/todo.md) disappears with the workflow disabled.
 - `zero_streak`/tier drift: first box runs should show `skipped (not due)` counts comparable to
   Actions runs — if everything crawls every day, the timer is firing more than once or tiers lost.
-- Nominatim disk: `docker system df` monthly; the `address` style grows slowly with diffs.
+- Nominatim disk: `docker system df` monthly. `--drop` was NOT run, so the incremental-update path
+  stays open; otherwise re-import from a fresh PBF quarterly (~2h 40m, unattended).
 - Keep the box's clock on NTP — `starts_at` comparisons are Vienna-pinned but cadence gating uses
-  host time.
+  host time. NB `w32tm /query /status` on this box reports `Source: Local CMOS Clock`, never
+  NTP-synced — worth fixing before the cutover.
+- **A crawl that exits 0 in seconds with no output is not a fast crawl** — see the §4 warning.
