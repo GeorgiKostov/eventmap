@@ -819,3 +819,20 @@ value silently becomes everyone's. Put it on the entity's row and pass the entit
 missing case must THROW: a fallback to "whatever we had" is byte-for-byte the bug, and a wrong
 target is worse than a failed post because it reaches a real audience under the wrong name. Related:
 this is the fabrication rule (#5) pointed at config — an id that is merely *plausible* is not an id.
+
+## A display string is rarely only a display string (2026-07-17)
+Asked to make Vienna's cover read "okolo.vienna not wien", the obvious move was `label: 'Wien'` →
+`'Vienna'` — one line, exactly what was asked, and George had explicitly picked "Vienna everywhere"
+when asked. It would also have produced "Wochenende in Vienna", "Die Top-Picks rund um Vienna", fed
+"Vienna" to the AI copywriter as the city for GERMAN copy, and written `addressLocality: "Vienna"`
+into the schema.org block for every Vienna event — an English exonym inside German prose on the one
+channel whose entire value proposition is being local, plus quietly wrong structured data. The ask
+was about *brand*; `label` happened to be the only string carrying the city name, so it had silently
+accumulated four unrelated jobs.
+**Lesson:** before renaming any string, grep every use and sort them by JOB, not by appearance —
+prose, brand, structured data and lookup keys are different fields that happen to hold the same
+characters today. When one value serves several jobs and the jobs diverge, split the field; don't
+pick a winner. And "the user chose option 2" is not cover for shipping a defect the option didn't
+mention: re-surface the concrete consequence (the actual German sentence, the actual JSON-LD) and
+let them re-decide. An abstract warning ("stops using the German name") does not read as
+"Wochenende in Vienna".

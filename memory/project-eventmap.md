@@ -236,6 +236,13 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   A channel with a null id now throws; it must NEVER fall back to another city's account. Live:
   linz 1153097914561205/@okolo.linz, wien 1171182632750527/@okolo.vienna (handle is okolo.VIENNA —
   `handle` is printed on every card, so the registry follows the real account). Other 8 = null.
+- **Vienna is "Vienna" on brand surfaces, "Wien" in prose** (2026-07-17, George's call). Cover art +
+  carousel cover slide use `brandName(channel)` = `brand ?? label`; only wien sets `brand:'Vienna'`.
+  `label` stays 'Wien' because it is NOT display-only: German copy interpolates it, the AI
+  copywriter takes it as `city`, and it is schema.org addressLocality + the gazetteer key. Cover PNGs
+  are keyed by SLUG, so Vienna's file is still `okolo-wien-cover.png`. The brandgen route that made
+  the covers was never committed — retypeset one word in place instead (params in
+  `assets/social/README.md`); a rebuild would drift Vienna's art off the other nine.
 - Review process note: the implementer agent had left `fake-test-token` values in .env.local, which
   flipped every configured() check to true — a plain `npm run social` would have fired real Graph
   calls. Caught by driving the CLI; values blanked (lesson recorded).
