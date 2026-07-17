@@ -2,6 +2,39 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Germany supply deepening: places + aggregator research + adapters (2026-07-17, George: "probe for places, research linztermine-like calendars, then municipalities, big cities only") — SHIPPED
+- [x] **Places mined from OSM/Overpass for Berlin + Munich** (`scripts/mine-places.mjs`, generalized
+      from the Stuttgart miner). **DE places 319 → 1,123** (Berlin 633 + Munich 234 curated from
+      ~3,000 raw each). NB: local Nominatim placex CANNOT substitute — it discards the curation tags
+      (museum=children, fee, access, garden:type). The box is for geocoding, not place mining.
+- [x] **Two research agents found the German linztermine-equivalents** (~34 verified, live-fetched).
+      Headline: **familienportal.berlin.de = 5,437 dated family events**, the single richest source in
+      the whole DE expansion. Almost NONE expose JSON-LD/Microdata/usable iCal — the "RSS" on Falken
+      was a blog feed (no event dates). So the generic crawl gets a WINDOW (10-25) per source.
+- [x] **Paginated familienportal adapter built** (`lib/familienportal-events.js`, cms=familienportal):
+      10 → **262 family events** (30-page verify; FAMILIENPORTAL_MAX_PAGES tunes it). Bounded on
+      purpose — nightly crawl + ascending sort means a near-term window refreshed each night captures
+      everything in time. Caught a twin-fabrication bug pre-ship: the meta is "date | HH:MM Uhr |
+      Bezirk", so positional parsing would set venue="10:00 Uhr" AND drop the real time. Fields are
+      classified by content; Bezirk → town precision, venue always null.
+- [x] **13 single-page family/nature/Verein sources registered + verified** (hard rule 7): Berlin 6
+      → 70 ev (GRIPS, Theater o.N., Die Falken, NABU, Naturpark Barnim, Ökowerk), Munich 7 → 121 ev
+      (Marionettentheater, MTfK, in-muenchen Kids, Kindermuseum, ÖBZ, LBV, NaturFreunde Bezirk).
+      `family` default-category on the 6 kids venues; nature/Verein extract their own.
+- [x] **Net: DE events 706 → 1,412 · DE places 319 → 1,123 · DE working sources 8 → 43 · family-tagged
+      549.** All on Gemini (EXTRACT_PROVIDER unset).
+- [ ] **umweltkalender-berlin.de (2,071 nature events) deferred** — one 352k-char page, our 60k+25-cap
+      gets 17. Needs its own adapter (different from familienportal's pagination — it's one huge page).
+- [ ] **naturfreunde-berlin.de (~700) + NaturFreunde national (PLZ-radius filter)** are paginated →
+      windowed. The national portal's ?filter could isolate Berlin/Munich radius — a reusable adapter
+      for the whole NaturFreunde chain (consistent structure per the research).
+- [ ] **Chain sources findable by pattern** (research finding): NaturFreunde (national→Landesverband→
+      Bezirk, all /veranstaltungen), DAV Sektionen, Die Falken Landesverbände, BUND Kreisgruppen,
+      NABU Landesverbände — swap the subdomain/slug to cover any city. Relevant when Hamburg/Köln open.
+- [ ] **Municipalities, big cities only (George's 3rd ask): NOT started this turn.** 291 municipalities
+      sit in the Berlin(85)+Munich(206) rings; we've registered ~27. Probe the rest with the existing
+      typo3/wordpress adapters + register-catalog.mjs. George said big-cities-focus given DE's size.
+
 ## Local crawl box LIVE + Germany opens: Berlin + Munich (2026-07-17, George: "setup llm+geocoding so we can mine and crawl quick" → "lets crawl the big cities germany") — SHIPPED (c758e41)
 - [x] **Self-hosted Nominatim is UP and it was the whole prize.** AT+BG+DE merged (5,529 MB),
       `IMPORT_STYLE=full`, ~104 GB DB on Z: NVMe, osm2pgsql 33m52s + full import ~2h40m.

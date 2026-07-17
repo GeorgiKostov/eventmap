@@ -9,6 +9,28 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-17 latest+1 — Germany supply deepened: places + research + adapters)
+- **DE now: 1,412 events · 1,123 places · 43 working sources · 549 family-tagged** (from 706/319/8 at
+  the day's start). All on Gemini (EXTRACT_PROVIDER unset).
+- **Places**: `scripts/mine-places.mjs` (generalized from the Stuttgart Overpass miner, takes --scope).
+  Berlin 633 + Munich 234 curated family places → DE places 319→1,123. Key: local Nominatim placex
+  CANNOT substitute for Overpass — it drops the curation tags (museum=children, fee, access,
+  garden:type), keeping only wikidata/wikipedia. The box is for geocoding, not place mining.
+- **Research (2 agents, ~34 verified sources)**: the German linztermine-equivalents. **The prize:
+  familienportal.berlin.de = 5,437 dated family events.** Reality check — almost NONE expose
+  JSON-LD/Microdata/usable iCal (the "RSS" on Falken was a blog feed w/o event dates), so the generic
+  crawl gets a WINDOW (10-25) per source; full yield needs paginated adapters.
+- **`lib/familienportal-events.js` (cms=familienportal)**: paginated adapter, 10→262 events (30-page
+  verify, FAMILIENPORTAL_MAX_PAGES tunes it, bounded because nightly + ascending sort). Twin-fab bug
+  caught pre-ship: meta is "date | HH:MM Uhr | Bezirk" — positional parse would set venue="10:00 Uhr"
+  AND drop the time. Fields classified by content; Bezirk→town precision, venue null.
+- **13 single-page family/nature/Verein sources registered + hard-rule-7 verified**: Berlin 6→70ev,
+  Munich 7→121ev. `family` default-cat on the 6 kids venues (theatres/museums), nature/Verein self-tag.
+  Catalogs: data/catalog/research-{berlin,munich}-40km-2026-07-17.json.
+- **Deferred**: umweltkalender-berlin.de (2,071, one 352k-char page → own adapter); the NaturFreunde
+  chain (national PLZ-radius filter → reusable adapter). **NOT started: municipalities big-cities**
+  (291 in the two rings, ~27 registered) — George's 3rd ask, next.
+
 ## Where things stand (2026-07-17 latest — THE BOX IS LIVE, Germany opens: Berlin + Munich, c758e41)
 - **Self-hosted Nominatim runs on George's box and it is the whole prize.** AT+BG+DE merged
   (5,529 MB) at **`IMPORT_STYLE=full`**, ~104 GB DB on Z: NVMe (Docker's VHDX relocated there via
