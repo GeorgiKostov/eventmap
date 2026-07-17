@@ -436,13 +436,18 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       Critical/Major fixed: kill-mid-publish duplicate risk (UNKNOWN_OUTCOME claim), concurrent
       publish race (metaClaim), Preview blocked by credential/ledger checks, swallowed page-token
       errors, snapshot-drift warning, 2200-char caption guard.
-- [ ] **George: Meta setup (~30 min) — runbook: docs/ops/meta-api-setup.md.** FB Page + IG
-      professional account linked → Business-type app (stays in dev mode, no App Review for own
-      assets) → Business Manager system user with Page+IG assets assigned → token (expiry: Never;
-      scopes instagram_basic, instagram_content_publish, pages_manage_posts, pages_read_engagement,
-      business_management) → set META_ACCESS_TOKEN, IG_USER_ID, FB_PAGE_ID on Vercel + .env.local
-      (lines exist, empty). Then: desk Preview → Post. Publishing needs the DEPLOYED card URLs, so
-      first real post follows the next deploy.
+- [x] **George: Meta setup — runbook: docs/ops/meta-api-setup.md.** Done for Linz AND Vienna
+      (2026-07-17): system user `okolo-publisher`, token expiry Never, all five scopes granted.
+      Ids verified live and now live in `lib/city-channels.js`, NOT env — one Page+IG pair per city
+      (linz 1153097914561205/@okolo.linz, wien 1171182632750527/@okolo.vienna). Only
+      META_ACCESS_TOKEN is env. `IG_USER_ID`/`FB_PAGE_ID` are dead — inert, but worth deleting from
+      Vercel + .env.local so nobody sets them expecting an effect.
+- [ ] Vienna first post: needs the DEPLOYED card URLs (Meta fetches images from public URLs), so it
+      follows the next deploy. Desk: Preview → Post at `?channel=wien`.
+- [ ] Per-city Meta accounts for the remaining 8 channels — all sit at `fbPageId/igUserId: null` and
+      REFUSE to publish (by design, no fallback). Each new city = create Page + IG professional
+      account, link them, assign both assets to the `okolo-publisher` system user, then paste the
+      Graph-verified ids onto its row.
 - [ ] Posting to own Page/IG via API is ban-safe; GROUP seeding stays manual forever (Groups API is
       dead) — the growth-system plan's "no auto-posting" warning applies to groups, not this.
 

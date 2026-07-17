@@ -803,3 +803,19 @@ working sources were frozen this way; 333 hash-wedged; 4 unjustly dead.
 source stats, a cadence stamp, or any cache/hash — the run simply didn't happen for that source.
 And any "skip next time" marker (hash, etag, negative cache) may only be written on a *successful*
 round, or the skip logic institutionalizes the failure.
+
+## Per-entity config read from a global posts to the wrong account (2026-07-17)
+The social route was fully channel-aware — `?channel=wien` resolved the Vienna row, loaded the
+Vienna digest, rendered Vienna cards — but the two functions that actually call Graph read a single
+global `IG_USER_ID`/`FB_PAGE_ID` from env and ignored the channel entirely. Every layer above was
+correct; the last inch was global. So publishing Vienna posted it to the LINZ accounts, wrote a
+Vienna ledger entry, and returned success. Nothing errored, because nothing was wrong from the
+env's point of view — it was asked for "the" page id and gave the only one it had. The header even
+said "per-city Meta accounts are a plausible later extension", which is what made it look intended
+rather than broken.
+**Lesson:** when a thing exists once per entity (per city, per tenant, per source), it may not be
+read from a flat env var at the leaf — env has no place to put the second one, so the first entity's
+value silently becomes everyone's. Put it on the entity's row and pass the entity down. And the
+missing case must THROW: a fallback to "whatever we had" is byte-for-byte the bug, and a wrong
+target is worse than a failed post because it reaches a real audience under the wrong name. Related:
+this is the fabrication rule (#5) pointed at config — an id that is merely *plausible* is not an id.

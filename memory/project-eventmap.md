@@ -225,11 +225,17 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   returns an id; atomic `metaClaim` in-flight marker makes concurrent publishes lose cleanly and
   turns a mid-publish serverless kill into an explicit "post MAY be live — check before force"
   instead of a silent duplicate. Dry-run/Preview works with zero credentials (verified end-to-end
-  against the frozen Linz 2026-07-17 snapshot). **George's only remaining part (~30 min):
-  docs/ops/meta-api-setup.md** — Meta Business app (dev mode suffices for own assets, no review),
-  system-user token (expiry Never), set META_ACCESS_TOKEN / IG_USER_ID / FB_PAGE_ID on Vercel +
-  .env.local. Real posting needs deployed card URLs, so first post follows the next deploy.
+  against the frozen Linz 2026-07-17 snapshot). **Meta setup DONE for Linz + Vienna (2026-07-17)**:
+  system user `okolo-publisher`, token expiry Never, five scopes. Real posting needs deployed card
+  URLs, so the first Vienna post follows the next deploy.
   Posting to own Page/IG ≠ the banned group-bot pattern; group seeding stays manual.
+- **Meta ids are per-city and live in `lib/city-channels.js`, never env** (2026-07-17). Each city is
+  its own Page + IG account with its own pair; only the shared META_ACCESS_TOKEN is env. Until this,
+  both publish fns read one global IG_USER_ID/FB_PAGE_ID, so `?channel=wien` posted Vienna's digest
+  to the LINZ accounts and reported success — the route was channel-aware, the Graph calls were not.
+  A channel with a null id now throws; it must NEVER fall back to another city's account. Live:
+  linz 1153097914561205/@okolo.linz, wien 1171182632750527/@okolo.vienna (handle is okolo.VIENNA —
+  `handle` is printed on every card, so the registry follows the real account). Other 8 = null.
 - Review process note: the implementer agent had left `fake-test-token` values in .env.local, which
   flipped every configured() check to true — a plain `npm run social` would have fired real Graph
   calls. Caught by driving the CLI; values blanked (lesson recorded).
