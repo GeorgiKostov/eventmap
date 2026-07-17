@@ -9,6 +9,31 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-17 latest+2 — Germany "completed set": Hamburg+Köln+Frankfurt scopes opened)
+- **George's call: top-3 German metros (Hamburg #2, Köln #4, Frankfurt #5) + deepen Stuttgart**, for a
+  "completed AT/BG/DE set." Scaffolding shipped: 3 new scopes (hamburg-40km, cologne-40km,
+  frankfurt-40km; Köln ring reaches Düsseldorf+Bonn, Frankfurt = Rhein-Main), 28 DE cities/ring-towns
+  in the search gazetteer (hard rule 8, ASCII aliases, coords off our Nominatim), places mined for
+  Köln 397 + Frankfurt 386 → **DE places 1,814**. Hamburg places DEFERRED (Overpass overloaded all
+  afternoon — 5 failed retries; just re-run the miner later, non-blocking).
+- **4 discovery agents (~55 sources) → docs/research/germany-metro-sources-2026-07-17.md** = the
+  registration work-list, each URL live-fetched, tagged by extraction path ($0-micro / $0-ical /
+  $0-rss / $0-2hop / LLM / JS / BLOCKED). First $0 win registered + crawl-verified: **RheinMain4Family
+  79/79 via the microdata route, covering Frankfurt+Mainz+Wiesbaden+Darmstadt in one source** — the
+  muenchen.de Microdata rung generalizes across cities, as predicted.
+- **Registration is IN FLIGHT, not done.** Next batch (all verified, in the doc): the $0 feed sources
+  (koeln.de iCal 30, Bonn iCal+RSS, Stadt Köln per-event iCal, Mainz/Offenbach RSS, kulturlotse RSS —
+  NB confirm the waterfall consumes a DIRECT feed URL; findIcsLink/findFeedLink match `href=*.ics` /
+  `<link rel=alternate>`, not the `?ical=1`/`?sp:out=rss` query forms), then two-hop JSON-LD adapters
+  (Hamburg Tourismus + visitberlin, same shape), then the LLM-route venues (KÄNGURU, COMEDIA,
+  Hänneschen, Zoo Frankfurt, Junges Schloss/FITZ/JES, Bücherhallen…).
+- **Cross-cutting**: DE tourism boards are NOT reliably JSON-LD (visitberlin + Hamburg Tourismus yes
+  via detail `@graph`; KölnTourismus/Düsseldorf/visitfrankfurt/stuttgart-tourist no — always check).
+  Recurring agent failure: ~2 of every batch no-op in ~13s with 0 tool calls; just re-dispatch.
+- **Agent-verified reality of the Microdata rung**: an `itemtype=Event` with an EMPTY
+  `datetime=""`/prose-only date (Senckenberg) correctly yields 0 (no fabrication) → that source is
+  LLM-route, not $0. The rung is not a bug; the agent overstated structuredness.
+
 ## Where things stand (2026-07-17 latest+1 — Germany supply deepened: places + research + adapters)
 - **DE now: 1,412 events · 1,123 places · 43 working sources · 549 family-tagged** (from 706/319/8 at
   the day's start). All on Gemini (EXTRACT_PROVIDER unset).

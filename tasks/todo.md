@@ -2,6 +2,35 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Germany "completed set": Hamburg + Köln + Frankfurt scopes + deepen Stuttgart (2026-07-17, George: "biggest in Germany… completed set of AT BG DE" → top-3 + Stuttgart) — SCAFFOLDING SHIPPED, source registration in flight
+- [x] **3 new scopes** (hamburg-40km, cologne-40km, frankfurt-40km) + Stuttgart already had one.
+      Köln's 40km ring reaches Düsseldorf #7 + Bonn; Frankfurt's covers Rhein-Main.
+- [x] **Hard rule 8**: 28 DE cities/ring-towns added to `lib/places.js` (ASCII aliases: Köln/Koeln/
+      Cologne, Düsseldorf/Duesseldorf…), coords off our own Nominatim. Verified searchable.
+- [x] **Places mined**: Köln 397 + Frankfurt 386 → **DE places 1,123 → 1,814**.
+- [ ] **Hamburg places DEFERRED** — Overpass was overloaded all afternoon (5 retries, all 3 endpoints
+      504/timeout). Non-blocking; re-run `node scripts/mine-places.mjs --scope hamburg-40km` later.
+- [x] **4 discovery agents** (Hamburg/Köln/Frankfurt/Stuttgart), ~55 sources verified. Full work-list:
+      **docs/research/germany-metro-sources-2026-07-17.md**. (2 agents no-op'd on first launch — the
+      recurring ~13s/0-tool failure; re-dispatched, fine on retry.)
+- [x] **First $0 win registered + verified**: RheinMain4Family (microdata route, **79/79**, covers
+      Frankfurt+Mainz+Wiesbaden+Darmstadt in one source). The muenchen.de Microdata rung generalizes.
+- [ ] **Register the rest, $0-structured first** (all verified, in the research doc): koeln.de iCal
+      (30 VEVENTs), Bonn iCal+RSS, Stadt Köln per-event iCal, Mainz RSS (10), Offenbach RSS (30),
+      kulturlotse.de RSS. NB feed-URL sources: confirm how the waterfall consumes a DIRECT feed url
+      (findIcsLink/findFeedLink match `href=*.ics` / `<link rel=alternate>`, NOT the query-param
+      `?ical=1` / `?sp:out=rss` forms — may need registering the feed URL directly or a small
+      discovery tweak).
+- [ ] **Two-hop JSON-LD adapters** (detail-page `@graph` Event, visitberlin pattern proven): Hamburg
+      Tourismus + visitberlin.de itself. One adapter shape serves both.
+- [ ] **LLM-route venues** (register, they yield their window): Köln — KÄNGURU, COMEDIA, Hänneschen;
+      Frankfurt — Zoo Frankfurt (two-hop /event/), KIKAWI, Papageno, Grüne Soße; Stuttgart — Junges
+      Schloss, FITZ, JES, SMNS Naturkunde, Esslingen iCal; Hamburg — Bücherhallen, Hagenbeck, NABU.
+- [ ] **Blocked/JS, revisit**: frankfurt.de (403 to non-browser UA — send a real UA), Luftballon
+      Stuttgart (~1,000/mo, find the XHR endpoint), Wilhelma (WAF), stuttgart-tourist.de (2,042 JS).
+- [ ] **Add itemscope/itemtype=Event to `structuredSignals()`** so the next fingerprint sweep measures
+      how many of the ~840 LLM-route sources are secretly Microdata $0 (the muenchen/RheinMain pattern).
+
 ## Germany supply deepening: places + aggregator research + adapters (2026-07-17, George: "probe for places, research linztermine-like calendars, then municipalities, big cities only") — SHIPPED
 - [x] **Places mined from OSM/Overpass for Berlin + Munich** (`scripts/mine-places.mjs`, generalized
       from the Stuttgart miner). **DE places 319 → 1,123** (Berlin 633 + Munich 234 curated from
