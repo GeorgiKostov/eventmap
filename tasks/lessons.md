@@ -2,6 +2,42 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-18 — Two sessions built Germany the same afternoon; fetch before you plan, re-apply only your delta
+
+Registering the Hamburg+Köln municipal backbone, I worked for hours against a `main` that a parallel
+session had already moved past — it had pushed the metro scopes, the 28-town gazetteer, and a broader
+microdata sweep for the same cities while I was still discovering sources for them. Nothing warned me:
+my local tree was clean, and a concurrent session leaves no trace until you fetch. What reconciled it
+cheaply: take their `main` as the base and re-apply ONLY the non-overlapping delta (my two probed
+catalogs — renamed to their `cologne-40km` scope slug — the 6 ring towns their gazetteer lacked, my
+todo/memory facts), instead of merging two parallel restatements of one feature. And the reason it
+*stayed* cheap: my prod writes were **additive** (all 14 sources were new URLs), so the DB never had a
+conflict — only git did. **Lessons:** (1) before any big autonomous prod+git task, `git fetch` and
+read the remote log first — on this repo a concurrent session on the same feature is the norm, not
+the exception (third entanglement after the `git add -A` sweeps of 07-13/07-14; this one was a
+whole-feature collision, not a staging accident); (2) when both sessions coined a name for the same
+new concept (scope slug, file, column), adopt the pushed session's spelling — a one-time rename on
+your side beats two spellings forever; (3) structure autonomous prod writes to be additive/idempotent
+where possible — "the DB reconciles itself, only git needs care" is a property you can choose in
+advance, not luck.
+
+## 2026-07-18 — A machine-readable date is not the event's date until you check WHICH date it is
+
+Three findings in one day, one root. (1) The generic TYPO3/WordPress adapter investigation ended in
+"don't build it": 32 of 55 WP sources expose wp-json and some even register a custom `event` post
+type — but the payload's only dates are the post's `date`/`date_gmt`, the PUBLISH time; the event
+date sits in unexposed meta/acf. (2) Sitepark RSS is the same failure wearing a feed: Mainz's pubDate
+is the 1970 epoch, and the event date lives only in the item TITLE as prose (parseRssEvents correctly
+declines). (3) The two-hop adapter met it in schema.org clothing: a recurring show's top-level
+`startDate` is the series PREMIERE — visitberlin served events "starting" in 2022 with endDate 2027 —
+so candidates had to be bounded to [today−31d, horizon] (76 → 49 clean). **Lessons:** (1) before
+counting a structured surface as a $0 route, verify which date it carries — publish date, premiere
+date, and occurrence date all live in fields named "date", and only one is the fact we store (the
+muenchen.de noon-UTC guard, 07-17, was the same tell from the serialization side); (2) a concluded
+"there is no $0 shortcut here — accept the LLM route" with the reasons written down (1746b47) is a
+real deliverable: it stops the next session re-chasing a parser the data cannot support, and it
+points effort at the true levers (batch API −50%, boilerplate strip) instead.
+
 ## 2026-07-18 — Polite scraping is not authorized scraping
 
 I mined willhaben after checking technical feasibility and rate-limiting the requests, but I did not

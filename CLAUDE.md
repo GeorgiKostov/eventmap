@@ -74,6 +74,12 @@ If a file is missing, skip it and continue. Do not stop.
    Do **not** put these in `lib/towns.js`: `townCentroid()` fuzzy-matches that list when *pinning
    events*, so a big city in there drags pins to the wrong place. Rationale + ranking rules:
    `docs/design/data-pipeline.md` §5b.
+9. **Authorization before automation — for ANY platform, event pipeline or not.** Before the first
+   bulk request to a new platform (including side experiments), check and record its robots.txt,
+   terms of use, licensing/API options, and database-right implications. Polite throttling,
+   facts-only storage, linkback, and private intent reduce harm but grant no access rights. If
+   permission is unclear or prohibited, stop and ask George — never mine first and legalize the
+   result afterward. (Born from the willhaben removal, 2026-07-18; `tasks/lessons.md`.)
 
 ## Git convention
 
@@ -81,6 +87,10 @@ If a file is missing, skip it and continue. Do not stop.
   skip hooks, flag destructive ops (`reset --hard`, history rewrite) before running.
 - Commit format: `area: short imperative — detail`. End messages with the Co-Authored-By trailer.
 - Optional topic branches (`dev/…`, `design/…`) for large/risky changes.
+- **Concurrent sessions are the norm here.** `git fetch` and read the remote log before starting —
+  and again before pushing — any substantive task; stage explicit paths only, never `git add -A`
+  (it has swept other sessions' in-progress files twice). On a feature collision, rebase onto the
+  pushed work and re-apply only your non-overlapping delta (`tasks/lessons.md` 2026-07-18).
 
 ## Deploying (George, 2026-07-14)
 
