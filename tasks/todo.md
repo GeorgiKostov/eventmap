@@ -6,8 +6,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Removed the `/realestate` route, miner, and all listing datasets from current `main` after
       checking willhaben's terms and robots policy. The crawl should not have run without permission;
       polite throttling, facts-only storage, private intent, and source linkback did not authorize it.
-- [ ] If the repository is public, purge the historical dataset blobs only with George's explicit
-      approval for the required destructive Git history rewrite and force-push.
+- [x] With George's explicit approval, rewrote public `main` and force-pushed it so no reachable
+      commit contains the route, miner, or datasets. Repository has no forks or PRs. GitHub still
+      serves the old commit by exact SHA from its unreachable-object cache; its documented final
+      purge route is Support, which may decline because the files are not credentials/secrets.
 
 ## Germany "completed set": Hamburg + Köln + Frankfurt scopes + deepen Stuttgart (2026-07-17, George: "biggest in Germany… completed set of AT BG DE" → top-3 + Stuttgart) — SCAFFOLDING SHIPPED, source registration in flight
 - [x] **3 new scopes** (hamburg-40km, cologne-40km, frankfurt-40km) + Stuttgart already had one.

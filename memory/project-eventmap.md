@@ -11,8 +11,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 
 ## Side experiment (2026-07-18): hidden /realestate price heatmap — REMOVED
 - Removed the route, miner, and all listing datasets from current `main` immediately after checking
-  willhaben's terms and robots policy. It was never deployed. Historical Git objects still contain
-  the data until an explicitly approved history rewrite; do not restore or rerun without permission.
+  willhaben's terms and robots policy. It was never deployed. George explicitly approved a history
+  rewrite: public `main` was force-pushed with all experiment paths removed from every reachable
+  commit; there are no forks or PRs. GitHub's unreachable-object cache still answers the old SHA
+  pending server garbage collection. A private owner-only local snapshot was retained at George's
+  request; do not publish, deploy, restore to Git, or rerun it without permission.
 
 ## Where things stand (2026-07-18 — Hamburg+Köln municipal backbone registered on top of the metro scopes)
 - **A parallel session opened the Germany scopes + gazetteer + microdata sweep (see next block); THIS
