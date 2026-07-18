@@ -50,10 +50,20 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       marker-confirmed AT sources that were mis-routed to the paid LLM, now route the deterministic
       $0 parser first (LLM fallback if the markup variant misses). The 07-16 sweep proposed these but
       was never --write'd. Report: data/catalog/fingerprint-report.json.
-- [ ] **New-adapter ROI from the same sweep** (unchanged since 07-16, still the biggest cost lever):
-      typo3-generic **96** · wordpress-generic **55** · ris-kommunal 21 · contao 10 · drupal 13
-      (BG: visitplovdiv) · joomla 14+2. A generic TYPO3 or WordPress-events adapter would convert the
-      largest LLM-route cluster to $0. typo3-generic (leonding/wels) is the top candidate.
+- [x] **A generic TYPO3/WordPress-events adapter is NOT feasible — investigated 2026-07-18, don't
+      chase it.** typo3-generic (96) is heterogeneous (municipal/library/tourism/ski — leonding, wels,
+      wienxtra, landesbibliothek…), 0 feeds, no common event markup; leonding's detail pages carry no
+      structured data (crawl-sota §1). wordpress-generic (55): 32 expose wp-json, and some register a
+      custom `event` post type — BUT the REST payload's only dates are post `date`/`date_gmt` (publish
+      time), never the event date (meta/acf unexposed). Sitepark RSS same failure: Mainz pubDate=1970
+      epoch, event date absent from title/desc/tags. **These clusters are on the LLM route because the
+      event DATE genuinely isn't machine-readable — there is no $0 shortcut. Accept LLM, or reduce its
+      cost (batch API 50% / trafilatura token cut, crawl-sota §4), not a new parser.**
+- [ ] **Remaining real levers are non-structural**: (a) LLM cost reduction — Gemini/Anthropic batch
+      API (flat 50%), trafilatura-class boilerplate strip (80-90% token cut) for the ~750 genuine
+      LLM-route sources; (b) per-marquee custom work (wienxtra.at, stuttgart-tourist JS, Luftballon
+      XHR) — diminishing, one source each; (c) more two-hop tourism boards where detail pages carry
+      JSON-LD (per-site config in TWOHOP_SOURCES).
 
 ## Germany supply deepening: places + aggregator research + adapters (2026-07-17, George: "probe for places, research linztermine-like calendars, then municipalities, big cities only") — SHIPPED
 - [x] **Places mined from OSM/Overpass for Berlin + Munich** (`scripts/mine-places.mjs`, generalized
