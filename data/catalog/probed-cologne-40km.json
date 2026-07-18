@@ -1,0 +1,246 @@
+{
+  "_meta": {
+    "scope": "cologne-40km",
+    "built_at": "2026-07-18",
+    "center": {
+      "lat": 50.9375,
+      "lng": 6.9603
+    },
+    "radius_km": 40,
+    "notes": "Discovery-only pass, no DB writes. Köln backbone hand-found + live-verified per the 'big cities aren't Gemeinde' lesson: the official Stadt Köln portal (stadt-koeln.de) is the anchor. Ring: ~18 NRW municipalities within 40km probed (Rhein-Erft, Rhein-Sieg, Rheinisch-Bergisch, Neuss) to characterize CMS mix + hit rate. All fetches used a normal browser UA after discovering a UA-gate (see finding 2). Highest-value finding: stadt-koeln.de emits schema.org Microdata (itemtype=schema.org/Event + itemscope, muenchen.de-style $0 route) on its Veranstaltungskalender AND ships a dedicated events RSS feed at /externe-dienste/rss/veranstaltungen.xml with clean robots (only 5 specific pages disallowed, no AI-bot block). Second finding (CLUSTER, adapter/avoid lead): the Sitepark CMS default robots template used across Rhein-Erft/Rhein-Sieg municipalities carries an explicit AI-bot group (User-agent: anthropic-ai / CCBot / Claude-Web / ClaudeBot ...) with 'Disallow: /' — this blocks us on Bonn, Hürth, Frechen, Pulheim, Wesseling, Brühl, Kerpen (all rejected). Leverkusen is the lone Sitepark exception: it runs an OLDER template ('User-agent: * Allow: /', no AI block) AND exposes Sitepark iCal export links (sp:out=leverkusen-lapwing.iCalFromParameters) carrying full event data — the sitepark-ical routable CMS. Third finding (CLUSTER, hard block): the ionas4 CMS (regio-iT, generator 'CMS ionas4') emits <meta name=robots content='noai, noindex, nofollow, ... Anthropic-AI: noindex, Claude-Web: noindex'> on every page — an explicit publisher AI opt-out; Troisdorf, Overath and Rösrath all rejected on it. Fourth: two clean JSON-LD $0 gems in the ring — city.bergheim.de (Contao, 99-event JSON-LD ItemList to 2027) and Sankt Augustin (WordPress/Kufer, 86 JSON-LD Event objects). Second UA finding: Bonn/Hürth/Frechen/Pulheim/Wesseling/Brühl/Kerpen serve a byte-identical 503 'Dienst nicht verfügbar' to the literal ClaudeBot UA string but 200 to a browser UA — our crawler must not self-identify as ClaudeBot to Sitepark hosts (moot for these seven since robots blocks us anyway, but relevant to Leverkusen)."
+  },
+  "country": "DE",
+  "proposed": [
+    {
+      "name": "Stadt Köln - Veranstaltungskalender (offiziell)",
+      "url": "https://www.stadt-koeln.de/leben-in-koeln/freizeit-natur-sport/veranstaltungskalender",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9375,
+      "centroid_lng": 6.9603,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official City of Cologne portal. Verified live 2026-07-18: 10 schema.org Microdata Event blocks (itemtype=\"http://schema.org/Event\" itemscope) on the listing with <time itemprop=\"startDate/endDate\" datetime=\"...\"> values (e.g. datetime=\"2026-07-18T11:30:00+01:00\", \"2026-07-17T22:00:00+01:00\"); an individual detail page (/veranstaltungskalender/hoerspielwiese-koeln) carries a full Event with BOTH startDate+endDate itemprops. Routes $0 via the muenchen.de-style Microdata waterfall. NB the listing template labels some rows with only endDate (date-range events); detail pages carry startDate, so a per-detail hop is the reliable date source. Also ships a real events RSS at /externe-dienste/rss/veranstaltungen.xml (verified: <item> entries 'Vorlesen am Samstag', 'Workshop Digitales Zeichnen', 'LeseWelten' with German-text dates in <description>, but NO <dtstart>/<startdate> tag, so crawl.mjs's generic parseRssEvents() would yield 0 from the feed — the Microdata on the HTML listing is the route, not the RSS). Family/kids programming is well represented (Kinderlesungen, Bilderbuchgeschichten fuer Kinder ab 3). robots.txt: 'User-agent: *' disallows only 5 specific /artikel/ + /service/onlinedienste/ pages and 112.html; /leben-in-koeln/ NOT blocked; no named-AI-bot group anywhere."
+    },
+    {
+      "name": "Stadt Leverkusen - Veranstaltungskalender",
+      "url": "https://www.leverkusen.de/stadt-erleben/veranstaltungskalender/",
+      "town": "Leverkusen",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 51.0333,
+      "centroid_lng": 6.9833,
+      "cms": "sitepark-ical",
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official Stadt Leverkusen portal on Sitepark (product 'leverkusen-lapwing'). Verified live 2026-07-18: the listing renders per-event iCal export links of the form href=\"...?sp:out=leverkusen-lapwing.iCalFromParameters&summary=...&start=<unixts>&end=<unixts>&location=...&url=https://lust-auf-leverkusen.de/veranstaltung/...\" — each link already carries the full structured event (title/start/end/location + a linkback to the source lust-auf-leverkusen.de). Real future events confirmed (start=1784449800 = 2026-07-19; entries 'Sommerspektakel. Ferienprogramm.', 'Offenes Bastelangebot in der MutReiferei', 'Para Leichtathletik Heimspiel 2026'). This is the sitepark-ical routable CMS shape, so mapped cms=\"sitepark-ical\" ($0). CAVEAT: only per-event iCalFromParameters links were located this session, not a single master .ics feed — confirm the sitepark-ical adapter reads these param-links (vs. a feed URL) before registering. robots.txt: 'User-agent: * Allow: /' with only SEO/backlink bots (Semrush/Ahrefs/MJ12/PetalBot...) blocked — NO ClaudeBot/anthropic/CCBot group (older Sitepark template than the AI-blocking one on Bonn/Hürth/Frechen). Caveat 2: Sitepark hosts 503 the literal ClaudeBot UA string; crawl with a browser UA."
+    },
+    {
+      "name": "Stadt Bergheim - Termine & Veranstaltungen (Bergheim erleben)",
+      "url": "https://city.bergheim.de/termine",
+      "town": "Bergheim",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9556,
+      "centroid_lng": 6.6394,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official 'Bergheim erleben' portal of Stadt Bergheim (Rhein-Erft), Contao CMS (robots disallows /contao/, /_contao/). Verified live 2026-07-18: 2 <script type=application/ld+json> blocks holding an ItemList of 99 startDate occurrences — real future Event objects with names+locations+dates (e.g. startDate 2026-07-22T11:00:00+02:00 'Bergheimer Wochenmarkt', 2026-07-27T19:30:00+02:00, 'Bauernhoftiere kennenlernen' at 'Glessener Mühlenhof', 'Museum BERGHEIMAT'; series run into 2027-07). By far the highest ring yield with a clean $0 route via the generic jsonld waterfall. 162 dot-dates also present in visible HTML. robots.txt: only /contao/, /_contao/ disallowed; no AI-bot block."
+    },
+    {
+      "name": "Stadt Sankt Augustin - Veranstaltungsübersicht",
+      "url": "https://www.sankt-augustin.de/kultur-freizeit/veranstaltungsuebersicht/",
+      "town": "Sankt Augustin",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.7706,
+      "centroid_lng": 7.1867,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Official Stadt Sankt Augustin portal (Rhein-Sieg), WordPress with a Kufer course/event module. Verified live 2026-07-18: 86 schema.org JSON-LD Event objects (\"@type\":\"Event\") with real dates — startDate 2026-07-18, 2026-07-19, 2026-07-20 ... and named locations ('Parkplatz Schloss Birlinghoven'). 694KB page, so meaningful per-crawl size, but a clean $0 jsonld route (cms=null: Kufer is not a known routable adapter, but the generic JSON-LD waterfall handles it). robots.txt clean, no AI-bot block; one RSS alternate present."
+    },
+    {
+      "name": "Stadt Bornheim - Veranstaltungskalender",
+      "url": "https://www.bornheim.de/veranstaltungskalender/",
+      "town": "Bornheim",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.7614,
+      "centroid_lng": 7.0044,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "Official Stadt Bornheim portal (Rhein-Sieg), TYPO3. Verified live 2026-07-18: 10 unique future dot-dates server-rendered (22.07.2026, 25.07.2026, 01.08.2026, 04.08.2026, 09.08.2026 ...), ~20KB real text. No JSON-LD / Microdata Event / iCal / RSS found — plain HTML calendar, so the paid-LLM route. Generic TYPO3 (not the typo3-hwveranstaltung extension, whose specific markup was not present). robots.txt clean, no AI-bot block."
+    },
+    {
+      "name": "Stadt Dormagen - Aktuelle Terminübersicht (Kulturbüro)",
+      "url": "https://www.dormagen.de/kunst-kultur/kulturbuero-stadt-dormagen/aktuelle-terminuebersicht",
+      "town": "Dormagen",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 51.0944,
+      "centroid_lng": 6.8419,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "Official Stadt Dormagen portal (Rhein-Kreis Neuss), TYPO3. Verified live 2026-07-18: 3 future dates server-rendered (21.5.2026, 17.9.2026 e.g. Kinder-Puppentheater 'Hilfe, die Olchis kommen!', 18.11.2026) on this curated Kulturbüro highlights page — low count because it's a highlights view, not the full listing (a deeper /feste-veranstaltungen/ path exists but was not date-verified this session). No JSON-LD/Microdata/iCal/RSS — plain HTML, paid-LLM route. robots.txt clean, no AI-bot block."
+    },
+    {
+      "name": "Sommer Köln - Programm (offizielles Stadtfestival)",
+      "url": "https://sommer.koeln/programm/",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9375,
+      "centroid_lng": 6.9603,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "family",
+      "notes": "Official free open-air city festival (Sommer Köln, run under the Stadt Köln umbrella, 17.07-01.09.2026), single-organiser multi-venue publisher with strong kids/family programming (street theatre, Kindertheater, sing-along). WordPress. Verified live 2026-07-18: dates present as German text ('18. Juli', '2. August', '31. August' 2026), 0 machine dot-dates and no JSON-LD/Microdata/iCal — paid-LLM route, and an LLM must be told the year (text dates omit it). robots.txt clean, no AI-bot block. Seasonal source (empties out of season)."
+    },
+    {
+      "name": "KölnTourismus - Veranstaltungskalender (offizielles Tourismusboard)",
+      "url": "https://www.koelntourismus.de/erlebnisse-lifestyle/veranstaltungen/veranstaltungskalender",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9375,
+      "centroid_lng": 6.9603,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "tourism",
+      "notes": "Official Köln tourism board (KölnTourismus GmbH), TYPO3. Kept as a lead but NOT registerable as-is. Measured live 2026-07-18: the events list is a client-rendered JS app (container class 'ndsmetasearch-result-list-app' + empty 'js-result-list-results'); server HTML carries only 1 breadcrumb JSON-LD (no Event), 1 dot-date (today), and headings/nav — the actual results hydrate client-side. robots.txt additionally disallows the calendar data endpoint ('Disallow: /*?data-api=calendar') and '*/All/*'. No AI-bot block on the page path itself. Revisit only after finding the underlying JSON API (which is the robots-blocked data-api).",
+      "register": false,
+      "register_reason": "Measured 2026-07-18: JS-SPA (ndsmetasearch-result-list-app), server HTML is nav-only with 0 server-rendered events; the underlying calendar data-api is itself robots-disallowed. Registering buys a paid LLM call and 0 events every crawl."
+    },
+    {
+      "name": "KÄNGURU - Familien-Veranstaltungskalender Köln/Bonn",
+      "url": "https://www.kaenguru-online.de/kalender",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9375,
+      "centroid_lng": 6.9603,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "family",
+      "notes": "Dedicated family/kids event calendar for the Köln/Bonn region (KÄNGURU magazine) — the strongest region-specific family publisher found, so kept as a lead. NOT registerable as-is. Measured live 2026-07-18: 20 Event microdata skeletons are present (itemtype=\"http://schema.org/Event\" class=\"item cell\") BUT they use a non-schema itemprop=\"date\" that renders EMPTY server-side, and the event names/teasers are also empty (only nav names 'Start','Kalender' populated) — the calendar hydrates client-side (JS-SPA). The two RSS/atom alternates have empty href. No usable server-rendered dates. robots.txt fetched (200). Revisit if an API or a static list view is found.",
+      "register": false,
+      "register_reason": "Measured 2026-07-18: JS-SPA — Event microdata blocks are server-rendered as empty shells (itemprop=date blank, names blank), client-hydrated. cms=null would feed the LLM a dateless skeleton = 0 events + a paid call each crawl."
+    },
+    {
+      "name": "Museen der Stadt Köln - Veranstaltungskalender",
+      "url": "https://www.museenkoeln.de/portal/Veranstaltungskalender",
+      "town": "Köln",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9375,
+      "centroid_lng": 6.9603,
+      "cms": null,
+      "confidence": "low",
+      "kind": "culture",
+      "notes": "Official Museen der Stadt Köln (city museums) calendar, TYPO3. Kept as a culture lead but NOT registerable as-is. Measured live 2026-07-18: 0 dates server-rendered, only 2 event links, RequireJS-driven ('require' + 33 data-* hooks) — the calendar loads client-side. robots.txt ok, no AI-bot block. Revisit after locating the AJAX endpoint.",
+      "register": false,
+      "register_reason": "Measured 2026-07-18: RequireJS-rendered calendar, server HTML is nav-only (0 dates, 2 links). Registering buys a paid LLM call and 0 events per crawl."
+    },
+    {
+      "name": "Stadt Bergisch Gladbach - Veranstaltungskalender",
+      "url": "https://www.bergischgladbach.de/veranstaltungskalender.aspx",
+      "town": "Bergisch Gladbach",
+      "region": "Köln 40km",
+      "country": "DE",
+      "centroid_lat": 50.9917,
+      "centroid_lng": 7.1281,
+      "cms": null,
+      "confidence": "low",
+      "kind": "municipal",
+      "notes": "Official Stadt Bergisch Gladbach portal (2nd-largest ring city, ~110k), ASP.NET 'onpublix' CMS. Kept as a lead. Measured live 2026-07-18 across three URLs (veranstaltungskalender.aspx, veranstaltungen.aspx, veranstaltungstermine-und-links.aspx): all return ~11-13KB of real text but 0 dot-dates and no JSON-LD/Microdata/iCal/RSS — the calendar is an ASP.NET postback/JS widget, server HTML is nav-only. robots.txt ok (disallows /system/, /webadmin/, /onpublix/, /service/ and per-month amtsblatt pages), no AI-bot block. Needs the underlying postback/API URL before it can be registered.",
+      "register": false,
+      "register_reason": "Measured 2026-07-18: onpublix ASP.NET postback calendar — server HTML nav-only, 0 dates on all three candidate URLs. Registering buys a paid LLM call and 0 events per crawl."
+    }
+  ],
+  "rejected": [
+    {
+      "name": "koeln.de - Veranstaltungen (kommerzielles Stadtportal)",
+      "url": "https://www.koeln.de/events/",
+      "reason": "aggregator",
+      "evidence": "Not the official city site (that is stadt-koeln.de). koeln.de is operated by koeln.de GmbH, a NetCologne subsidiary (impressum + footer both name NetCologne) — a commercial city portal that resells tickets (kölnticket/Eventim integration) rather than publishing its own primary event facts. Excluded per hard rule 1 (facts + linkback to the primary publisher; official/publisher only, commercial aggregators out)."
+    },
+    {
+      "name": "Kindaling Köln",
+      "url": "https://www.kindaling.de/veranstaltungen/koeln",
+      "reason": "aggregator",
+      "evidence": "Nationwide commercial marketplace for paid kids' courses/camps/party bookings across many cities (Köln, Berlin, München, Hamburg, ...). A third-party booking aggregator/marketplace, not a primary publisher of its own event facts; excluded per hard rule 1. (Same platform already rejected in the Berlin pass.)"
+    },
+    {
+      "name": "Bundesstadt Bonn - Veranstaltungskalender",
+      "url": "https://www.bonn.de/bonn-erleben/ausgehen-und-erleben/veranstaltungskalender.php",
+      "reason": "robots",
+      "evidence": "bonn.de/robots.txt has a single User-agent group (lines 18-51) naming anthropic-ai, CCBot, Claude-Web, ClaudeBot, OAI-SearchBot, Bytespider, Google-Extended et al., terminated by 'Disallow: /' (line 52). Explicit named-AI-bot block over the whole site. (Bonn is a sizeable city ~28km S inside 40km, and the page itself is a good Sitepark HTML calendar with future dates — but the AI-bot Disallow is a hard block.) Same Sitepark default template as Hürth/Frechen/Pulheim/Wesseling/Brühl/Kerpen. Bonus signal: the host also 503s the literal ClaudeBot UA string."
+    },
+    {
+      "name": "Stadt Hürth - Veranstaltungskalender",
+      "url": "https://www.huerth.de/veranstaltungskalender.php",
+      "reason": "robots",
+      "evidence": "Identical Sitepark robots.txt template to Bonn: one User-agent group naming anthropic-ai/CCBot/Claude-Web/ClaudeBot... followed by 'Disallow: /'. (Page itself had 9 future dot-dates 19.07-24.07.2026 — good content, hard-blocked by robots.)"
+    },
+    {
+      "name": "Stadt Frechen - Veranstaltungskalender",
+      "url": "https://www.stadt-frechen.de/veranstaltungskalender.php",
+      "reason": "robots",
+      "evidence": "Identical Sitepark robots.txt template: anthropic-ai/CCBot/Claude-Web/ClaudeBot group with 'Disallow: /'. (Page had 5 future dot-dates from 18.07.2026 — hard-blocked by robots.)"
+    },
+    {
+      "name": "Stadt Pulheim - Veranstaltungskalender",
+      "url": "https://www.pulheim.de/aktuelles/veranstaltungskalender.php",
+      "reason": "robots",
+      "evidence": "Sitepark, same robots template: ClaudeBot/anthropic-ai group with 'Disallow: /' (verdict script confirmed CLAUDEBOT-BLOCKED). Page had 4 future dot-dates 18.07-21.07.2026."
+    },
+    {
+      "name": "Stadt Wesseling - Veranstaltungskalender",
+      "url": "https://www.wesseling.de/kultur-sport/veranstaltungskalender.php",
+      "reason": "robots",
+      "evidence": "Sitepark, same robots template: ClaudeBot/anthropic-ai group with 'Disallow: /' (CLAUDEBOT-BLOCKED). Page had 5 future dot-dates 18.07-22.07.2026."
+    },
+    {
+      "name": "Stadt Brühl - Veranstaltungskalender",
+      "url": "https://www.bruehl.de/tksf/veranstaltungskalender/veranstaltungskalender.php",
+      "reason": "robots",
+      "evidence": "Sitepark, same robots template: ClaudeBot/anthropic-ai group with 'Disallow: /' (CLAUDEBOT-BLOCKED). Page had future dot-dates from 18.07.2026."
+    },
+    {
+      "name": "Kolpingstadt Kerpen - Veranstaltungskalender",
+      "url": "https://www.stadt-kerpen.de/tourismus-kultur-freizeit/kultur/veranstaltungskalender.php",
+      "reason": "robots",
+      "evidence": "Sitepark, same robots template: ClaudeBot/anthropic-ai group with 'Disallow: /' (CLAUDEBOT-BLOCKED). Page had 8 future dot-dates (18.07, 26.07, 23.08, 04.09.2026 ...) — good content, hard-blocked."
+    },
+    {
+      "name": "Stadt Troisdorf - Veranstaltungen",
+      "url": "https://www.troisdorf.de/de/rathaus-service/aktuell/veranstaltungen/",
+      "reason": "robots",
+      "evidence": "ionas4 CMS (regio-iT; <meta name=generator content='CMS ionas4'>). Every page emits <meta name=\"robots\" content=\"noai, noindex, nofollow, noarchive, GPTBot: noindex, Google-Extended: noindex, CCBot: noindex, Anthropic-AI: noindex, Claude-Web: noindex, Applebot-Extended: noindex\"> — an explicit publisher AI opt-out (noai + noindex + named Anthropic-AI/Claude-Web). (Ironically it also exposes 1 iCal + 8 RSS feeds, but the noai/noindex stance is a hard block.)"
+    },
+    {
+      "name": "Stadt Overath - Veranstaltungen",
+      "url": "https://www.overath.de/aktuelles/veranstaltungen/",
+      "reason": "robots",
+      "evidence": "ionas4 CMS (generator 'CMS ionas4'), identical noai meta as Troisdorf: content=\"noai, noindex, nofollow, ... Anthropic-AI: noindex, Claude-Web: noindex\". Explicit AI opt-out — hard block. (Calendar was also JS-rendered: 0 server dot-dates.)"
+    },
+    {
+      "name": "Stadt Rösrath - Veranstaltungskalender",
+      "url": "https://www.roesrath.de/freizeit-kultur/veranstaltungen-mehr/veranstaltungskalender/",
+      "reason": "robots",
+      "evidence": "ionas4 CMS (generator 'CMS ionas4'), identical noai meta: content=\"noai, noindex, nofollow, ... Anthropic-AI: noindex, Claude-Web: noindex\". Explicit AI opt-out — hard block. This meta is the ionas4/regio-iT default: assume every regio-iT NRW municipality carries it."
+    },
+    {
+      "name": "Veranstaltungskalender der Kreisstadt Siegburg",
+      "url": "https://events.siegburg.de/",
+      "reason": "no_content",
+      "evidence": "Dedicated events subdomain, but returns HTTP 200 with a 0-byte body to server-side fetches on both / and /Veranstaltungen (browser UA, follows redirects) — bot-gated or JS-challenge; no server-rendered content to extract or verify. robots.txt not restrictive, but the empty body makes it unusable via fetch. Revisit only with a headless-browser fetch path."
+    }
+  ]
+}

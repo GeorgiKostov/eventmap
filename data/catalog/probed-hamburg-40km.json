@@ -1,0 +1,193 @@
+{
+  "_meta": {
+    "scope": "hamburg-40km",
+    "built_at": "2026-07-18",
+    "center": {
+      "lat": 53.5511,
+      "lng": 9.9937
+    },
+    "radius_km": 40,
+    "notes": "Discovery-only pass, no DB writes. Hamburg is a city-state, so the 'big cities aren't Gemeinde' lesson applies to the whole core: backbone hand-found + live-verified (official hamburg.de portal pages, the Hamburg Tourismus metro calendar, top dedicated family/kids publishers). Ring: municipalities OUTSIDE the city-state border probed in Schleswig-Holstein (Norderstedt, Ahrensburg, Pinneberg, Wedel, Reinbek, Geesthacht) and Niedersachsen (Buxtehude, Buchholz). Single highest-value finding: the 'Veranstaltungsdatenbank der Metropolregion Hamburg' operated by Hamburg Tourismus GmbH (~500k events/yr) is the shared official backbone that many ring towns feed into (Ahrensburg and Pinneberg both state on their own pages that they publish INTO it) — it is rendered server-side and LLM-routable at hamburg-tourism.de/.../veranstaltungskalender (35+ dot-dates verified), while its Nuxt SPA face at veranstaltungen.hamburg is a JS-shell trap. Second finding: two SH ring towns (Norderstedt, Ahrensburg, Geesthacht neighbour) run iKISS (data-ikiss markup) — same CMS with a termine-regional.de interface noted in the Berlin pass — but their own pages are pointers to the metro DB, not standalone listings. Third: a nolis-CMS cluster on the Niedersachsen side (Buxtehude, Buchholz) sharing the /portal/seiten/...-NNNNNN-NNNNN.html URL shape and a native vCalendar/.ics export; worth a nolis adapter if the ring is pursued. Note: several municipal .ics/RSS feeds exist (Geesthacht, Reinbek, Buxtehude) but Geesthacht's is robots-blocked under /output/ — the HTML listing is the routable surface there."
+  },
+  "country": "DE",
+  "proposed": [
+    {
+      "name": "Hamburg Tourismus - Veranstaltungskalender (Metropolregion-Datenbank)",
+      "url": "https://www.hamburg-tourism.de/sehen-erleben/veranstaltungen/veranstaltungskalender/",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5511,
+      "centroid_lng": 9.9937,
+      "cms": null,
+      "confidence": "high",
+      "kind": "tourism",
+      "notes": "Official Hamburg Tourismus GmbH calendar and the rendered face of the 'Veranstaltungsdatenbank der Metropolregion Hamburg' (~500k events/yr) that ring municipalities publish into (confirmed on Ahrensburg's and Pinneberg's own pages, which state they feed this DB). ~35+ dot-dates verified server-rendered (18.07.2026, 19.07.2026, 25.07.2026 among them), e.g. 'Habitat Festival 2026' 19.07.2026, 'HAMBURGER ARCHITEKTUR SOMMER 2026' 18.07.2026, '<<Wie lange werden wir hier sein?>> - Deportationen nach Minsk 1941' 18.07.2026. ~28-32k chars real text, server-rendered (filters are JS-enhanced but listings are in the initial HTML). No JSON-LD/Microdata/RSS/ICS found on the page -> html/LLM route. robots.txt: TYPO3 site, 'User-agent: *' disallows only /irs/, /fileadmin/, /typo3/, warenkorb + a couple of patterns; only ICC-Crawler gets Disallow:/. No ClaudeBot/GPTBot/CCBot block. This is the single best backbone source for the whole 40km region."
+    },
+    {
+      "name": "hamburg.de - Veranstaltungen fuer Kinder (offizielle Kinderseite)",
+      "url": "https://www.hamburg.de/freizeit/kinder/veranstaltungen",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5511,
+      "centroid_lng": 9.9937,
+      "cms": null,
+      "confidence": "low",
+      "kind": "family",
+      "notes": "Official City of Hamburg (hamburg.de) children's-events page. Server-rendered with real content but curatorial/editorial rather than a dense listing: only ~3 dated items surfaced this fetch, e.g. 'Demokratiepaedagogisches Ferienprogramm Kinderstadt Hamburg' (13.-24. Juli 2026), 'Der achtsame Tiger' (10.10.2025-31.01.2026). No JSON-LD/Microdata/RSS/ICS -> html/LLM route, but low yield per crawl (a handful of editorially-picked events, some spanning past dates -> tell the extractor to skip past dates). robots.txt (hamburg.de): no named-AI-bot block; 'User-agent: *' disallows only /search, /newsletter, /branchenbuch pattern, /iason/, /befi/, /premiumpartner/ -- /freizeit/ is open. Kept as the authoritative kids voice of the city portal despite thin data."
+    },
+    {
+      "name": "hamburg.de - Veranstaltungen (Kultur-Landingpage)",
+      "url": "https://www.hamburg.de/kultur/veranstaltungen",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5511,
+      "centroid_lng": 9.9937,
+      "cms": null,
+      "confidence": "low",
+      "kind": "municipal",
+      "notes": "Official hamburg.de culture-events entry page. Server-rendered (~8k chars real text) but it is an editorial HUB, not a dated listing: 0 dot-format dates found; event references are narrative section headings ('Wasserlichtkonzerte in Planten un Blomen', 'Der Musical-Sommer laeuft', 'Luminscence im Michel') with prose date ranges, no per-event DD.MM.YYYY. No JSON-LD/Microdata/RSS/ICS. robots posture as above (open for us). The machine-readable Hamburg calendar lives in the Metropolregion DB (hamburg-tourism.de row above), not here.",
+      "register": false,
+      "register_reason": "Measured 2026-07-18: editorial landing page, 0 dot-dates, no structured data, no per-event listing. cms=null would feed an LLM prose with no extractable dated events = ~0 yield + a paid call every crawl. Use the hamburg-tourism.de metro-DB rendering as the hamburg backbone instead."
+    },
+    {
+      "name": "veranstaltungen.hamburg - VADB Gesamtkalender (offizielle Veranstaltungsdatenbank)",
+      "url": "https://www.veranstaltungen.hamburg/VADB_gesamtkalender/events/list",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5511,
+      "centroid_lng": 9.9937,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "The official 'Veranstaltungsdatenbank Hamburg' (VADB) gesamtkalender -- the same metro-region dataset as the hamburg-tourism.de row, but this is its own Nuxt front-end. robots.txt disallows /_nuxt/ and /assets/ (Nuxt app fingerprint) plus a 5s crawl-delay; no named-AI-bot block. Could not confirm any server-rendered event text across two fetches (both truncated on the JS bundle before any dated listing was observable); no JSON-LD/Microdata seen. Strongly reads as a client-rendered SPA whose dated events arrive via XHR, not in the server HTML.",
+      "register": false,
+      "register_reason": "Measured 2026-07-18: Nuxt SPA (robots discloses /_nuxt/), no confirmable server-rendered event data -- a JS-shell trap per hard rule 4. Registering cms=null buys a paid LLM call on navigation-only HTML and 0 events every crawl. The identical dataset is already LLM-routable server-side at hamburg-tourism.de; register that instead, or reverse the VADB XHR/JSON API for a $0 route before touching this URL."
+    },
+    {
+      "name": "ALSTERKIND - Veranstaltungskalender (Hamburg Familien/Kinder)",
+      "url": "https://alsterkind.com/veranstaltungen/",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5511,
+      "centroid_lng": 9.9937,
+      "cms": null,
+      "confidence": "high",
+      "kind": "family",
+      "notes": "Dedicated Hamburg family/kids event calendar (own primary publisher, 'Veranstaltungen fuer Eltern und Kinder in und um Hamburg'). Server-rendered listing, 13+ real future-dated events on page 1 with server-side pagination (?Seite=1..7), e.g. 'Tunnelblick-Tour' 19. July 2026 15:00, 'Vom Fleet zum Fluss' 27. July 2026 16:00, 'Bruecketour' 28. July 2026 10:00. WordPress with a custom/bespoke events plugin (/veranstaltungen/detail/... URLs, ?Seite= pagination); no Tribe/EventON/MEC class names, no JSON-LD/Microdata/RSS/ICS found -> html/LLM route. robots.txt: 404 (no file) -> unrestricted, no AI-bot block. One of the two strongest family sources found."
+    },
+    {
+      "name": "Szene Hamburg - Veranstaltungen Region (Kinder/Jugend/Familien)",
+      "url": "https://veranstaltungen.szene-hamburg.com/region/?zielgruppe=Kinder,Jugendliche,Familien",
+      "town": "Hamburg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5511,
+      "centroid_lng": 9.9937,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "family",
+      "notes": "The Szene Hamburg city magazine's own events calendar, pre-filtered to the Kinder/Jugendliche/Familien audience. Server-rendered, dot-format dates, real family events, e.g. 'KinderBeat: Apfel und Frau Pommes' (Konzert, ab 2 J.) Sa 18.07, 'KLIMASTROEME: Climate Creatures' (Workshop, ab 8 J.) Mo 20.07. WordPress (szene-hamburg-theme). CAVEAT: the calendar engine is a third-party platform ('Powered by RCE-Event.de', img-cdn.rce-event.de) that aggregates venue submissions -- we index Szene Hamburg's own curated listing with linkback to szene-hamburg.com (magazine = primary local publisher, same posture as HIMBEER/berlinmitkind in the Berlin pass), NOT the RCE marketplace itself. No JSON-LD/Microdata/RSS/ICS on the page -> html/LLM route. robots.txt clean (disallows /includes/, /modules/, /on_img/, /login/ etc.; /region/ open; no AI-bot block). Flag to George: if the RCE backend later proves to just resell other calendars' data, downgrade to rejected(aggregator)."
+    },
+    {
+      "name": "Stadt Wedel - Veranstaltungskalender",
+      "url": "https://www.wedel.de/veranstaltungskalender",
+      "town": "Wedel",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.5806,
+      "centroid_lng": 9.7086,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "SH ring town, ~15km W of Hamburg centre. TYPO3 with a custom 'mkwedel' extension over the events2 plugin (tx_events2_events widget pagination). Server-rendered, real future-dated listings, e.g. 'Wochenmarkt in Wedel an der Spitzerdorfstrasse' 18.07.2026 08:00, 'Senioren mobil' 20.07.2026 15:00 -- civic/market-heavy but genuine dated events. No JSON-LD/Microdata/RSS/ICS on the listing -> html/LLM route. robots.txt: 'Allow: /' then disallows /typo3/, /uploads/, /typo3temp/, and crucially '?id=*' query URLs -- the base /veranstaltungskalender path (no query) is fine; a crawler must avoid the ?id= detail/pagination variants. No AI-bot block."
+    },
+    {
+      "name": "Hansestadt Buxtehude - Veranstaltungskalender",
+      "url": "https://www.buxtehude.de/portal/seiten/veranstaltungskalender-900000080-20351.html",
+      "town": "Buxtehude",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.4767,
+      "centroid_lng": 9.6931,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "Niedersachsen ring town, ~30km SW of Hamburg. nolis CMS (portal/seiten/...-900000080-20351.html URL shape; nolis-manager.de references in the network). Large server-rendered listing (~155KB), dot-format dates, e.g. 'Wochenmarkt in der Altstadt' Sa 18.07.2026 08:00-13:00, 'Musik zur Marktzeit' Sa 18.07.2026 11:00, 'Klassische Stadtfuehrung' So 19.07.2026 11:30. Also exposes a native 'Alle Veranstaltungen als vCalendar exportieren' .ical endpoint (potential $0 route worth wiring an adapter for). No JSON-LD/Microdata on the HTML -> html/LLM route today. robots.txt: no AI-bot block; 'User-agent: *' disallows only a few portal pages (kontakt, suche, weiterempfehlen) and /allris/___tmp/ -- the veranstaltungskalender path is open. Anchor of a nolis cluster with Buchholz."
+    },
+    {
+      "name": "Stadt Geesthacht - Veranstaltungskalender",
+      "url": "https://www.geesthacht.de/Leben-in-Geesthacht/Freizeit-Kultur/Veranstaltungskalender/",
+      "town": "Geesthacht",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.4361,
+      "centroid_lng": 10.3772,
+      "cms": null,
+      "confidence": "high",
+      "kind": "municipal",
+      "notes": "SH ring town, ~30km SE of Hamburg on the Elbe. Custom municipal system (index.php with kat=/ort=/ModID= filters; NOT iKISS -- 0 data-ikiss attributes). Highest ring yield seen: page states 2,596 events, dot-format dates server-rendered, e.g. 'Ausstellung in der Treppenhausgalerie: Menschen, Laender, Augenblicke' 18.07.2026, 'KulturSommer am Kanal 2026: Ausstellung Weg des Innehaltens' 18.07.2026, 'BibQuiz ... 3. Runde' 18.07.2026. An .ics export exists at /output/options.php?call=ical -> BUT robots.txt 'User-agent: *' Disallow: /output/ blocks it for us, so the ical $0 route is off-limits; the HTML listing page itself is NOT under /output/ and is allowed -> html/LLM route. robots also disallows /cache/, /suche.phtml; no AI-bot block. Big page = real per-crawl LLM cost."
+    },
+    {
+      "name": "Stadt Pinneberg - Veranstaltungen",
+      "url": "https://www.pinneberg.de/kultur/veranstaltungen",
+      "town": "Pinneberg",
+      "region": "Hamburg 40km",
+      "country": "DE",
+      "centroid_lat": 53.6555,
+      "centroid_lng": 9.7965,
+      "cms": null,
+      "confidence": "medium",
+      "kind": "municipal",
+      "notes": "SH ring town / Kreisstadt, ~18km NW of Hamburg. TYPO3 with a 'ruhr_connect' extension. Server-rendered, dot/German-format dates, real events e.g. 'Neujahrsempfang' 18. Januar 2026, 'Pinneberg Clean Up' 7. Maerz 2026, 'Internationaler Frauentag' 8. Maerz 2026 (one flagged cancelled -> extractor must honour that). No JSON-LD/Microdata/RSS/ICS on the page -> html/LLM route. robots.txt: 404 (no file) -> unrestricted, no AI-bot block. NB: Pinneberg's own page also states it feeds the Metropolregion Hamburg DB, so some overlap with the hamburg-tourism backbone is expected -- de-dup on crawl."
+    }
+  ],
+  "rejected": [
+    {
+      "name": "Stadt Norderstedt - Veranstaltungskalender",
+      "url": "https://www.norderstedt.de/Kultur-und-Freizeit/Veranstaltungen/",
+      "reason": "no_future_events",
+      "evidence": "Runs iKISS (advantic-ikissx-login.php markup; ~95k chars server-rendered) but both the Veranstaltungen landing and the deep-linked calendar URL (index.php?...object=tx,3223.1) rendered 0 dot-format dated events this session -- the landing notes the main venue TriBuehne is closed for renovation until mid-2027, and Norderstedt's events largely feed the Metropolregion Hamburg DB (already covered by the hamburg-tourism backbone). iKISS cluster lead (shares CMS with Ahrensburg + the termine-regional.de interface noted in the Berlin pass) but not a standalone routable listing right now; worth a second pass for a working deep-link, not a hard block."
+    },
+    {
+      "name": "Stadt Ahrensburg - Veranstaltungskalender",
+      "url": "https://www.ahrensburg.de/B%C3%BCrger-Stadt/Aktuelles/Veranstaltungskalender/",
+      "reason": "no_calendar",
+      "evidence": "iKISS/Sitepark (data-ikiss attributes) but the page is explicitly a POINTER, not a listing: it states 'Die Stadt Ahrensburg hat sich der Veranstaltungsdatenbank der Metropolregion Hamburg angeschlossen' and routes submissions to maren.kahl@ahrensburg.de -- 0 dated events server-rendered on its own page. Its events surface in the metro DB (hamburg-tourism.de backbone), so registering this URL yields nothing. iKISS cluster lead only."
+    },
+    {
+      "name": "Stadt Buchholz i.d. Nordheide - Veranstaltungskalender",
+      "url": "https://www.buchholz.de/portal/seiten/veranstaltungskalender-903001318-20101.html",
+      "reason": "no_future_events",
+      "evidence": "nolis CMS (same /portal/seiten/...-NNNNNN-NNNNN.html shape and nolis-manager.de references as Buxtehude), server-rendered, but THIS URL is a navigation/structural shell -- 0 dated events in the markup; the actual listings sit in linked subsections. Not blocked (robots not the issue). Same nolis vendor as Buxtehude, so a working deep-link/subsection almost certainly renders like Buxtehude's does; re-probe for the real calendar sub-URL before registering. Cluster lead, not a hard block."
+    },
+    {
+      "name": "Stadt Reinbek - Veranstaltungen",
+      "url": "https://www.reinbek.de/veranstaltungen",
+      "reason": "no_future_events",
+      "evidence": "TYPO3 with the Communic Events extension (tx_communicecalendar_calendarical); infrastructure is live (RSS feed /veranstaltungen/rss AND an .ics export exist) but the listing currently renders 'Keine Veranstaltungen gefunden' -- 0 future events at probe time. Not a block, a genuine content gap. Lead: if it later populates, the /veranstaltungen/rss feed is a candidate $0 route (verify it carries dtstart tags before relying on crawl.mjs's generic RSS parser)."
+    },
+    {
+      "name": "Kindaling Hamburg",
+      "url": "https://www.kindaling.de/veranstaltungen/hamburg",
+      "reason": "aggregator",
+      "evidence": "Nationwide commercial marketplace for paid kids' courses/camps/birthday-party bookings across 12+ cities (Berlin, Hamburg, Muenchen, Wien, ...). robots.txt disallows /providers, /account, /activities, /tickets -- structurally a third-party booking aggregator/marketplace, not a primary publisher of its own event facts. Excluded per hard rule 1 (facts + linkback, official/publisher only). Same source already rejected in the Berlin pass."
+    },
+    {
+      "name": "meinestadt.de - Veranstaltungen Hamburg",
+      "url": "https://veranstaltungen.meinestadt.de/hamburg/alle/alle",
+      "reason": "aggregator",
+      "evidence": "Nationwide commercial city-portal aggregator that compiles events from many third-party sources across every German city; resells/re-lists others' event facts rather than publishing its own. Not a primary/official publisher -> excluded per hard rule 1."
+    },
+    {
+      "name": "eventfinder.de / Eventim - Veranstaltungen Hamburg",
+      "url": "https://www.eventfinder.de/hamburg/veranstaltungen/",
+      "reason": "aggregator",
+      "evidence": "Commercial ticket/event marketplace (eventfinder.de, and the related eventim.de/city/hamburg-7/) reselling third-party ticketed events -- claims '8,000+ events' for small towns, a clear aggregator footprint. Ticket marketplaces are excluded per hard rule 1 (index primary publishers + linkback, no resale aggregators)."
+    }
+  ]
+}

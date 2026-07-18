@@ -9,6 +9,27 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-18 — Hamburg+Köln municipal backbone registered on top of the metro scopes)
+- **A parallel session opened the Germany scopes + gazetteer + microdata sweep (see next block); THIS
+  session added the live municipal backbone.** +14 sources / +446 events via own discovery
+  (probed-{hamburg,cologne}-40km.json, ids 2991–3004, all new URLs): **Hamburg 7 / 194 ev** (all LLM),
+  **Köln 7 / 252 ev** incl. two JSON-LD $0 wins (Bergheim 99, Sankt Augustin 86). Each `crawl --url`
+  verified. **DE events → 4,557.** My Köln sources carry region 'Köln 40km' → they scope-resolve under
+  the other session's `cologne-40km` scope (sourceRegion matches), so no scope change was needed.
+- **The collision + how it reconciled**: both sessions worked Germany the same afternoon. Theirs pushed
+  first (microdata in structuredSignals with a broader regex, scopes, 28-town gazetteer, metro-* discovery
+  catalogs). I reset to their main and re-applied only my non-overlapping delta: 6 ring towns missing from
+  their gazetteer (Buxtehude, Geesthacht, Bergheim, Sankt Augustin, Bornheim, Dormagen — my sources' towns,
+  hard rule 8), my two probed catalogs (renamed koln→cologne scope to match), and the todo/memory facts.
+  **Lesson: before a big autonomous prod+git task, check `git fetch` — a concurrent session on the same
+  feature is the norm here, not the exception.** My prod registrations were additive (new URLs), so no DB
+  clobber; only git needed reconciling.
+- **Open for George**: koeln.de (id 2961, iCal, 30 ev) flagged by my agent as a NetCologne commercial
+  aggregator (hard rule 1) but registered by the 07-17 pass — kept live, needs a yes/no. Leverkusen cms
+  nulled (sitepark-ical .ics 503s our ClaudeBot UA → LLM; $0 via browser-UA is a follow-up).
+- **Microdata rung proven live beyond muenchen.de** (both sessions independently): rheinmain4family.de
+  71/71, Hänneschen 197, familie.or.at 18 — all route:microdata, $0.
+
 ## Where things stand (2026-07-17 latest+2 — Germany "completed set": Hamburg+Köln+Frankfurt scopes opened)
 - **George's call: top-3 German metros (Hamburg #2, Köln #4, Frankfurt #5) + deepen Stuttgart**, for a
   "completed AT/BG/DE set." Scaffolding shipped: 3 new scopes (hamburg-40km, cologne-40km,

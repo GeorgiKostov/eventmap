@@ -22,6 +22,19 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       muenchen.de rung — **Hänneschen Puppenspiele Köln 197** + RheinMain4Family 79. **DE now:
       1,925 events · 1,814 places · 67 sources · 946 family** (from 706/319/8). Catalogs:
       data/catalog/metro-{hamburg,cologne,frankfurt,stuttgart}-40km-2026-07-17.json.
+- [x] **Municipal backbone added on top (2026-07-18, parallel session): +14 sources / +446 events**
+      via probed-{hamburg,cologne}-40km.json (own discovery, ids 2991–3004, all new URLs — no overlap
+      with the 07-17 set). **Hamburg 7 / 194 ev** (hamburg-tourism, alsterkind, szene-hamburg, wedel,
+      buxtehude, geesthacht, pinneberg — all LLM). **Köln 7 / 252 ev** incl. **two JSON-LD $0 wins:
+      Bergheim 99 + Sankt Augustin 86**; stadt-koeln, leverkusen, bornheim, dormagen, sommer-koeln LLM.
+      Each verified via `crawl --url`. **DE events → 4,557.** 6 of their ring towns weren't in places.js
+      yet (Buxtehude, Geesthacht, Bergheim, Sankt Augustin, Bornheim, Dormagen) — added (hard rule 8).
+- [ ] **George — hard-rule-1: `koeln.de — Events (iCal)`** (id 2961, 30 ev). My Köln discovery agent
+      classed koeln.de as a **NetCologne commercial aggregator** and rejected it; the 07-17 pass
+      registered it via the iCal rung. It publishes with linkback (gray area) — kept live, wants a yes/no.
+- [x] **Leverkusen cms nulled**: registered `sitepark-ical` but its .ics subfetch 503s on the ClaudeBot
+      UA → fell to LLM (10 ev); nulled the tag so it matches behaviour (avoids a "tagged but silently 0"
+      rot). $0 sitepark route via a browser-UA ical fetch is the follow-up.
 - [ ] **Sitepark/kulturlotse RSS is pubDate-only → currently LLM route, not $0** (Mainz/Offenbach/Bonn/
       kulturlotse: date is in the item TITLE, not a machine tag; parseRssEvents correctly declines).
       A small Sitepark-title-date parser would make ~4-6 official kids calendars $0 — worth it.
@@ -327,17 +340,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       a URL + the marketing placement + permission to name them, against listing + highlight, on one
       page. A written barter is good practice; a free favour is the thing that gets deprioritised
       internally the week it matters. Revisit cash once we can quote reach.
-- [ ] **⚠️ Architect flag — the barter may legally BE consideration, and that changes the label.**
-      "They add us to their marketing materials" is a benefit in kind flowing to us for the
-      placement. Under the conservative read of ECG §6 / MedienG §26, consideration isn't only cash —
-      which would make this a **paid placement** ("Anzeige" + payer identity + the ranking-disclosure
-      page in `docs/decisions/2026-07-12-paid-placement-compliance.md`), not an editorial showcase.
-      **This is live, not hypothetical: `Ars Electronica Festival 2026` is already a GOLD row in prod
-      (07-16→09-09).** Two clean ways out, pick one before the deal is real: (a) run it **editorial**
-      and take no obligation on their marketing (if they list us, they list us because they want to);
-      (b) call it **gold** and ship the two labelling obligations first. What we must not do is take
-      the marketing placement *and* carry it as unlabelled editorial. Not a lawyer — but the cheap
-      option here is a 10-minute call, not a defence.
+- [x] **RESOLVED (George, 2026-07-17): the Ars row was changed off gold.** The flag was that the barter
+      ("they add us to their marketing materials") may legally be *consideration* under ECG §6 / MedienG
+      §26, which would have made the then-live `Ars Electronica Festival 2026` gold row a paid placement
+      needing "Anzeige" + payer identity + the ranking-disclosure page. With the row no longer gold, that
+      specific exposure is closed. The general rule still stands for any future paid gold: don't take a
+      marketing placement *and* carry it as unlabelled editorial.
 - [ ] **Then generalise it: the "map service for decentralized events" product.** Partnerships §6
       already specifies it (ingestion spec + live preview/validator: "paste a URL, see exactly the
       events we'd extract") and names the trigger — *build it the day a real organizer asks*. That
