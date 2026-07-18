@@ -2,6 +2,14 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Protocol review (2026-07-18) — lessons recorded, one wording drift flagged
+- [ ] **George — hard rule 1's source-scope sentence is stale**: it still reads "Municipal + Land OÖ
+      + user-submitted sources only", but approved practice now spans AT/BG/DE municipal portals,
+      vetted family/culture publishers (tier 2 in `lib/source-quality.js`), tourism boards, festivals,
+      and NGO/Verein calendars. Proposed rewording: "Official/municipal sources, vetted family+culture
+      publishers, and user submissions only — never commercial marketplaces or aggregators without
+      recorded permission (hard rule 9)." Needs your yes before a hard rule is reworded.
+
 ## Hidden /realestate experiment (2026-07-18) — REMOVED
 - [x] Removed the `/realestate` route, miner, and all listing datasets from current `main` after
       checking willhaben's terms and robots policy. The crawl should not have run without permission;
