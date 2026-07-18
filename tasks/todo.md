@@ -2,17 +2,17 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
-## Hidden /realestate experiment (2026-07-18, George: "heat map of prices of linz and surroundings… just a quick experiment") — SHIPPED (fe9dedc)
+## Hidden /realestate experiment (2026-07-18) — AUSTRIA-WIDE SHIPPED
 - [x] Standalone hidden page `/realestate` (unlinked, noindex): ~2.2km grid colored by avg €/m²,
       cell click → avg/median + 5 cheapest / 5 priciest with willhaben links, All/Houses/Apartments
-      filter, optional heatmap overlay. Data: one-off miner `scripts/mine-realestate.mjs` →
-      `public/realestate/listings.json` — **3,696 real willhaben sale listings within 45km of Linz**
-      (99.8% portal coords, median €4,324/m²; Linz-city apartments median €5,661/m²). Zero touch of
-      the events pipeline/DB; deliberately NOT a `sources` row (one-off bootstrap, not a crawl source
-      — exempt from hard rule 7 by design, it's not event data). Sonnet build + Sonnet review (SHIP;
-      2 minors fixed: heatmap-toggle race pre-style.load, dead isNarrow state). NOT deployed.
-- [ ] Data refresh is manual only: re-run `node scripts/mine-realestate.mjs` when the snapshot feels
-      stale. Mobile bottom-sheet breakpoint written per spec but not visually exercised.
+      filter, optional heatmap overlay. Austria-wide miner now covers all 9 Bundesländer/districts;
+      snapshot has **48,086 real willhaben sale listings** (34,057 apartments + 14,029 houses).
+      Country zoom uses ~10km cells, switching to ~2.2km town cells at zoom 8; colors use filtered
+      price percentiles, sparse cells show lower confidence, and detail adds p25–p75, type split, and
+      a histogram. Streaming load/progress and sample fallback handle the 17.7MB JSON payload.
+      Desktop side panel + mobile bottom sheet browser-verified; map-control overlap fixed. Zero
+      touch of the events pipeline/DB; deliberately NOT a `sources` row. NOT deployed.
+- [ ] Data refresh remains manual: re-run `node scripts/mine-realestate.mjs` when the snapshot feels stale.
 
 ## Germany "completed set": Hamburg + Köln + Frankfurt scopes + deepen Stuttgart (2026-07-17, George: "biggest in Germany… completed set of AT BG DE" → top-3 + Stuttgart) — SCAFFOLDING SHIPPED, source registration in flight
 - [x] **3 new scopes** (hamburg-40km, cologne-40km, frankfurt-40km) + Stuttgart already had one.

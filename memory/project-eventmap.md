@@ -9,11 +9,14 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Side experiment (2026-07-18): hidden /realestate price heatmap (fe9dedc)
+## Side experiment (2026-07-18): hidden /realestate price heatmap
 - George's private experiment, NOT an Okolo feature: `/realestate` (unlinked, noindex) shows a
-  ~2.2km grid of avg €/m² for Linz+40km from 3,696 willhaben sale listings
-  (`public/realestate/listings.json`, one-off miner `scripts/mine-realestate.mjs`, manual refresh
-  only — deliberately not in `sources`). Cell click → avg/median + 5 cheapest/5 priciest. Not deployed.
+  zoom-adaptive grid of avg €/m² across Austria from **48,086 willhaben sale listings** (34,057
+  apartments + 14,029 houses). Country view uses ~10km cells and switches to ~2.2km cells at zoom 8;
+  filtered percentile colors, sparse-cell confidence, p25–p75/type-split/histogram detail, streaming
+  progress, desktop side panel, and mobile bottom sheet are browser-verified. Data lives in
+  `public/realestate/listings.json`; one-off miner `scripts/mine-realestate.mjs`, manual refresh only,
+  deliberately not in `sources` or the event DB. Not deployed.
 
 ## Where things stand (2026-07-18 — Hamburg+Köln municipal backbone registered on top of the metro scopes)
 - **A parallel session opened the Germany scopes + gazetteer + microdata sweep (see next block); THIS
