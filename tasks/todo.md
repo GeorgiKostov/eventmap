@@ -2,17 +2,12 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
-## Hidden /realestate experiment (2026-07-18) — AUSTRIA-WIDE SHIPPED
-- [x] Standalone hidden page `/realestate` (unlinked, noindex): ~2.2km grid colored by avg €/m²,
-      cell click → avg/median + 5 cheapest / 5 priciest with willhaben links, All/Houses/Apartments
-      filter, optional heatmap overlay. Austria-wide miner now covers all 9 Bundesländer/districts;
-      snapshot has **48,086 real willhaben sale listings** (34,057 apartments + 14,029 houses).
-      Country zoom uses ~10km cells, switching to ~2.2km town cells at zoom 8; colors use filtered
-      price percentiles, sparse cells show lower confidence, and detail adds p25–p75, type split, and
-      a histogram. Streaming load/progress and sample fallback handle the 17.7MB JSON payload.
-      Desktop side panel + mobile bottom sheet browser-verified; map-control overlap fixed. Zero
-      touch of the events pipeline/DB; deliberately NOT a `sources` row. NOT deployed.
-- [ ] Data refresh remains manual: re-run `node scripts/mine-realestate.mjs` when the snapshot feels stale.
+## Hidden /realestate experiment (2026-07-18) — REMOVED
+- [x] Removed the `/realestate` route, miner, and all listing datasets from current `main` after
+      checking willhaben's terms and robots policy. The crawl should not have run without permission;
+      polite throttling, facts-only storage, private intent, and source linkback did not authorize it.
+- [ ] If the repository is public, purge the historical dataset blobs only with George's explicit
+      approval for the required destructive Git history rewrite and force-push.
 
 ## Germany "completed set": Hamburg + Köln + Frankfurt scopes + deepen Stuttgart (2026-07-17, George: "biggest in Germany… completed set of AT BG DE" → top-3 + Stuttgart) — SCAFFOLDING SHIPPED, source registration in flight
 - [x] **3 new scopes** (hamburg-40km, cologne-40km, frankfurt-40km) + Stuttgart already had one.

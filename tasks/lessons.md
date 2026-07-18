@@ -2,6 +2,18 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-07-18 — Polite scraping is not authorized scraping
+
+I mined willhaben after checking technical feasibility and rate-limiting the requests, but I did not
+check its terms or robots policy first. Both explicitly reject automated access without permission.
+I then treated facts-only fields, source links, a one-request-per-second delay, and George's private
+intent as sufficient safeguards and pushed the raw listing dataset. They were not: load discipline
+reduces operational harm, and facts-only storage reduces copyright exposure, but neither grants
+access or database-reuse rights. **Lesson:** before any new commercial-platform miner, check and
+record robots, terms, licensing/API options, and database-right implications *before the first bulk
+request*. If permission is unclear or prohibited, stop and ask George; do not mine first and legalize
+the result afterward. Private use changes practical exposure, not the platform's permission.
+
 ## 2026-07-17 — I benchmarked a reimplementation of our own code and reported its failure as the model's
 
 Setting up the local box, I "measured" gemma4:12b at **194s/page, ignoring the event cap, truncating
