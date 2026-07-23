@@ -7,16 +7,10 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-import { publishedEvents, getEvent, listSources } from '../lib/db.js';
+import { searchEventCatalog, getEvent, listSources } from '../lib/db.js';
 import { TOWNS } from '../lib/towns.js';
 
 const CATEGORIES = ['family', 'festival', 'market', 'music', 'culture', 'food', 'sport', 'workshop'];
-
-function distKm(a, b) {
-  const R = 6371, dLa = ((b.lat - a.lat) * Math.PI) / 180, dLo = ((b.lng - a.lng) * Math.PI) / 180;
-  const h = Math.sin(dLa / 2) ** 2 + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLo / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
 
 function slim(ev) {
   return {
@@ -64,31 +58,26 @@ server.registerTool(
     },
   },
   async (args) => {
-    const center = { lat: args.near_lat ?? 48.3, lng: args.near_lng ?? 14.29 };
-    const q = args.query?.toLowerCase();
     // This tool is scoped to dated events; places (kind='place', no starts_at)
     // are a separate evergreen content type — not exposed here yet.
-    let results = (await publishedEvents()).filter((ev) => ev.kind !== 'place').filter((ev) => {
-      const d = ev.starts_at.slice(0, 10);
-      const dEnd = (ev.ends_at || ev.starts_at).slice(0, 10);
-      if (args.date_from && dEnd < args.date_from) return false;
-      if (args.date_to && d > args.date_to) return false;
-      if (args.category && !ev.categories.includes(args.category)) return false;
-      if (args.town && (ev.town || '').toLowerCase() !== args.town.toLowerCase()) return false;
-      if (args.free_only && ev.is_free !== 1) return false;
-      if (args.for_kids && !(ev.age_min != null || ev.categories.includes('family'))) return false;
-      if (args.max_km && distKm(center, ev) > args.max_km) return false;
-      if (q && ![ev.title, ev.description, ev.venue, ev.town].filter(Boolean).join(' ').toLowerCase().includes(q)) return false;
-      return true;
+    const { events, total } = await searchEventCatalog({
+      query: args.query,
+      dateFrom: args.date_from,
+      dateTo: args.date_to,
+      category: args.category,
+      town: args.town,
+      freeOnly: args.free_only,
+      forKids: args.for_kids,
+      nearLat: args.near_lat,
+      nearLng: args.near_lng,
+      maxKm: args.max_km,
+      limit: args.limit,
     });
-    results.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-    const total = results.length;
-    results = results.slice(0, args.limit ?? 25);
     return {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({ total, returned: results.length, events: results.map(slim) }, null, 1),
+          text: JSON.stringify({ total, returned: events.length, events: events.map(slim) }, null, 1),
         },
       ],
     };

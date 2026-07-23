@@ -9,6 +9,20 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-23 — Supabase egress contained locally)
+- The remaining request-time full-catalog paths are removed: legacy `/api/events` now uses
+  100-row keyset pages; sitemap selects only id/updated_at and revalidates daily; MCP search filters
+  and caps at 100 in SQL; scan/API duplicate checks use same-day location candidates; every public
+  event projection excludes `embedding` and `geom`. The manual merge-dups maintenance sweep is the
+  only remaining `publishedEvents()` consumer, and that helper also excludes internal columns.
+- Production call-path verification: 25-event page = 20,307 bytes; sitemap identifiers =
+  34,153 rows / 1,871,194 bytes (55 bytes/row); bounded MCP query returned 10 of 149; dedup returned
+  one same-day/location candidate; public page and detail rows leaked no internal fields. Full
+  192-test suite and `npm run build` pass; local API pagination/limit/sitemap behavior passes.
+- Separate data-quality issue exposed by the expiry sweep: six published Hamburg NABU rows contain
+  placeholder dates such as `2026-07-XX` (ids 54436, 54438, 54440, 54442, 54443, 54445). Reads now
+  skip malformed timestamps defensively; production rows still need cleanup.
+
 ## Side experiment (2026-07-18): hidden /realestate price heatmap — REMOVED
 - Removed the route, miner, and all listing datasets from current `main` immediately after checking
   willhaben's terms and robots policy. It was never deployed. George explicitly approved a history

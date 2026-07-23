@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
-  getEvent, publishedEvents, upsertEvent, updateEventFields, viennaNow,
-  mapPins, mapCells, searchEvents, eventsByIds,
+  getEvent, publishedEventsPage, upsertEvent, updateEventFields, viennaNow,
+  mapPins, mapCells, searchEvents, eventsByIds, dedupCandidates,
 } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
@@ -143,9 +143,21 @@ export async function GET(req) {
   }
   if (view) return bad('unknown view');
 
-  // Legacy no-param path: unbounded, unfiltered. MCP server / sitemap /
-  // JSON-LD depend on this exact shape — left untouched.
-  return NextResponse.json({ events: await publishedEvents() });
+  // Public machine-readable catalog: bounded keyset pagination. The old
+  // no-param response dumped every event (including internal embeddings)
+  // into one request and was the primary Supabase egress multiplier.
+  const cursor = sp.get('cursor');
+  if (cursor !== null && !/^\d+$/.test(cursor)) return bad('cursor must be an event id');
+  const limitRaw = sp.get('limit');
+  const pageLimit = limitRaw === null ? 100 : Number(limitRaw);
+  if (!Number.isInteger(pageLimit) || pageLimit < 1 || pageLimit > 100) {
+    return bad('limit must be an integer from 1 to 100');
+  }
+  const { events, nextCursor } = await publishedEventsPage({
+    afterId: cursor,
+    limit: pageLimit,
+  });
+  return NextResponse.json({ events, next_cursor: nextCursor });
 }
 
 export async function POST(req) {
@@ -237,17 +249,24 @@ export async function POST(req) {
   // from a different source, or scanned once before). Events only — places
   // are evergreen singletons with no natural "duplicate" concept here.
   if (kind === 'event') {
-    // Decode entities on the candidate FIRST: publishedEvents() rows were cleaned
+    // Decode entities on the candidate FIRST: stored rows were cleaned
     // at the write boundary, so an incoming "&#8211;" (→ stray "8211" token in
     // dedup's normalizer) would fail the title match and insert a real duplicate.
     const candidate = {
       title: cleanText(body.title), starts_at: body.starts_at, ends_at, town: cleanText(body.town) || null, lat, lng,
+      geo_precision,
       description: body.description || null, address: cleanText(body.address) || null, venue: cleanText(body.venue) || null,
       is_free: body.is_free ?? null, age_min: body.age_min ?? null, age_max: body.age_max ?? null,
       indoor: body.indoor ?? null, photo_path: body.photo_path || null,
       categories: Array.isArray(body.categories) ? body.categories.slice(0, 3) : [],
     };
-    const match = findDuplicate(candidate, await publishedEvents());
+    const candidates = await dedupCandidates(
+      body.starts_at.slice(0, 10),
+      candidate.town,
+      null,
+      candidate,
+    );
+    const match = findDuplicate(candidate, candidates);
     if (match) {
       const patch = mergePlan(match, candidate);
       await updateEventFields(match.id, patch);

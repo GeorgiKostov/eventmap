@@ -1032,3 +1032,13 @@ sabotaged the pages the sitemap was promoting.
 default for the whole subtree, not a page setting. When adding one, grep every `generateMetadata`
 below it and give each indexable page its own override in the same change. Checking is cheap:
 `curl -sL <page> | grep canonical` on a handful of routes.
+
+## A bounded response can still execute an unbounded database read (2026-07-23)
+The viewport API had already cut its browser payload from roughly 10 MB to 48 KB, so the product
+looked optimized. But sitemap, MCP, scan dedup, and the legacy API still called a shared
+`publishedEvents()` helper that selected `e.*`; most callers then filtered or sliced in JavaScript.
+That meant a 25-result MCP response could first pull the entire catalog, including a roughly 10 KB
+embedding on thousands of rows. **Lesson:** verify the database query boundary, not only the HTTP
+payload. Request-time queries need a hard SQL limit or an intrinsically minimal projection, and
+public projections must enumerate columns so a new internal field cannot silently become egress.
+Keep full sweeps maintenance-only and make their projection explicit too.

@@ -420,17 +420,20 @@ unreachable by the only tool a user has to get there.
    ends-after-starts invariant). `source_url`/`source_name` are deliberately excluded — first-seen
    wins; multi-source attribution is a future schema change (§12).
 
-**Three entry-point integrations** (all three call `findDuplicate` against `publishedEvents()`):
+**Three entry-point integrations** call the same pure `findDuplicate`, but request-time paths feed it
+only `dedupCandidates()` from the same day and town/precise 300m location — never the full catalog:
 
 - [`app/api/scan/route.js`](../../app/api/scan/route.js) — best-effort heads-up only (no geocode yet
-  at scan time, so only town-level matching is possible); shown to the user, who still confirms
-  before anything is written.
+  at scan time, so only same-day + town matching is possible); shown to the user, who still
+  confirms before anything is written.
 - [`app/api/events/route.js`](../../app/api/events/route.js) POST — after geocoding, a real match
-  short-circuits the insert: `mergePlan()` is applied via `updateEventFields()` and the response
-  reports `merged: true` against the existing id, no new row.
+  is searched within same-day + normalized town or an exact 300m PostGIS window, then short-circuits
+  the insert: `mergePlan()` is applied via `updateEventFields()` and the response reports
+  `merged: true` against the existing id, no new row.
 - [`scripts/merge-dups.mjs`](../../scripts/merge-dups.mjs) — a periodic sweep over everything already
-  published, catching cross-source dupes that both slipped past content_hash *and* predate each
-  other (so neither insert-time check saw the other). **Canonical-linkage clustering**: within a
+  published using the explicit public event projection (never internal embeddings), catching
+  cross-source dupes that both slipped past content_hash *and* predate each other (so neither
+  insert-time check saw the other). **Canonical-linkage clustering**: within a
   cluster, every candidate is tested against the cluster's canonical (oldest id) member only, never
   against other members already added — single-linkage chaining previously let two long titles
   sharing a boilerplate suffix ("… Das kostenlose Bewegungsprogramm ohne Anmeldung") pull an unrelated

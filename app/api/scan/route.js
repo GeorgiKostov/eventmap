@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { extractFromImage } from '../../../lib/extract.js';
-import { publishedEvents } from '../../../lib/db.js';
+import { dedupCandidates } from '../../../lib/db.js';
 import { findDuplicate } from '../../../lib/dedup.js';
 import { makeStartsAt } from '../../../lib/event-time.js';
 import { limit } from '../../../lib/ratelimit.js';
@@ -97,7 +97,11 @@ export async function POST(req) {
         starts_at: makeStartsAt(extraction.date_start, extraction.time_start),
         town: extraction.town || null,
       };
-      const match = findDuplicate(candidate, await publishedEvents());
+      const candidates = await dedupCandidates(
+        candidate.starts_at.slice(0, 10),
+        candidate.town,
+      );
+      const match = findDuplicate(candidate, candidates);
       if (match) duplicate = { id: match.id, title: match.title, starts_at: match.starts_at };
     }
 

@@ -153,7 +153,7 @@ low-confidence/hard posters. Do not hardcode a provider in feature code (see AGE
 
 We prepare event data better than the municipalities can, for both search engines and LLMs:
 - **schema.org/Event JSON-LD** on every `/event/[id]` (Google event rich results + LLM crawlers).
-- **sitemap.xml**, **llms.txt**, open **/api/events** JSON, and an **MCP server** so an AI
+- **sitemap.xml**, **llms.txt**, open cursor-paginated **/api/events** JSON, and an **MCP server** so an AI
   assistant can answer "kids events this weekend near Linz" in one tool call, with source attribution.
 
 **The pitch (B2B2C):** "Your events, entered once, found everywhere — by families on our map,

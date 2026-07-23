@@ -47,6 +47,9 @@ the rebuild inevitable; doing it pre-test avoids rebuilding twice. Execution: So
 ## Consequences
 
 - 2,800-line `page.js` loses its "hold everything" assumption; list = what's in view.
-- `publishedEvents()` (full dump) remains for MCP server / sitemap / JSON-LD only.
+- Request-time full dumps are forbidden: sitemap uses an id/timestamp-only daily-cached query,
+  MCP filters and limits in SQL, detail/JSON-LD fetch one explicit public row, and `/api/events`
+  uses bounded cursor pagination. `publishedEvents()` remains maintenance-only and explicitly
+  excludes internal embeddings.
 - Filter-semantics drift between old client memos and new SQL is the top regression risk —
   named as review priority #1 in the brief.

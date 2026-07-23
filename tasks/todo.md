@@ -2,6 +2,16 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Supabase egress containment (2026-07-23)
+- [x] Removed request-time full-catalog reads: `/api/events` is keyset-paginated at 100 rows,
+      sitemap reads only id/timestamp and revalidates daily, MCP filters/limits in SQL, scan/API
+      duplicate checks query only the same day and location, and public projections exclude
+      embeddings/geometry.
+- [ ] **Clean six malformed published Hamburg NABU rows** (ids 54436, 54438, 54440, 54442, 54443,
+      54445): `starts_at` contains `2026-*-XX`. The expiry gate now safely ignores invalid
+      timestamps so reads cannot fail, but these rows violate the reliable-date invariant and should
+      be removed or repaired from the visible source.
+
 ## Protocol review (2026-07-18) — lessons recorded, one wording drift flagged
 - [ ] **George — hard rule 1's source-scope sentence is stale**: it still reads "Municipal + Land OÖ
       + user-submitted sources only", but approved practice now spans AT/BG/DE municipal portals,

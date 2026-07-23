@@ -7,7 +7,9 @@ its authoritative source.
 
 ## Machine-readable access
 
-- GET /api/events — all published upcoming events as JSON
+- GET /api/events — published upcoming events as cursor-paginated JSON
+  (100 records by default and maximum; follow next_cursor with
+  `?cursor={next_cursor}`, or request a smaller page with `?limit=25`)
   (title, description, starts_at/ends_at [Europe/Vienna local], lat/lng,
   venue, address, town, categories, is_free, age_min/age_max, indoor,
   source_name, source_url)
