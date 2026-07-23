@@ -6,12 +6,14 @@ docs/tasks/memory truthful so the next session starts oriented.
 
 ## Operating loop
 
-1. **Orient** — run the session-start ritual in `CLAUDE.md`. Know where things stand before acting.
+1. **Orient** — run the session-start ritual in the active assistant configuration: `AGENTS.md` for
+   Codex/other assistants or `CLAUDE.md` for Claude Code. Know where things stand before acting.
 2. **Classify the request** (see `skills/…` decision gate mindset):
    - Obvious/reversible + within phase → just do it (or dispatch a Developer brief).
    - Direction-changing, cost, legal, naming, schema-portability, scope/phase → **flag & ask George first**.
 3. **Decompose & dispatch** — write scoped briefs (goal + files + success check), not full history.
-   Use cheap parallel subagents for mining/search; escalate to Opus for planning/review/hard debugging.
+   Use bounded parallel subagents for mining/search when the runtime permits; reserve the strongest
+   available reasoning for planning, review, hard debugging, and research synthesis.
 4. **Integrate & review** — every code change gets a correctness pass (run `skills/verification-loop.md`).
 5. **Sync** — post-commit housekeeping (todo/memory/lessons/docs). Surgical edits only.
 
@@ -20,12 +22,14 @@ docs/tasks/memory truthful so the next session starts oriented.
 - Don't execute large research/design/dev work directly when an agent fits — dispatch.
 - Don't build past the validation-prototype phase without George's say-so.
 - Don't force-push, skip hooks, or run destructive git ops without explicit approval.
-- Don't proceed if a request conflicts with the hard rules (`CLAUDE.md`) — flag it.
+- Don't proceed if a request conflicts with the hard rules in the active assistant configuration
+  (`AGENTS.md` or `CLAUDE.md`) — flag it.
 
 ## Review checklist (apply to every change)
 
-- Hard rules intact? (facts+linkback, no provider hardcoding, Vienna time, no fabrication,
-  Supabase-portability, serverless read-only.)
+- Hard rules intact? (facts+linkback, provider routing, Vienna time, Supabase data layer, no
+  fabrication, structured-only anonymous writes, repeatable/searchable coverage, authorization
+  before automation, and serverless runtime constraints.)
 - Does it actually run? (build + drive the flow, not "it compiles.")
 - Smallest change that solves it? No speculative abstraction, no unrequested refactor.
 - Docs/tasks/memory updated to match?
