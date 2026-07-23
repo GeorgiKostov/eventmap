@@ -1042,3 +1042,12 @@ embedding on thousands of rows. **Lesson:** verify the database query boundary, 
 payload. Request-time queries need a hard SQL limit or an intrinsically minimal projection, and
 public projections must enumerate columns so a new internal field cannot silently become egress.
 Keep full sweeps maintenance-only and make their projection explicit too.
+
+## A health classification needs its own liveness probe (2026-07-23)
+Four zero-yield rounds made a source `dead`, and the default candidate query then excluded it
+forever. That converted a noisy heuristic into an irreversible fact: five dead sources had produced
+events before, and three still had future events in the catalog. Merely putting dead sources back
+on a cadence is not enough when ordinary caching can answer 304 or match `page_hash` and skip the
+very extraction needed to disprove the label. **Lesson:** any automatically inferred terminal
+state needs a low-frequency, cache-bypassing liveness probe. Here, `dead` is a 28-day quarantine
+whose due crawl forces a fresh extraction; `works=false` remains the deliberate human decision.

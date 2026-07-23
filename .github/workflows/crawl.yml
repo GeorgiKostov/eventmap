@@ -12,7 +12,8 @@ on:
   schedule:
     # Daily 04:00 UTC (~06:00 Vienna) — off-peak and polite to municipal servers.
     # Daily is the TRIGGER, not the per-source cadence: crawl.mjs gates each
-    # source on its own tier (active 2d / slow 5d / dormant 7d), so a daily
+    # source on its own tier (active 2d / slow 5d / dormant 7d / dead 28d
+    # quarantine), so a daily
     # trigger is what makes those tiers mean anything. On a weekly trigger every
     # source was past even the 7-day threshold, so the tiering was dead code and
     # sleepy Gemeinden got crawled as often as the big aggregators.

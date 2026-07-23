@@ -157,10 +157,14 @@ the queue must live in **Postgres**:
 
 ```sql
 SELECT * FROM sources
-WHERE works AND tier <> 'dead' AND due(cadence, last_crawled)
+WHERE works AND due(cadence, last_crawled)
 ORDER BY last_crawled NULLS FIRST
 FOR UPDATE SKIP LOCKED LIMIT 10;
 ```
+
+`tier='dead'` is a 28-day quarantine, not a terminal exclusion: when due, that
+claim is force-fetched and re-extracted so a recovered or misclassified source
+can reset its zero streak and return to the normal cadence.
 
 `FOR UPDATE SKIP LOCKED` is the whole trick: any number of workers, on any number of machines, pull
 disjoint batches with no coordinator, no lock contention, and crash-safe redelivery. Add a

@@ -8,8 +8,8 @@ Keeps the map fresh without anyone remembering to run it. The workflow
 
 - **Schedule:** **daily at 04:00 UTC** (~06:00 Vienna) — off-peak and polite to
   municipal servers. Daily is the **trigger**, not the per-source cadence: the
-  crawl gates each source on its own tier (`active` 2d / `slow` 5d / `dormant` 7d,
-  `dead` excluded), so on any given morning only the sources actually *due* get
+  crawl gates each source on its own tier (`active` 2d / `slow` 5d / `dormant` 7d /
+  `dead` quarantine 28d), so on any given morning only the sources actually *due* get
   fetched. This is the tiered cadence the weekly version was waiting for —
   aggregators and big-city calendars refresh every other day, sleepy Gemeinden
   weekly, and nobody gets hammered.
@@ -22,10 +22,12 @@ Keeps the map fresh without anyone remembering to run it. The workflow
   This is deliberate — Nominatim (geocoding) rate-limits **per IP, not per host**,
   so two crawls on one runner throttle each other and silently drop geocodes
   (see `tasks/lessons.md`, 2026-07-12). The crawl is one sequential process by design.
-- **What a run does:** for every due source (`works=true`, not `tier='dead'`,
-  cadence elapsed) it fetches the page, skips it for free if the content hash is
+- **What a run does:** for every due source (`works=true`, cadence elapsed) it
+  fetches the page, skips it for free if the content hash is
   unchanged, else extracts via the waterfall (JSON-LD → iCal → CMS parser → RSS →
-  LLM), geocodes (cached), dedups, and upserts. Past events expire automatically.
+  LLM), geocodes (cached), dedups, and upserts. Dead sources are the exception to
+  hash/HTTP-cache skipping: once their 28-day quarantine expires, the crawl forces
+  a fresh extraction so successful yield can revive them. Past events expire automatically.
 
 ## What YOU must do once (manual, ~3 minutes)
 
@@ -113,7 +115,8 @@ Two dials, and it matters which one you turn:
 1. **The trigger** — the `cron:` line in `.github/workflows/crawl.yml` (UTC).
    Currently daily (`0 4 * * *`). This sets how often we *look*.
 2. **The per-source cadence** — `TIER_CADENCE_DAYS` in `scripts/crawl.mjs`
-   (`active: 2, slow: 5, dormant: 7`). This sets who is actually *due* when we look.
+   (`active: 2, slow: 5, dormant: 7, dead: 28`). This sets who is actually *due*
+   when we look.
 
 The trigger must always be at least as frequent as the tightest tier, or the tier
 is a no-op (the weekly-trigger bug). To make aggregators refresh faster, lower

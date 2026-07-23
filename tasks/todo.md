@@ -718,6 +718,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       **2,153 events recovered from 100 of 371 sources, 0 provider errors** (paid key held at full
       volume). Zero-yield sources 371 → 271 — and the remaining 271 are honest zeros that re-extract
       every due cadence instead of being hash-wedged. Published events now 29,846.
+- [x] **Dead is now quarantine, not permanent exclusion** (2026-07-23): default nightly crawls
+      automatically force-recheck dead sources every 28 days, bypassing both conditional HTTP and
+      page-hash skips. Any successful yield resets `zero_streak` and revives the normal tier.
 - [ ] **George: GitHub Actions secrets** (repo Settings → Secrets → Actions): add `ANTHROPIC_API_KEY`
       (crawl.yml now reads it) and confirm the `GEMINI_API_KEY` secret there is the PAID key — Vercel
       envs don't reach Actions.

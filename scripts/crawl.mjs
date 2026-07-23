@@ -4,9 +4,10 @@
 // Sources are grouped by host and crawled with a bounded worker pool so different
 // hosts run in parallel — the per-host ≥1s politeness delay (politeFetch) is what
 // makes a single host slow, never concurrency across hosts.
-// Usage: npm run crawl                    (due sources: works=1, tier != dead, cadence elapsed)
+// Usage: npm run crawl                    (due sources: works=1, tier cadence elapsed;
+//                                          dead sources get a forced recovery crawl every 28 days)
 //        npm run crawl -- --url https://... (single source, ignores tier/cadence)
-//        npm run crawl -- --force          (ignore page-hash change-detection)
+//        npm run crawl -- --force          (ignore conditional HTTP + page-hash skips)
 //        npm run crawl -- --all            (ignore tier/cadence gating — periodic deep sweep)
 //        npm run crawl -- --recover-zeros  (force-recrawl sources frozen at events_last=0, incl. tier=dead)
 //        npm run crawl -- --scope stuttgart-40km (only that registered scope)
@@ -708,9 +709,10 @@ async function tryStructuredExtraction(html, src) {
 
 // --- source content-rating / tiering ---
 // Tier thresholds (tunable — the only place they're defined):
-//  - dead:    zero_streak >= 4 (fetch failures / robots-blocks / thin pages count
-//             toward this too, same as a real extraction round finding nothing)
-//             → excluded from default runs (getSourcesForCrawl), --all overrides.
+//  - dead:    zero_streak >= 4 (fetch failures / thin pages count toward this too,
+//             same as a real extraction round finding nothing)
+//             → quarantine: force-recrawl every 28 days so false positives and
+//             newly-repaired sources can recover automatically.
 //  - active:  avg yield (events_sum / crawl_count) >= 1.5, OR the page changed in
 //             the last 3 days → recrawl every 2 days.
 //  - slow:    avg yield >= 0.3 → recrawl every 5 days.
@@ -723,7 +725,7 @@ async function tryStructuredExtraction(html, src) {
 // for a slow municipal calendar and isn't the same signal as "found nothing".
 // Exported so scripts/rot-report.mjs reads the SAME thresholds rather than a
 // second hand-copied object that can silently drift from these numbers.
-export const TIER_CADENCE_DAYS = { active: 2, slow: 5, dormant: 7 };
+export const TIER_CADENCE_DAYS = { active: 2, slow: 5, dormant: 7, dead: 28 };
 function deriveTier({ crawl_count, events_sum, zero_streak, last_changed }) {
   if (zero_streak >= 4) return 'dead';
   if (crawl_count < 3) return 'active';
@@ -733,11 +735,21 @@ function deriveTier({ crawl_count, events_sum, zero_streak, last_changed }) {
   if (avgYield >= 0.3) return 'slow';
   return 'dormant';
 }
-function isDue(src) {
+export function isDue(src, now = Date.now()) {
   if (!src.last_crawled) return true;
   const cadence = TIER_CADENCE_DAYS[src.tier] ?? TIER_CADENCE_DAYS.active;
-  const daysSince = (Date.now() - new Date(src.last_crawled).getTime()) / 86400000;
+  const daysSince = (now - new Date(src.last_crawled).getTime()) / 86400000;
   return daysSince >= cadence;
+}
+export function shouldForceCrawl(src, forceRequested = false) {
+  return forceRequested || src.tier === 'dead';
+}
+export function conditionalHeadersForSource(src, force = false) {
+  if (force) return {};
+  const headers = {};
+  if (src.etag) headers['If-None-Match'] = src.etag;
+  if (src.last_modified) headers['If-Modified-Since'] = src.last_modified;
+  return headers;
 }
 // Folds this crawl's outcome into the source's running stats, re-derives its
 // tier, and persists both. `outcome.type`: 'unchanged' (hash-skip — neutral),
@@ -996,16 +1008,16 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     }
   } catch { /* robots check itself failed → default allow, proceed */ }
 
-  // Conditional GET: send back whatever caching headers the last 200 gave us.
+  // Conditional GET: send back whatever caching headers the last 200 gave us,
+  // except during a forced recovery crawl. A 304 would prevent re-extraction
+  // and leave an unjustly-dead source permanently unable to revive.
   // A 304 means the server itself confirms nothing changed — cheaper than the
   // page_hash compare below (that still pays for the full download) and
   // handled identically: 'unchanged' stats, early return, page_hash/etag/
   // last_modified all left as they already are in the DB.
   let html, res;
   try {
-    const condHeaders = {};
-    if (src.etag) condHeaders['If-None-Match'] = src.etag;
-    if (src.last_modified) condHeaders['If-Modified-Since'] = src.last_modified;
+    const condHeaders = conditionalHeadersForSource(src, force);
     res = await politeFetch(src.url, Object.keys(condHeaders).length ? { headers: condHeaders } : {});
     if (res.status === 304) {
       console.log('  304 not modified, skipped');
@@ -1208,7 +1220,7 @@ async function main() {
     sources = await getZeroYieldSources();
     force = true;
   } else {
-    const candidates = await getSourcesForCrawl({ all }); // already excludes tier='dead' unless --all
+    const candidates = await getSourcesForCrawl();
     sources = all ? candidates : candidates.filter((s) => {
       const due = isDue(s);
       if (!due) skippedCadence++;
@@ -1221,8 +1233,10 @@ async function main() {
     ));
   }
 
+  const deadRecoveries = sources.filter((s) => s.tier === 'dead').length;
   const groups = groupByHost(sources);
   console.log(`Crawling ${sources.length} source(s) across ${groups.length} host(s) (up to ${HOST_CONCURRENCY} in parallel)`
+    + (deadRecoveries ? `, ${deadRecoveries} dead-source recovery crawl(s)` : '')
     + (skippedCadence ? `, ${skippedCadence} skipped (tier cadence not due)` : '') + ' …');
 
   let total = 0, totalOutsideScope = 0, extractErrors = 0, totalFuzzyMerged = 0;
@@ -1242,7 +1256,10 @@ async function main() {
     try {
       const {
         ok, tier, outsideScope = 0, extractError, attempted: wasAttempted, fuzzyMerged = 0,
-      } = await crawlSource(src, { force, scope: requestedScope });
+      } = await crawlSource(src, {
+        force: shouldForceCrawl(src, force),
+        scope: requestedScope,
+      });
       total += ok;
       totalOutsideScope += outsideScope;
       totalFuzzyMerged += fuzzyMerged;

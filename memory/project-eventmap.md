@@ -15,6 +15,9 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   and caps at 100 in SQL; scan/API duplicate checks use same-day location candidates; every public
   event projection excludes `embedding` and `geom`. The manual merge-dups maintenance sweep is the
   only remaining `publishedEvents()` consumer, and that helper also excludes internal columns.
+- Crawl source health no longer has a terminal false-positive state: `tier='dead'` is a 28-day
+  quarantine. The nightly job includes dead sources once due and forces a full extraction without
+  conditional HTTP or page-hash skips; a successful yield resets the streak and revives the source.
 - Production call-path verification: 25-event page = 20,307 bytes; sitemap identifiers =
   34,153 rows / 1,871,194 bytes (55 bytes/row); bounded MCP query returned 10 of 149; dedup returned
   one same-day/location candidate; public page and detail rows leaked no internal fields. Full

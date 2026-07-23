@@ -107,7 +107,8 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 
 ### Tiering policy (`scripts/crawl.mjs`)
 
-- `dead`: `zero_streak >= 4` → excluded from default `npm run crawl` runs; `--all` overrides.
+- `dead`: `zero_streak >= 4` → quarantined for 28 days, then automatically force-recrawled.
+  A successful yield resets `zero_streak` and restores the source's derived active/slow tier.
 - `active`: avg yield (`events_sum / crawl_count`) ≥ 1.5, OR the page changed in the last 3 days →
   recrawl every 2 days. New sources (`crawl_count < 3`) default to `active` — not enough data to
   demote yet, and every source deserves a fair first look.
@@ -244,10 +245,11 @@ sources **strictly sequentially** — two requests never hit the same host at on
 comes only from parallelizing across *different* municipal servers, never from shrinking the ≥1s
 per-host delay.
 
-**Cadence gating**: `isDue()` compares `last_crawled` against `TIER_CADENCE_DAYS[tier]` (2/5/7 days).
-A plain `npm run crawl` (no flags) only crawls due, non-dead sources; `--all` bypasses both the tier
-filter and cadence; `--url <url>` targets one source directly, ignoring tier/cadence entirely;
-`--force` bypasses the page-hash skip.
+**Cadence gating**: `isDue()` compares `last_crawled` against `TIER_CADENCE_DAYS[tier]`
+(2/5/7/28 days for active/slow/dormant/dead). A plain `npm run crawl` only crawls due sources;
+dead sources are force-recrawled when their 28-day quarantine expires so hash or HTTP 304 skips
+cannot prevent recovery. `--all` bypasses cadence; `--url <url>` targets one source directly,
+ignoring cadence; `--force` bypasses page-hash and conditional-request skips.
 
 ## 4. Extraction (`lib/extract.js`)
 
@@ -545,9 +547,9 @@ the flag — treat the commands below as the correct form, not the bare `npm run
 
 | Command | Does | Convention |
 |---|---|---|
-| `node --env-file=.env.local scripts/crawl.mjs` | Recrawl all due, non-dead sources | Write-on-success (upserts events); prints tier summary at the end |
+| `node --env-file=.env.local scripts/crawl.mjs` | Recrawl all due sources; force-recheck dead sources every 28 days | Write-on-success (upserts events); prints tier summary at the end |
 | `node --env-file=.env.local scripts/crawl.mjs --url https://...` | Crawl one source, ignoring tier/cadence | Same write behavior |
-| `node --env-file=.env.local scripts/crawl.mjs --force` | Ignore page-hash change-detection | Same write behavior |
+| `node --env-file=.env.local scripts/crawl.mjs --force` | Ignore conditional HTTP and page-hash change-detection | Same write behavior |
 | `node --env-file=.env.local scripts/crawl.mjs --all` | Ignore tier/cadence gating (periodic deep sweep, includes `dead`) | Same write behavior |
 | `node --env-file=.env.local scripts/crawl.mjs --scope stuttgart-40km` | Crawl only registered Stuttgart-scope sources | Enforces the 40 km post-geocode guard |
 | `EXTRACT_PROVIDER=grok node --env-file=.env.local scripts/crawl.mjs [flags]` | Same crawl, LLM fallback routed through the Grok CLI first | Bulk-backfill use, not steady state |
