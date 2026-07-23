@@ -126,6 +126,6 @@ approx halo. **Selection is the only thing allowed to add a ring/scale.**
 ---
 
 ## Open call (not a code task)
-- **Family = filter or default lens?** The weekend-default already leans "lens." This changes whether
+- **Family = filter or default lens?** The today-default already makes date a "lens." This changes whether
   "Kids" is one chip or the app's opening state. Decision to be recorded in `docs/decisions/`
   (design-doc §11.3). Until decided, "Kids" stays a binary chip.

@@ -891,7 +891,7 @@ export default function Home() {
 
   // filters
   const [kindFilter, setKindFilter] = useState('all'); // all | event | place
-  const [whenMode, setWhenMode] = useState('weekend'); // all | today | tomorrow | weekend | next7 | range
+  const [whenMode, setWhenMode] = useState('today'); // all | today | tomorrow | weekend | next7 | range
   const [range, setRange] = useState({ from: null, to: null });
   const [dpOpen, setDpOpen] = useState(false);
   const [dpDraft, setDpDraft] = useState({ from: null, to: null });

@@ -191,7 +191,7 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
 - Clean **light theme**, teardrop pins in category colors with white SVG icons; same icons on
   chips, list rows, detail tags. Category set: family, festival, market, music, party, culture, food,
   sport, workshop.
-- **Filter hierarchy:** result kind → date shortcuts/range (weekend is the default family lens) → persistent family constraints
+- **Filter hierarchy:** result kind → date shortcuts/range (today is the default opening lens) → persistent family constraints
   (kids, indoor, free) → advanced distance, setting, time, and category controls. A selected
   calendar range uses a connected accent fill in the picker and a quiet accent rail on matching
   event rows; overlapping events that began before the range are grouped as ongoing. Places remain
