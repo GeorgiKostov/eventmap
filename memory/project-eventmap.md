@@ -9,6 +9,20 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-23 — Pflasterspektakel live grid captured and placed)
+- **Thursday is live:** the official Tagesprogramm produced **37 Spielorte / 193 artist
+  appearances** for 23 July. The scheduled workflow had already captured it at 17:25; after the
+  location refresh, a forced production crawl reproduced **37/37 upserts, zero fuzzy merges**.
+- **All current stages now have non-town locations.** Seven renamed/new 2026 stages plus the
+  Bildergarten temporary site were matched from the official festival plan to OSM-backed features
+  and added to `data/pflaster-spielorte.json`. Exact mapped places use venue precision; temporary
+  courtyards, lawn/building fronts, and street sites stay honestly at address precision. At
+  verification time the 36 still-active daily rows were 21 venue / 15 address / **0 town fallback**;
+  the expired Bildergarten slot is registered too.
+- **Actual production flow verified:** X2 Promenade Sparkasse renders its five artist times, venue,
+  and official linkback on `/event/56758`; the production event API returns the refreshed Sparkasse
+  coordinate. No deployment was needed — this was a live Supabase venue seed + source recrawl.
+
 ## Where things stand (2026-07-23 — Supabase egress contained locally)
 - The remaining request-time full-catalog paths are removed: legacy `/api/events` now uses
   100-row keyset pages; sitemap selects only id/updated_at and revalidates daily; MCP search filters
@@ -242,11 +256,15 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   Answer: not yet, and by design.** Festival = **23–25 July** (DO 16–23, FR & SA 14–23). The
   Tagesprogramm says "Aktuell ist noch kein Tagesprogramm verfügbar" because "Die Künstler*innen
   wählen ihre Auftrittszeiten und -orte während des Festivals **täglich neu**" — the grid is written
-  fresh daily and goes up "kurz vor Programmstart". Live now: the 120+ artist lineup + the fixed frame
-  (Kaleidoskop 17:00/20:00/22:30, Feuershows 20–23 Hauptplatz+Pfarrplatz).
+  fresh daily and goes up "kurz vor Programmstart". Live now: the 108-artist lineup (3 cancelled) and
+  **15 fixed programme rows already in prod**: Kaleidoskop 17:00/20:00/22:30 at the LINZ AG
+  Spektakelzelt plus Feuershows 20–23 at Hauptplatz and Pfarrplatz, across all three festival days.
+  Their two official sources run through `cms='pflaster'`; the pages say only “täglich”, so the crawl
+  joins the official homepage `#datum` and hashes both pages. Ingest verified 15/15, zero fuzzy merges,
+  exact square pins + address-precision tent pin, valid overnight ends, and the actual map detail.
 - **`lib/pflaster-events.js` (cms='pflaster') SHIPPED, verified against last year's real grid**
   (Wayback 2025-07-19): 35 Spielorte / 275 acts / 87 artists, deterministic, $0. Source registered,
-  `--url` driven live → `route: pflaster (0 candidates)` = correct for today (hard rule 7). 133 tests.
+  `--url` driven live → `route: pflaster (0 candidates)` = correct for today (hard rule 7). 156 tests.
   **George's call: pin per Spielort (~35/day), not per act (~825)** — 800 rows would bury Linz during
   the test weekend.
 - **The load-bearing detail: the page has NO date** (one grid, overwritten daily). The day comes from

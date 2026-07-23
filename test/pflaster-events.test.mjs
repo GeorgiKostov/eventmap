@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePflasterEvents, parseSlot, gridModifiedAt, viennaDay } from '../lib/pflaster-events.js';
+import {
+  parsePflasterEvents, parseSlot, gridModifiedAt, viennaDay, pflasterFestivalDates,
+} from '../lib/pflaster-events.js';
 import { findDuplicate } from '../lib/dedup.js';
 
 // Mirrors the real Tagesprogramm markup, including the two quirks that matter:
@@ -123,4 +125,44 @@ test('parseSlot reads hour columns and rejects anything else', () => {
 test('the grid day is Vienna wall-clock, not the host timezone', () => {
   // 23:30 UTC on the 24th is already the 25th in Vienna (hard rule 3).
   assert.equal(viennaDay(gridModifiedAt(`${head('2026-07-24T23:30:00+00:00')}</body></html>`)), '2026-07-25');
+});
+
+const HOME = '<div id="datum">23. - 25. Juli 2026</div>';
+const KALEIDOSKOP = `<h2>Kaleidoskopnachmittage, täglich um 17.00 Uhr</h2>
+<p>In dem einstündigen Programm treten Künstler*innen auf. Gratis-Sitzplatzkarten.</p>
+<h2>Kaleidoskopnächte, täglich um 20.00 &amp; 22.30 Uhr</h2>
+<p>Eine 90minütigen Revueshow.</p>${HOME}`;
+const FIRE = '<p>Die Magie des Feuers zieht von 20 – 23 Uhr in ihren Bann. '
+  + `Die Feuershows finden am Hauptplatz und am Pfarrplatz statt.</p>${HOME}`;
+
+test('reads the annual festival range only from the official #datum field', () => {
+  assert.deepEqual(pflasterFestivalDates(HOME), ['2026-07-23', '2026-07-24', '2026-07-25']);
+  assert.deepEqual(pflasterFestivalDates('23. - 25. Juli 2026'), []);
+});
+
+test('parses all fixed Kaleidoskop sessions with their published durations', () => {
+  const events = parsePflasterEvents(KALEIDOSKOP, {
+    url: 'https://pflasterspektakel.at/de/programm/kaleidoskopshows/', town: 'Linz',
+  });
+  assert.equal(events.length, 9);
+  assert.deepEqual(events.slice(0, 3).map((e) => [e.time_start, e.date_end, e.time_end]), [
+    ['17:00', '2026-07-23', '18:00'],
+    ['20:00', '2026-07-23', '21:30'],
+    ['22:30', '2026-07-24', '00:00'],
+  ]);
+  assert.deepEqual(events[0].categories, ['festival', 'culture', 'family']);
+  assert.equal(events[0].is_free, true);
+  assert.equal(events[0].venue, 'LINZ AG Spektakelzelt');
+});
+
+test('parses one fixed fire-show block per published square and festival day', () => {
+  const events = parsePflasterEvents(FIRE, {
+    url: 'https://pflasterspektakel.at/de/programm/feuershows/', town: 'Linz',
+  });
+  assert.equal(events.length, 6);
+  assert.deepEqual(events.slice(0, 2).map((e) => [e.venue, e.time_start, e.time_end]), [
+    ['Hauptplatz', '20:00', '23:00'],
+    ['Pfarrplatz', '20:00', '23:00'],
+  ]);
+  assert.ok(events.every((e) => e.is_free === null && e.indoor === false));
 });

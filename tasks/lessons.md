@@ -1033,6 +1033,16 @@ default for the whole subtree, not a page setting. When adding one, grep every `
 below it and give each indexable page its own override in the same change. Checking is cheap:
 `curl -sL <page> | grep canonical` on a handful of routes.
 
+## A recurring page can depend on another page's facts — hash the dependency too (2026-07-22)
+The Pflasterspektakel's fixed programme pages publish “daily at 17:00/20:00/22:30” and “daily
+20:00–23:00”, but the actual festival dates live only on the homepage. Fetching the fixed page and
+then looking up the homepage inside extraction is not enough: the fixed page can return `304`, or
+its own body hash can stay unchanged when next year's homepage dates move, so extraction never runs
+and last year's rows survive. **Lesson:** when source A is only dateable through source B, B is part
+of A's input identity. Disable A-only conditional short-circuiting, fetch both, and compute the
+change hash over both pages. A dependency read that does not participate in cache invalidation is a
+stale-data bug waiting for the first rollover.
+
 ## A bounded response can still execute an unbounded database read (2026-07-23)
 The viewport API had already cut its browser payload from roughly 10 MB to 48 KB, so the product
 looked optimized. But sitemap, MCP, scan dedup, and the legacy API still called a shared

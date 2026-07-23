@@ -33,7 +33,9 @@ import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfin
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
 import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderfreunde-events.js';
 import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
-import { parsePflasterEvents } from '../lib/pflaster-events.js';
+import {
+  isPflasterFixedSourceUrl, parsePflasterEvents, PFLASTER_HOME_URL,
+} from '../lib/pflaster-events.js';
 import { parseSiteswiftEvents } from '../lib/siteswift-events.js';
 import { kalkalpenDetailUrls, parseKalkalpenDetail } from '../lib/kalkalpen-events.js';
 import { fetchJeventsEvents } from '../lib/jevents-events.js';
@@ -1017,7 +1019,11 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
   // last_modified all left as they already are in the DB.
   let html, res;
   try {
-    const condHeaders = conditionalHeadersForSource(src, force);
+    // A fixed Pflasterspektakel page says only "daily"; its dates live on the
+    // homepage. Always fetch both so a homepage-only annual date change cannot
+    // be hidden by a 304 from the otherwise-unchanged programme page.
+    const pflasterFixed = src.cms === 'pflaster' && isPflasterFixedSourceUrl(src.url);
+    const condHeaders = pflasterFixed ? {} : conditionalHeadersForSource(src, force);
     res = await politeFetch(src.url, Object.keys(condHeaders).length ? { headers: condHeaders } : {});
     if (res.status === 304) {
       console.log('  304 not modified, skipped');
@@ -1027,6 +1033,13 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     html = await res.text();
+    if (pflasterFixed) {
+      const homeRes = await politeFetch(PFLASTER_HOME_URL);
+      if (!homeRes.ok) throw new Error(`festival homepage HTTP ${homeRes.status}`);
+      // The composite text is also the page hash, so changing only the annual
+      // festival range re-runs extraction and moves the recurring sessions.
+      html += `\n<!-- okolo:pflaster-home -->\n${await homeRes.text()}`;
+    }
   } catch (e) {
     console.log(`  fetch failed: ${e.message}`);
     const tier = await recordStats(src, { type: 'noContent' });

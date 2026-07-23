@@ -483,7 +483,119 @@
   "osm": "way/95601163",
   "osm_name": "Herrenstraße 12 (building)",
   "specific": true,
+ "fallback_of": null,
+ "note": "building=apartments, addr:street=Herrenstraße, addr:housenumber=12 — verified via direct way fetch, exact address match"
+ },
+ {
+  "kuerzel": "S1",
+  "name": "Kunstuni-Innenhof West",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3066561,
+   "lng": 14.2855845
+  },
+  "osm": "node/6974914276",
+  "osm_name": "Kunstuniversität Linz: Bibliothek",
+  "specific": false,
+  "fallback_of": "Kunstuniversität Linz (Hauptplatz building)",
+  "note": "2026 programme name; the official festival plan places the west courtyard at the Kunstuni Hauptplatz building, whose mapped POI is used as an address-level fallback"
+ },
+ {
+  "kuerzel": "S2",
+  "name": "Schlossmuseum Wiese West",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3054629,
+   "lng": 14.2819178
+  },
+  "osm": "way/14039464",
+  "osm_name": "Linzer Schloss",
+  "specific": false,
+  "fallback_of": "Linzer Schloss",
+  "note": "2026 programme name; the west lawn is not mapped separately, so the containing castle building is used at address precision"
+ },
+ {
+  "kuerzel": "S6",
+  "name": "Domplatz",
+  "area": "Spektakel-Oasen",
+  "coords": {
+   "lat": 48.3002099,
+   "lng": 14.2867154
+  },
+  "osm": "relation/1931883",
+  "osm_name": "Domplatz",
+  "specific": true,
   "fallback_of": null,
-  "note": "building=apartments, addr:street=Herrenstraße, addr:housenumber=12 — verified via direct way fetch, exact address match"
+  "note": "exact name match, mapped pedestrian-square relation"
+ },
+ {
+  "kuerzel": "A2",
+  "name": "Schlossmuseum Rudolfstor",
+  "area": "Altstadt",
+  "coords": {
+   "lat": 48.3053504,
+   "lng": 14.2828334
+  },
+  "osm": "way/35900994",
+  "osm_name": "Schlossmuseum Linz",
+  "specific": false,
+  "fallback_of": "Schlossmuseum Linz",
+  "note": "2026 programme name; Rudolfstor is not mapped separately, so the museum building is used at address precision"
+ },
+ {
+  "kuerzel": "L3",
+  "name": "Betlehemstraße",
+  "area": "Landstraße",
+  "coords": {
+   "lat": 48.3030753,
+   "lng": 14.2890389
+  },
+  "osm": "way/97230390",
+  "osm_name": "Bethlehemstraße",
+  "specific": false,
+  "fallback_of": "Bethlehemstraße at Landstraße",
+  "note": "source spells the stage Betlehemstraße; the official plan places it at Landstraße, so the western endpoint of the mapped pedestrian street is used at address precision"
+ },
+ {
+  "kuerzel": "X2",
+  "name": "Promenade Sparkasse",
+  "area": "Promenade",
+  "coords": {
+   "lat": 48.3034424,
+   "lng": 14.2871854
+  },
+  "osm": "relation/1067157",
+  "osm_name": "Sparkasse, Promenade 11-13",
+  "specific": false,
+  "fallback_of": "Sparkasse",
+  "note": "2026 programme name; mapped Sparkasse building at Promenade 11-13, stored at address precision because the exact outdoor stage point is not separately mapped"
+ },
+ {
+  "kuerzel": "X4",
+  "name": "OÖ Nachrichten",
+  "area": "Promenade",
+  "coords": {
+   "lat": 48.3031287,
+   "lng": 14.2853124
+  },
+  "osm": "way/67387016",
+  "osm_name": "Wimmer Medien, Promenade 23",
+  "specific": false,
+  "fallback_of": "Wimmer Medien",
+  "note": "official plan places the OÖNachrichten stage at the publisher's Promenade building; mapped Wimmer Medien building is used at address precision"
+ },
+ {
+  "kuerzel": null,
+  "name": "Bildergarten",
+  "area": "Altstadt",
+  "coords": {
+   "lat": 48.3045782,
+   "lng": 14.2860614
+  },
+  "osm": "way/14369822",
+  "osm_name": "Klosterstraße",
+  "specific": false,
+  "fallback_of": "Klosterstraße",
+  "note": "the official festival plan places the Bildergarten on Klosterstraße; the pedestrian-street way is used at address precision because the temporary installation is not mapped separately"
  }
 ]

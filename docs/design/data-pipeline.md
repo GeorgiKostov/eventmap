@@ -207,8 +207,12 @@ only where a page reliably contains prose an LLM would mistake for event data (s
 6. **RSS/Atom** (`parseRssEvents`) — only treated as an event source if entries carry an explicit
    event-date tag (`startdate`/`dtstart`/`eventdate`, …) beyond the ordinary publish date; otherwise
    it's a news feed, falls through.
-7. **Pflasterspektakel Tagesprogramm** (`parsePflasterEvents`, `cms='pflaster'`) — the festival's
-   daily Spielort × hour-slot × artist grid. The one **`exclusive`** route (see above): street art in
+7. **Pflasterspektakel programme** (`parsePflasterEvents`, `cms='pflaster'`) — the festival's
+   daily Spielort × hour-slot × artist grid plus its fixed Kaleidoskop and Feuershows pages. The
+   fixed pages say only "täglich", so their crawl also fetches the official homepage `#datum` and
+   includes both pages in the change hash; this emits the three daily Kaleidoskop sessions at the
+   LINZ AG Spektakelzelt and 20:00–23:00 fire-show blocks at Hauptplatz and Pfarrplatz. The same
+   **`exclusive`** route (see above) owns all three sources. For the daily grid, street art in
    Linz is a three-days-a-year source, and on the other 362 the page still describes the festival, so
    an LLM fallback would burn a paid call per crawl to mint a duplicate of the festival row we already
    hold. Two properties make it unlike every other adapter, and both are load-bearing:

@@ -381,19 +381,32 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       New partnership CATEGORY: §3 tracks data *vendors* (feratel, GEM2GO, Linz open data); this is
       distribution barter with an *organizer* and needs its own section before festival #2.
 
-## Pflasterspektakel per-act schedule (2026-07-16, George: "check pflasterspektakel schedule in linz next weekend, can we get specific locations and times for each act and artist") — ADAPTER SHIPPED, capture runs 23–25 July
+## Pflasterspektakel per-act schedule (2026-07-16, George: "check pflasterspektakel schedule in linz next weekend, can we get specific locations and times for each act and artist") — ADAPTER SHIPPED, LIVE CAPTURE VERIFIED
+- [x] **Thursday's real grid captured on 2026-07-23:** 37 Spielorte / **193 artist appearances**,
+      source-stamped to 23 July; 37/37 rows upserted through the `pflaster` route with zero fuzzy
+      merges. Production detail verified on X2 Promenade Sparkasse: all five published artist times,
+      venue, and official linkback render. The festival workflow had captured the grid at 17:25;
+      a forced rerun after the venue refresh reproduced 37/37.
 - [x] **The answer to the question: not yet, and by design.** Festival is **23–25 July** (DO 16–23,
       FR & SA 14–23). The Tagesprogramm reads "Aktuell ist noch kein Tagesprogramm verfügbar" because
       "Die Künstler*innen wählen ihre Auftrittszeiten und -orte während des Festivals **täglich neu**"
       — the grid is written fresh each day and goes up "kurz vor Programmstart". Published NOW: the
-      120+ artist lineup (name/country/genre, `?artist=<id>`, 2 ABGESAGT) + the fixed frame
+      108 artist lineup (name/country/genre, `?artist=<id>`, 3 ABGESAGT) + the fixed frame
       (Kaleidoskop 17:00/20:00/22:30 im LINZ AG Spektakelzelt, Feuershows 20–23 Hauptplatz+Pfarrplatz).
+- [x] **The fixed frame is live as 15 location-based rows** (2026-07-22): 9 Kaleidoskop sessions
+      (17:00–18:00 kids revue, 20:00–21:30 and 22:30–00:00 night revues × 3 days) at the LINZ AG
+      Spektakelzelt, plus 6 Feuershow blocks (20:00–23:00 × Hauptplatz/Pfarrplatz × 3 days). Two
+      official fixed-programme sources are registered with `cms='pflaster'`; because their pages say
+      only “täglich”, each crawl joins the official homepage `#datum` and includes both pages in its
+      change hash. Live ingest: 15/15, zero fuzzy merges, no invalid end times. Hauptplatz/Pfarrplatz
+      use verified OSM pins; the temporary tent uses address precision from the official 2026 plan.
+      Actual map detail driven: time, venue, outdoor flag and official linkback all render correctly.
 - [x] **`lib/pflaster-events.js` + `cms='pflaster'`** wired into `tryStructuredExtraction()`. Verified
       against last year's REAL grid (Wayback 2025-07-19): **35 Spielorte / 275 acts / 87 artists**,
       parsed deterministically, $0, no LLM. Shape: `<h2>`area → table, rows = Spielort (Kürzel+name),
       9 hour-columns (14-15h…22-23h), cells = artist + genre + artist link. Source registered
       (works=true) and driven live: `npm run crawl -- --url …` → `route: pflaster (0 candidates)`,
-      correct for today (hard rule 7 satisfied). 133 tests green (+9).
+      correct for today (hard rule 7 satisfied). 156 tests green after the fixed-programme extension.
 - [x] **THE DATE TRAP, and why the nightly cron can never capture this.** The page carries NO date and
       no day switcher — one grid, overwritten daily. Stamping it with "whenever the crawl ran" would
       mislabel a whole day's line-up, and our 04:00 UTC cron fires ~06:00 Vienna, *before* the day's
@@ -441,13 +454,15 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       general-audience programme; forcing it would be rule-5 fabrication in the category column
       (`default_categories` deliberately unset). (4) **Editorial highlight** — this is the
       Pflasterspektakel case the highlights feature was built for; set it on /admin/highlights.
-- [ ] **Only the empty path is proven.** The happy path (a real grid → 35 upserts → geocode → pins)
-      CANNOT be driven until the grid exists on 23 July — there is no live fixture and the festival
-      archive keeps artists but never the grid. Watch the first workflow run on the 23rd.
-- [ ] Spielort coordinates: OSM-mined into `data/pflaster-spielorte.json`, seeded into the `venues`
-      registry so the registry rung short-circuits before Nominatim (the stage names are local
-      shorthand — "Brunnen", "Haltestelle", "Bank Austria" — that no geocoder can place). Unresolved
-      ones fall back to the Linz centroid at town precision, which is honest; **never** guessed.
+- [x] **Happy path proven against the live 2026 grid.** The official page parsed 37 stage rows and
+      the production crawl upserted 37/37 with zero merges; current-day date, positive end times,
+      exact source URL, and the user-facing detail flow were checked.
+- [x] **All 37 current Spielorte resolve through the venue registry.** Eight 2026-only or renamed
+      keys were added from the official festival plan plus matching OSM features (Domplatz exact;
+      temporary courtyard/lawn/building/street sites conservatively at address precision), then
+      seeded and re-crawled. Among the 36 still-active daily rows at verification time: 21 venue
+      precision, 15 address precision, **0 town fallbacks**. The already-finished Bildergarten slot
+      is also registered at address precision on Klosterstraße for subsequent days.
 
 ## Highlights everywhere + page signups (2026-07-16, George: "gold/editorial should appear in newsletter, event static pages, list view, basically everywhere" · "pages need newsletter subscription at the bottom" · "/event/7 says okolo not okolo.linz, no back button") — SHIPPED (af3c9ba)
 - [x] **The highlight was a MAP-ONLY signal.** List view: editorial rendered *nothing*, gold had the
