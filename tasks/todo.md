@@ -9,8 +9,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Added a generic editorial-carousel publisher that shares the existing Meta target checks,
       atomic in-flight claim, and success-only ledger. Social publishing tests: 30/30; production
       build passes.
-- [ ] Deploy the static carousel assets, publish them to `okolo.linz` on Instagram and the Okolo
-      Linz Facebook Page, then record both returned post IDs/permalinks.
+- [x] Published the committed static assets over verified public HTTPS, then posted them through the
+      Meta API to both accounts. Instagram: 7-slide carousel
+      [`DbLMpbkDPNY`](https://www.instagram.com/p/DbLMpbkDPNY/) (media
+      `18088720562556728`). Facebook: 7-photo album
+      [post `122108391621397322`](https://www.facebook.com/122100555357397322/posts/122108391621397322).
+      Independent success ledgers were written for both platforms.
 
 ## Supabase egress containment (2026-07-23)
 - [x] Removed request-time full-catalog reads: `/api/events` is keyset-paginated at 100 rows,

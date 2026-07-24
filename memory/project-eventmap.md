@@ -9,6 +9,22 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-24 — Pflasterspektakel highlights live on Meta)
+- George asked to post the Friday highlights as a carousel. Seven Okolo-owned 1080×1350 slides
+  (cover, family picks, aerial acts, samba, fire shows, Nightline, route) were generated from the
+  official daily programme, visually checked, and published with a 702-character German caption.
+  No source imagery or prose is reused.
+- **Instagram live:** media `18088720562556728`, 7-child `CAROUSEL_ALBUM`,
+  https://www.instagram.com/p/DbLMpbkDPNY/
+- **Facebook live:** post `1153097914561205_122108391621397322`, 7-photo album,
+  https://www.facebook.com/122100555357397322/posts/122108391621397322
+- `publishEditorialCarouselAndLedger()` gives non-weekly editorial packages the existing Meta
+  target checks, atomic in-flight claim, and success-only ledger. Both platform ledgers contain the
+  confirmed post IDs. Social tests 30/30 and production build pass.
+- Vercel CLI had no local authentication, so Meta ingested the reviewed assets from immutable,
+  commit-pinned GitHub raw URLs. No production deployment was needed and the unrelated dirty
+  weekly-digest work never entered the publish package.
+
 ## Where things stand (2026-07-23 — Pflasterspektakel live grid captured and placed)
 - **Thursday is live:** the official Tagesprogramm produced **37 Spielorte / 193 artist
   appearances** for 23 July. The scheduled workflow had already captured it at 17:25; after the
