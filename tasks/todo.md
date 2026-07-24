@@ -454,9 +454,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       general-audience programme; forcing it would be rule-5 fabrication in the category column
       (`default_categories` deliberately unset). (4) **Editorial highlight** — this is the
       Pflasterspektakel case the highlights feature was built for; set it on /admin/highlights.
-- [x] **Happy path proven against the live 2026 grid.** The official page parsed 37 stage rows and
-      the production crawl upserted 37/37 with zero merges; current-day date, positive end times,
-      exact source URL, and the user-facing detail flow were checked.
+- [x] **Happy path proven against the live 2026 grid.** The official page parsed 37 stage rows with
+      **273 timed act slots** and the production crawl upserted 37/37 with zero merges; all 37 were
+      returned by the Linz map query for today, with current-day dates, positive end times, exact
+      source URLs, 0 duplicate titles, and the user-facing detail flow checked.
 - [x] **All 37 current Spielorte resolve through the venue registry.** Eight 2026-only or renamed
       keys were added from the official festival plan plus matching OSM features (Domplatz exact;
       temporary courtyard/lawn/building/street sites conservatively at address precision), then

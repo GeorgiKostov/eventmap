@@ -251,6 +251,16 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   events all showing venue "boulderbar Hauptbahnhof" (default_venue overreach), and exhibitions
   printing "Fr 17.7. 00:00" (a stored midnight where the source published no time).
 
+## Where things stand (2026-07-24 — Pflasterspektakel Friday schedule live)
+- **The live happy path is proven.** A manual source crawl of the official Tagesprogramm produced
+  **37/37 Spielort events containing 273 timed act slots** for Friday, 24 July; all 37 upserted.
+- **Production sanity is clean:** all 37 are returned by the Linz map query for today, 0 duplicate
+  titles, 0 invalid time ranges, and 0 missing coordinates. Precision is 21 venue + 16 address; no
+  event fell back to the Linz town centroid.
+- Source health after capture: `feed_kind=pflaster`, `events_last=37`, `zero_streak=0`,
+  `tier=active`. Saturday still needs its own in-window capture because the grid is overwritten
+  daily and is not archived.
+
 ## Where things stand (2026-07-16 — Pflasterspektakel adapter ready, capture runs 23–25 July)
 - **George asked whether we can get per-act times/locations for Pflasterspektakel "next weekend".
   Answer: not yet, and by design.** Festival = **23–25 July** (DO 16–23, FR & SA 14–23). The
