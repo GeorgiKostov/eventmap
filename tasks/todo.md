@@ -2,6 +2,16 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Pflasterspektakel highlights carousel (2026-07-24)
+- [x] Generated and visually verified seven Okolo-owned 1080×1350 slides from the official Friday
+      programme: cover, family picks, aerial acts, samba, fire shows, Nightline, and a simple route.
+      No source imagery or prose is reused.
+- [x] Added a generic editorial-carousel publisher that shares the existing Meta target checks,
+      atomic in-flight claim, and success-only ledger. Social publishing tests: 30/30; production
+      build passes.
+- [ ] Deploy the static carousel assets, publish them to `okolo.linz` on Instagram and the Okolo
+      Linz Facebook Page, then record both returned post IDs/permalinks.
+
 ## Supabase egress containment (2026-07-23)
 - [x] Removed request-time full-catalog reads: `/api/events` is keyset-paginated at 100 rows,
       sitemap reads only id/timestamp and revalidates daily, MCP filters/limits in SQL, scan/API

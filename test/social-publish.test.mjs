@@ -16,6 +16,7 @@ import {
   nextUnpostedItem,
   publishItemAndLedger,
   itemsAlreadyPosted,
+  publishEditorialCarouselAndLedger,
 } from '../lib/social-publish.js';
 import { renderCaption, renderItemCaption, weekendUrl } from '../lib/digest.js';
 
@@ -202,6 +203,41 @@ test('publishAndLedger: a thrown publish releases the claim (only a hard kill le
   const m = memMeta();
   await assert.rejects(() => publishAndLedger({ ...pubArgs, target: 'not-a-target', ...m }), /unknown target/);
   assert.equal(m.store.size, 0, 'claim must be released on failure, nothing else written');
+});
+
+test('editorial carousel uses a distinct, stable success ledger per target', async () => {
+  const key = 'posted:ig:linz:2026-07-24:editorial:pflaster-highlights';
+  const m = memMeta({ [key]: JSON.stringify({ id: 'live-post' }) });
+  await assert.rejects(
+    () => publishEditorialCarouselAndLedger({
+      channel: fixtureDigest.channel,
+      slug: 'pflaster-highlights',
+      date: '2026-07-24',
+      imageUrls: ['https://okolo.events/one.png', 'https://okolo.events/two.png'],
+      caption: 'Heute in Linz',
+      target: 'instagram',
+      ...m,
+    }),
+    (err) => err.code === 'ALREADY_POSTED',
+  );
+  assert.equal(m.store.size, 1, 'existing success ledger must remain untouched');
+});
+
+test('editorial carousel rejects unsafe ledger identifiers before a Graph call', async () => {
+  const m = memMeta();
+  await assert.rejects(
+    () => publishEditorialCarouselAndLedger({
+      channel: fixtureDigest.channel,
+      slug: '../wrong',
+      date: '24-07-2026',
+      imageUrls: ['https://okolo.events/one.png'],
+      caption: 'x',
+      target: 'instagram',
+      ...m,
+    }),
+    /slug must contain/,
+  );
+  assert.equal(m.store.size, 0);
 });
 
 // ---- per-item (individual photo) publishing ----
