@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Generate and publish the verified Friday Pflasterspektakel highlights as an
+// Generate and publish the verified Saturday Pflasterspektakel highlights as an
 // Okolo-owned carousel. Source facts: the festival's official Tagesprogramm
-// for Friday, 24 July 2026. No source prose or imagery is reused.
+// for Saturday, 25 July 2026. No source prose or imagery is reused.
 //
 // Safe default: generate assets and print the caption only.
 //   node --env-file=.env.local scripts/publish-pflaster-highlights.mjs
@@ -17,9 +17,9 @@ import {
 } from '../lib/social-publish.js';
 import { metaGet, metaSet, metaClaim, metaDelete, closeDb } from '../lib/db.js';
 
-const DATE = '2026-07-24';
+const DATE = '2026-07-25';
 const SLUG = 'pflaster-highlights';
-const ASSET_DIR = 'social/pflaster-2026-07-24';
+const ASSET_DIR = 'social/pflaster-2026-07-25';
 const BASE = (process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events').replace(/\/$/, '');
 const OUT = path.join(process.cwd(), 'public', ...ASSET_DIR.split('/'));
 const channel = getChannel('linz');
@@ -40,90 +40,92 @@ const slides = [
     cover: true,
     kicker: 'HEUTE IN LINZ',
     title: ['Pflaster-', 'spektakel'],
-    subtitle: 'Unsere Highlights für Freitag',
-    chips: ['Familie', 'Akrobatik', 'Samba', 'Feuer', 'Nightline'],
+    subtitle: 'Unsere Highlights für Samstag',
+    chips: ['Familie', 'Akrobatik', 'Samba', 'Feuer', 'Route'],
   },
   {
     accent: '#C93A5B',
-    kicker: 'FAMILIEN-HIGHLIGHTS',
-    title: ['Mit Kindern'],
-    intro: 'Zwei starke Anker für einen entspannten Nachmittag.',
+    kicker: 'WENN DU NUR DREI SCHAFFST',
+    title: ['Unsere Top 3'],
+    intro: 'Akrobatik, Rhythmus und poetischer Zirkus.',
     blocks: [
-      { time: '14–20', title: 'Kinderspektakel', detail: ['Donaupark + Schlossmuseum', 'Wasserspiel, Kreativstationen, Spiele'] },
-      { time: '17–18', title: 'Kaleidoskopnachmittag', detail: ['LINZ AG Spektakelzelt', 'Sitzplatzkarte erforderlich'] },
-      { time: 'LINE-UP', title: 'Vier Acts in einer Stunde', detail: ['Andy Spigola · Gipsy Marionettist', 'Umami Dancetheatre · Cia Palma'] },
+      { time: '14:00', title: 'BoCirk Company', detail: ['Domplatz · 35 Minuten', 'Akrobatik, Humor, Publikumsnähe'] },
+      { time: '17:00', title: 'BRINCADEIRA', detail: ['Herbert-Bayer-Platz', 'Samba, Percussion, volle Energie'] },
+      { time: '18:00', title: 'Cirque Barbette', detail: ['Lentos Freiraum', 'Luftakrobatik + Live-Musik'] },
     ],
   },
   {
     accent: '#3F7CA8',
-    kicker: 'HOCH HINAUS',
-    title: ['Luftakrobatik'],
-    intro: 'Die besten Höhenflüge im heutigen Tagesprogramm.',
+    kicker: 'FAMILIEN-HIGHLIGHTS',
+    title: ['Mit Kindern'],
+    intro: 'Drei kompakte Shows für Staunen ohne Leerlauf.',
     blocks: [
-      { time: '17 & 19', title: 'Avital & Jochen', detail: ['Domplatz'] },
-      { time: '20:00', title: 'Cirque Barbette', detail: ['Lentos Freiraum'] },
-      { time: '14 · 16 · 18', title: 'Duo Maria & Gloria', detail: ['Pfarrplatz'] },
+      { time: '14:00', title: 'BoCirk Company', detail: ['Domplatz', 'Akrobatik für alle Altersgruppen'] },
+      { time: '15:00', title: 'Bence Sarkadi', detail: ['Landhaus · 30 Minuten', 'Preisgekröntes Marionettentheater'] },
+      { time: '16:00', title: 'The Pole Jungle', detail: ['OÖ Nachrichten · 20 Minuten', 'Tierfiguren + Pole-Akrobatik'] },
     ],
   },
   {
     accent: '#7A5CC7',
-    kicker: 'RHYTHMUS IN DER STADT',
-    title: ['Samba & Energie'],
-    intro: 'Wenn du nur einen Musikblock schaffst: nimm 21 Uhr.',
+    kicker: 'HOCH HINAUS',
+    title: ['Akrobatik'],
+    intro: 'Drei sehr verschiedene Arten, die Schwerkraft zu vergessen.',
     blocks: [
-      { time: '17:00', title: 'Brincadeira', detail: ['OK-Platz'] },
-      { time: '19:00', title: 'Doppelpack', detail: ['Brincadeira · Herbert-Bayer-Platz', 'Barbarossa · Adalbert-Stifter-Platz'] },
-      { time: '21:00', title: 'Unser Musik-Tipp', detail: ['Brincadeira · Lentos Freiraum', 'Barbarossa · OK-Platz'] },
+      { time: '14:00', title: 'BoCirk Company', detail: ['Domplatz', 'Balance, Risiko und Leichtigkeit'] },
+      { time: '16:00', title: 'The Pole Jungle', detail: ['OÖ Nachrichten', 'Pole-Tricks + dynamische Formationen'] },
+      { time: '18:00', title: 'Cirque Barbette', detail: ['Lentos Freiraum', 'Poetische Luftskulptur mit Musik'] },
     ],
   },
   {
     accent: '#D05738',
-    kicker: 'NACH SONNENUNTERGANG',
-    title: ['Feuerfinale'],
-    intro: 'Feuer, Pyrotechnik und LED-Shows von 20 bis 23 Uhr.',
+    kicker: 'RHYTHMUS IN DER STADT',
+    title: ['Musik & Tanz'],
+    intro: 'Unser Weg vom Nachmittags-Puls bis zur Abendparty.',
     blocks: [
-      { time: '20:00 · 21:30', title: 'ZAP Circus', detail: ['Altes Rathaus'] },
-      { time: '20:05 · 21:35', title: 'All In Circus', detail: ['Brunnen am Hauptplatz'] },
-      { time: '22:30', title: 'Drums on Fire', detail: ['Pfarrplatz · unser Finale-Tipp'] },
+      { time: '17:00', title: 'BRINCADEIRA', detail: ['Herbert-Bayer-Platz', 'Samba + Percussion aus Spanien'] },
+      { time: '20:00', title: 'Super Cumbia', detail: ['Hofgasse', 'Cumbia, Comedy und Mitsingen'] },
+      { time: '21:00', title: 'Sarsalé Flamenco', detail: ['Landhaus Arkadenhof', 'Flamenco aus Barcelona'] },
     ],
   },
   {
     accent: '#57477D',
-    kicker: 'WEITER BIS 01 UHR',
-    title: ['Nightline'],
-    intro: 'Live-Musik in zwei Innenstadt-Lokalen.',
+    kicker: 'NACH SONNENUNTERGANG',
+    title: ['Feuerfinale'],
+    intro: 'Feuer, Pyrotechnik und LED-Shows von 20 bis 23 Uhr.',
     blocks: [
-      { time: 'N1', title: 'Stadtwerkstatt', detail: ['23:00 Sound Gurus', '00:00 Faela'] },
-      { time: 'N2', title: 'Kulturcafé Smaragd', detail: ['23:00 Banda Yala', '00:00 Chinquapin'] },
+      { time: '20–23', title: 'Hauptplatz', detail: ['Brunnen + Altes Rathaus', 'Mehrere Feuershow-Slots'] },
+      { time: '20–23', title: 'Pfarrplatz', detail: ['Feuer, Pyrotechnik und LED', 'Unser Tipp: erst nach Einbruch der Dunkelheit'] },
+      { time: '22:00', title: 'Unser Finale', detail: ['Hauptplatz Brunnen', 'Früh da sein + Hutgeld einpacken'] },
     ],
   },
   {
     accent: '#D97A2E',
     kicker: 'EINFACH LOSGEHEN',
     title: ['Unsere Route'],
-    intro: 'Ein familienfreundlicher roter Faden durch den Festivaltag.',
+    intro: 'Ein starker roter Faden mit kurzen Wegen und Essenspause.',
     blocks: [
-      { time: '14:00', title: 'Kinderspektakel', detail: ['Donaupark oder Schlossmuseum'] },
-      { time: '17:00', title: 'Kaleidoskop', detail: ['Spektakelzelt'] },
-      { time: '19:00', title: 'Umami Dancetheatre', detail: ['Dreifaltigkeitssäule'] },
-      { time: '20:00+', title: 'Feuershows', detail: ['Hauptplatz oder Pfarrplatz'] },
+      { time: '14:00', title: 'BoCirk Company', detail: ['Domplatz → 15 Uhr Bence am Landhaus'] },
+      { time: '17:00', title: 'BRINCADEIRA', detail: ['Herbert-Bayer-Platz → 18 Uhr Lentos'] },
+      { time: '19:00', title: 'Essenspause', detail: ['Altstadt oder Hauptplatz'] },
+      { time: '20:00+', title: 'Cumbia → Flamenco → Feuer', detail: ['Hofgasse · Landhaus · Hauptplatz'] },
     ],
   },
 ];
 
 const caption = `🎪 Pflasterspektakel heute in Linz – unsere Highlights:
 
-👨‍👩‍👧‍👦 14–20 Uhr Kinderspektakel im Donaupark und beim Schlossmuseum
-🎭 17 Uhr Kaleidoskopnachmittag für Groß und Klein
-🤸 17 & 19 Uhr Avital & Jochen am Domplatz
-🥁 21 Uhr Brincadeira beim Lentos oder Barbarossa am OK-Platz
-🔥 20–23 Uhr Feuershows – unser Finale-Tipp: Drums on Fire um 22:30 am Pfarrplatz
-🌙 Ab 23 Uhr Nightline in Stadtwerkstatt und Smaragd
+🤸 14:00 BoCirk Company am Domplatz
+🪆 15:00 Bence Sarkadi Marionettentheater beim Landhaus
+🐆 16:00 The Pole Jungle bei OÖ Nachrichten
+🥁 17:00 BRINCADEIRA am Herbert-Bayer-Platz
+🎪 18:00 Cirque Barbette beim Lentos Freiraum
+💃 20:00 Super Cumbia in der Hofgasse, 21:00 Sarsalé im Landhaus Arkadenhof
+🔥 20–23 Uhr Feuershows – unser Finale-Tipp: 22 Uhr am Hauptplatz
 
 Alle 37 Spielorte und Zeiten findest du auf okolo.events.
 
-Die Künstler*innen spielen für Hutgeld – Kleingeld einpacken 💛
-Programmstand: Freitag, 24. Juli, Mittag. Kurzfristige Änderungen möglich.
+Sonnenschutz, Wasser und Hutgeld einpacken 💛
+Programmstand: Samstag, 25. Juli, Mittag. Kurzfristige Änderungen möglich.
 
 #linz #pflasterspektakel #linzmitkindern #wasistlosinlinz #oberösterreich #okolo`;
 
@@ -162,7 +164,7 @@ function slideSvg(slide, index) {
       ${lines([slide.kicker], 72, 250, { size: 34, weight: 700, color: '#fff' })}
       ${lines(slide.title, 72, 405, { size: 126, weight: 700, color: '#fff', gap: 126 })}
       ${lines([slide.subtitle], 72, 760, { size: 48, weight: 700, color: '#fff' })}
-      ${lines(['Freitag · 24. Juli · Linzer Innenstadt'], 72, 835, { size: 32, color: '#fff' })}
+      ${lines(['Samstag · 25. Juli · Linzer Innenstadt'], 72, 835, { size: 32, color: '#fff' })}
       ${chips}
       ${lines(['Wischen für den Plan →'], 72, 1195, { size: 37, weight: 700, color: '#fff' })}
       ${lines(['okolo.events'], 72, 1262, { size: 29, color: '#fff' })}
