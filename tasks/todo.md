@@ -2,6 +2,15 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Pflasterspektakel Saturday highlights carousel (2026-07-25)
+- [x] Built and visually checked seven Saturday-specific slides from the live, source-stamped grid:
+      cover, top three, family picks, acrobatics, music/dance, fire finale, and a walkable route.
+- [x] Published the immutable assets to both Meta accounts through the editorial publisher.
+      Instagram: [`DbNrGgQDOVV`](https://www.instagram.com/p/DbNrGgQDOVV/) (media
+      `18105740401868582`). Facebook:
+      [post `122108894415397322`](https://www.facebook.com/122100555357397322/posts/122108894415397322).
+      Both success ledgers and public URLs were verified.
+
 ## Pflasterspektakel highlights carousel (2026-07-24)
 - [x] Generated and visually verified seven Okolo-owned 1080×1350 slides from the official Friday
       programme: cover, family picks, aerial acts, samba, fire shows, Nightline, and a simple route.

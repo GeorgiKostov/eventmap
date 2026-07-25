@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-25 — Saturday Pflasterspektakel highlights live on Meta)
+- George asked for Saturday's strongest programme picks in the same format as Friday. Seven
+  Okolo-owned 1080×1350 slides (cover, top three, family, acrobatics, music/dance, fire finale,
+  route) were generated from the source-stamped Saturday grid, visually checked, and published
+  with a 687-character German caption. No source imagery or prose is reused.
+- **Instagram live:** media `18105740401868582`, 7-child carousel,
+  https://www.instagram.com/p/DbNrGgQDOVV/
+- **Facebook live:** post `1153097914561205_122108894415397322`, 7-photo album,
+  https://www.facebook.com/122100555357397322/posts/122108894415397322
+- Meta ingested the assets from immutable commit-pinned GitHub raw URLs, so no production
+  deployment was needed. Both public permalinks return 200 and both success ledgers are confirmed.
+
 ## Where things stand (2026-07-24 — Pflasterspektakel highlights live on Meta)
 - George asked to post the Friday highlights as a carousel. Seven Okolo-owned 1080×1350 slides
   (cover, family picks, aerial acts, samba, fire shows, Nightline, route) were generated from the
