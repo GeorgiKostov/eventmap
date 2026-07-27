@@ -6,18 +6,22 @@ Keeps the map fresh without anyone remembering to run it. The workflow
 
 ## What it does
 
-- **Schedule:** **daily at 04:00 UTC** (~06:00 Vienna) — off-peak and polite to
-  municipal servers. Daily is the **trigger**, not the per-source cadence: the
-  crawl gates each source on its own tier (`active` 2d / `slow` 5d / `dormant` 7d /
-  `dead` quarantine 28d), so on any given morning only the sources actually *due* get
-  fetched. This is the tiered cadence the weekly version was waiting for —
-  aggregators and big-city calendars refresh every other day, sleepy Gemeinden
-  weekly, and nobody gets hammered.
-  *(Was Thursday-weekly until 2026-07-14. That made the tiering dead code: on a
-  7-day trigger every source is past even the 7-day dormant threshold, so all
-  1,800 were crawled every Thursday regardless of tier.)*
-- **Also on demand:** the `workflow_dispatch` trigger means you can run it any
-  time from the repo's **Actions → Scheduled crawl → Run workflow** button.
+- **Validation boundary:** scheduled runs refresh **Austria only**. Germany and
+  Bulgaria remain published but are paused until demand justifies reopening them.
+- **Structured lane:** daily at **04:00 UTC** (~06:00 Vienna). Only sources whose
+  last successful route was deterministic (JSON-LD, iCal, CMS adapter, RSS, etc.)
+  are eligible. Source tiers still gate the actual cadence (`active` 2d / `slow`
+  5d / `dormant` 7d / `dead` quarantine 28d).
+- **LLM lane:** Sunday at **04:30 UTC** (~06:30 Vienna). Sources whose last route
+  was `llm`, plus new/unknown sources, run through the structured waterfall first
+  and then Gemini Flash-Lite if necessary. A source that gains a working parser is
+  promoted automatically into the daily structured lane.
+- **Spend boundary:** the scheduled crawl receives no Anthropic key, sets
+  `EXTRACT_FALLBACK=none`, and allows at most 150 metered text requests per weekly
+  run. Billing exhaustion opens a process-wide circuit and leaves all remaining
+  sources due rather than retrying them.
+- **Also on demand:** **Actions → Scheduled crawl → Run workflow** offers an
+  explicit `structured` or `llm` Austria lane.
 - **One run at a time:** the `concurrency` group prevents two crawls overlapping.
   This is deliberate — Nominatim (geocoding) rate-limits **per IP, not per host**,
   so two crawls on one runner throttle each other and silently drop geocodes
@@ -49,39 +53,36 @@ are never written to disk.
 
 Optional secrets (only if you change extraction providers — defaults are fine):
 `EXTRACT_PROVIDER`, `EXTRACT_MODEL`, `GEMINI_MODEL`, `XAI_API_KEY`, `XAI_MODEL`.
+Do **not** add `ANTHROPIC_API_KEY` to the crawl job. The weekly digest workflow
+receives that secret separately for Sonnet copy.
 
 ## Cost
 
-**Bottom line: effectively free — under ~$10/month, and likely less.**
+**Bottom line: deterministic refreshes are free; the paid lane is Austria-only,
+weekly, Gemini-only, prepaid, and hard-capped at 150 requests per run.**
 
 ### Compute (the GitHub Actions runner) — **$0, but watch the minutes**
 
 - GitHub Actions is **free for 2,000 minutes/month on private repos, unlimited on
   public repos**.
-- A daily run only fetches the sources that are *due*, not all 1,800 — so a run is
+- A daily run only fetches due structured Austrian sources — so a run is
   much shorter than a full pass (a full pass is ~30–90 min).
 - **The one thing to watch:** a brand-new source defaults to `tier='active'`
-  (2-day cadence) until it has 3 crawls of yield history, and right now ~1,500 of
-  1,578 AT sources are still `active`. Until they settle into `slow`/`dormant`,
-  a daily trigger fetches roughly half the catalog every morning. Ballpark
-  **~600–1,400 minutes/month** — inside the 2,000 free private-repo allowance, but
-  not by a mile, and **$0 regardless if the repo is public**. It falls off on its
-  own as tiers demote. If it doesn't, drop the trigger to `0 4 */2 * *`.
+  (2-day cadence) until it has 3 crawls of yield history. The daily lane currently
+  has about 888 known structured Austrian sources; GitHub minutes should fall as
+  those sources settle into `slow`/`dormant`.
 
-### The actual work (LLM extraction) — **~$1–8/month**
+### The actual work (LLM extraction)
 
-This is the only real cost, and the waterfall keeps it tiny. Note it is driven by
-**how often pages change**, not by how often we look — so moving from weekly to
-daily does *not* multiply it:
+This is the only metered crawl cost:
 
-- Of ~1,580 Austrian sources, **~930 are GEM2GO/RiS deterministic parsers → $0 per
-  page**, and the page-hash check skips unchanged pages for free.
-- Only *changed* pages among the ~635 unknown/other sources call the LLM. A page
-  that changes once a week costs one extraction a week whether we check it once or
-  seven times.
-- Gemini Flash-Lite is ~pennies per page (each extraction ≈ 5–15k input tokens).
-  Realistically **~1,200 extractions/month** → **roughly $1–8/month**, and a chunk
-  may fall inside Gemini's free tier.
+- Production currently has 641 known Austrian LLM sources. They are eligible only
+  on Sunday; stable pages still hash/HTTP-cache skip before model extraction.
+- Gemini Flash-Lite is the only scheduled provider. Claude Haiku is not a fallback.
+- `MAX_LLM_CALLS=150` is a request ceiling, not a target. A run that reaches it
+  leaves the untouched tail due for the next weekly pass.
+- Gemini prepayment is also a provider-side hard stop. A depleted balance is
+  treated as terminal for the run, not as a transient 429 to retry.
 
 ### Geocoding — **$0**
 Nominatim/Photon are free public services, and every lookup is cached
@@ -93,43 +94,43 @@ keeps the project awake (free-tier Supabase pauses after inactivity), which is a
 nice side benefit. Upgrade to Pro ($25/mo) only when storage/bandwidth grows.
 
 ### Why it barely grows with scale
-Cost tracks **changed unstructured pages**, not source count or country count.
-Adding Bulgaria or the USA adds sources but most are structured/unchanged, so the
-LLM bill stays flat. "One region at a time" is a demand strategy; supply is cheap
-by design.
+Cost tracks changed unstructured Austrian pages, bounded again by the weekly call
+ceiling. Paused countries add no scheduled fetch or model cost.
 
-**Summary table (daily trigger, tiered per-source cadence):**
+**Summary table (split validation-phase schedule):**
 
 | Item | Cost/month |
 |---|---|
 | GitHub Actions runner | $0 (free tier / public repo) |
-| LLM extraction (Gemini Flash-Lite) | ~$1–8 |
+| LLM extraction (Gemini Flash-Lite) | prepaid, ≤150 requests/week |
 | Geocoding (Nominatim/Photon, cached) | $0 |
 | Supabase (free tier) | $0 |
-| **Total** | **~$1–8** |
+| **Total** | **bounded by Gemini prepayment + request ceiling** |
 
 ## Changing the cadence
 
 Two dials, and it matters which one you turn:
 
-1. **The trigger** — the `cron:` line in `.github/workflows/crawl.yml` (UTC).
-   Currently daily (`0 4 * * *`). This sets how often we *look*.
+1. **The triggers** — the `cron:` lines in `.github/workflows/crawl.yml` (UTC):
+   daily structured (`0 4 * * *`) and weekly LLM (`30 4 * * 0`).
 2. **The per-source cadence** — `TIER_CADENCE_DAYS` in `scripts/crawl.mjs`
    (`active: 2, slow: 5, dormant: 7, dead: 28`). This sets who is actually *due*
    when we look.
 
-The trigger must always be at least as frequent as the tightest tier, or the tier
-is a no-op (the weekly-trigger bug). To make aggregators refresh faster, lower
-`active`; don't touch the cron. To crawl more politely overall, raise the tiers.
-
-Because unchanged pages are hash-skipped for free, a tighter cadence mostly just
-catches cancellations/changes sooner; it does not multiply cost proportionally.
+The structured trigger must be at least as frequent as the tightest tier, or that
+tier becomes a no-op. The LLM lane is intentionally weekly regardless of source
+tier; this trades freshness outside the deterministic supply for a hard validation-
+phase cost boundary.
 
 ## Troubleshooting
 
 - **Run fails immediately** → a secret is missing or wrong. Check
   Settings → Secrets; re-copy `DATABASE_URL` exactly from `.env.local` (it must be
   the pooler host `aws-0-…pooler.supabase.com:6543`, password percent-encoded).
+- **Weekly LLM run stops immediately** → check Gemini prepayment. The log names
+  `provider billing quota exhausted`; remaining sources stay due.
+- **Weekly LLM run stops at 150 calls** → expected circuit breaker. The log names
+  `run call budget exhausted`; raise the ceiling only as an explicit cost decision.
 - **Run succeeds but 0 events** → likely a source-side change, not the cron. Check
   the log for per-source `! skip` lines. A genuinely empty pass with everything
   unchanged is normal (hash-skips).

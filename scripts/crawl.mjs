@@ -11,7 +11,8 @@
 //        npm run crawl -- --all            (ignore tier/cadence gating — periodic deep sweep)
 //        npm run crawl -- --recover-zeros  (force-recrawl sources frozen at events_last=0, incl. tier=dead)
 //        npm run crawl -- --scope stuttgart-40km (only that registered scope)
-// Requires Claude API credentials (ANTHROPIC_API_KEY or `ant auth login`).
+//        npm run crawl -- --country AT --mode structured (known $0 routes only)
+//        npm run crawl -- --country AT --mode llm        (known/unknown LLM lane)
 import { createHash } from 'node:crypto';
 import {
   upsertEvent, expireFinished, getSourceByUrl, getSourcesForCrawl, getZeroYieldSources,
@@ -22,7 +23,9 @@ import { geocodeEvent } from '../lib/geocode.js';
 import { findDuplicate, mergePlan, titleSubstitution } from '../lib/dedup.js';
 import { decodeEntities, stripTags, cleanText } from '../lib/entities.js';
 import { makeStartsAt, makeEndsAt, splitLocalDateTime } from '../lib/event-time.js';
-import { extractFromPage } from '../lib/extract.js';
+import {
+  extractFromPage, isExtractionBudgetError, isProviderQuotaExhausted,
+} from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseMicrodataEvents } from '../lib/microdata-events.js';
 import { fetchFamilienportalEvents } from '../lib/familienportal-events.js';
@@ -42,6 +45,9 @@ import { fetchJeventsEvents } from '../lib/jevents-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
+import {
+  normalizeCountry, normalizeCrawlMode, sourceMatchesCrawlPolicy,
+} from '../lib/crawl-policy.js';
 import { politeFetch, robotsAllowed, aiPolicyAllowed } from '../lib/crawl-net.js';
 import { pathToFileURL } from 'node:url';
 
@@ -976,7 +982,9 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
   return { ok, fail: 0, tier, attempted: true, fuzzyMerged };
 }
 
-async function crawlSource(src, { force, scope: requestedScope } = {}) {
+async function crawlSource(src, {
+  force, scope: requestedScope, mode = 'all', llmCircuit = null,
+} = {}) {
   if (src.cms === 'naturfreunde') return crawlNaturfreundeSource(src, { force });
 
   const scope = requestedScope || scopeForSource(src);
@@ -1066,10 +1074,24 @@ async function crawlSource(src, { force, scope: requestedScope } = {}) {
     ({ events, route } = structured);
     console.log(`  structured route: ${route} (${events.length} candidate event(s))`);
   } else {
+    if (mode === 'structured') {
+      console.log('  structured-only: no deterministic extraction route; leaving source due');
+      return { ok: 0, fail: 0, deferred: true };
+    }
+    if (llmCircuit?.halted) {
+      console.log(`  LLM deferred: ${llmCircuit.reason}; leaving source due`);
+      return { ok: 0, fail: 0, deferred: true };
+    }
     route = 'llm';
     try {
       events = await extractFromPage({ text, sourceName: src.name, town: src.town });
     } catch (e) {
+      if (llmCircuit && (isExtractionBudgetError(e) || isProviderQuotaExhausted(e))) {
+        llmCircuit.halted = true;
+        llmCircuit.reason = isExtractionBudgetError(e)
+          ? 'run call budget exhausted'
+          : 'provider billing quota exhausted';
+      }
       // A provider failure (429 storm, outage, missing key) says nothing about
       // the SOURCE. Recording it as noContent zeroed events_last and bumped
       // zero_streak, so one bad Gemini night froze hundreds of healthy sources
@@ -1220,6 +1242,13 @@ async function main() {
   if (scopeArg > -1 && !requestedScope) {
     throw new Error(`Unknown crawl scope "${process.argv[scopeArg + 1]}". Known scopes: ${Object.keys(CRAWL_SCOPES).join(', ')}`);
   }
+  const countryArg = process.argv.indexOf('--country');
+  const country = normalizeCountry(countryArg > -1 ? process.argv[countryArg + 1] : null);
+  const modeArg = process.argv.indexOf('--mode');
+  const mode = normalizeCrawlMode(modeArg > -1 ? process.argv[modeArg + 1] : 'all');
+  if (requestedScope && country && requestedScope.country !== country) {
+    throw new Error(`Crawl scope "${requestedScope.id}" is ${requestedScope.country}, not ${country}.`);
+  }
 
   let sources, skippedCadence = 0;
   if (urlArg > -1) {
@@ -1233,12 +1262,17 @@ async function main() {
     sources = await getZeroYieldSources();
     force = true;
   } else {
-    const candidates = await getSourcesForCrawl();
+    const candidates = (await getSourcesForCrawl()).filter((s) => (
+      sourceMatchesCrawlPolicy(s, { country, mode })
+    ));
     sources = all ? candidates : candidates.filter((s) => {
       const due = isDue(s);
       if (!due) skippedCadence++;
       return due;
     });
+  }
+  if (urlArg > -1 || recoverZeros) {
+    sources = sources.filter((s) => sourceMatchesCrawlPolicy(s, { country, mode }));
   }
   if (requestedScope) {
     sources = sources.filter((s) => (
@@ -1248,11 +1282,13 @@ async function main() {
 
   const deadRecoveries = sources.filter((s) => s.tier === 'dead').length;
   const groups = groupByHost(sources);
-  console.log(`Crawling ${sources.length} source(s) across ${groups.length} host(s) (up to ${HOST_CONCURRENCY} in parallel)`
+  console.log(`Crawling ${sources.length} source(s) across ${groups.length} host(s) `
+    + `(country: ${country || 'all'}, mode: ${mode}, up to ${HOST_CONCURRENCY} in parallel)`
     + (deadRecoveries ? `, ${deadRecoveries} dead-source recovery crawl(s)` : '')
     + (skippedCadence ? `, ${skippedCadence} skipped (tier cadence not due)` : '') + ' …');
 
-  let total = 0, totalOutsideScope = 0, extractErrors = 0, totalFuzzyMerged = 0;
+  let total = 0, totalOutsideScope = 0, extractErrors = 0, deferred = 0, totalFuzzyMerged = 0;
+  const llmCircuit = { halted: false, reason: null };
   // "Attempted" = an actual fetch/extraction round happened this run — NOT a
   // cadence skip, NOT a blocked_reason skip, NOT a hash/304-unchanged round
   // (those are healthy no-ops by design, not failures). Used only for the
@@ -1263,15 +1299,22 @@ async function main() {
   let attempted = 0, attemptedZero = 0;
   const tierCounts = { active: 0, slow: 0, dormant: 0, dead: 0 };
   await runHostPool(groups, async (src) => {
+    if (mode === 'llm' && llmCircuit.halted) {
+      deferred += 1;
+      return;
+    }
     // A crash anywhere in one source's processing (fetch, extraction, stats,
     // an upsert that slipped past the per-event guard) must not abort the
     // rest of the batch — log and move on to the next source.
     try {
       const {
-        ok, tier, outsideScope = 0, extractError, attempted: wasAttempted, fuzzyMerged = 0,
+        ok, tier, outsideScope = 0, extractError, deferred: wasDeferred,
+        attempted: wasAttempted, fuzzyMerged = 0,
       } = await crawlSource(src, {
         force: shouldForceCrawl(src, force),
         scope: requestedScope,
+        mode,
+        llmCircuit,
       });
       total += ok;
       totalOutsideScope += outsideScope;
@@ -1286,6 +1329,8 @@ async function main() {
         // A provider-side extraction failure leaves last_crawled alone so the
         // source stays due and retries next run instead of waiting out its
         // tier cadence with events_last mislabeled 0.
+      } else if (wasDeferred) {
+        deferred += 1;
       } else {
         await markSourceCrawled(src.id);
       }
@@ -1297,6 +1342,8 @@ async function main() {
   const expired = await expireFinished();
   console.log(`\nCrawl done: ${total} events upserted, ${expired} expired.`);
   if (extractErrors) console.log(`Provider errors: ${extractErrors} source(s) skipped without stats change — they stay due and retry next run.`);
+  if (deferred) console.log(`Policy deferrals: ${deferred} source(s) left due without extraction.`);
+  if (llmCircuit.halted) console.log(`LLM circuit open: ${llmCircuit.reason}.`);
   if (totalOutsideScope) console.log(`Scope guard: ${totalOutsideScope} out-of-radius event(s) skipped.`);
   console.log(`fuzzy-merged: ${totalFuzzyMerged}`);
   console.log(`Tiers — active: ${tierCounts.active}, slow: ${tierCounts.slow}, dormant: ${tierCounts.dormant}, `

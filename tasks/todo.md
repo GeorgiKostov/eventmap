@@ -2,6 +2,18 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Validation-phase crawl cost boundary (2026-07-27)
+- [x] Traced unexpected Haiku usage to the scheduled crawl: depleted Gemini
+      prepayment triggered 313 `claude-haiku-4-5` fallbacks before Anthropic's
+      monthly cap stopped the run.
+- [x] Limited scheduled refreshes to Austria and split them into a daily
+      deterministic lane plus a weekly Gemini-only LLM lane.
+- [x] Removed Anthropic from the crawl job, added `EXTRACT_FALLBACK=none`, a
+      150-request weekly ceiling, and a quota-exhaustion circuit breaker that
+      leaves unprocessed sources due.
+- [ ] George — restore a small prepaid Gemini balance before the next weekly LLM
+      run. The existing GitHub/Vercel key is already configured.
+
 ## Pflasterspektakel Saturday highlights carousel (2026-07-25)
 - [x] Built and visually checked seven Saturday-specific slides from the live, source-stamped grid:
       cover, top three, family picks, acrobatics, music/dance, fire finale, and a walkable route.

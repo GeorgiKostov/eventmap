@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-07-27 — crawl spend bounded for validation)
+- Scheduled crawl refreshes Austria only. Known deterministic routes retain the
+  daily trigger and adaptive per-source tiers; known/unknown LLM routes run
+  Sundays through Gemini Flash-Lite.
+- The crawl workflow no longer receives `ANTHROPIC_API_KEY`.
+  `EXTRACT_FALLBACK=none`, `MAX_LLM_CALLS=150`, and quota/budget circuit breaking
+  make model spend fail closed while leaving deferred sources due.
+- Germany and Bulgaria remain published but are not refreshed during the current
+  Linz validation phase. The Thursday digest still receives Anthropic separately
+  for Sonnet copy.
+- George owns the remaining operational step: restore Gemini prepayment. The
+  existing key is already present in GitHub Actions and Vercel.
+
 ## Where things stand (2026-07-25 — Saturday Pflasterspektakel highlights live on Meta)
 - George asked for Saturday's strongest programme picks in the same format as Friday. Seven
   Okolo-owned 1080×1350 slides (cover, top three, family, acrobatics, music/dance, fire finale,

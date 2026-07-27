@@ -1,26 +1,27 @@
 name: Scheduled crawl
 
-# Refreshes every registered event source (AT + BG + Stuttgart). The crawl is a
-# single long-running process ON PURPOSE — Nominatim (geocoding) rate-limits per
-# IP, not per host, so two overlapping crawls throttle each other (see
-# tasks/lessons.md 2026-07-12). The `concurrency` block below guarantees only
-# one run at a time even if a manual run and the schedule coincide.
+# Validation-phase policy: refresh Austria only. Known deterministic routes run
+# daily at $0; known/unknown LLM routes run weekly through Gemini Flash-Lite
+# with no Anthropic fallback and a hard request budget. Germany and Bulgaria
+# stay published but are not refreshed until demand justifies reopening them.
 #
 # Setup + cost details: docs/ops/crawl-cron.md
 
 on:
   schedule:
-    # Daily 04:00 UTC (~06:00 Vienna) — off-peak and polite to municipal servers.
-    # Daily is the TRIGGER, not the per-source cadence: crawl.mjs gates each
-    # source on its own tier (active 2d / slow 5d / dormant 7d / dead 28d
-    # quarantine), so a daily
-    # trigger is what makes those tiers mean anything. On a weekly trigger every
-    # source was past even the 7-day threshold, so the tiering was dead code and
-    # sleepy Gemeinden got crawled as often as the big aggregators.
-    # Cost stays roughly flat: unchanged pages are hash-skipped for free, so the
-    # extra runs mostly catch cancellations sooner. See docs/ops/crawl-cron.md.
+    # Daily deterministic refresh; source tiers still gate who is actually due.
     - cron: '0 4 * * *'
-  workflow_dispatch: {} # lets you run it on demand from the Actions tab
+    # Weekly paid lane, offset so Sunday's deterministic run finishes first.
+    - cron: '30 4 * * 0'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Austria crawl lane'
+        type: choice
+        options:
+          - structured
+          - llm
+        default: structured
 
 concurrency:
   group: crawl
@@ -47,8 +48,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          # Fallback provider for the LLM route. Without it, any Gemini failure
-          # in CI had no fallback at all — extraction died on the spot and (before
-          # the 2026-07-15 fix) froze the source at events_last=0.
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: node scripts/crawl.mjs
+          # Crawl spend must fail closed. The newsletter workflow keeps its own
+          # Anthropic key for Sonnet copy; this workflow never receives it.
+          EXTRACT_FALLBACK: none
+          MAX_LLM_CALLS: 150
+          CRAWL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || github.event.schedule == '30 4 * * 0' && 'llm' || 'structured' }}
+        run: node scripts/crawl.mjs --country AT --mode "$CRAWL_MODE"
