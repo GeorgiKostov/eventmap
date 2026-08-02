@@ -1,12 +1,13 @@
 import { sitemapEvents, listDigestKeys } from '../lib/db.js';
 import { CHANNELS } from '../lib/city-channels.js';
+import { publicBaseUrl } from '../lib/public-url.js';
 
 // Event URLs change on the crawl cadence, not per request. Cache the minimal
 // id/timestamp projection so crawler retries cannot repeatedly hit Postgres.
 export const revalidate = 86400;
 
 export default async function sitemap() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
+  const base = publicBaseUrl();
 
   const events = (await sitemapEvents()).map((ev) => ({
     url: `${base}/event/${ev.id}`,

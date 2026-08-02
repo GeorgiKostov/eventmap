@@ -1,4 +1,6 @@
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
+import { publicBaseUrl, publicUrl } from '../lib/public-url.js';
+
+const BASE_URL = publicBaseUrl();
 
 export default function robots() {
   return {
@@ -7,7 +9,7 @@ export default function robots() {
       allow: '/',
       disallow: ['/api/', '/admin/'],
     },
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    sitemap: publicUrl('sitemap.xml'),
     host: BASE_URL,
   };
 }

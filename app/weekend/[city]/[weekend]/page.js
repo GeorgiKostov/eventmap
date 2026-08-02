@@ -6,6 +6,7 @@ import { eventsByIds } from '../../../../lib/db.js';
 import { CATS } from '../../../../lib/icons.js';
 import { STRINGS } from '../../../../lib/i18n.js';
 import NewsletterSignup from '../../../newsletter-signup.js';
+import { publicBaseUrl } from '../../../../lib/public-url.js';
 
 // Highlight ring colours — same two as the map pins (app/page.js
 // HIGHLIGHT_COLORS) and the newsletter (lib/digest.js HIGHLIGHT).
@@ -77,7 +78,7 @@ const COPY = {
   },
 };
 
-const BASE = (process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events').replace(/\/$/, '');
+const BASE = publicBaseUrl();
 
 async function load(params) {
   const { city, weekend } = await params;
@@ -125,7 +126,12 @@ export async function generateMetadata({ params }) {
 // they still render on the page. Emitting a broken Event is worse than emitting
 // one fewer.
 function jsonLd(channel, digest, items) {
-  const datedItems = items.filter((it) => it.startsAt);
+  // Google requires every Event URL to be a live, single-event leaf page.
+  // Expired digest items deliberately remain readable in the archive, but
+  // their /event/<id> pages no longer exist, so do not advertise those dead
+  // URLs as rich-result candidates.
+  const datedItems = items.filter((it) => it.startsAt && it.linked);
+  if (!datedItems.length) return null;
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -138,8 +144,9 @@ function jsonLd(channel, digest, items) {
         name: it.title,
         startDate: it.startsAt,
         endDate: it.endsAt || undefined,
-        description: it.teaser || undefined,
+        description: it.teaser || `${it.title}${it.venue || it.town ? ` in ${it.venue || it.town}` : ''}.`,
         url: `${BASE}/event/${it.id}`,
+        image: [`${BASE}/event/${it.id}/opengraph-image`],
         eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
         eventStatus: 'https://schema.org/EventScheduled',
         location: {
@@ -171,6 +178,7 @@ export default async function WeekendPage({ params }) {
   }));
 
   const isPast = weekend < weekendWindow(channel.tz).friday;
+  const ld = jsonLd(channel, digest, items);
   const mapUrl = `${BASE}/?lat=${channel.lat}&lng=${channel.lng}&utm_source=okolo&utm_medium=weekend_page&utm_campaign=weekend-${weekend}`;
   // Same grouping as the mail and the caption (one definition in lib/digest.js),
   // so the three surfaces can never disagree about which strand a pick is in.
@@ -180,7 +188,7 @@ export default async function WeekendPage({ params }) {
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: '32px 20px 72px', fontFamily: 'system-ui, sans-serif', color: '#212B28' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd(channel, digest, items)) }} />
+      {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />}
 
       <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 20, color: '#212B28', textDecoration: 'none' }}>
         <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">

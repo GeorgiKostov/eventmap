@@ -4,8 +4,9 @@ import SWRegister from './sw-register.js';
 import Analytics from './analytics.js';
 import LanguageProvider from './language-provider.js';
 import { LANGS } from '../lib/i18n.js';
+import { publicBaseUrl, publicUrl } from '../lib/public-url.js';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
+const BASE_URL = publicBaseUrl();
 const META_COPY = {
   en: { title: 'Okolo — Events around you', description: 'Family events and local happenings near you, on a map. Discover what is on around you.', locale: 'en_GB', keywords: ['Events', 'Local', 'Family', 'Map', 'Nearby'] },
   de: { title: 'Okolo — Events in deiner Nähe', description: 'Familien-Events und lokale Veranstaltungen in deiner Nähe auf einer Karte. Entdecke, was um dich herum passiert.', locale: 'de_AT', keywords: ['Events', 'Lokal', 'Familie', 'Veranstaltungen', 'Karte', 'Umgebung'] },
@@ -49,7 +50,7 @@ const SITE_LD = {
       '@id': `${BASE_URL}/#organization`,
       name: 'Okolo',
       url: BASE_URL,
-      logo: `${BASE_URL}/icon-512.png`,
+      logo: publicUrl('icon-512.png'),
       email: 'hello@okolo.events',
     },
     {

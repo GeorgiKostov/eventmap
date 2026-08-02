@@ -2,6 +2,17 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Google Event rich-result cleanup (2026-08-02)
+- [x] Normalized every SEO origin to the actual canonical host (`https://www.okolo.events`) and
+      removed the configured trailing slash that had put `//` into 32,005 live sitemap URLs,
+      robots.txt, and Organization/WebSite JSON-LD.
+- [x] Event JSON-LD now carries its canonical leaf URL, an Okolo-owned 1200×675 event image, an
+      original factual description fallback, the row's real country, and DST-correct timezone
+      offsets. Archived weekend pages no longer advertise expired `/event/<id>` URLs to Google.
+- [ ] After deployment, resubmit `https://www.okolo.events/sitemap.xml` in Search Console and start
+      validation for the image/description warnings. Do not validate organizer, performer, offer
+      dates/URLs, location names, or end dates until those facts genuinely exist.
+
 ## Validation-phase crawl cost boundary (2026-07-27)
 - [x] Traced unexpected Haiku usage to the scheduled crawl: depleted Gemini
       prepayment triggered 313 `claude-haiku-4-5` fallbacks before Anthropic's

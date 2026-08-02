@@ -9,6 +9,23 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-02 — Google Event markup repaired locally)
+- Search Console's 28 Event items were valid; its missing-field rows were recommended-property
+  warnings. The actual crawl defect was the public origin: production supplied
+  `https://okolo.events/`, producing 32,005 sitemap URLs with a double slash and non-www canonicals
+  that contradicted Vercel's redirect to `www`.
+- Public SEO URLs now normalize to `https://www.okolo.events`; local verification found 32,178
+  sitemap entries with zero double-slash paths and zero noncanonical hosts. robots.txt, canonical
+  metadata, Organization/WebSite JSON-LD, and the logo URL all agree.
+- Leaf Event JSON-LD adds canonical `url`, Okolo-generated 1200×675 `image`, a grounded description
+  fallback, each row's actual country, and DST-correct event timezone offsets. Weekend ItemLists
+  exclude expired events whose leaf page is gone. Unknown end dates, performers, organizers,
+  ticket URLs, and sale dates remain omitted by design—Search Console warnings never justify
+  fabricated facts.
+- Local production-route verification used Bulgarian event 21949: BG address country, +03:00
+  start/end offsets, canonical www URLs, crawlable 62 KB PNG. Full 207-test suite and production
+  build pass. Not deployed; George deploys by default, then must resubmit the sitemap/validation.
+
 ## Where things stand (2026-07-27 — crawl spend bounded for validation)
 - Scheduled crawl refreshes Austria only. Known deterministic routes retain the
   daily trigger and adaptive per-source tiers; known/unknown LLM routes run

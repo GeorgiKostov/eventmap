@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getEvent } from '../../../lib/db.js';
 import { hasTime } from '../../../lib/event-time.js';
 import { channelForPoint } from '../../../lib/city-channels.js';
+import { eventDescription, eventJsonLd } from '../../../lib/event-jsonld.js';
 import { STRINGS } from '../../../lib/i18n.js';
 import NewsletterSignup from '../../newsletter-signup.js';
 
@@ -30,53 +31,9 @@ async function pageLang() {
   return PAGE_COPY[lang] ? lang : 'en';
 }
 
-// Naive-local → ISO 8601 with Vienna offset (DST approximation is fine here:
-// late Mar–late Oct is CEST; schema.org consumers mostly care about the date).
-function isoVienna(local) {
-  const m = +local.slice(5, 7);
-  const offset = m >= 4 && m <= 10 ? '+02:00' : '+01:00';
-  return `${local}:00${offset}`;
-}
-
-function jsonLd(ev) {
-  // Places (kind='place') are evergreen locations, not schema.org Events —
-  // they have no starts_at/ends_at. Skip Event JSON-LD for them (a dedicated
-  // Place/LocalBusiness schema is a later decision, not needed for the prototype).
-  if (ev.kind === 'place') return null;
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Event',
-    name: ev.title,
-    description: ev.description || undefined,
-    // schema.org/Event accepts a bare Date. When the source published no time we
-    // emit the date alone rather than a made-up hour — this JSON-LD is what Google
-    // and the AI assistants ingest, so a fabricated startDate here is the single
-    // most widely-copied lie we could tell (hard rule 5).
-    startDate: ev.all_day || !hasTime(ev.starts_at) ? ev.starts_at.slice(0, 10) : isoVienna(ev.starts_at),
-    endDate: ev.ends_at ? (ev.all_day ? ev.ends_at.slice(0, 10) : isoVienna(ev.ends_at)) : undefined,
-    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-    eventStatus: 'https://schema.org/EventScheduled',
-    location: {
-      '@type': 'Place',
-      name: ev.venue || ev.town || undefined,
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: ev.address || undefined,
-        addressLocality: ev.town || undefined,
-        addressCountry: 'AT',
-      },
-      geo: { '@type': 'GeoCoordinates', latitude: ev.lat, longitude: ev.lng },
-    },
-    isAccessibleForFree: ev.is_free === 1 ? true : ev.is_free === 0 ? false : undefined,
-    offers: ev.is_free === 1 ? { '@type': 'Offer', price: 0, priceCurrency: 'EUR', availability: 'https://schema.org/InStock' } : undefined,
-    typicalAgeRange: ev.age_min != null ? `${ev.age_min}-${ev.age_max ?? ''}` : undefined,
-    sameAs: ev.source_url || undefined,
-  };
-}
-
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const ev = await getEvent(+id);
+  const ev = await getEvent(id);
   const t = await pageCopy();
   if (!ev) return { title: `${t.notFound} — Okolo` };
   const when = ev.starts_at ? ev.starts_at.slice(0, 10) : null;
@@ -95,7 +52,8 @@ export async function generateMetadata({ params }) {
     alternates: { canonical: `/event/${id}` },
     openGraph: {
       title: ev.title,
-      description: ev.description || undefined,
+      description: eventDescription(ev),
+      images: [{ url: `/event/${id}/opengraph-image`, width: 1200, height: 675 }],
       type: 'article',
       locale: t.locale.replace('-', '_'),
     },
@@ -104,7 +62,7 @@ export async function generateMetadata({ params }) {
 
 export default async function EventPage({ params }) {
   const { id } = await params;
-  const ev = await getEvent(+id);
+  const ev = await getEvent(id);
   if (!ev) notFound();
   const t = await pageCopy();
   const lang = await pageLang();
@@ -122,7 +80,7 @@ export default async function EventPage({ params }) {
   // handles in-app navigation.
   const backHref = channel ? `/?lat=${channel.lat}&lng=${channel.lng}` : '/';
 
-  const ld = jsonLd(ev);
+  const ld = eventJsonLd(ev, id);
   const when = ev.starts_at
     ? new Intl.DateTimeFormat(t.locale, {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
