@@ -9,14 +9,16 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-12 - eclipse guide ready to publish)
+## Where things stand (2026-08-12 - eclipse guide live)
 - Five reviewed eclipse-viewing entries are live in Supabase for tonight: Guckerstein,
   Elisabethhoehe, Vienna Airport Spotterhuegel, Neue Donau/Copa Beach, and Wiener Urania. Each has
   its own source link, honest access/horizon caveats, Vienna-local times, and eye-safety guidance.
-- A dedicated navy crescent category/pin is implemented without adding a permanent filter to the
-  validation UI. Separate Linz (3-slide) and Vienna (4-slide) Okolo-owned social carousels are
-  generated and visually checked. The production build passes; deployment and Meta publication
-  remain before the guide is fully live.
+- A dedicated navy crescent category/pin is live without adding a permanent filter to the
+  validation UI. Browser QA confirmed the pin, listing, detail page, and official linkback.
+- Separate Linz (3-slide) and Vienna (4-slide) Okolo-owned social carousels are live on both Meta
+  platforms. Linz: Instagram `17917234170221900` / Facebook
+  `1153097914561205_122114543241397322`. Vienna: Instagram `18098981291577268` / Facebook
+  `1171182632750527_122113334793397600`. Production build and all 207 tests pass.
 - Giselawarte remains excluded because the available access information was contradictory.
 
 ## Where things stand (2026-08-02 — Google Event markup repaired locally)

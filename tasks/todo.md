@@ -7,7 +7,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       pin and source-linked, safety-conscious descriptions; Giselawarte stayed excluded because
       current access information was contradictory.
 - [x] Generated and visually checked separate 1080x1350 Linz and Vienna social carousels from
-      Okolo-owned artwork. Production deployment and Meta publishing are the remaining live steps.
+      Okolo-owned artwork, deployed the map/assets, and published all four Meta posts. Linz:
+      [Instagram](https://www.instagram.com/p/Db7kNrdFjY9/) / [Facebook](https://www.facebook.com/122100555357397322/posts/122114543241397322).
+      Vienna: [Instagram](https://www.instagram.com/p/Db7kS1uFvwL/) / [Facebook](https://www.facebook.com/122100754455397600/posts/122113334793397600).
 
 ## Google Event rich-result cleanup (2026-08-02)
 - [x] Normalized every SEO origin to the actual canonical host (`https://www.okolo.events`) and
