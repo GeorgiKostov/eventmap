@@ -2,6 +2,13 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Solar eclipse viewing guide (2026-08-12)
+- [x] Added five reviewed Linz/Vienna viewing locations to the live map with a dedicated crescent
+      pin and source-linked, safety-conscious descriptions; Giselawarte stayed excluded because
+      current access information was contradictory.
+- [x] Generated and visually checked separate 1080x1350 Linz and Vienna social carousels from
+      Okolo-owned artwork. Production deployment and Meta publishing are the remaining live steps.
+
 ## Google Event rich-result cleanup (2026-08-02)
 - [x] Normalized every SEO origin to the actual canonical host (`https://www.okolo.events`) and
       removed the configured trailing slash that had put `//` into 32,005 live sitemap URLs,

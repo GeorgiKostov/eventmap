@@ -209,7 +209,7 @@ function hlClass(ev) {
 /* ---------------- GL pin sprites ----------------
  * MapLibre paint/layout can't read CSS vars, so pin sprites are rasterized from
  * the SAME tokens the DOM uses: CATS[cat].color + the P glyph paths + #fff
- * border/glyph (design-system.md marker grammar). One sprite per category (16);
+ * border/glyph (design-system.md marker grammar). One sprite per category;
  * shape = kind is baked in (event = teardrop, place = circle) since event/place
  * category sets are disjoint. The selection halo and approx dashed ring are ALSO
  * sprites (per-cat halos + 2 approx shapes) so they follow the pin's silhouette —
