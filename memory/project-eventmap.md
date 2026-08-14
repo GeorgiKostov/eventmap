@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-14 — Linz + Vienna weekend picks live)
+- Refreshed the four highest-value official weekend feeds for 14.–16. August: Linz-Termine 24,
+  OÖ Familienkarte 22, Wien Kinder 23, and Kultursommer 0 trusted rows; 18 fuzzy duplicates merged.
+  Linz-Termine now points at its live August page instead of the stale July page.
+- The automatic ranking was editorially reviewed: multi-month courses, private offerings, duplicate
+  programmes, and Momentum 60plus were vetoed. Three Vienna starts omitted by extraction were
+  corrected from the official city calendar before freezing nine picks per city.
+- Both 10-slide carousels were visually checked and are live on both Meta platforms. Linz:
+  Instagram `18104979449173047` / Facebook `1153097914561205_122115123579397322`. Vienna:
+  Instagram `18050446658800245` / Facebook `1171182632750527_122114064231397600`. All four public
+  permalinks, both weekend pages, and all success ledgers were verified.
+
 ## Where things stand (2026-08-12 - eclipse guide live)
 - Five reviewed eclipse-viewing entries are live in Supabase for tonight: Guckerstein,
   Elisabethhoehe, Vienna Airport Spotterhuegel, Neue Donau/Copa Beach, and Wiener Urania. Each has

@@ -2,6 +2,15 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Weekend picks — Linz + Vienna (2026-08-14)
+- [x] Refreshed Linz-Termine, OÖ Familienkarte, Wien Kinder, and Kultursommer sources for
+      14.–16. August; 69 official-source events were upserted and 18 fuzzy duplicates merged.
+- [x] Rejected low-quality recurring/course picks, corrected three Vienna start times from the
+      official city calendar, froze nine reviewed picks per city, and visually checked all 20 cards.
+- [x] Published both 10-slide carousels to Meta. Linz:
+      [Instagram](https://www.instagram.com/p/DcA2JB_Fuoc/) / [Facebook](https://www.facebook.com/122100555357397322/posts/122115123579397322).
+      Vienna: [Instagram](https://www.instagram.com/p/DcA2JJaFsL7/) / [Facebook](https://www.facebook.com/122100754455397600/posts/122114064231397600).
+
 ## Solar eclipse viewing guide (2026-08-12)
 - [x] Added five reviewed Linz/Vienna viewing locations to the live map with a dedicated crescent
       pin and source-linked, safety-conscious descriptions; Giselawarte stayed excluded because
