@@ -1,8 +1,14 @@
-# Okolo — lokale Event-Karte (Prototyp)
+# Okolo — local event discovery map
 
-Event map for the Linz/Asten region: real events mined from official municipal sources,
-browsable on a map with filters, plus an AI poster-scan flow to add events from photos.
-Product name **Okolo** (okolo.events); the working name was *Umkreis*. No accounts, no tracking.
+Families-first event discovery, beginning with Linz: real events from approved official,
+municipal, family and cultural sources, browsable on a map with filters, plus an AI poster-scan
+flow for events that are not properly online. Product name **Okolo**
+([okolo.events](https://www.okolo.events)); the working name was *Umkreis*.
+
+Production is live on Vercel with Supabase Postgres. There are no consumer accounts. Analytics is
+privacy-first and anonymous: no autocapture or session recording, no email addresses or precise
+user locations, and local/preview/automated/internal traffic is excluded. See
+[`docs/ops/advertiser-proof.md`](docs/ops/advertiser-proof.md) for exact definitions.
 
 ## Run it
 
@@ -17,7 +23,9 @@ The database is **Supabase Postgres** (our tables live in the `umkreis` schema).
 setup: `npm run seed:sql -- db/schema.sql` creates the tables; then seed events with
 `npm run seed` (re-imports `data/mined/*.json` → geocode → upsert).
 
-Real events come from linztermine.at, ~14 Gemeinde websites, familienkarte.at and erlebe.enns.at.
+The repeatable source registry now spans approved sources across Austria, with already-published
+coverage in Bulgaria and Germany. Scheduled refresh remains Austria-only during validation; see
+[`docs/ops/crawl-cron.md`](docs/ops/crawl-cron.md).
 
 **Poster scan** uses Gemini Flash-Lite (primary) → Claude Haiku (fallback): set
 `GEMINI_API_KEY` and/or `ANTHROPIC_API_KEY` in `.env.local` (without either, it falls back
@@ -30,7 +38,7 @@ to the local `claude` CLI if installed).
 | `npm run dev` | Start the app on port 3311 |
 | `npm run seed` | Re-import `data/mined/*.json` (validate → geocode → upsert → expire) |
 | `npm run seed:sql -- <file>` | Run a `.sql` file against the DB (e.g. `db/schema.sql` for first-time setup) |
-| `npm run crawl` | Recrawl all registered sources (fetch → AI extraction → geocode → upsert). Run every few days. Needs an extraction key. |
+| `npm run crawl` | Recrawl due registered sources (structured waterfall → optional AI extraction → geocode → upsert). Scheduled policy is in `docs/ops/crawl-cron.md`. |
 
 ## How it works
 
@@ -48,11 +56,15 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 - **Geocoding:** Nominatim (1 req/s, cached in `geocache` table) with town-centroid fallback;
   pins with dashed border = town-level precision only.
 - **Extraction:** Gemini Flash-Lite primary → Claude Haiku fallback (`lib/extract.js`) — poster
-  images and crawled pages share one schema; provider routing stays inside this one file.
-- **Expiration:** events disappear from the map once over (`ends_at`, or start + 6h if no end).
+  images and crawled pages share one schema; provider routing stays inside this one file. The
+  scheduled production crawl is deliberately stricter: Austria only, Gemini only, no Anthropic
+  fallback, with a 750-request weekly ceiling for the LLM lane.
+- **Expiration:** events disappear from the live map once over (`ends_at`, or start + 6h if no
+  end), but naturally expired `/event/<id>` URLs remain factual, clearly ended archive pages with
+  nearby upcoming alternatives. Removed/rejected/unknown events remain 404.
 - **Dedup:** normalized title + day + town (`content_hash`), so recrawls update instead of duplicate.
-- **Legal:** we index facts (title/date/place) with linkback to the official source and write our
-  own descriptions — never copying source prose or images. Municipal + Land OÖ sources only.
+- **Legal:** we index facts (title/date/place) with linkback and write original descriptions —
+  never copying source prose or images. New platforms require authorization before automation.
 
 ## Deploying
 
@@ -72,14 +84,17 @@ First-time DB setup: `npm run seed:sql -- db/schema.sql`, then `npm run seed`.
 
 ### Deploy on Vercel
 
-Import the GitHub repo at [vercel.com/new](https://vercel.com/new) (Framework = Next.js).
-Set env vars (Project → Settings → Environment Variables):
+The project is linked and live at [www.okolo.events](https://www.okolo.events). Git-triggered Vercel
+deployment is intentionally disabled in `vercel.json`; after a verified release, deploy explicitly
+with `vercel deploy --prod --yes`. Required production environment variables:
 - `DATABASE_URL` — Supabase transaction-pooler connection string (**required**).
 - `GEMINI_API_KEY` — poster-scan extraction (primary). `ANTHROPIC_API_KEY` optional fallback.
-- `NEXT_PUBLIC_BASE_URL` — your live URL, so sitemap/share links are absolute.
+- `NEXT_PUBLIC_BASE_URL` — the canonical live origin (`https://www.okolo.events`), so
+  sitemap/share links are absolute.
 
-Still open: move `npm run crawl` to a Vercel Cron / GitHub Action (every 2–3 days), and
-poster uploads → Supabase Storage (currently `/tmp` on serverless, ephemeral).
+Scheduled crawling runs through GitHub Actions: a free structured lane daily and an Austria-only,
+Gemini-only bounded lane weekly. Poster images are temporary extraction inputs in `/tmp` on Vercel
+and are deleted after processing; Okolo does not retain or republish source posters.
 
 ## Data sources & recrawl notes
 

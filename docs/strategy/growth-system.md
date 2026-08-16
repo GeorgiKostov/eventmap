@@ -137,20 +137,25 @@ engine and the test as one motion.
 
 | Metric | Where | Why it's the one that matters |
 |---|---|---|
-| Newsletter **open + click** rate | send logs + `utm_medium=email` in PostHog | Is the digest worth opening? Below ~25% open, the picks are wrong. |
-| **Weekly return rate** | PostHog, returning visitors ÷ subscribers | The go/no-go metric. Do people come back without being pushed? |
+| Organic event landings + downstream action rate | Search Console + `event_landing_view`, map/recommendation/source events in PostHog | Does search demand become Okolo discovery rather than a one-page bounce? |
+| Confirmed newsletter conversion | `newsletter_confirmed` ÷ `newsletter_signup_started`, checked against aggregate subscriber counts | Does SEO/social intent become an owned, consented audience? |
+| **Different-day return rate** | PostHog visitors active on at least two Vienna calendar days in 30 days | The go/no-go metric. Do people come back without being pushed? |
+| Newsletter **open + click** rate | provider send logs + `utm_medium=email` in PostHog | Is the digest worth opening? Provider delivery data and on-site behavior stay separate. |
 | **Interest taps** per digest event | `reactions` table | The only intent-to-attend signal we have. |
 | Signups per channel | `subscribers.source` + per-group UTM | Tells you which group/poster/partner is worth repeating. |
+| Sponsored rendered results → opens → referrals | `sponsored_impression`, `sponsored_open`, `sponsored_referral` by event/surface | Auditable pilot delivery without pretending a source click proves attendance or ticket sales. |
 | **Coverage complaints** | data-quality reports | If parents report events the aggregators had and we missed, supply isn't done after all. |
 
 Everything already carries `?utm_source=okolo&utm_medium=email|ig&utm_campaign=weekend-<friday>`, so
-attribution needs no new plumbing.
+attribution needs no new plumbing. Exact definitions, privacy exclusions and reporting caveats live
+in `docs/ops/advertiser-proof.md`.
 
 ## 7. The weekly calendar
 
 | When | What | Who |
 |---|---|---|
-| Daily 04:00 UTC | Crawl refreshes every source | cron |
+| Daily 04:00 UTC | Deterministic Austria source refresh | cron (`crawl.yml`) |
+| Sunday 04:30 UTC | Bounded Gemini-only Austria LLM source refresh | cron (`crawl.yml`) |
 | **Thu 09:00 UTC** | Picks frozen + AI copy written + "desk is ready" mail | cron (`weekly-digest.yml`) |
 | **Thu ~16:00 Vienna** | Review → download carousel → post IG/FB → drop in groups → Send | **George, ~10 min** |
 | Fri–Sun | Optional Story: "heute in Linz" (1–3 time-sensitive picks) | George, optional |
@@ -160,9 +165,9 @@ attribution needs no new plumbing.
 
 The newsletter sponsor slot is the first surface (€50–150/issue), promoted pins next (€20–50/event/week)
 — full ladder and Austrian price anchors in `growth-and-social.md` §6. **Do not sell before we can quote
-real reach**, and the paid tier is legally gated on the labelling work in
-`docs/decisions/2026-07-12-paid-placement-compliance.md` (per-listing "Anzeige", payer identity,
-ranking disclosure). Selling into a 40-person list burns the advertiser relationship we'd want at 4,000.
+real reach**. Per-listing “Anzeige” labels and delivery/referral events are shipped; payer identity,
+contract scope and any required ranking disclosure remain pre-sale operating gates. Selling into a
+40-person list burns the advertiser relationship we'd want at 4,000.
 
 ## 9. Rules the system will not break
 

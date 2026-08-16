@@ -1,5 +1,13 @@
 # Advertiser and publisher proof
 
+> **Live since 2026-08-16.** App instrumentation shipped in `d62396e` and was verified on
+> production deployment `dpl_BQuJTXPn1aUytb8RpExyeFfgS5gd`. Clean evidence accumulates from that
+> point forward; the new conversion taxonomy is not retroactive.
+
+Repository work is complete. The remaining operator-owned setup—internal-device opt-out, PostHog
+dashboard creation, monthly Search Console/channel exports and campaign allow-lists—is tracked at
+the top of [`tasks/todo.md`](../../tasks/todo.md).
+
 This is the validation-phase measurement contract for partner conversations. The output is an
 internal PostHog dashboard plus a dated PDF/export for a named campaign — not a public publisher
 portal and not a promise of ticket sales.
@@ -73,4 +81,3 @@ Do not sell “viral” from one day of impressions. The first credible proof pa
 four consecutive weekends and show: search demand, unique landings, downstream action rate,
 confirmed newsletter growth, different-day return rate, and the error/404 guardrail. A sponsored
 pilot can report delivery earlier, but must be labelled a pilot with its small sample size.
-

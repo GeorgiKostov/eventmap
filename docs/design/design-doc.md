@@ -1,6 +1,6 @@
 # Okolo / eventmap — Design Doc
 
-> Status: living document · Owner: Architect agent · Last updated: 2026-07-10
+> Status: living document · Owner: Architect agent · Last updated: 2026-08-16
 > This is the "what we're building and why" bible. Read it before significant work.
 > Product name: **Okolo** (okolo.events). The working name was *Umkreis* — retired
 > (see `docs/decisions/2026-07-10-naming.md`); don't use it in prose.
@@ -45,24 +45,33 @@ in a bounded area is the whole game; being mediocre-everywhere is how this categ
 **The go/no-go gate is still the four-weekend Linz test:** does ≥30% of good events come from
 sources the big aggregators miss, and do people come back weekly? Everything else is downstream.
 
-## 3. Current status (2026-07-10)
+## 3. Current status (2026-08-16)
 
-**Working prototype on a live Supabase Postgres backend, build-verified, in the `eventmap` repo
-(not yet pushed — GitHub auth pending, see TODO).** Writes now persist (scan/publish are no longer
-ephemeral). What's live:
+**Validation prototype live at [www.okolo.events](https://www.okolo.events), backed by Supabase
+Postgres and manually deployed to Vercel from `main`.** The August production audit counted more
+than 26,000 published events. Austria is the active refresh scope; existing Bulgarian and German
+coverage remains published but paused while the four-weekend Linz test stays the go/no-go gate.
+What's live:
 
-- Map browser with **92 real events** across Linz + ~15 surrounding municipalities.
+- Map browser with viewport-bounded PostGIS queries, date/family/free/indoor/category filters,
+  places, saved events, source provenance and structured data-quality reports.
 - Google-Maps-style UI: desktop sidebar + map; mobile mini-card → full-screen detail.
 - Filters: date (Today/Tomorrow/Weekend/7-days + **calendar range picker**), radius,
   category, indoor/outdoor, time-of-day, for-kids, free.
 - Full **EN/DE/BG localization** (IP-country first visit, explicit language picker, persisted manual override; English fallback).
-- **AI poster scan** (photo → Claude extraction → confirm → publish), pipeline works;
-  needs an API key at runtime.
+- **AI poster scan** (photo → Gemini-first extraction → factual confirmation → publish) and a
+  repeatable registered-source crawl waterfall with deterministic adapters before model extraction.
 - **AI-readiness:** valid live `/event/[id]` SSR pages with schema.org/Event JSON-LD; expired URLs
   remain readable noindexed archives without Event markup. Also `sitemap.xml`, `public/llms.txt`, and
   an **MCP server** (`npm run mcp`) exposing search_events/get_event/list_sources.
-- Production `next build` passes. **Backend = Supabase Postgres** (`umkreis` schema; `lib/db.js` on
-  the `postgres` client over the transaction pooler); the old bundled-SQLite/`/tmp` hack is gone.
+- Permanent weekend issue pages link every available event and preserve the issue return path;
+  event pages show source-backed facts, exact map deep-links, nearby upcoming events and newsletter
+  signup. Removed/rejected/unknown rows alone return 404.
+- Double-opt-in newsletter, weekly digest/social assets, clearly labelled gold placements, and
+  privacy-safe organic/sponsored conversion instrumentation are live. The measurement contract is
+  [`docs/ops/advertiser-proof.md`](../ops/advertiser-proof.md).
+- Production build and live browser flows pass. **Backend = Supabase Postgres** (`umkreis` schema;
+  `lib/db.js` over the transaction pooler); request-time reads are bounded and PostGIS-indexed.
 
 ## 4. Architecture
 
@@ -75,24 +84,29 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
                     /event/[id] JSON-LD pages, sitemap, MCP server
 ```
 
-**Stack (chosen to be Supabase-portable):**
+**Stack:**
 - Next.js 15 (app router, plain JS), MapLibre GL + OpenFreeMap tiles (no Google dependency).
 - **Supabase Postgres** via the `postgres` client (transaction pooler), tables in the `umkreis`
   schema (`lib/db.js`, one file). starts_at/ends_at stay Vienna wall-clock TEXT (timezone rule).
 - Nominatim geocoding (1 req/s, cached in `geocache`, town-centroid fallback).
 - **Gemini Flash-Lite primary → Claude Haiku fallback** for extraction — posters and crawled pages
-  share one schema; provider routing stays in `lib/extract.js` (no provider hardcoding in feature code).
+  share one schema; provider routing stays in `lib/extract.js` (no provider hardcoding in feature
+  code). The validation-phase scheduled crawl is an explicit exception to the fallback order:
+  Austria only, Gemini only, `EXTRACT_FALLBACK=none`, and at most 750 metered requests each Sunday.
+  Germany and Bulgaria remain published but are not refreshed.
 
 **Key files:**
-- `lib/db.js` — schema, upsert/dedup, expiry, Vienna-time helpers. **Single file to port to Supabase.**
+- `lib/db.js` — the single Supabase/Postgres data-layer boundary: queries, upsert/dedup, expiry,
+  nearby search and Vienna-time helpers.
 - `lib/geocode.js` — Nominatim + cache + region sanity bounds + town fallback.
-- `lib/extract.js` — Claude vision (poster) + text (crawl) extraction, structured outputs.
+- `lib/extract.js` — Gemini-first poster/text extraction with structured outputs and centrally
+  controlled provider fallbacks.
 - `lib/i18n.js`, `lib/icons.js`, `lib/towns.js` — localization, category icons, town centroids.
 - `app/page.js` — the whole client app (map, filters, mini-card, detail, scan flow).
 - `app/event/[id]/page.js` — SSR event page + JSON-LD.
 - `scripts/seed.mjs` (import mined JSON), `scripts/crawl.mjs` (recrawl sources), `scripts/mcp-server.mjs`.
 
-## 5. Data model (SQLite → Postgres-portable)
+## 5. Data model (Supabase Postgres)
 
 `events` (core): id, **kind** (event|place, default event), title, description, starts_at, ends_at,
 all_day, lat, lng, geo_precision (venue|address|town), venue, address, town, categories (JSON array),
@@ -113,12 +127,12 @@ categories; distinct (circle vs teardrop) map pin, same color/dashed-border prec
 normalized-title + day + town for events; facts-only with source linkback (never copy source
 prose/images).
 
-## 6. Data sources (18 registered; ~92 events)
+## 6. Data sources
 
 > Full pipeline reality (waterfall, tiering, geocoding, dedup, runbook, costs, legal posture):
-> [`docs/design/data-pipeline.md`](data-pipeline.md) — source of truth, kept current per CLAUDE.md's
-> post-commit housekeeping step. The counts in this heading are stale (source registry has grown well
-> past 18 sources/92 events since 2026-07-10); see that doc's coverage snapshot for current numbers.
+> [`docs/design/data-pipeline.md`](data-pipeline.md) is the source of truth for current routes,
+> scheduled scope, operating limits and dated coverage snapshots. The original 18-source Linz set
+> below explains the validation wedge; it is no longer the complete registry.
 
 - **linztermine.at** (city calendar), **familienkarte.at** (Land OÖ — our exact audience),
   **erlebe.enns.at**, **tips.at**, and **14 Gemeinde sites**: Asten, Traun, Leonding, Ansfelden,
@@ -135,7 +149,7 @@ PDFs natively), parish newsletters, oeticket/Eventbrite APIs for the commercial 
 
 ## 7. Poster-scan pipeline & model choice
 
-Flow: capture/upload → client downscale (≤1600px) → `/api/scan` → Claude vision with a
+Flow: capture/upload → client downscale (≤1600px) → `/api/scan` → Gemini-first vision with a
 structured-output schema (title, date/time resolved to nearest future Vienna date, venue,
 categories, is_free, age, per-field confidence) → editable confirm screen (low-confidence fields
 flagged) → `POST /api/events` → geocode → live pin.
@@ -237,12 +251,17 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
 ## 10. Deployment
 
 - **GitHub Pages: won't work** (static only; we need a Node server for API/SSR/DB).
-- **Vercel: yes.** Import repo → deploy. **Backend = Supabase Postgres** (done): dedicated project
-  `eventmap`, `umkreis` schema, transaction-pooler connection. Writes persist — no serverless caveat.
+- **Vercel production is live** at `https://www.okolo.events`. Git auto-deploy is disabled;
+  verified releases use `vercel deploy --prod --yes`, followed by live flow and error-log checks.
+- **Backend = Supabase Postgres** (done): dedicated project `eventmap`, `umkreis` schema,
+  transaction-pooler connection, PostGIS geometry/indexes. Writes persist across serverless instances.
 - Env vars: `DATABASE_URL` (Supabase pooler, **required**); `GEMINI_API_KEY` (scan primary) /
-  `ANTHROPIC_API_KEY` (fallback); `NEXT_PUBLIC_BASE_URL` for absolute sitemap/share links.
-- **Still open:** `npm run crawl` → Vercel Cron / GitHub Action; poster uploads → Supabase Storage
-  (currently `/tmp`, ephemeral). PostGIS deferred (radius filter is client-side; lat/lng doubles suffice).
+  `ANTHROPIC_API_KEY` (fallback where enabled); `NEXT_PUBLIC_BASE_URL` for canonical/share links;
+  mail/admin/social secrets for their respective server-only features.
+- **Crawl automation is live in GitHub Actions:** deterministic Austria sources daily and a
+  Gemini-only Austria LLM lane weekly, with prepaid-balance and request-count circuit breakers.
+- Poster uploads are intentionally transient extraction inputs in `/tmp` and are deleted after use;
+  source images are neither retained nor republished.
 
 ## 11. Open questions / risks
 

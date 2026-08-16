@@ -118,11 +118,12 @@ One city at a time. Prove Linz retention before spending on the next city.
 
 ## 5. Newsletter (retention loop + monetization hook)
 
-The digest is "nice family events around Linz this weekend," by locality. Build state: subscribe with
-locality + categories, **double opt-in + unsubscribe shipped** (2026-07-12). Remaining consent/legal
-gaps are a tracked todo (record of consent, existing-subscriber grandfathering, List-Unsubscribe
-header at send time, token expiry). The **sponsor slot** (one clearly-labelled "präsentiert von …"
-placement per issue) is the first monetization surface — see §6.
+The digest is "nice family events around Linz this weekend," by locality. Subscribe with locality +
+categories, double opt-in, consent-version/timestamp proof, expiring confirmation tokens,
+unsubscribe and RFC 8058 one-click headers are shipped. Analytics distinguishes a confirmation-mail
+start from the address owner's completed confirmation. Gold placements are labelled “Anzeige” on
+the map, event page, weekend page and digest; selling still requires a named payer/contract and the
+operational safeguards in §6.
 
 ---
 
@@ -135,14 +136,15 @@ sponsorship runs **€20–50 CPM**. That frames a ladder deliberately cheaper t
 
 | Product | Suggested price | Notes |
 |---|---|---|
-| Promoted pin (boosted, "Anzeige" label) | **€20–50 / event / week** | Needs the labelled business-tier UI (below) |
+| Promoted pin (boosted, "Anzeige" label) | **€20–50 / event / week** | UI and delivery/referral instrumentation shipped; sell only with a defined pilot contract |
 | Newsletter sponsor slot | **€50–150 / issue** | First surface; ~€20–50 CPM at a few-k list |
 | Category / weekend sponsorship | **€150–400 / month** | Only once Linz reach is provable |
 
 Who buys: indoor playgrounds, Kinder-cafés, museums/zoos, swim & workshop providers, festival
-organizers — largely the Familienkarte partner set. **Do not sell before we have reach to quote**, and
-the paid tier is gated on the compliance work already noted (`docs/decisions/2026-07-12-paid-placement-compliance.md`):
-per-listing "Anzeige/Sponsored" labels, payer identity, ranking disclosure, advertiser terms.
+organizers — largely the Familienkarte partner set. **Do not sell before we have reach to quote.**
+Per-listing labels and event-level measurement are shipped; payer identity, contract terms and any
+required ranking disclosure remain campaign-operating gates. See
+`docs/decisions/2026-07-12-paid-placement-compliance.md` and `docs/ops/advertiser-proof.md`.
 
 ---
 

@@ -117,6 +117,16 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 - A hash-unchanged round bumps `crawl_count` only, never `zero_streak` — "page didn't change" is
   healthy for a slow municipal calendar, not the same signal as "found nothing."
 
+### Current validation schedule (2026-08-16)
+
+Scheduled refreshes are **Austria-only**. The daily lane handles deterministic routes; the Sunday
+lane handles `feed_kind='llm'` plus new/unknown sources through Gemini 2.5 Flash-Lite. Production has
+639 known Austrian LLM sources and 8 unknown-route sources, so `MAX_LLM_CALLS=750` covers the full
+current set with about 16% discovery/retry headroom. The crawl job sets `EXTRACT_FALLBACK=none` and
+receives no Anthropic key. Germany and Bulgaria remain published but paused. Stable pages still
+hash/HTTP-cache skip before any model call. The operational source of truth is
+[`docs/ops/crawl-cron.md`](../ops/crawl-cron.md).
+
 ### Coverage snapshot (read-only query, captured 2026-07-14)
 
 **1,824 sources registered, 1,743 `works=true`, 0 `tier='dead'`.** 87 never crawled (59 AT / 28 BG) —
@@ -265,7 +275,7 @@ scan) and `extractFromPage` (crawl text), both text-schema-constrained (`SCAN_SC
 | Path | Order | Notes |
 |---|---|---|
 | **Poster scan** (`extractFromImage`) | Gemini Flash-Lite (image) → Claude Haiku (image) → local `claude` CLI (only if Claude call fails with an auth error and a `filePath` was given) | Per [`docs/decisions/2026-07-10-scan-model-choice.md`](../decisions/2026-07-10-scan-model-choice.md). CLI path is a dev-convenience last resort, not a production route. |
-| **Crawl page text** (`extractFromPage`) | If `EXTRACT_PROVIDER=grok`: Grok CLI (`~/.grok/bin/grok`, subscription tokens, $0) → xAI API (only if `XAI_API_KEY` set and the CLI fails) → falls into the default order below. Default order: Gemini Flash-Lite → Claude Haiku. | Grok is a **bulk-backfill opt-in**, not steady state — see [`briefs/austria-backfill-brief.md`](../../briefs/austria-backfill-brief.md). The Grok CLI call is fenced hard: single turn, no tools, no web search, `cwd` pinned to a tmpdir (unfenced it wanders the repo looking for "missing input"); stdin isn't delivered in `-p` mode so the page text is embedded directly in the prompt. |
+| **Crawl page text** (`extractFromPage`) | If `EXTRACT_PROVIDER=grok`: Grok CLI (`~/.grok/bin/grok`, subscription tokens, $0) → xAI API (only if `XAI_API_KEY` set and the CLI fails) → falls into the default order below. Library default: Gemini Flash-Lite → Claude Haiku. Scheduled production: Gemini Flash-Lite only (`EXTRACT_FALLBACK=none`). | Grok is a **bulk-backfill opt-in**, not steady state — see [`briefs/austria-backfill-brief.md`](../../briefs/austria-backfill-brief.md). The scheduled job is Austria-only and capped at 750 metered calls each Sunday. The Grok CLI call is fenced hard: single turn, no tools, no web search, `cwd` pinned to a tmpdir (unfenced it wanders the repo looking for "missing input"); stdin isn't delivered in `-p` mode so the page text is embedded directly in the prompt. |
 
 **Never-fabricate rules baked into every prompt and every parser**: unknown fields → `null`; no
 parseable date → the event is skipped, never invented; `description` is always "1 short German
@@ -495,8 +505,8 @@ explicit `{"always":true}` marker; everything else with unknown hours correctly 
 | Nominatim | Batch geocode (venue/address/town) | 1 req/s **global**, enforced by `throttleChain` | Everything cached in `geocache`; negative-cache purge (`purgeNegativeGeocache()`) when rules change |
 | Photon (komoot) | Autocomplete-as-you-type | No hard quota published; be polite | In-memory cache (cap 500), 5s timeout, empty-result-on-failure (never blocks the UI) |
 | Overpass API | One-off places mining | Public instance fair-use policy (not a recurring load — one bootstrap run) | N/A — not on the recurring path |
-| Gemini Flash-Lite | Primary crawl/scan LLM | Free tier: 15 RPM, 1,000 req/day | Paid tier ($0.10/$0.40 per MTok in/out, per `docs/research/scraping-cost.md`); falls back to Claude on error |
-| Claude Haiku 4.5 | LLM fallback | Whatever the configured API key allows | ~12x Gemini's per-page cost (measured) — by design a fallback, not primary |
+| Gemini Flash-Lite | Primary crawl/scan LLM | Scheduled crawl: ≤750 metered requests each Sunday, Austria only | Paid tier ($0.10/$0.40 per MTok in/out, per `docs/research/scraping-cost.md`); poster/manual paths may fall back to Claude, scheduled crawling does not |
+| Claude Haiku 4.5 | Poster/manual extraction fallback | Whatever the configured API key allows | ~12x Gemini's per-page cost (measured); deliberately absent from the scheduled crawl job |
 | Grok CLI (`~/.grok/bin/grok`) | Bulk backfill LLM (opt-in `EXTRACT_PROVIDER=grok`) | Subscription tokens (fixed), ~30–60s/page (agent startup overhead) | xAI API fallback if `XAI_API_KEY` set; otherwise falls into Gemini→Claude |
 | Source servers (municipal sites) | Everything crawled | Small servers — treated as the real constraint, not our infra | Per-host ≥1s delay (`politeFetch`), robots.txt honored, identifying `UmkreisBot` UA |
 | Vercel | Hosting | Read-only project dir, ephemeral `/tmp`; `app/api/scan/route.js` sets `maxDuration = 120` | Uploads write to `/tmp/uploads` when `process.env.VERCEL`, local `data/uploads` otherwise; nothing on `/tmp` is kept after extraction (`finally { fs.unlink(...) }`) |
@@ -509,6 +519,8 @@ change-detection/structured-waterfall discount applied**): full-OÖ pass ~$0.60�
 pricing sources — that doc predates the GEM2GO parser and tiering, so real spend today is
 meaningfully lower than its naive numbers (the 158/214 = 73.8% GEM2GO hit rate in §2 is the concrete
 evidence: those crawls now cost $0 in LLM tokens where the naive model assumed one Gemini call each).
+The current Gemini-only scheduled policy is simpler: fully consuming all 750 weekly calls is
+estimated at roughly $9–16/month; unchanged-page skips should keep actual spend lower.
 
 ## 9. Legal & politeness posture
 
