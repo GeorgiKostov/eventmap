@@ -6,6 +6,7 @@ import { eventLandingStatuses } from '../../../../lib/db.js';
 import { CATS } from '../../../../lib/icons.js';
 import { STRINGS } from '../../../../lib/i18n.js';
 import NewsletterSignup from '../../../newsletter-signup.js';
+import { SponsoredImpression, TrackedEventLink } from '../../../event-analytics.js';
 import { publicBaseUrl } from '../../../../lib/public-url.js';
 
 // Highlight ring colours — same two as the map pins (app/page.js
@@ -264,19 +265,26 @@ export default async function WeekendPage({ params }) {
             </>
           );
           return (
-            <li key={it.id} style={{ display: 'flex', gap: 14, background: '#fff', border: hl ? `2px solid ${hl}` : '1px solid #E4E4DD', borderLeft: `5px solid ${color}`, borderRadius: 14, padding: 18, marginBottom: 12 }}>
+            <li key={it.id} style={{ position: 'relative', display: 'flex', gap: 14, background: '#fff', border: hl ? `2px solid ${hl}` : '1px solid #E4E4DD', borderLeft: `5px solid ${color}`, borderRadius: 14, padding: 18, marginBottom: 12 }}>
+              {it.highlight === 'gold' && (
+                <SponsoredImpression eventId={String(it.id)} surface="weekend_page" town={it.town || channel.label} category={it.cat || null} />
+              )}
               <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: 99, background: color, color: '#fff', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
               <div style={{ flex: 1 }}>
                 {it.linked ? (
-                  <Link
+                  <TrackedEventLink
                     href={`/event/${it.id}?from=${encodeURIComponent(returnTo)}`}
+                    eventName="weekend_event_open"
+                    eventProps={{ id: String(it.id), surface: 'weekend_page', town: it.town || channel.label, category: it.cat || null, highlight: it.highlight || null }}
+                    secondaryEventName={it.highlight === 'gold' ? 'sponsored_open' : null}
+                    secondaryEventProps={{ id: String(it.id), tier: 'gold', surface: 'weekend_page', target: 'event_page' }}
                     style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
                   >
                     {body}
                     <div style={{ color: '#C93A5B', fontWeight: 700, fontSize: 13, marginTop: 12 }}>
                       {c.source} →
                     </div>
-                  </Link>
+                  </TrackedEventLink>
                 ) : (
                   <>
                     {body}
@@ -294,9 +302,14 @@ export default async function WeekendPage({ params }) {
       ))}
 
       <section style={{ background: '#fff', border: '1px solid #E4E4DD', borderRadius: 14, padding: 20, marginTop: 26 }}>
-        <a href={mapUrl} style={{ display: 'inline-block', background: '#C93A5B', color: '#fff', fontWeight: 700, textDecoration: 'none', borderRadius: 10, padding: '13px 20px' }}>
+        <TrackedEventLink
+          href={mapUrl}
+          eventName="weekend_map_open"
+          eventProps={{ channel: channel.slug, weekend, item_count: items.length }}
+          style={{ display: 'inline-block', background: '#C93A5B', color: '#fff', fontWeight: 700, textDecoration: 'none', borderRadius: 10, padding: '13px 20px' }}
+        >
           {c.mapCta} →
-        </a>
+        </TrackedEventLink>
         <p style={{ color: '#4A5652', fontSize: 14, margin: '12px 0 0' }}>{c.mapSub(channel.label)}</p>
       </section>
 

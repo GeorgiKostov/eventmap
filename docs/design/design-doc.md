@@ -167,6 +167,14 @@ Every record links back to them (traffic + goodwill). Selling structured/fresh e
 companies becomes viable only *after* we own regional density — which loops back to the Linz test.
 There is **no dominant open event-exchange protocol in the DACH region** — that gap is the opening.
 
+**The organic proof loop:** a specific-event Google landing must lead into Okolo rather than end at
+one fact. The page shows only source-backed facts, opens the exact event on the map, recommends other
+future-starting events nearby, and offers the newsletter where that city is served. Anonymous
+first-party events measure the landing, map/source/recommendation clicks, newsletter conversion, and
+repeat visits by area/category. Those aggregate results—not personal data—become evidence for later
+publisher partnerships and clearly disclosed paid placement. An ended event becomes an honest archive
+and discovery handoff; it never keeps a stale scheduled-Event claim merely to preserve traffic.
+
 **The middle layer — trade distribution for supply** (`docs/decisions/2026-07-11-middle-layer-strategy.md`):
 the sharpened framing is that we sit *between* events and everyone searching for them, and we **pay for
 supply with distribution**. We give organizers the SEO + AI discoverability they can't build themselves

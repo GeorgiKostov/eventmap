@@ -9,7 +9,17 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-16 — organic search landing recovery pushed)
+## Where things stand (2026-08-16 — Austria-wide LLM crawl capacity expanded locally)
+- Scheduled crawling remains explicitly Austria-only; Germany and Bulgaria stay published but
+  paused. The Sunday Gemini Flash-Lite request ceiling is now 750 instead of 150, sized for the
+  current 639 LLM + 8 unknown-route Austrian sources with about 16% headroom.
+- Stable pages still hash/HTTP-cache skip before model extraction, Anthropic remains absent from the
+  crawl job, and billing exhaustion still fails closed. Fully consuming 750 calls is estimated at
+  roughly $9–16/month at current Gemini rates; actual spend should be lower.
+- The next Sunday production run must confirm that the prior due tail clears within the existing
+  180-minute workflow timeout. The change is local until committed and pushed.
+
+## Where things stand (2026-08-16 — organic search landing recovery live; conversion pass local)
 - A one-day Search Console spike exposed the expiry gap: 14 of 17 matching records for the top
   pasted queries had become 404s immediately after their event ended. Expired event URLs now remain
   factual 200 archive pages, clearly labelled as ended, self-canonical but `noindex, follow`, with no
@@ -20,10 +30,29 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - Production Vercel logs for the preceding 24 hours showed 32,204 200s, 1,771 404s and four 500s.
   All four 500s were malformed legacy dates (`2026-*-XX`) on `/event/[id]`; strict read validation now
   prevents the RangeError, suppresses Event JSON-LD, and noindexes those pages pending data cleanup.
-- Archived, live, malformed-date, and map-return flows passed production-backed local browser checks.
-  Commit `c1d1319` is on `main`; Vercel git auto-deploy is disabled, so it is not deployed.
+- Archived, live, malformed-date, and map-return flows passed production-backed browser checks.
+  Production now serves the archive/deep-link changes from `c1d1319` and weekend return navigation
+  from `b0f27ed` (verified on event 71703 and the 2026-08-14 Linz weekend page).
+- A live audit found archive recommendations displaying 2025/January starts because long-running
+  courses remain published until their future end. The local query now requires a valid start date
+  today or later in each event's timezone; production-backed checks on 71703 and current event 12258
+  return only August/September 2026 starts. Recommendations now render on current pages too.
+- Event landings locally show stored end time/date, categories, age, and indoor/outdoor facts; pages
+  with a threshold report show the localized warning, noindex, and emit no Event JSON-LD. PostHog
+  captures landing views plus map/source/recommendation clicks with event context; successful
+  newsletter signup now includes its non-precise area label.
+- Data audit: 26,706 published events; one missing source URL, 15,308 without descriptions, 53
+  without place text, six malformed starts, and 1,644 already-started rows kept live by a future end.
+  The latter need evidence-based cleanup, not a blanket time heuristic. Full 184-test suite and
+  production build pass; event 24 verified facts/recommendations/signup and no browser errors locally.
+- The local advertiser-proof pass gives those conversions explicit, privacy-safe semantics:
+  acquisition fields on organic landing views, started-versus-confirmed double opt-in, and labelled
+  gold-placement impressions/opens/source referrals by event and surface. Local, preview, WebDriver
+  and explicitly marked internal browsers do not count. `docs/ops/advertiser-proof.md` is the
+  reporting contract; its PostHog dashboard, Search Console/Meta/email exports, internal-device
+  opt-out and per-campaign event-ID/time allow-list remain explicit outside-Okolo operating tasks.
 
-## Where things stand (2026-08-16 — search and weekend landings recovered locally)
+## Where things stand (2026-08-16 — search and weekend landings recovered)
 - Naturally expired event URLs remain readable 200 archives with an ended banner, nearby upcoming
   suggestions, noindex/follow, no stale Event JSON-LD, and an All-dates map-area link. Removed and
   rejected rows remain 404. Live event pages deep-link the exact event into the map.
@@ -31,8 +60,7 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   visibly says “Details & source” or that details are unavailable; event links carry a strictly
   validated `/weekend/<city>/<date>` return path, so the event header returns to the issue while the
   explicit map CTA still opens the map. The 2026-08-14 Linz page verified 9/9 linked cards locally.
-- Full 212-test suite and production build pass. Vercel git auto-deploy is disabled, so a manual
-  production deploy is still required.
+- Full 212-test suite and production build passed for that change; production behavior is verified.
 
 ## Where things stand (2026-08-14 — Linz + Vienna weekend picks live)
 - Refreshed the four highest-value official weekend feeds for 14.–16. August: Linz-Termine 24,

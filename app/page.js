@@ -944,6 +944,7 @@ export default function Home() {
   // the distribution channel this whole product is built on.
   const [nlPrompt, setNlPrompt] = useState(false);
   const eventOpens = useRef(0);
+  const sponsoredSeen = useRef(new Set());
   const toastT = useRef(null);
 
   // scan flow
@@ -1074,11 +1075,12 @@ export default function Home() {
           areaLng: location.lng,
           radiusKm: 20,
           categories: nl.categories,
+          source: 'newsletter_popup',
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t.requestFailed);
-      track('newsletter_signup');
+      track('newsletter_signup_started', { source: 'newsletter_popup', area });
       try { localStorage.setItem('okolo_nl_prompt', 'signed'); } catch { /* private mode */ }
       setNl((s) => ({ ...s, busy: false, done: true, pending: data.pending !== false }));
     } catch (err) {
@@ -1519,7 +1521,9 @@ export default function Home() {
           })
           .catch(() => {});
       }
-      track('open_detail', { kind: ev.kind, cat: primaryCat(ev), town: ev.town });
+      const detailProps = { id: String(ev.id), kind: ev.kind, cat: primaryCat(ev), town: ev.town, highlight: ev.highlight || null, surface: 'map' };
+      track('open_detail', detailProps);
+      if (ev.highlight === 'gold') track('sponsored_open', { ...detailProps, tier: 'gold' });
       // Fly to the group's representative pin (selecting a list row that's a venue
       // /series member centers on the single pin that stands for it). The visual
       // selection (halo + scale) is driven off React `selected` via feature-state
@@ -1710,6 +1714,24 @@ export default function Home() {
   }, [commonFiltered, kindFilter, refPoint]);
 
   const filtered = useMemo(() => [...filteredEvents, ...filteredPlaces], [filteredEvents, filteredPlaces]);
+
+  // A map impression means a paid result passed the current viewport + filter
+  // rules and was rendered as a pin/list result. Count once per browser session
+  // and surface/event, even if the user pans away and back repeatedly.
+  useEffect(() => {
+    for (const ev of filtered) {
+      if (ev.highlight !== 'gold') continue;
+      const key = `okolo:sponsored:map:${ev.id}`;
+      let alreadySeen = sponsoredSeen.current.has(key);
+      try { alreadySeen ||= sessionStorage.getItem(key) === '1'; } catch { /* private mode */ }
+      if (alreadySeen) continue;
+      sponsoredSeen.current.add(key);
+      try { sessionStorage.setItem(key, '1'); } catch { /* private mode */ }
+      track('sponsored_impression', {
+        id: String(ev.id), tier: 'gold', surface: 'map', town: ev.town || null, category: primaryCat(ev),
+      });
+    }
+  }, [filtered]);
 
   // Map grammar, in order: resolved event coordinates → same-series collapse →
   // safe same-venue collapse → generic spatial clustering. Every occurrence
@@ -2851,6 +2873,11 @@ export default function Home() {
       : (events || [])
           .filter((e) => e.kind !== 'place' && e.id !== ev.id && !seriesIds.has(e.id) && sameVenue(e, ev))
           .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+    const captureSourceOpen = () => {
+      const props = { id: String(ev.id), kind: ev.kind, town: ev.town || null, highlight: ev.highlight || null, surface: 'map' };
+      track('event_source_open', props);
+      if (ev.highlight === 'gold') track('sponsored_referral', { ...props, tier: 'gold', target: 'source' });
+    };
     return (
       <>
         <div className="dhero" style={{ '--cc': CATS[cat].color }}>
@@ -2908,10 +2935,10 @@ export default function Home() {
               {community ? (
                 <>
                   <b>{t.communitySource}</b>
-                  {ev.source_url && <> · <a href={ev.source_url} target="_blank" rel="noreferrer">{ev.source_url}</a></>}
+                  {ev.source_url && <> · <a href={ev.source_url} target="_blank" rel="noreferrer" onClick={captureSourceOpen}>{ev.source_url}</a></>}
                 </>
               ) : ev.source_url ? (
-                <a href={ev.source_url} target="_blank" rel="noreferrer">{ev.source_name || ev.source_url}</a>
+                <a href={ev.source_url} target="_blank" rel="noreferrer" onClick={captureSourceOpen}>{ev.source_name || ev.source_url}</a>
               ) : (
                 <b>{ev.source_name || t.uploadSource}</b>
               )}

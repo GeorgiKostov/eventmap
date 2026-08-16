@@ -1,4 +1,5 @@
 import { confirmSubscriber } from '../../../../lib/db.js';
+import { captureServer } from '../../../../lib/analytics-server.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,8 +36,18 @@ export async function GET(req) {
   const token = searchParams.get('token');
   const lang = searchParams.get('lang');
   const c = COPY[lang] || COPY.en;
-  const email = token ? await confirmSubscriber(token) : null;
-  if (!email) return page(c.bad, c.badBody);
+  const subscriber = token ? await confirmSubscriber(token) : null;
+  if (!subscriber) return page(c.bad, c.badBody);
+  if (subscriber.newlyConfirmed) {
+    await captureServer('newsletter_confirmed', {
+      distinctId: `subscriber:${subscriber.id}`,
+      properties: {
+        source: subscriber.source || 'unknown',
+        area: subscriber.areaLabel || null,
+        lang: subscriber.lang || lang || 'en',
+      },
+    });
+  }
   // The confirmed subscriber gets their exit and their settings in the same
   // breath as the welcome: the unsubscribe link reuses the token they just
   // proved control of, and preferences are managed by simply re-signing up

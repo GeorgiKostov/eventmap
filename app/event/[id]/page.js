@@ -8,6 +8,7 @@ import { eventDescription, eventJsonLd } from '../../../lib/event-jsonld.js';
 import { safeWeekendReturn } from '../../../lib/return-path.js';
 import { STRINGS } from '../../../lib/i18n.js';
 import NewsletterSignup from '../../newsletter-signup.js';
+import { EventLandingView, TrackedEventLink } from '../../event-analytics.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,9 +18,9 @@ export const dynamic = 'force-dynamic';
 const HIGHLIGHT = { gold: '#E8A800', editorial: '#C93A5B' };
 
 const PAGE_COPY = {
-  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt' },
-  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', back: 'Back to the map', weekendBack: 'Back to the weekend page', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away' },
-  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние' },
+  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', until: 'bis', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt', ageFrom: (n) => `Ab ${n} Jahren`, ageTo: (n) => `Bis ${n} Jahre` },
+  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', until: 'until', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', back: 'Back to the map', weekendBack: 'Back to the weekend page', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away', ageFrom: (n) => `Ages ${n}+`, ageTo: (n) => `Up to age ${n}` },
+  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', until: 'до', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние', ageFrom: (n) => `За ${n}+ години`, ageTo: (n) => `До ${n} години` },
 };
 
 async function pageCopy() {
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }) {
     // Override the root layout's canonical '/': without this every event page
     // declares itself a duplicate of the homepage and Google drops it.
     alternates: { canonical: `/event/${id}` },
-    ...((isArchived || !when) ? { robots: { index: false, follow: true } } : {}),
+    ...((isArchived || !when || ev.report_flag) ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title: ev.title,
       description: eventDescription(ev),
@@ -76,9 +77,12 @@ export default async function EventPage({ params, searchParams }) {
   const t = await pageCopy();
   const lang = await pageLang();
   const isArchived = ev.status === 'expired';
-  const nearby = isArchived
-    ? await nearbyUpcomingEvents({ lat: ev.lat, lng: ev.lng, excludeId: ev.id, categories: ev.categories })
-    : [];
+  const nearby = await nearbyUpcomingEvents({
+    lat: ev.lat,
+    lng: ev.lng,
+    excludeId: ev.id,
+    categories: ev.categories,
+  });
 
   // Which city this event belongs to, from its own coordinates. George: the page
   // "just says okolo instead of okolo.linz or wherever you came from". Deriving
@@ -109,10 +113,32 @@ export default async function EventPage({ params, searchParams }) {
 
   // Google Event structured data must describe a current publisher claim, not
   // an archive. The facts stay readable, but expired pages emit no Event JSON-LD.
-  const ld = isArchived ? null : eventJsonLd(ev, id);
+  const ld = (isArchived || ev.report_flag) ? null : eventJsonLd(ev, id);
   const when = formatEventDate(ev.starts_at, t.locale, {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
+  const startDate = validDateOf(ev.starts_at);
+  const endDate = validDateOf(ev.ends_at);
+  const startTime = validTimeOf(ev.starts_at);
+  const endTime = validTimeOf(ev.ends_at);
+  const endWhen = endDate && endDate !== startDate
+    ? formatEventDate(ev.ends_at, t.locale, {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      })
+    : null;
+  const ui = STRINGS[lang] || STRINGS.en;
+  const age = ev.age_min != null && ev.age_max != null
+    ? ui.ageRec.replace('{min}', ev.age_min).replace('{max}', ev.age_max)
+    : ev.age_min != null
+      ? t.ageFrom(ev.age_min)
+      : ev.age_max != null
+        ? t.ageTo(ev.age_max)
+        : null;
+  const facts = [
+    ...(ev.categories || []).map((category) => ui.cats?.[category]).filter(Boolean),
+    age,
+    ev.indoor === 1 ? ui.indoorTag : ev.indoor === 0 ? ui.outdoorTag : null,
+  ].filter(Boolean);
 
   // Treatment and label are ONE unit: gold is styled and labelled together, or
   // neither (see lib/digest.js — colour alone is not disclosure, ECG §6).
@@ -122,6 +148,14 @@ export default async function EventPage({ params, searchParams }) {
   return (
     <main style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px 72px', fontFamily: 'var(--font-body)' }}>
       {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />}
+      <EventLandingView
+        eventId={String(ev.id)}
+        status={ev.status}
+        town={ev.town}
+        category={ev.categories?.[0] || null}
+        channel={channel?.slug || null}
+        highlight={ev.highlight || null}
+      />
 
       {/* Back affordance + city branding in one row — the wordmark IS the way
           back, which is what was missing (there was a link home, but nothing
@@ -171,15 +205,30 @@ export default async function EventPage({ params, searchParams }) {
             {when}
             {ev.all_day
               ? ` · ${t.allDay}`
-              : validTimeOf(ev.starts_at)
-                ? ` · ${validTimeOf(ev.starts_at)}${t.clock ? ` ${t.clock}` : ''}`
+              : startTime
+                ? ` · ${startTime}${endDate === startDate && endTime && endTime !== startTime ? `–${endTime}` : ''}${t.clock ? ` ${t.clock}` : ''}`
                 : ` · ${t.timeTbd}`}
+            {endWhen ? ` · ${t.until} ${endWhen}${endTime ? `, ${endTime}${t.clock ? ` ${t.clock}` : ''}` : ''}` : ''}
           </p>
         )}
         <p style={{ fontSize: 15, margin: '0 0 6px' }}>
           📍 {[ev.venue, ev.address, ev.town].filter(Boolean).join(', ')}
         </p>
         {ev.is_free === 1 && <p style={{ color: 'var(--good)', fontWeight: 700, margin: '0 0 6px' }}>{t.free}</p>}
+        {ev.report_flag && ui.reportFlags?.[ev.report_flag] && (
+          <p role="status" style={{ background: '#FFF4DA', border: '1px solid #E8A800', borderRadius: 10, padding: '10px 12px', fontSize: 13.5, lineHeight: 1.45, margin: '12px 0' }}>
+            ⚠ {ui.reportFlags[ev.report_flag]}
+          </p>
+        )}
+        {facts.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, margin: '12px 0' }}>
+            {facts.map((fact) => (
+              <span key={fact} style={{ background: '#F3F0EA', color: 'var(--ink)', borderRadius: 99, padding: '5px 9px', fontSize: 12.5, fontWeight: 700 }}>
+                {fact}
+              </span>
+            ))}
+          </div>
+        )}
         {ev.description && <p style={{ fontSize: 15.5, lineHeight: 1.65, margin: '16px 0' }}>{ev.description}</p>}
         {/* overflowWrap: a source_url can be a 300-char Facebook permalink with no
             spaces, which otherwise runs off the page (and, now that a highlighted
@@ -187,29 +236,42 @@ export default async function EventPage({ params, searchParams }) {
         <p style={{ fontSize: 12.5, color: 'var(--muted)', margin: '20px 0', overflowWrap: 'anywhere' }}>
           {t.source}:{' '}
           {ev.source_url ? (
-            <a href={ev.source_url} target="_blank" rel="noreferrer">{ev.source_name || ev.source_url}</a>
+            <TrackedEventLink
+              href={ev.source_url}
+              target="_blank"
+              rel="noreferrer"
+              external
+              eventName="event_source_open"
+              eventProps={{ id: String(ev.id), status: ev.status, town: ev.town || null, surface: 'event_page', highlight: ev.highlight || null }}
+              secondaryEventName={ev.highlight === 'gold' ? 'sponsored_referral' : null}
+              secondaryEventProps={{ id: String(ev.id), tier: 'gold', surface: 'event_page', target: 'source' }}
+            >
+              {ev.source_name || ev.source_url}
+            </TrackedEventLink>
           ) : (
             ev.source_name || t.upload
           )}
         </p>
       </article>
 
-      {isArchived && nearby.length > 0 && (
+      {nearby.length > 0 && (
         <section aria-labelledby="nearby-events" style={{ marginTop: 30 }}>
           <h2 id="nearby-events" style={{ fontFamily: 'var(--font-display)', fontSize: 22, margin: '0 0 12px' }}>
             {t.nearby}
           </h2>
           <div style={{ display: 'grid', gap: 10 }}>
-            {nearby.map((next) => {
+            {nearby.map((next, index) => {
               const nextWhen = formatEventDate(next.starts_at, t.locale, {
                 weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
               });
               if (!nextWhen) return null;
               const nextTime = validTimeOf(next.starts_at);
               return (
-                <Link
+                <TrackedEventLink
                   key={next.id}
                   href={`/event/${next.id}`}
+                  eventName="event_recommendation_open"
+                  eventProps={{ from_id: String(ev.id), to_id: String(next.id), from_status: ev.status, position: index + 1, surface: 'event_page' }}
                   style={{ display: 'block', border: '1px solid #E4DED5', borderRadius: 12, padding: '13px 15px', color: 'var(--ink)', textDecoration: 'none', background: '#FFFEFB' }}
                 >
                   <div style={{ fontWeight: 800, lineHeight: 1.35 }}>{next.title}</div>
@@ -220,7 +282,7 @@ export default async function EventPage({ params, searchParams }) {
                     📍 {[next.venue, next.town].filter(Boolean).join(', ')}
                     {next.distance_km != null ? ` · ${next.distance_km} ${t.away}` : ''}
                   </div>
-                </Link>
+                </TrackedEventLink>
               );
             })}
           </div>
@@ -228,15 +290,19 @@ export default async function EventPage({ params, searchParams }) {
       )}
 
       <p style={{ marginTop: 20 }}>
-        <Link
+        <TrackedEventLink
           href={mapHref}
+          eventName="event_map_open"
+          eventProps={{ id: String(ev.id), status: ev.status, town: ev.town || null, highlight: ev.highlight || null, surface: 'event_page' }}
+          secondaryEventName={ev.highlight === 'gold' ? 'sponsored_open' : null}
+          secondaryEventProps={{ id: String(ev.id), tier: 'gold', surface: 'event_page', target: 'map' }}
           style={{
             display: 'inline-block', background: 'var(--accent)', color: '#fff', fontWeight: 700,
             padding: '11px 20px', borderRadius: 12, textDecoration: 'none', fontSize: 14,
           }}
         >
           {isArchived ? t.archiveMap : t.map}
-        </Link>
+        </TrackedEventLink>
       </p>
 
       {/* Subscribe right where the interest is. Only where we know the city — a

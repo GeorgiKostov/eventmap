@@ -55,7 +55,9 @@ export default function NewsletterSignup({ lang = 'en', area, source, title }) {
       // never sent (lib/mail.js / the route's own comment). So: only a real
       // ok:true earns the "check your inbox" state.
       if (!res.ok) throw new Error(data.error || t.requestFailed);
-      track('newsletter_signup', { source });
+      // This only proves the confirmation email was accepted by a provider.
+      // newsletter_confirmed is emitted by the confirmation endpoint later.
+      track('newsletter_signup_started', { source, area: area.label });
       setState({ busy: false, done: true, err: null });
     } catch (err) {
       setState({ busy: false, done: false, err: String(err.message || err) });

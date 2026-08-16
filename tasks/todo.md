@@ -2,6 +2,40 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Advertiser / publisher proof (2026-08-16)
+- [x] Instrument anonymous organic event landings and their map, recommendation, source and
+      newsletter-start actions by event/area/category, with referrer domain and fixed UTM fields.
+- [x] Separate double-opt-in intent (`newsletter_signup_started`) from a production-only,
+      PII-free `newsletter_confirmed` conversion; repeat confirmation clicks do not double-count.
+- [x] Instrument labelled gold placements across event, weekend and map surfaces with event-ID
+      impressions/rendered results, opens and publisher-source referrals; document exact definitions
+      and caveats in `docs/ops/advertiser-proof.md`.
+- [x] Exclude local/preview/WebDriver traffic and provide a persistent `?okolo_internal=1` switch
+      for Okolo-operated browsers so our own QA does not inflate the proof.
+- [ ] **Outside Okolo — George:** open `https://www.okolo.events/?okolo_internal=1` once on every
+      browser/device used for live QA, demos or routine operation (`?okolo_internal=0` opts back in).
+- [ ] **Outside Okolo — PostHog:** restore/grant project access and create the private
+      “Partner proof — validation” dashboard from `docs/ops/advertiser-proof.md`. The connected
+      PostHog tool currently cannot resolve the project endpoint, so this cannot be provisioned from
+      the repository.
+- [ ] **Outside Okolo — Search Console:** export query + landing-page clicks, impressions, CTR and
+      position monthly (or grant API access) and preserve the dated raw export alongside each proof
+      pack. PostHog cannot reconstruct search impressions or rankings.
+- [ ] **Outside Okolo — campaign operations:** before any paid pilot, record the signed partner,
+      exact event-ID allow-list, tier, surfaces, Vienna start/end, price and success criteria. Obtain
+      the partner’s destination/ticket conversion report if they want claims beyond source clicks.
+- [ ] **Outside Okolo — channel evidence:** retain aggregate Meta reach/click exports and email
+      delivery/open/click exports for the same period. Do not add email tracking pixels merely to
+      make the numbers look more complete.
+- [ ] Wait for at least four consecutive weekends of clean data before presenting the general
+      platform proof pack; shorter sponsored runs must be labelled as pilots with sample size.
+
+## Austria-wide LLM refresh capacity (2026-08-16)
+- [x] Keep scheduled crawling Austria-only and raise the weekly Gemini Flash-Lite ceiling from 150
+      to 750 requests: enough for the current 639 LLM + 8 unknown-route sources with ~16% headroom.
+- [ ] After this reaches `main`, confirm the next Sunday LLM run clears the due Austrian tail without
+      hitting the 180-minute workflow timeout or Gemini prepaid-balance circuit breaker.
+
 ## Search landing recovery (2026-08-16)
 - [x] Keep naturally expired `/event/<id>` URLs as 200 archive pages with a clear ended state,
       `noindex, follow`, no stale Event JSON-LD, family-first nearby suggestions, and an All-dates
@@ -11,9 +45,16 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Frozen weekend pages link both live picks and naturally expired archives, visibly label every
       card as “Details & source” or unavailable, and carry a validated same-origin return path so
       the event-page back affordance restores the dated weekend page. The map CTA remains separate.
+- [x] Search landings now expose existing end/age/category/indoor facts, recommend three bounded
+      future-starting nearby events on both live and archive pages, and track anonymous landing,
+      map, source, recommendation, and newsletter-area conversions in PostHog. Disputed pages stay
+      readable but show the report, noindex, and suppress Event JSON-LD.
 - [ ] Clean the confirmed syndicated duplicate clusters for “ORANGE IS THE NEW BLACK” and
       “FF-Fest Judenau”, and reject/fix the four malformed `2026-*-XX` legacy rows (54438, 54442,
       54443, 54445). The read surface is crash-safe and noindexes them meanwhile.
+- [ ] Audit the 1,644 published long-running rows whose start is past but end is future, especially
+      suspicious midnight starts such as Zeillathlon. Do not blanket-convert midnight to “unknown”:
+      genuine midnight events exist, so corrections require source evidence or an adapter fix.
 
 ## Weekend picks — Linz + Vienna (2026-08-14)
 - [x] Refreshed Linz-Termine, OÖ Familienkarte, Wien Kinder, and Kultursommer sources for
