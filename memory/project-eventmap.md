@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-16 — Enns/Wenns collision repaired; ongoing state labelled)
+- The Enns anomaly was a substring collision: `townCentroid("Wenns")` matched the known Linz-area
+  centroid `Enns`. Fuzzy fallback now requires complete normalized place-name tokens, with Wenns and
+  Ennsdorf regressions; qualified names such as `Stadt Enns` and `Linz-Pichling` still resolve.
+- The registered Wenns source was force-recrawled through its deterministic GEM2GO route (22/22).
+  Nine superseded rolling-range rows were expired and all town-precision Wenns rows that had landed
+  near Enns were moved to the verified Wenns centroid. Published `town=Wenns` rows near Enns: zero;
+  the remaining published coordinates span 47.1600–47.1709 / 10.7298–10.7376 in Tyrol.
+- Events that overlap the active date lens after starting earlier now show the existing localized
+  ongoing label in both the mobile quick preview and expanded detail: Ongoing / Läuft bereits /
+  Вече започнали. Browser checks passed all three languages without overlays or console errors;
+  222 tests and the production build pass. Code changes are local and not deployed.
+
 ## Where things stand (2026-08-16 — Austria-wide LLM crawl capacity expanded)
 - Scheduled crawling remains explicitly Austria-only; Germany and Bulgaria stay published but
   paused. The Sunday Gemini Flash-Lite request ceiling is now 750 instead of 150, sized for the

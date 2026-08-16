@@ -2,6 +2,44 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Programmatic SEO + AIO landing pages (2026-08-16)
+- [ ] Ship the Linz-first SSR landing-page slice at `/events/linz`, `/events/linz/heute`,
+      `/events/linz/wochenende`, and `/events/linz/kinder`. Return the actual matching event
+      titles, dates/times, venues, categories and crawlable detail links in the initial HTML; do not
+      make these aliases that merely boot the client-side map. Compute relative date windows in
+      Europe/Vienna and reuse `lib/db.js` for bounded reads.
+- [ ] Give each page truthful German search-intent metadata and visible content: a unique title,
+      H1, description, canonical URL, current Vienna date/count, useful event groupings, nearby-town
+      links, and crawlable links to the other Linz intent pages and the map. Keep all descriptions
+      original and factual; never copy publisher prose.
+- [ ] Make the same pages answer-engine-ready: lead with a concise, self-contained answer generated
+      deterministically from current event rows; state the exact Vienna date/time window, geographic
+      scope, result count and last refresh; expose event facts and source attribution in semantic
+      HTML; and add only valid structured data that mirrors the visible page. Do not add generic
+      AI-written city filler or claims unsupported by the indexed events.
+- [ ] Give AI assistants a stable machine-readable route to the same bounded result set through the
+      existing `/api/events` and MCP surfaces, with canonical event URLs and `source_url` provenance.
+      Document the landing-page patterns in `llms.txt` if that improves discovery, while keeping
+      `lib/db.js` as the shared query boundary and avoiding a second, drifting search implementation.
+- [ ] Add the four permanent URLs to `sitemap.xml`, link them from an indexable navigation surface,
+      and add relevant upward links from Linz event pages (all Linz events / today / weekend / kids)
+      so the landing pages and detail pages form a clear crawlable hierarchy.
+- [ ] Define and test a thin-page/indexing gate before scaling: empty or low-inventory combinations
+      must noindex or 404 rather than become doorway pages. Keep stable intent URLs such as `heute`
+      and `wochenende`; do not create daily archives or expose arbitrary filter combinations as
+      crawlable URLs.
+- [ ] Verify the real server HTML, canonical/meta tags, mobile/desktop flow, sitemap output and a
+      sample event's JSON-LD with the production call path; also compare the visible answer, page
+      rows and API/MCP results for the same Vienna window. After deployment, track landing-page
+      impressions, clicks, CTR, event/map opens, newsletter starts and identifiable AI-assistant
+      referrals separately in Search Console and PostHog through the four-weekend Linz validation
+      window. Treat citations/mentions in answer engines as observational evidence, not a promised
+      ranking outcome.
+- [ ] Expand the same system to additional cities, states and proven category intents only after
+      the Linz pages show useful inventory and search demand. Generate only allow-listed combinations
+      above the indexing threshold; defer Austria-wide matrices and `veranstaltungen in der naehe`
+      until the Linz-first validation evidence justifies them.
+
 ## Advertiser / publisher proof (2026-08-16)
 - [x] Instrument anonymous organic event landings and their map, recommendation, source and
       newsletter-start actions by event/area/category, with referrer domain and fixed UTM fields.

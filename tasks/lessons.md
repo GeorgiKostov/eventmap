@@ -2,6 +2,16 @@
 
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
+## 2026-08-16 — Fuzzy place matching must respect word boundaries
+
+`townCentroid("Wenns")` returned Enns because the fallback accepted any substring and `"wenns"`
+contains `"enns"`. That one permissive comparison moved a Tyrolean municipality's town-level rows
+to Upper Austria; the UI then honestly rendered a nonsensical “events in Wenns” bubble over Enns.
+The same rule also made Ennsdorf vulnerable. **Lesson:** locality matching may normalize punctuation
+and accept a known town as a complete token inside a qualified label (`Stadt Enns`,
+`Linz-Pichling`), but it must never match inside another word. Add the confusable real place name as
+a regression case, and verify the stored coordinates—not just the search label—after a repair.
+
 ## 2026-07-18 — Two sessions built Germany the same afternoon; fetch before you plan, re-apply only your delta
 
 Registering the Hamburg+Köln municipal backbone, I worked for hours against a `main` that a parallel

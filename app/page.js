@@ -6,7 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, ImageSquare, LinkSimple, PencilSimple, CaretRight, BookmarkSimple, Flag, Warning } from '@phosphor-icons/react';
 import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
-import { hasTime, makeStartsAt, inTimeOfDay } from '../lib/event-time.js';
+import { hasTime, makeStartsAt, inTimeOfDay, isOngoingAt } from '../lib/event-time.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
 import { searchPlaces, normalizePlace } from '../lib/places.js';
 import { groupEventSeries } from '../lib/map-groups.js';
@@ -2858,6 +2858,7 @@ export default function Home() {
   function eventDetail(ev, { onBack, onClose }) {
     const cat = primaryCat(ev);
     const place = ev.kind === 'place';
+    const ongoing = !place && isOngoingAt(ev, dFrom);
     const community = isCommunitySubmitted(ev);
     const series = seriesGroups.byId.get(ev.id);
     const seriesIds = new Set(series?.members.map((item) => item.id) || []);
@@ -2902,6 +2903,7 @@ export default function Home() {
           )}
           {place ? placeHoursBlock(ev) : <div className="dwhen">{fmtWhen(ev, lang, t)}</div>}
           <div className="dtags">
+            {ongoing && <span className="dtag" style={{ '--cc': 'var(--accent)' }}>{t.ongoing}</span>}
             {(ev.categories || []).filter((c) => CATS[c]).map((c) => (
               <span key={c} className="dtag" style={{ '--cc': CATS[c].color }}>
                 <CatIcon cat={c} size={11} /> {t.cats[c]}
@@ -3422,7 +3424,10 @@ export default function Home() {
               <span className="thumb"><CatIcon cat={primaryCat(selected)} size={19} /></span>
               <span className="tx">
                 <span className="t">{selected.title}</span>
-                <span className="w">{selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}</span>
+                <span className="w">
+                  {selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}
+                  {selected.kind !== 'place' && isOngoingAt(selected, dFrom) && <span className="ongoing-tag">{t.ongoing}</span>}
+                </span>
                 <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
                 {selected.description && <span className="d">{selected.description}</span>}
               </span>
