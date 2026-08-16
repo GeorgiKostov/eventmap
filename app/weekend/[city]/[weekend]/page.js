@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getChannel, weekendWindow } from '../../../../lib/city-channels.js';
 import { loadDigestFor, MIN_INDEXABLE_ITEMS, sectionsOf } from '../../../../lib/digest.js';
-import { eventsByIds } from '../../../../lib/db.js';
+import { eventLandingStatuses } from '../../../../lib/db.js';
 import { CATS } from '../../../../lib/icons.js';
 import { STRINGS } from '../../../../lib/i18n.js';
 import NewsletterSignup from '../../../newsletter-signup.js';
@@ -47,6 +47,7 @@ const COPY = {
     past: 'Dieses Wochenende ist vorbei — hier sind die Tipps für dieses Wochenende.',
     thisWeekend: 'Zum aktuellen Wochenende',
     empty: 'Für dieses Wochenende haben wir nichts gefunden.',
+    unavailable: 'Details nicht mehr verfügbar',
   },
   bg: {
     locale: 'bg-BG',
@@ -61,6 +62,7 @@ const COPY = {
     past: 'Този уикенд отмина — виж идеите за текущия.',
     thisWeekend: 'Към текущия уикенд',
     empty: 'Не намерихме нищо за този уикенд.',
+    unavailable: 'Подробностите вече не са налични',
   },
   en: {
     locale: 'en-GB',
@@ -75,6 +77,7 @@ const COPY = {
     past: 'This weekend is over — here are this week’s picks.',
     thisWeekend: 'Go to this weekend',
     empty: 'We found nothing for this weekend.',
+    unavailable: 'Details no longer available',
   },
 };
 
@@ -126,11 +129,10 @@ export async function generateMetadata({ params }) {
 // they still render on the page. Emitting a broken Event is worse than emitting
 // one fewer.
 function jsonLd(channel, digest, items) {
-  // Google requires every Event URL to be a live, single-event leaf page.
-  // Expired digest items deliberately remain readable in the archive, but
-  // their /event/<id> pages no longer exist, so do not advertise those dead
-  // URLs as rich-result candidates.
-  const datedItems = items.filter((it) => it.startsAt && it.linked);
+  // Archived leaf pages are useful to readers, but an expired event is no
+  // longer an EventScheduled publisher claim. Only currently published picks
+  // become Event rich-result candidates.
+  const datedItems = items.filter((it) => it.startsAt && it.live);
   if (!datedItems.length) return null;
   return {
     '@context': 'https://schema.org',
@@ -165,16 +167,22 @@ export default async function WeekendPage({ params }) {
   if (!data) notFound();
   const { channel, digest, weekend, c } = data;
 
-  // A past weekend's events are 'expired', so /event/<id> 404s for them. Link
-  // only the ones still live; the rest render as plain text. A page full of
-  // links to 404s is worse for SEO than a page with fewer links.
-  const live = new Set((await eventsByIds(digest.items.map((i) => i.id))).map((e) => String(e.id)));
+  // Published picks and naturally expired event archives both have public leaf
+  // pages. Removed/rejected rows remain unavailable and are labelled as such.
+  // Status stays separate from linkability because only published events may
+  // be advertised to Google as EventScheduled below.
+  const statuses = new Map(
+    (await eventLandingStatuses(digest.items.map((i) => i.id)))
+      .map((event) => [String(event.id), event.status]),
+  );
+  const returnTo = `/weekend/${channel.slug}/${weekend}`;
 
   const items = digest.items.map((it) => ({
     ...it,
     isFree: it.badges.includes(c.free),
     startsAt: it.startsAt || undefined,
-    linked: live.has(String(it.id)),
+    linked: statuses.has(String(it.id)),
+    live: statuses.get(String(it.id)) === 'published',
   }));
 
   const isPast = weekend < weekendWindow(channel.tz).friday;
@@ -260,9 +268,22 @@ export default async function WeekendPage({ params }) {
               <div style={{ flexShrink: 0, width: 26, height: 26, borderRadius: 99, background: color, color: '#fff', fontWeight: 700, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
               <div style={{ flex: 1 }}>
                 {it.linked ? (
-                  <Link href={`/event/${it.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>{body}</Link>
+                  <Link
+                    href={`/event/${it.id}?from=${encodeURIComponent(returnTo)}`}
+                    style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}
+                  >
+                    {body}
+                    <div style={{ color: '#C93A5B', fontWeight: 700, fontSize: 13, marginTop: 12 }}>
+                      {c.source} →
+                    </div>
+                  </Link>
                 ) : (
-                  body
+                  <>
+                    {body}
+                    <div style={{ color: '#737D79', fontSize: 13, marginTop: 12 }}>
+                      {c.unavailable}
+                    </div>
+                  </>
                 )}
               </div>
             </li>

@@ -8,6 +8,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       map link centred on the event area. Removed/rejected rows still 404.
 - [x] Live event pages now reopen the exact event on the map through a bigint-string `event` deep
       link; future events automatically open the All-dates lens so their pin remains visible.
+- [x] Frozen weekend pages link both live picks and naturally expired archives, visibly label every
+      card as “Details & source” or unavailable, and carry a validated same-origin return path so
+      the event-page back affordance restores the dated weekend page. The map CTA remains separate.
 - [ ] Clean the confirmed syndicated duplicate clusters for “ORANGE IS THE NEW BLACK” and
       “FF-Fest Judenau”, and reject/fix the four malformed `2026-*-XX` legacy rows (54438, 54442,
       54443, 54445). The read surface is crash-safe and noindexes them meanwhile.
@@ -1218,7 +1221,8 @@ Critical/Major against the code, then fixed all. Build green, 52 tests pass (+3 
       gained `&weekend=` so an old page keeps its own cover). `/weekend/<city>` (no date) always
       redirects to the current weekend — the stable URL for a bio/QR poster/pinned group message.
       Past weekends stay up as an archive. Guards: <3 picks ⇒ noindex (a stack of thin city pages is
-      a doorway farm); a past weekend links only still-published events (no link-to-404s). Caught by
+      a doorway farm); naturally expired picks link to their archive leaf, while removed/rejected
+      picks are visibly unavailable and never linked. Caught by
       rendering it: JSON-LD had NO startDate — schema.org Event requires it and Google rejects the
       WHOLE rich result, so all 9 events would have been invisible. Snapshots now carry startsAt/
       endsAt; jsonLd() drops any dateless item rather than emit a broken Event. (6e026ea)

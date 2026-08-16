@@ -9,7 +9,7 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-16 — organic search landing recovery, local)
+## Where things stand (2026-08-16 — organic search landing recovery pushed)
 - A one-day Search Console spike exposed the expiry gap: 14 of 17 matching records for the top
   pasted queries had become 404s immediately after their event ended. Expired event URLs now remain
   factual 200 archive pages, clearly labelled as ended, self-canonical but `noindex, follow`, with no
@@ -20,8 +20,19 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - Production Vercel logs for the preceding 24 hours showed 32,204 200s, 1,771 404s and four 500s.
   All four 500s were malformed legacy dates (`2026-*-XX`) on `/event/[id]`; strict read validation now
   prevents the RangeError, suppresses Event JSON-LD, and noindexes those pages pending data cleanup.
-- All 209 tests and a production build pass; archived, live, malformed-date, and map-return flows
-  passed production-backed local browser checks. Not committed, pushed, or deployed.
+- Archived, live, malformed-date, and map-return flows passed production-backed local browser checks.
+  Commit `c1d1319` is on `main`; Vercel git auto-deploy is disabled, so it is not deployed.
+
+## Where things stand (2026-08-16 — search and weekend landings recovered locally)
+- Naturally expired event URLs remain readable 200 archives with an ended banner, nearby upcoming
+  suggestions, noindex/follow, no stale Event JSON-LD, and an All-dates map-area link. Removed and
+  rejected rows remain 404. Live event pages deep-link the exact event into the map.
+- Frozen weekend pages now resolve both published and naturally expired landing pages. Every card
+  visibly says “Details & source” or that details are unavailable; event links carry a strictly
+  validated `/weekend/<city>/<date>` return path, so the event header returns to the issue while the
+  explicit map CTA still opens the map. The 2026-08-14 Linz page verified 9/9 linked cards locally.
+- Full 212-test suite and production build pass. Vercel git auto-deploy is disabled, so a manual
+  production deploy is still required.
 
 ## Where things stand (2026-08-14 — Linz + Vienna weekend picks live)
 - Refreshed the four highest-value official weekend feeds for 14.–16. August: Linz-Termine 24,
@@ -57,7 +68,8 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   metadata, Organization/WebSite JSON-LD, and the logo URL all agree.
 - Leaf Event JSON-LD adds canonical `url`, Okolo-generated 1200×675 `image`, a grounded description
   fallback, each row's actual country, and DST-correct event timezone offsets. Weekend ItemLists
-  exclude expired events whose leaf page is gone. Unknown end dates, performers, organizers,
+  exclude expired events from scheduled-event markup even though archive leaves now remain readable.
+  Unknown end dates, performers, organizers,
   ticket URLs, and sale dates remain omitted by design—Search Console warnings never justify
   fabricated facts.
 - Local production-route verification used Bulgarian event 21949: BG address country, +03:00

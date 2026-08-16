@@ -5,6 +5,7 @@ import { getEventLanding, nearbyUpcomingEvents } from '../../../lib/db.js';
 import { validDateOf, validTimeOf } from '../../../lib/event-time.js';
 import { channelForPoint } from '../../../lib/city-channels.js';
 import { eventDescription, eventJsonLd } from '../../../lib/event-jsonld.js';
+import { safeWeekendReturn } from '../../../lib/return-path.js';
 import { STRINGS } from '../../../lib/i18n.js';
 import NewsletterSignup from '../../newsletter-signup.js';
 
@@ -16,9 +17,9 @@ export const dynamic = 'force-dynamic';
 const HIGHLIGHT = { gold: '#E8A800', editorial: '#C93A5B' };
 
 const PAGE_COPY = {
-  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', back: 'Zurück zur Karte', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt' },
-  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', back: 'Back to the map', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away' },
-  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', back: 'Обратно към картата', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние' },
+  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt' },
+  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', back: 'Back to the map', weekendBack: 'Back to the weekend page', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away' },
+  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние' },
 };
 
 async function pageCopy() {
@@ -68,7 +69,7 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function EventPage({ params }) {
+export default async function EventPage({ params, searchParams }) {
   const { id } = await params;
   const ev = await getEventLanding(id);
   if (!ev) notFound();
@@ -98,7 +99,13 @@ export default async function EventPage({ params }) {
     mapParams.set('lng', String(ev.lng));
   }
   const mapQuery = mapParams.toString();
-  const backHref = mapQuery ? `/?${mapQuery}` : '/';
+  const mapHref = mapQuery ? `/?${mapQuery}` : '/';
+  // A newsletter/weekend reader expects Back to restore the page they were
+  // browsing. Accept only our exact same-origin weekend permalink shape; this
+  // must never become an open redirect. Direct/Google arrivals still go back
+  // to the exact event on the map.
+  const weekendReturn = safeWeekendReturn((await searchParams)?.from);
+  const backHref = weekendReturn || mapHref;
 
   // Google Event structured data must describe a current publisher claim, not
   // an archive. The facts stay readable, but expired pages emit no Event JSON-LD.
@@ -121,6 +128,7 @@ export default async function EventPage({ params }) {
           that read as "back"). Matches the weekend page's header treatment. */}
       <Link
         href={backHref}
+        aria-label={weekendReturn ? t.weekendBack : t.back}
         style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', textDecoration: 'none' }}
       >
         <span aria-hidden="true" style={{ fontSize: 15, color: 'var(--muted)' }}>←</span>
@@ -221,7 +229,7 @@ export default async function EventPage({ params }) {
 
       <p style={{ marginTop: 20 }}>
         <Link
-          href={backHref}
+          href={mapHref}
           style={{
             display: 'inline-block', background: 'var(--accent)', color: '#fff', fontWeight: 700,
             padding: '11px 20px', borderRadius: 12, textDecoration: 'none', fontSize: 14,
