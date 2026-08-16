@@ -9,17 +9,17 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-16 — Austria-wide LLM crawl capacity expanded locally)
+## Where things stand (2026-08-16 — Austria-wide LLM crawl capacity expanded)
 - Scheduled crawling remains explicitly Austria-only; Germany and Bulgaria stay published but
   paused. The Sunday Gemini Flash-Lite request ceiling is now 750 instead of 150, sized for the
   current 639 LLM + 8 unknown-route Austrian sources with about 16% headroom.
 - Stable pages still hash/HTTP-cache skip before model extraction, Anthropic remains absent from the
   crawl job, and billing exhaustion still fails closed. Fully consuming 750 calls is estimated at
   roughly $9–16/month at current Gemini rates; actual spend should be lower.
-- The next Sunday production run must confirm that the prior due tail clears within the existing
-  180-minute workflow timeout. The change is local until committed and pushed.
+- The change is on `main`; the next Sunday production run must confirm that the prior due tail
+  clears within the existing 180-minute workflow timeout.
 
-## Where things stand (2026-08-16 — organic search landing recovery live; conversion pass local)
+## Where things stand (2026-08-16 — organic search landing and conversion proof live)
 - A one-day Search Console spike exposed the expiry gap: 14 of 17 matching records for the top
   pasted queries had become 404s immediately after their event ended. Expired event URLs now remain
   factual 200 archive pages, clearly labelled as ended, self-canonical but `noindex, follow`, with no
@@ -34,10 +34,10 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   Production now serves the archive/deep-link changes from `c1d1319` and weekend return navigation
   from `b0f27ed` (verified on event 71703 and the 2026-08-14 Linz weekend page).
 - A live audit found archive recommendations displaying 2025/January starts because long-running
-  courses remain published until their future end. The local query now requires a valid start date
+  courses remain published until their future end. The production query now requires a valid start date
   today or later in each event's timezone; production-backed checks on 71703 and current event 12258
   return only August/September 2026 starts. Recommendations now render on current pages too.
-- Event landings locally show stored end time/date, categories, age, and indoor/outdoor facts; pages
+- Event landings show stored end time/date, categories, age, and indoor/outdoor facts; pages
   with a threshold report show the localized warning, noindex, and emit no Event JSON-LD. PostHog
   captures landing views plus map/source/recommendation clicks with event context; successful
   newsletter signup now includes its non-precise area label.
@@ -45,12 +45,16 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   without place text, six malformed starts, and 1,644 already-started rows kept live by a future end.
   The latter need evidence-based cleanup, not a blanket time heuristic. Full 184-test suite and
   production build pass; event 24 verified facts/recommendations/signup and no browser errors locally.
-- The local advertiser-proof pass gives those conversions explicit, privacy-safe semantics:
+- The production advertiser-proof pass gives those conversions explicit, privacy-safe semantics:
   acquisition fields on organic landing views, started-versus-confirmed double opt-in, and labelled
   gold-placement impressions/opens/source referrals by event and surface. Local, preview, WebDriver
   and explicitly marked internal browsers do not count. `docs/ops/advertiser-proof.md` is the
   reporting contract; its PostHog dashboard, Search Console/Meta/email exports, internal-device
   opt-out and per-campaign event-ID/time allow-list remain explicit outside-Okolo operating tasks.
+- Commits `55312ce` and `d62396e` are on `main`; production deployment
+  `dpl_BQuJTXPn1aUytb8RpExyeFfgS5gd` is Ready and aliased to `www.okolo.events`. Live checks passed
+  9/9 weekend links, exact issue return, archive/nearby/map handoff, and found no browser or Vercel
+  error logs.
 
 ## Where things stand (2026-08-16 — search and weekend landings recovered)
 - Naturally expired event URLs remain readable 200 archives with an ended banner, nearby upcoming

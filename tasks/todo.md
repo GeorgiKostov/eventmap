@@ -12,6 +12,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       and caveats in `docs/ops/advertiser-proof.md`.
 - [x] Exclude local/preview/WebDriver traffic and provide a persistent `?okolo_internal=1` switch
       for Okolo-operated browsers so our own QA does not inflate the proof.
+- [x] Deploy commit `d62396e` to production and verify the weekend → archive → nearby/map flow with
+      no browser-console or Vercel error logs.
 - [ ] **Outside Okolo — George:** open `https://www.okolo.events/?okolo_internal=1` once on every
       browser/device used for live QA, demos or routine operation (`?okolo_internal=0` opts back in).
 - [ ] **Outside Okolo — PostHog:** restore/grant project access and create the private
@@ -33,7 +35,7 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 ## Austria-wide LLM refresh capacity (2026-08-16)
 - [x] Keep scheduled crawling Austria-only and raise the weekly Gemini Flash-Lite ceiling from 150
       to 750 requests: enough for the current 639 LLM + 8 unknown-route sources with ~16% headroom.
-- [ ] After this reaches `main`, confirm the next Sunday LLM run clears the due Austrian tail without
+- [ ] Confirm the next Sunday LLM run clears the due Austrian tail without
       hitting the 180-minute workflow timeout or Gemini prepaid-balance circuit breaker.
 
 ## Search landing recovery (2026-08-16)
