@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
-import { getEvent } from '../../../lib/db.js';
+import { getEventLanding } from '../../../lib/db.js';
+import { validDateOf } from '../../../lib/event-time.js';
 
 export const alt = 'Okolo event details';
 export const size = { width: 1200, height: 675 };
@@ -8,11 +9,11 @@ export const revalidate = 86400;
 
 export default async function EventImage({ params }) {
   const { id } = await params;
-  const ev = await getEvent(id);
+  const ev = await getEventLanding(id);
   const title = ev?.title || 'Okolo';
   const displayTitle = title.length > 130 ? `${title.slice(0, 127).trimEnd()}…` : title;
   const titleSize = displayTitle.length > 100 ? 44 : displayTitle.length > 70 ? 50 : displayTitle.length > 40 ? 56 : 64;
-  const date = ev?.starts_at?.slice(0, 10) || '';
+  const date = validDateOf(ev?.starts_at) || '';
   const place = [ev?.venue, ev?.town].filter(Boolean).join(' · ');
 
   return new ImageResponse(

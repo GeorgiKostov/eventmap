@@ -31,3 +31,11 @@ test('uses DST-correct offsets and keeps unknown times as bare dates', () => {
   assert.equal(ld.startDate, '2026-08-09');
   assert.equal(ld.offers.price, 0);
 });
+
+test('an invalid legacy start date emits no Event structured data', () => {
+  assert.equal(eventJsonLd({
+    id: '54438', kind: 'event', title: 'Malformed legacy event',
+    starts_at: '2026-08-XX', ends_at: null, all_day: false,
+    country: 'DE', lat: 53.55, lng: 9.99,
+  }), null);
+});

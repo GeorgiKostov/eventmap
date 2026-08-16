@@ -38,6 +38,21 @@ function initialCenter() {
   if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return HOME;
   return { lat, lng };
 }
+
+// An SSR event page links back with ?event=<bigint string>&lat=&lng=. The
+// coordinates make first paint spatially right; the ID hydrates the canonical
+// row and opens the same detail UI as tapping its pin. Keep it a string —
+// Postgres bigint IDs are not safe to normalize through Number.
+function initialEventId() {
+  if (typeof window === 'undefined') return null;
+  const id = new URLSearchParams(window.location.search).get('event');
+  return id && /^\d+$/.test(id) ? id : null;
+}
+
+function initialShowsAllDates() {
+  if (typeof window === 'undefined') return false;
+  return new URLSearchParams(window.location.search).get('when') === 'all';
+}
 // "Interested" is personal-first: the save lives in localStorage (works at zero
 // traffic, no account), the server only keeps the aggregate counter. That counter
 // stays hidden until enough people agree — showing "1 interested" reads as an
@@ -1522,6 +1537,35 @@ export default function Home() {
     }
   }
   selectRef.current = selectEvent;
+
+  // Resolve an event-page deep link only after MapLibre exists, so selection can
+  // use the normal fly/highlight/detail path. "All dates" is intentional: the
+  // homepage defaults to Today, which would otherwise select a future event but
+  // omit its pin from the viewport response.
+  useEffect(() => {
+    if (!mapInit) return;
+    const id = initialEventId();
+    // Archive CTAs have no selectable event (expired pins stay off the live
+    // map), but they must still reveal future nearby events instead of opening
+    // the default Today lens on an empty rural viewport.
+    if (!id) {
+      if (initialShowsAllDates()) setWhenMode('all');
+      return;
+    }
+    let active = true;
+    fetch(`/api/events?id=${encodeURIComponent(id)}`)
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (!active || !data?.event) return;
+        setWhenMode('all');
+        selectEvent(data.event, { fly: data.event.lat != null && data.event.lng != null });
+      })
+      .catch(() => {});
+    return () => { active = false; };
+    // The URL is immutable for this page lifetime; re-running on filter or
+    // language state changes would reopen a selection the visitor dismissed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapInit]);
 
   /* ---------------- filtering ---------------- */
   const [dFrom, dTo] = useMemo(() => {

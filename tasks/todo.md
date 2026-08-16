@@ -2,6 +2,16 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Search landing recovery (2026-08-16)
+- [x] Keep naturally expired `/event/<id>` URLs as 200 archive pages with a clear ended state,
+      `noindex, follow`, no stale Event JSON-LD, family-first nearby suggestions, and an All-dates
+      map link centred on the event area. Removed/rejected rows still 404.
+- [x] Live event pages now reopen the exact event on the map through a bigint-string `event` deep
+      link; future events automatically open the All-dates lens so their pin remains visible.
+- [ ] Clean the confirmed syndicated duplicate clusters for “ORANGE IS THE NEW BLACK” and
+      “FF-Fest Judenau”, and reject/fix the four malformed `2026-*-XX` legacy rows (54438, 54442,
+      54443, 54445). The read surface is crash-safe and noindexes them meanwhile.
+
 ## Weekend picks — Linz + Vienna (2026-08-14)
 - [x] Refreshed Linz-Termine, OÖ Familienkarte, Wien Kinder, and Kultursommer sources for
       14.–16. August; 69 official-source events were upserted and 18 fuzzy duplicates merged.

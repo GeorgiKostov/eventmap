@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
-import { getEvent } from '../../../lib/db.js';
-import { hasTime } from '../../../lib/event-time.js';
+import { getEventLanding, nearbyUpcomingEvents } from '../../../lib/db.js';
+import { validDateOf, validTimeOf } from '../../../lib/event-time.js';
 import { channelForPoint } from '../../../lib/city-channels.js';
 import { eventDescription, eventJsonLd } from '../../../lib/event-jsonld.js';
 import { STRINGS } from '../../../lib/i18n.js';
@@ -16,9 +16,9 @@ export const dynamic = 'force-dynamic';
 const HIGHLIGHT = { gold: '#E8A800', editorial: '#C93A5B' };
 
 const PAGE_COPY = {
-  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', back: 'Zurück zur Karte' },
-  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', back: 'Back to the map' },
-  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', back: 'Обратно към картата' },
+  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', back: 'Zurück zur Karte', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt' },
+  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', back: 'Back to the map', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away' },
+  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', back: 'Обратно към картата', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние' },
 };
 
 async function pageCopy() {
@@ -31,12 +31,19 @@ async function pageLang() {
   return PAGE_COPY[lang] ? lang : 'en';
 }
 
+function formatEventDate(value, locale, options) {
+  const date = validDateOf(value);
+  if (!date) return null;
+  return new Intl.DateTimeFormat(locale, options).format(new Date(`${date}T12:00`));
+}
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const ev = await getEvent(id);
+  const ev = await getEventLanding(id);
   const t = await pageCopy();
   if (!ev) return { title: `${t.notFound} — Okolo` };
-  const when = ev.starts_at ? ev.starts_at.slice(0, 10) : null;
+  const isArchived = ev.status === 'expired';
+  const when = validDateOf(ev.starts_at);
   // The city handle brands the tab/search result too, not just the page header —
   // same reason as the header (George: "it just says okolo instead of okolo.linz").
   const channel = ev.lat != null && ev.lng != null ? channelForPoint(ev.lat, ev.lng) : null;
@@ -50,6 +57,7 @@ export async function generateMetadata({ params }) {
     // Override the root layout's canonical '/': without this every event page
     // declares itself a duplicate of the homepage and Google drops it.
     alternates: { canonical: `/event/${id}` },
+    ...((isArchived || !when) ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title: ev.title,
       description: eventDescription(ev),
@@ -62,10 +70,14 @@ export async function generateMetadata({ params }) {
 
 export default async function EventPage({ params }) {
   const { id } = await params;
-  const ev = await getEvent(id);
+  const ev = await getEventLanding(id);
   if (!ev) notFound();
   const t = await pageCopy();
   const lang = await pageLang();
+  const isArchived = ev.status === 'expired';
+  const nearby = isArchived
+    ? await nearbyUpcomingEvents({ lat: ev.lat, lng: ev.lng, excludeId: ev.id, categories: ev.categories })
+    : [];
 
   // Which city this event belongs to, from its own coordinates. George: the page
   // "just says okolo instead of okolo.linz or wherever you came from". Deriving
@@ -74,18 +86,26 @@ export default async function EventPage({ params }) {
   // newsletter — and it can't be spoofed into claiming the wrong city. Events
   // outside every catchment (most of the countryside) fall back to plain okolo.
   const channel = ev.lat != null && ev.lng != null ? channelForPoint(ev.lat, ev.lng) : null;
-  // Back goes to the map centred on that city, not to the bare root: a reader who
-  // came from search has no history to go back TO, and dropping them on the
-  // default viewport is how you lose them. The browser's own back button still
-  // handles in-app navigation.
-  const backHref = channel ? `/?lat=${channel.lat}&lng=${channel.lng}` : '/';
+  // This is an event link, not just a city link: someone arriving from Google
+  // should land back on this exact selection in the map UI. Coordinates let the
+  // map construct at the right point before its event lookup completes; the ID
+  // remains the source of truth (and Postgres bigint IDs stay strings).
+  const mapParams = new URLSearchParams();
+  if (isArchived) mapParams.set('when', 'all');
+  else mapParams.set('event', String(id));
+  if (ev.lat != null && ev.lng != null) {
+    mapParams.set('lat', String(ev.lat));
+    mapParams.set('lng', String(ev.lng));
+  }
+  const mapQuery = mapParams.toString();
+  const backHref = mapQuery ? `/?${mapQuery}` : '/';
 
-  const ld = eventJsonLd(ev, id);
-  const when = ev.starts_at
-    ? new Intl.DateTimeFormat(t.locale, {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-      }).format(new Date(ev.starts_at.slice(0, 10) + 'T12:00'))
-    : null;
+  // Google Event structured data must describe a current publisher claim, not
+  // an archive. The facts stay readable, but expired pages emit no Event JSON-LD.
+  const ld = isArchived ? null : eventJsonLd(ev, id);
+  const when = formatEventDate(ev.starts_at, t.locale, {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
 
   // Treatment and label are ONE unit: gold is styled and labelled together, or
   // neither (see lib/digest.js — colour alone is not disclosure, ECG §6).
@@ -120,6 +140,15 @@ export default async function EventPage({ params }) {
           ...(hl ? { border: `2px solid ${hl}`, borderRadius: 14, padding: '20px 20px 4px' } : {}),
         }}
       >
+        {isArchived && (
+          <div
+            role="status"
+            style={{ background: '#F3F0EA', border: '1px solid #D8D1C5', borderRadius: 12, padding: '13px 15px', marginBottom: 18 }}
+          >
+            <div style={{ fontWeight: 800, color: 'var(--ink)', marginBottom: 3 }}>✓ {t.past}</div>
+            <div style={{ color: 'var(--muted)', fontSize: 13.5, lineHeight: 1.45 }}>{t.pastNote}</div>
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 30, lineHeight: 1.2, margin: '0 0 6px', flex: '1 1 auto' }}>{ev.title}</h1>
           {/* Gold (paid) only — editorial showcases are deliberately unlabelled. */}
@@ -134,8 +163,8 @@ export default async function EventPage({ params }) {
             {when}
             {ev.all_day
               ? ` · ${t.allDay}`
-              : hasTime(ev.starts_at)
-                ? ` · ${ev.starts_at.slice(11, 16)}${t.clock ? ` ${t.clock}` : ''}`
+              : validTimeOf(ev.starts_at)
+                ? ` · ${validTimeOf(ev.starts_at)}${t.clock ? ` ${t.clock}` : ''}`
                 : ` · ${t.timeTbd}`}
           </p>
         )}
@@ -157,6 +186,39 @@ export default async function EventPage({ params }) {
         </p>
       </article>
 
+      {isArchived && nearby.length > 0 && (
+        <section aria-labelledby="nearby-events" style={{ marginTop: 30 }}>
+          <h2 id="nearby-events" style={{ fontFamily: 'var(--font-display)', fontSize: 22, margin: '0 0 12px' }}>
+            {t.nearby}
+          </h2>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {nearby.map((next) => {
+              const nextWhen = formatEventDate(next.starts_at, t.locale, {
+                weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+              });
+              if (!nextWhen) return null;
+              const nextTime = validTimeOf(next.starts_at);
+              return (
+                <Link
+                  key={next.id}
+                  href={`/event/${next.id}`}
+                  style={{ display: 'block', border: '1px solid #E4DED5', borderRadius: 12, padding: '13px 15px', color: 'var(--ink)', textDecoration: 'none', background: '#FFFEFB' }}
+                >
+                  <div style={{ fontWeight: 800, lineHeight: 1.35 }}>{next.title}</div>
+                  <div style={{ color: 'var(--accent)', fontWeight: 700, fontSize: 13, marginTop: 4 }}>
+                    {nextWhen}{nextTime ? ` · ${nextTime}${t.clock ? ` ${t.clock}` : ''}` : ''}
+                  </div>
+                  <div style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>
+                    📍 {[next.venue, next.town].filter(Boolean).join(', ')}
+                    {next.distance_km != null ? ` · ${next.distance_km} ${t.away}` : ''}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <p style={{ marginTop: 20 }}>
         <Link
           href={backHref}
@@ -165,7 +227,7 @@ export default async function EventPage({ params }) {
             padding: '11px 20px', borderRadius: 12, textDecoration: 'none', fontSize: 14,
           }}
         >
-          {t.map}
+          {isArchived ? t.archiveMap : t.map}
         </Link>
       </p>
 

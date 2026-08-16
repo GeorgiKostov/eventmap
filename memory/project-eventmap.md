@@ -9,6 +9,20 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-16 — organic search landing recovery, local)
+- A one-day Search Console spike exposed the expiry gap: 14 of 17 matching records for the top
+  pasted queries had become 404s immediately after their event ended. Expired event URLs now remain
+  factual 200 archive pages, clearly labelled as ended, self-canonical but `noindex, follow`, with no
+  stale Event JSON-LD and three deduplicated family-first upcoming suggestions within 40 km.
+- Live event-page map links now address the exact bigint-string event ID plus coordinates. Archive
+  links carry coordinates plus `when=all`, so the map opens on the event area with upcoming dates
+  visible instead of an empty Today lens; expired pins themselves remain excluded from the map/API.
+- Production Vercel logs for the preceding 24 hours showed 32,204 200s, 1,771 404s and four 500s.
+  All four 500s were malformed legacy dates (`2026-*-XX`) on `/event/[id]`; strict read validation now
+  prevents the RangeError, suppresses Event JSON-LD, and noindexes those pages pending data cleanup.
+- All 209 tests and a production build pass; archived, live, malformed-date, and map-return flows
+  passed production-backed local browser checks. Not committed, pushed, or deployed.
+
 ## Where things stand (2026-08-14 — Linz + Vienna weekend picks live)
 - Refreshed the four highest-value official weekend feeds for 14.–16. August: Linz-Termine 24,
   OÖ Familienkarte 22, Wien Kinder 23, and Kultursommer 0 trusted rows; 18 fuzzy duplicates merged.

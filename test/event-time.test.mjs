@@ -2,7 +2,7 @@
 // or "ganztägig". Run: node --test test/event-time.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hasTime, timeOf, dayOf, makeStartsAt, makeEndsAt, inTimeOfDay } from '../lib/event-time.js';
+import { hasTime, timeOf, dayOf, makeStartsAt, makeEndsAt, inTimeOfDay, validDateOf, validTimeOf } from '../lib/event-time.js';
 import { contentHash } from '../lib/db.js';
 import { formatWhen } from '../lib/digest.js';
 import { submissionProblem } from '../lib/moderation.js';
@@ -37,6 +37,14 @@ test('a time-unknown event is never hidden by a time-of-day filter', () => {
   // The old bug: a 09:00 placeholder silently answered "morning".
   const nine = { starts_at: '2026-07-19T09:00', all_day: false };
   assert.equal(inTimeOfDay(nine, ['morning']), true);
+});
+
+test('read surfaces reject malformed and impossible local dates without throwing', () => {
+  assert.equal(validDateOf('2026-08-XX'), null);
+  assert.equal(validDateOf('2026-02-30T09:00'), null);
+  assert.equal(validDateOf('2026-08-16T09:00'), '2026-08-16');
+  assert.equal(validTimeOf('2026-08-16T23:59'), '23:59');
+  assert.equal(validTimeOf('2026-08-16T25:00'), null);
 });
 
 test('a time-unknown event hashes apart from a 9am one (they are not the same event)', () => {

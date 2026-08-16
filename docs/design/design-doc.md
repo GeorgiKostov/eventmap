@@ -58,8 +58,9 @@ ephemeral). What's live:
 - Full **EN/DE/BG localization** (IP-country first visit, explicit language picker, persisted manual override; English fallback).
 - **AI poster scan** (photo → Claude extraction → confirm → publish), pipeline works;
   needs an API key at runtime.
-- **AI-readiness:** `/event/[id]` SSR pages with schema.org/Event JSON-LD, `sitemap.xml`,
-  `public/llms.txt`, and an **MCP server** (`npm run mcp`) exposing search_events/get_event/list_sources.
+- **AI-readiness:** valid live `/event/[id]` SSR pages with schema.org/Event JSON-LD; expired URLs
+  remain readable noindexed archives without Event markup. Also `sitemap.xml`, `public/llms.txt`, and
+  an **MCP server** (`npm run mcp`) exposing search_events/get_event/list_sources.
 - Production `next build` passes. **Backend = Supabase Postgres** (`umkreis` schema; `lib/db.js` on
   the `postgres` client over the transaction pooler); the old bundled-SQLite/`/tmp` hack is gone.
 
@@ -152,7 +153,9 @@ low-confidence/hard posters. Do not hardcode a provider in feature code (see AGE
 ## 8. AI-readiness & the "middleman" strategy
 
 We prepare event data better than the municipalities can, for both search engines and LLMs:
-- **schema.org/Event JSON-LD** on every `/event/[id]` (Google event rich results + LLM crawlers).
+- **schema.org/Event JSON-LD** on every valid live `/event/[id]` (Google event rich results + LLM
+  crawlers). Expired pages keep factual archive content and internal discovery links, but remove the
+  now-stale Event claim and opt out of indexing.
 - **sitemap.xml**, **llms.txt**, open cursor-paginated **/api/events** JSON, and an **MCP server** so an AI
   assistant can answer "kids events this weekend near Linz" in one tool call, with source attribution.
 
