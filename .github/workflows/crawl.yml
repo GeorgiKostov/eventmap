@@ -51,6 +51,8 @@ jobs:
           # Crawl spend must fail closed. The newsletter workflow keeps its own
           # Anthropic key for Sonnet copy; this workflow never receives it.
           EXTRACT_FALLBACK: none
-          MAX_LLM_CALLS: 150
+          # 647 Austrian sources currently use the LLM/unknown lane. 750 lets
+          # one weekly run cover that set plus modest discovery/retry headroom.
+          MAX_LLM_CALLS: 750
           CRAWL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || github.event.schedule == '30 4 * * 0' && 'llm' || 'structured' }}
         run: node scripts/crawl.mjs --country AT --mode "$CRAWL_MODE"

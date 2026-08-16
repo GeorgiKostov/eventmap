@@ -13,6 +13,6 @@ test('scheduled crawl is Austria-only with separate structured and LLM schedules
 test('scheduled crawl is Gemini-only and fail-closed on cost', () => {
   assert.match(workflow, /GEMINI_API_KEY:/);
   assert.match(workflow, /EXTRACT_FALLBACK: none/);
-  assert.match(workflow, /MAX_LLM_CALLS: 150/);
+  assert.match(workflow, /MAX_LLM_CALLS: 750/);
   assert.doesNotMatch(workflow, /^\s+ANTHROPIC_API_KEY:/m);
 });

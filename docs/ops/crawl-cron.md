@@ -17,9 +17,10 @@ Keeps the map fresh without anyone remembering to run it. The workflow
   and then Gemini Flash-Lite if necessary. A source that gains a working parser is
   promoted automatically into the daily structured lane.
 - **Spend boundary:** the scheduled crawl receives no Anthropic key, sets
-  `EXTRACT_FALLBACK=none`, and allows at most 150 metered text requests per weekly
-  run. Billing exhaustion opens a process-wide circuit and leaves all remaining
-  sources due rather than retrying them.
+  `EXTRACT_FALLBACK=none`, and allows at most 750 metered text requests per weekly
+  run. That covers the current 647 Austrian LLM/unknown sources with modest
+  discovery/retry headroom. Billing exhaustion opens a process-wide circuit and
+  leaves all remaining sources due rather than retrying them.
 - **Also on demand:** **Actions → Scheduled crawl → Run workflow** offers an
   explicit `structured` or `llm` Austria lane.
 - **One run at a time:** the `concurrency` group prevents two crawls overlapping.
@@ -59,7 +60,7 @@ receives that secret separately for Sonnet copy.
 ## Cost
 
 **Bottom line: deterministic refreshes are free; the paid lane is Austria-only,
-weekly, Gemini-only, prepaid, and hard-capped at 150 requests per run.**
+weekly, Gemini-only, prepaid, and hard-capped at 750 requests per run.**
 
 ### Compute (the GitHub Actions runner) — **$0, but watch the minutes**
 
@@ -76,13 +77,20 @@ weekly, Gemini-only, prepaid, and hard-capped at 150 requests per run.**
 
 This is the only metered crawl cost:
 
-- Production currently has 641 known Austrian LLM sources. They are eligible only
-  on Sunday; stable pages still hash/HTTP-cache skip before model extraction.
+- Production currently has 639 known Austrian LLM sources plus 8 unknown-route
+  sources. They are eligible only on Sunday; stable pages still hash/HTTP-cache
+  skip before model extraction.
 - Gemini Flash-Lite is the only scheduled provider. Claude Haiku is not a fallback.
-- `MAX_LLM_CALLS=150` is a request ceiling, not a target. A run that reaches it
-  leaves the untouched tail due for the next weekly pass.
+- `MAX_LLM_CALLS=750` is a request ceiling, not a target. It is sized to clear the
+  full current Austria LLM lane in one weekly pass, with about 16% headroom. A run
+  that reaches it still leaves the untouched tail due for the next weekly pass.
 - Gemini prepayment is also a provider-side hard stop. A depleted balance is
   treated as terminal for the run, not as a transient 429 to retry.
+- At Gemini 2.5 Flash-Lite's current $0.10/M input and $0.40/M output rates, using
+  the full ceiling with this crawler's 60,000-character input limit and 25-event
+  output contract is roughly $9–16/month. Stable-page hash skips should keep the
+  actual total lower. Pricing remains token-based, so the request ceiling is a
+  practical bound rather than an exact invoice cap.
 
 ### Geocoding — **$0**
 Nominatim/Photon are free public services, and every lookup is cached
@@ -102,7 +110,7 @@ ceiling. Paused countries add no scheduled fetch or model cost.
 | Item | Cost/month |
 |---|---|
 | GitHub Actions runner | $0 (free tier / public repo) |
-| LLM extraction (Gemini Flash-Lite) | prepaid, ≤150 requests/week |
+| LLM extraction (Gemini Flash-Lite) | prepaid, ≤750 requests/week; roughly $9–16/mo if fully used |
 | Geocoding (Nominatim/Photon, cached) | $0 |
 | Supabase (free tier) | $0 |
 | **Total** | **bounded by Gemini prepayment + request ceiling** |
@@ -129,7 +137,7 @@ phase cost boundary.
   the pooler host `aws-0-…pooler.supabase.com:6543`, password percent-encoded).
 - **Weekly LLM run stops immediately** → check Gemini prepayment. The log names
   `provider billing quota exhausted`; remaining sources stay due.
-- **Weekly LLM run stops at 150 calls** → expected circuit breaker. The log names
+- **Weekly LLM run stops at 750 calls** → expected circuit breaker. The log names
   `run call budget exhausted`; raise the ceiling only as an explicit cost decision.
 - **Run succeeds but 0 events** → likely a source-side change, not the cron. Check
   the log for per-source `! skip` lines. A genuinely empty pass with everything
