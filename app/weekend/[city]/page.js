@@ -11,9 +11,9 @@ import { listDigestKeys } from '../../../lib/db.js';
 export const dynamic = 'force-dynamic';
 
 const COPY = {
-  de: { archive: 'Frühere Wochenenden', none: 'Das Wochenende wird gerade zusammengestellt — schau später nochmal vorbei.', back: 'Zur Karte' },
-  bg: { archive: 'Предишни уикенди', none: 'Този уикенд се подготвя — намини по-късно.', back: 'Към картата' },
-  en: { archive: 'Earlier weekends', none: 'This weekend is still being put together — check back shortly.', back: 'To the map' },
+  de: { archive: 'Frühere Wochenenden', none: 'Das Wochenende wird gerade zusammengestellt — schau später nochmal vorbei.', cityEvents: (city) => `Alle Events in ${city}`, back: 'Zur Karte' },
+  bg: { archive: 'Предишни уикенди', none: 'Този уикенд се подготвя — намини по-късно.', cityEvents: (city) => `Всички събития в ${city}`, back: 'Към картата' },
+  en: { archive: 'Earlier weekends', none: 'This weekend is still being put together — check back shortly.', cityEvents: (city) => `All events in ${city}`, back: 'To the map' },
 };
 
 export async function generateMetadata({ params }) {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
   // homepage's metadata from the root layout, canonical '/' included.
   return {
     title: channel.label,
-    alternates: { canonical: `/weekend/${channel.slug}` },
+    alternates: { canonical: channel.country === 'AT' ? `/events/${channel.slug}/wochenende` : `/weekend/${channel.slug}` },
   };
 }
 
@@ -39,7 +39,7 @@ export default async function CityWeekendIndex({ params }) {
 
   // No digest for this weekend yet — show the archive instead of a dead end.
   const c = COPY[channel.lang] || COPY.en;
-  const past = (await listDigestKeys()).filter((k) => k.slug === channel.slug);
+  const past = (await listDigestKeys()).filter((k) => k.slug === channel.slug && k.friday < friday);
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px', fontFamily: 'system-ui, sans-serif', color: '#212B28' }}>
@@ -60,6 +60,9 @@ export default async function CityWeekendIndex({ params }) {
         </>
       ) : null}
       <p style={{ marginTop: 28 }}>
+        {channel.country === 'AT' && (
+          <><Link href={`/events/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.cityEvents(channel.label)} →</Link><br /></>
+        )}
         <Link href="/" style={{ color: '#C93A5B', fontWeight: 700 }}>{c.back} →</Link>
       </p>
     </main>

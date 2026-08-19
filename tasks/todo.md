@@ -95,6 +95,27 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] Audit the 1,644 published long-running rows whose start is past but end is future, especially
       suspicious midnight starts such as Zeillathlon. Do not blanket-convert midnight to “unknown”:
       genuine midnight events exist, so corrections require source evidence or an adapter fix.
+## Linz + Vienna weekend calendar through 2026 (2026-08-19)
+- [x] Editorially selected and froze 38 dated weekend pages (19 Fridays × Linz/Wien) from 21 August
+      through 25 December: 247 existing published events, 4–8 picks per page, all above the three-item
+      indexing floor. Every item has original factual card copy; the preparation script makes zero AI calls.
+- [x] Published the 21.–23. August carousels to `okolo.linz` and `okolo.vienna` on Instagram and
+      Facebook. All four success ledgers and permalinks are stored; no later weekend was posted.
+- [ ] Each Wednesday/Thursday, rerun the reviewed freeze after the newest crawl and replace any changed,
+      cancelled, sold-out, or newly outclassed pick before posting that weekend's prepared carousel.
+
+## Programmatic city/date SEO pages (2026-08-19)
+- [x] Added server-rendered `/events` hubs for nine Austrian cities, permanent `heute`,
+      `wochenende`, and `kinder` intents, plus rolling `/events/<city>/<year>/<month>` pages.
+      Six months pre-render at build time; thin windows stay crawlable but noindex and out of the sitemap.
+- [x] Added crawlable city/date/category/event links, canonical Vienna alias handling, upward links from
+      event and editorial weekend pages, URL-only CollectionPage/ItemList markup, and one bounded sitemap
+      manifest query. Individual event pages remain the only Event rich-result surface.
+- [x] Bounded build concurrency below the Supabase pool and reduced each 80-card query from ~60 KB to
+      ~15 KB by selecting facts only. No Supabase storage or schema change. Full 215-test suite and
+      production build pass; browser QA covered Linz city/today/September and Vienna weekend behavior.
+- [ ] After deployment, resubmit `https://www.okolo.events/sitemap.xml` in Search Console and inspect
+      city/intent impressions before adding state, nationwide, or more category facets.
 
 ## Weekend picks — Linz + Vienna (2026-08-14)
 - [x] Refreshed Linz-Termine, OÖ Familienkarte, Wien Kinder, and Kultursommer sources for

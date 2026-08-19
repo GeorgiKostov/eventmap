@@ -78,6 +78,35 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   validated `/weekend/<city>/<date>` return path, so the event header returns to the issue while the
   explicit map CTA still opens the map. The 2026-08-14 Linz page verified 9/9 linked cards locally.
 - Full 212-test suite and production build passed for that change; production behavior is verified.
+## Where things stand (2026-08-19 — Linz/Wien weekends prepared through year-end)
+- Supabase now holds 38 frozen dated weekend issues from 21–23 August through 25–27 December 2026:
+  19 each for Linz and Wien, 247 reviewed existing events total, and no page below the three-pick index
+  threshold. `scripts/freeze-weekends-2026.mjs` reproduces the selection with direct published/unreported/
+  overlap/catchment validation and uses only in-repo factual copy—zero Sonnet, Gemini, or other AI API calls.
+- The 21–23 August issues are live on all four Meta targets: Instagram + Facebook for `okolo.linz` and
+  `okolo.vienna`. The durable success ledgers contain each post id/permalink; 28 August and later remain
+  unposted. Future issues should still be refreshed on Wednesday/Thursday after the latest crawl.
+- Preparing future snapshot keys exposed two SEO edge cases now fixed: the archive fallback excludes future
+  dates, and sitemap `lastModified` never claims a future timestamp or gives the newest future issue current-
+  weekend priority. Production pages/cards returned 200; all 17 current carousel images rendered; 182 tests
+  and the production build pass.
+
+## Where things stand (2026-08-19 — Austrian city/date SEO layer ready)
+- Nine inventory-backed Austrian city hubs now server-render real event facts and crawlable leaf links:
+  Linz, Wien, Graz, Salzburg, Innsbruck, Klagenfurt, Villach, Wels, and Sankt Pölten. Permanent `heute`,
+  `wochenende`, and `kinder` intents sit beside rolling `/<year>/<month>` pages; six months pre-render
+  and a 12-month moving window remains available without a deploy.
+- Thin pages (<5 distinct listings) are noindex and excluded from the sitemap. `/events/vienna`
+  permanently redirects to canonical `/events/wien`. Live weekend calendars and dated editorial
+  weekend archives remain separate so the indexable weekend URL is useful before Thursday's digest.
+- Landing pages emit CollectionPage/Breadcrumb/URL-only ItemList markup; Event JSON-LD stays on leaf
+  event pages per Google's current guidance. City/date/category links now run both down to events and
+  back up from event/weekend pages.
+- No Supabase schema/storage change. Compact fact projections measured ~15 KB for 80 Linz cards (down
+  from ~60 KB); the subtree now explicitly overrides the dynamic language root so city/intent pages
+  use hourly ISR and month pages six-hour ISR. The sitemap matrix is one capped query, and static
+  generation runs two pages at a time under the five-connection pool. All 215 tests and the production
+  build pass; local browser QA covered city, today, month, alias, canonical, and ordering behavior.
 
 ## Where things stand (2026-08-14 — Linz + Vienna weekend picks live)
 - Refreshed the four highest-value official weekend feeds for 14.–16. August: Linz-Termine 24,

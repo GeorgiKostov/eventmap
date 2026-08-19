@@ -170,6 +170,10 @@ We prepare event data better than the municipalities can, for both search engine
 - **schema.org/Event JSON-LD** on every valid live `/event/[id]` (Google event rich results + LLM
   crawlers). Expired pages keep factual archive content and internal discovery links, but remove the
   now-stale Event claim and opt out of indexing.
+- **Server-rendered discovery pages** under `/events`: explicit Austrian city hubs, permanent
+  today/weekend/kids intents, and rolling city-month pages. They expose real event facts and normal
+  leaf links in HTML, no generated filler prose. Thin windows remain noindex; the sitemap publishes
+  only inventory-backed canonicals. Dated `/weekend/<city>/<friday>` pages remain editorial archives.
 - **sitemap.xml**, **llms.txt**, open cursor-paginated **/api/events** JSON, and an **MCP server** so an AI
   assistant can answer "kids events this weekend near Linz" in one tool call, with source attribution.
 

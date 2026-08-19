@@ -1,5 +1,12 @@
 # Lessons
 
+## 2026-08-19 — Direct event-addition work must not spend extraction API credits by default
+
+When George asks the assistant to add or refresh events directly, inspect the allowed source facts and
+write the summaries in-session. Do not invoke Gemini Flash, Anthropic, or another configured extraction
+provider—and do not run a path that spends those API credits—unless George explicitly approves that
+cost. This does not relax facts + linkback, reliable-date, or repeatable-source requirements.
+
 Mistakes made and reusable lessons from George's feedback. Append-only; newest at top.
 
 ## 2026-08-16 — Fuzzy place matching must respect word boundaries

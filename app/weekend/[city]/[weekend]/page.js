@@ -44,6 +44,7 @@ const COPY = {
     mapSub: (city) => `Über 20.000 Veranstaltungen in ganz Österreich — alles rund um ${city} auf einer Karte.`,
     nlCta: 'Diese Tipps jede Woche per E-Mail',
     archive: 'Frühere Wochenenden',
+    cityEvents: (city) => `Alle Events in ${city}`,
     source: 'Details & Quelle',
     past: 'Dieses Wochenende ist vorbei — hier sind die Tipps für dieses Wochenende.',
     thisWeekend: 'Zum aktuellen Wochenende',
@@ -59,6 +60,7 @@ const COPY = {
     mapSub: (city) => `Хиляди събития около ${city} на една карта.`,
     nlCta: 'Получавай тези идеи всяка седмица по имейл',
     archive: 'Предишни уикенди',
+    cityEvents: (city) => `Всички събития в ${city}`,
     source: 'Детайли и източник',
     past: 'Този уикенд отмина — виж идеите за текущия.',
     thisWeekend: 'Към текущия уикенд',
@@ -74,6 +76,7 @@ const COPY = {
     mapSub: (city) => `Thousands of events around ${city} on one map.`,
     nlCta: 'Get these by email every week',
     archive: 'Earlier weekends',
+    cityEvents: (city) => `All events in ${city}`,
     source: 'Details & source',
     past: 'This weekend is over — here are this week’s picks.',
     thisWeekend: 'Go to this weekend',
@@ -130,35 +133,21 @@ export async function generateMetadata({ params }) {
 // they still render on the page. Emitting a broken Event is worse than emitting
 // one fewer.
 function jsonLd(channel, digest, items) {
-  // Archived leaf pages are useful to readers, but an expired event is no
-  // longer an EventScheduled publisher claim. Only currently published picks
-  // become Event rich-result candidates.
-  const datedItems = items.filter((it) => it.startsAt && it.live);
-  if (!datedItems.length) return null;
+  // Event rich-result markup belongs on each live, single-event leaf page.
+  // This multi-event page is an ItemList that points to those leaves instead
+  // of duplicating their Event objects. Both live and preserved archive leaves
+  // are valid list destinations, but only live leaves emit Event JSON-LD.
+  const linkedItems = items.filter((it) => it.linked);
+  if (!linkedItems.length) return null;
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: COPY[channel.lang]?.h1(channel.label, digest.label) || digest.subject,
-    itemListElement: datedItems.map((it, i) => ({
+    itemListElement: linkedItems.map((it, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      item: {
-        '@type': 'Event',
-        name: it.title,
-        startDate: it.startsAt,
-        endDate: it.endsAt || undefined,
-        description: it.teaser || `${it.title}${it.venue || it.town ? ` in ${it.venue || it.town}` : ''}.`,
-        url: `${BASE}/event/${it.id}`,
-        image: [`${BASE}/event/${it.id}/opengraph-image`],
-        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-        eventStatus: 'https://schema.org/EventScheduled',
-        location: {
-          '@type': 'Place',
-          name: it.venue || it.town || channel.label,
-          address: { '@type': 'PostalAddress', addressLocality: it.town || channel.label, addressCountry: channel.country },
-        },
-        ...(it.isFree ? { offers: { '@type': 'Offer', price: 0, priceCurrency: 'EUR', availability: 'https://schema.org/InStock' } } : {}),
-      },
+      name: it.title,
+      url: `${BASE}/event/${it.id}`,
     })),
   };
 }
@@ -327,6 +316,9 @@ export default async function WeekendPage({ params }) {
 
       <p style={{ marginTop: 28, fontSize: 14 }}>
         <Link href={`/weekend/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.archive} →</Link>
+        {channel.country === 'AT' && (
+          <><br /><Link href={`/events/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.cityEvents(channel.label)} →</Link></>
+        )}
       </p>
     </main>
   );

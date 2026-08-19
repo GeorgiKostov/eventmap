@@ -7,6 +7,7 @@ import { channelForPoint } from '../../../lib/city-channels.js';
 import { eventDescription, eventJsonLd } from '../../../lib/event-jsonld.js';
 import { safeWeekendReturn } from '../../../lib/return-path.js';
 import { STRINGS } from '../../../lib/i18n.js';
+import { cityIntentPath, cityMonthPath, cityPath, isSupportedMonth, monthLabel, seoCityForPoint } from '../../../lib/seo-pages.js';
 import NewsletterSignup from '../../newsletter-signup.js';
 import { EventLandingView, TrackedEventLink } from '../../event-analytics.js';
 
@@ -18,9 +19,9 @@ export const dynamic = 'force-dynamic';
 const HIGHLIGHT = { gold: '#E8A800', editorial: '#C93A5B' };
 
 const PAGE_COPY = {
-  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', until: 'bis', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt', ageFrom: (n) => `Ab ${n} Jahren`, ageTo: (n) => `Bis ${n} Jahre` },
-  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', until: 'until', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', back: 'Back to the map', weekendBack: 'Back to the weekend page', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away', ageFrom: (n) => `Ages ${n}+`, ageTo: (n) => `Up to age ${n}` },
-  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', until: 'до', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние', ageFrom: (n) => `За ${n}+ години`, ageTo: (n) => `До ${n} години` },
+  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', until: 'bis', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', more: (city) => `Mehr in ${city}`, cityEvents: (city) => `Alle Events in ${city}`, today: 'Events heute', weekend: 'Dieses Wochenende', kids: 'Kinderveranstaltungen', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt', ageFrom: (n) => `Ab ${n} Jahren`, ageTo: (n) => `Bis ${n} Jahre` },
+  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', until: 'until', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', more: (city) => `More in ${city}`, cityEvents: (city) => `All events in ${city}`, today: 'Events today', weekend: 'This weekend', kids: 'Events for children', back: 'Back to the map', weekendBack: 'Back to the weekend page', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away', ageFrom: (n) => `Ages ${n}+`, ageTo: (n) => `Up to age ${n}` },
+  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', until: 'до', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', more: (city) => `Още в ${city}`, cityEvents: (city) => `Всички събития в ${city}`, today: 'Събития днес', weekend: 'Този уикенд', kids: 'Събития за деца', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние', ageFrom: (n) => `За ${n}+ години`, ageTo: (n) => `До ${n} години` },
 };
 
 async function pageCopy() {
@@ -91,6 +92,7 @@ export default async function EventPage({ params, searchParams }) {
   // newsletter — and it can't be spoofed into claiming the wrong city. Events
   // outside every catchment (most of the countryside) fall back to plain okolo.
   const channel = ev.lat != null && ev.lng != null ? channelForPoint(ev.lat, ev.lng) : null;
+  const seoCity = ev.lat != null && ev.lng != null ? seoCityForPoint(ev.lat, ev.lng) : null;
   // This is an event link, not just a city link: someone arriving from Google
   // should land back on this exact selection in the map UI. Coordinates let the
   // map construct at the right point before its event lookup completes; the ID
@@ -304,6 +306,21 @@ export default async function EventPage({ params, searchParams }) {
           {isArchived ? t.archiveMap : t.map}
         </TrackedEventLink>
       </p>
+
+      {seoCity && (
+        <nav aria-label={t.more(seoCity.label)} style={{ background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: 18, marginTop: 22 }}>
+          <h2 style={{ fontSize: 17, margin: '0 0 12px' }}>{t.more(seoCity.label)}</h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '9px 16px', fontSize: 14 }}>
+            <Link href={cityPath(seoCity)} style={{ color: 'var(--accent)', fontWeight: 700 }}>{t.cityEvents(seoCity.label)}</Link>
+            <Link href={cityIntentPath(seoCity, 'heute')} style={{ color: 'var(--accent)', fontWeight: 700 }}>{t.today}</Link>
+            <Link href={cityIntentPath(seoCity, 'wochenende')} style={{ color: 'var(--accent)', fontWeight: 700 }}>{t.weekend}</Link>
+            <Link href={cityIntentPath(seoCity, 'kinder')} style={{ color: 'var(--accent)', fontWeight: 700 }}>{t.kids}</Link>
+            {ev.starts_at && isSupportedMonth(ev.starts_at.slice(0, 7)) && (
+              <Link href={cityMonthPath(seoCity, ev.starts_at.slice(0, 7))} style={{ color: 'var(--accent)', fontWeight: 700 }}>{monthLabel(ev.starts_at.slice(0, 7))}</Link>
+            )}
+          </div>
+        </nav>
+      )}
 
       {/* Subscribe right where the interest is. Only where we know the city — a
           signup form with no area would either need a picker (friction that
