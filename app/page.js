@@ -12,6 +12,7 @@ import { searchPlaces, normalizePlace } from '../lib/places.js';
 import { groupEventSeries } from '../lib/map-groups.js';
 import { isForKids } from '../lib/kid-cats.js';
 import { nearestChannel } from '../lib/city-channels.js';
+import { seoCityForPoint } from '../lib/seo-pages.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 
@@ -702,11 +703,11 @@ export default function Home() {
 
   // top-right actions menu + search
   const [menuOpen, setMenuOpen] = useState(false);
-  // Map centre, refreshed on every settle — the only thing it drives is which
-  // city's weekly-picks page the menu offers (George: "it changes based on where
-  // you are on the map — explore Vienna, it shows the Vienna page").
+  // Map centre, refreshed on every settle — it drives the local editorial page
+  // and, within a supported Austrian catchment, the matching city calendar.
   const [mapCenter, setMapCenter] = useState(HOME);
   const weekendChannel = useMemo(() => nearestChannel(mapCenter.lat, mapCenter.lng), [mapCenter]);
+  const calendarCity = useMemo(() => seoCityForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
   const [manualEntry, setManualEntry] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -2544,6 +2545,17 @@ export default function Home() {
                   <span className="ic">🔖</span>{t.savedMenu}
                   {saved.length > 0 && <span className="menucount">{saved.length}</span>}
                 </button>
+                {calendarCity && (
+                  <a
+                    className="menuitem calendar-menuitem"
+                    href={`/events/${calendarCity.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => { track('event_calendar_open', { city: calendarCity.slug, surface: 'menu' }); setMenuOpen(false); }}
+                  >
+                    <span className="ic">🗓️</span>{t.eventCalendarMenu.replace('{city}', calendarCity.label)}
+                  </a>
+                )}
                 {/* The weekly picks page for whatever you're looking at. A real
                     <a href>, not a router push: it's a server-rendered SEO page
                     outside the map app, and opening it in a new tab keeps the
@@ -3383,12 +3395,27 @@ export default function Home() {
               </button>
               {quickFilters}
             </div>
-            <div className="locstats" style={{ padding: '0 18px 10px', fontSize: 12.5, color: 'var(--muted)', fontWeight: 600 }}>
-              {mode === 'cells' ? (
-                resultsCountLine
-              ) : (
-                <><strong style={{ color: 'var(--ink)' }}>{filteredEvents.length}</strong> {t.events} · <strong style={{ color: 'var(--ink)' }}>{filteredPlaces.length}</strong> {t.places}</>
-              )}
+            <div className="locstats">
+              <div className="locstats-row">
+                <span>
+                  {mode === 'cells' ? (
+                    resultsCountLine
+                  ) : (
+                    <><strong>{filteredEvents.length}</strong> {t.events} · <strong>{filteredPlaces.length}</strong> {t.places}</>
+                  )}
+                </span>
+                {calendarCity && (
+                  <a
+                    className="calendar-link"
+                    href={`/events/${calendarCity.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={() => track('event_calendar_open', { city: calendarCity.slug, surface: 'results' })}
+                  >
+                    {t.allCityEvents.replace('{city}', calendarCity.label)} <CaretRight size={12} weight="bold" />
+                  </a>
+                )}
+              </div>
               {truncatedNote && <div style={{ marginTop: 2, fontWeight: 500 }}>{truncatedNote}</div>}
             </div>
             <div className="sidebody">
@@ -3472,7 +3499,20 @@ export default function Home() {
           <button className="grabber" onClick={() => setSheet(sheet === 'full' ? 'half' : 'full')} aria-label={t.resizePanel}><i /></button>
           <div className="m-sheethead">
             <b>{sheetContent === 'filters' ? t.filters : resultsCountLine}</b>
-            <button className="m-close" onClick={() => setSheet('closed')} aria-label={t.close}><X size={14} weight="bold" /></button>
+            <div className="m-sheetactions">
+              {sheetContent === 'list' && calendarCity && (
+                <a
+                  className="calendar-link"
+                  href={`/events/${calendarCity.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => track('event_calendar_open', { city: calendarCity.slug, surface: 'results' })}
+                >
+                  {t.allCityEvents.replace('{city}', calendarCity.label)} <CaretRight size={12} weight="bold" />
+                </a>
+              )}
+              <button className="m-close" onClick={() => setSheet('closed')} aria-label={t.close}><X size={14} weight="bold" /></button>
+            </div>
           </div>
           {sheetContent === 'list' && truncatedNote && (
             <div style={{ padding: '0 16px 6px', fontSize: 11.5, color: 'var(--muted)', fontWeight: 500 }}>{truncatedNote}</div>

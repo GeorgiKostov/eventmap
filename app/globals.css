@@ -440,6 +440,8 @@ a { color: inherit; }
 /* The weekly-picks entry is an <a> (a real page, opened in a new tab) sharing the
    button rows' look — `a { color: inherit }` covers the colour, not the underline. */
 a.menuitem { text-decoration: none; }
+.calendar-menuitem { color: var(--accent); background: var(--accent-soft); }
+.calendar-menuitem:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .menuitem .ic { width: 18px; text-align: center; flex: 0 0 auto; }
 .language-picker { padding: 8px 8px 7px; border-top: 1px solid var(--line); }
 .language-label { display: flex; align-items: center; gap: 10px; padding: 2px 4px 8px; color: var(--muted); font-size: 12px; font-weight: 700; }
@@ -506,7 +508,18 @@ a.menuitem { text-decoration: none; }
 .m-sheetbody { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 0 6px 20px; }
 .m-sheethead { display: flex; align-items: center; justify-content: space-between; padding: 2px 16px 8px; }
 .m-sheethead b { font-size: 15px; }
+.m-sheetactions { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .m-close { width: 30px; height: 30px; border-radius: 99px; background: var(--panel2); display: grid; place-items: center; font-size: 13px; color: var(--muted); }
+
+.locstats { padding: 0 18px 10px; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.locstats-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.locstats strong { color: var(--ink); }
+.calendar-link {
+  display: inline-flex; align-items: center; gap: 1px; flex: 0 1 auto; min-width: 0;
+  color: var(--accent); font-size: 12px; font-weight: 750; line-height: 1.2;
+  text-decoration: none; white-space: nowrap;
+}
+.calendar-link:hover { text-decoration: underline; }
 
 /* ================= quick-preview card (sits under the mobile search bar) ================= */
 .minicard {

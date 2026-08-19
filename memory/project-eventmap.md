@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-19 — city calendars are discoverable from the map)
+- The main map now exposes the `/events/<city>` structure through a compact “All events” link beside
+  the live result count on desktop and in the mobile results-sheet header. The actions menu carries a
+  highlighted calendar entry; the existing editorial link is explicitly named “Weekend picks” so the
+  comprehensive calendar and curated weekly selection do not compete under the same label.
+- Both entrances follow the map centre through the bounded nine-city SEO registry: Linz switches to Wien
+  when the map moves there, while Sofia and other unsupported catchments show no misleading Austrian
+  calendar link. The map remains open because these server-rendered pages open in a new tab.
+- DE/EN/BG copy and privacy-safe `event_calendar_open` tracking ship with `city` plus `menu|results`
+  surface. All 235 tests and the 106-page production build pass; desktop/mobile browser QA found no
+  overflow or console errors. Commit/push and a new George-run Vercel deployment remain.
+
 ## Where things stand (2026-08-19 — Search Console crawl inventory repaired locally)
 - Search Console's 158 noindex examples were mostly legitimate expired archives, but the sitemap was
   incorrectly submitting every published row: 29,279 event-shaped URLs, including 3,015 place records
