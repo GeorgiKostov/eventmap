@@ -9,12 +9,14 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { searchEventCatalog, getEvent, listSources } from '../lib/db.js';
 import { TOWNS } from '../lib/towns.js';
+import { publicUrl } from '../lib/public-url.js';
 
 const CATEGORIES = ['family', 'festival', 'market', 'music', 'culture', 'food', 'sport', 'workshop'];
 
 function slim(ev) {
   return {
     id: ev.id,
+    url: publicUrl(`event/${ev.id}`),
     title: ev.title,
     description: ev.description,
     starts_at: ev.starts_at,

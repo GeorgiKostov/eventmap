@@ -60,6 +60,7 @@ export default async function sitemap() {
   const months = monthSlugs.map((slug) => ({ key: slug, ...monthRange(slug) }));
   const weekend = weekendWindow('Europe/Vienna');
   const windows = [
+    { key: 'city', ...cityPageRange() },
     ...months,
     { key: 'heute', ...todayRange() },
     { key: 'kinder', ...cityPageRange(), kids: true },
@@ -77,11 +78,9 @@ export default async function sitemap() {
       priority,
     };
   };
-  const seoCities = SEO_CITIES.map((city) => ({
-    url: `${base}${cityPath(city)}`,
-    changeFrequency: 'daily',
-    priority: 0.85,
-  }));
+  const seoCities = SEO_CITIES
+    .map((city) => windowPage(city, 'city', cityPath(city), 'daily', 0.85))
+    .filter(Boolean);
   const seoWindows = SEO_CITIES.flatMap((city) => [
     windowPage(city, 'heute', cityIntentPath(city, 'heute'), 'hourly', 0.9),
     windowPage(city, 'kinder', cityIntentPath(city, 'kinder'), 'daily', 0.8),

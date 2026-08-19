@@ -63,11 +63,11 @@ export default async function CityMonthPage({ params }) {
   const title = `Events in ${data.city.label} im ${label}`;
   const description = `Entdecke aktuelle Events, Familienprogramm, Kultur, Musik und Märkte in und rund um ${data.city.label} im ${label}.`;
   const path = cityMonthPath(data.city, data.monthSlug);
-  const ld = collectionJsonLd({ city: data.city, title, description, path, events: data.events });
+  const ld = collectionJsonLd({ city: data.city, title, description, path, events: data.events, lastModified: data.lastModified });
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
-      <SeoEventPage city={data.city} title={title} intro={description} total={data.total} events={data.events} month={data.monthSlug} />
+      <SeoEventPage city={data.city} title={title} intro={description} total={data.total} events={data.events} facets={data.facets} range={data.range} lastModified={data.lastModified} month={data.monthSlug} />
     </>
   );
 }

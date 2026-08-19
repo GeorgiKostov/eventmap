@@ -1,9 +1,17 @@
 import { NextResponse } from 'next/server';
 import { LANGS, languageFromCountry } from './lib/i18n.js';
+import { canonicalSeoPath } from './lib/seo-pages.js';
 
 const LANG_COOKIE = 'okolo-lang';
 
 export function middleware(request) {
+  const seoCanonical = canonicalSeoPath(request.nextUrl.pathname);
+  if (seoCanonical) {
+    const canonical = request.nextUrl.clone();
+    canonical.pathname = seoCanonical;
+    return NextResponse.redirect(canonical, 308);
+  }
+
   const manualLang = request.cookies.get(LANG_COOKIE)?.value;
   const country =
     request.headers.get('x-vercel-ip-country') ||

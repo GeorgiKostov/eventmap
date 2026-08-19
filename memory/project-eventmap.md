@@ -9,6 +9,25 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-19 — SEO/AIO release audit passed locally)
+- The `/events` layer now leads with a deterministic answer: exact Vienna date window, explicit 30/40 km
+  catchment, deduplicated total, family/free counts, refresh time and provenance. Cards show venue plus
+  town/source, never call an unknown time “all day,” and put city-proper events before the surrounding area.
+- Acquisition windows accept direct starts plus conservatively bounded multi-day records only (started in
+  the previous 45 days and lasting no more than 120 days). The UI labels these as the source's published
+  range instead of asserting a daily occurrence. The sitemap uses the same series deduplication and gates
+  city hubs as well as intents/months at five listings.
+- The public cursor catalog is explicitly allowed through robots and CDN-cached for an hour; catalog/MCP
+  results expose canonical Okolo leaf URLs alongside original provenance. `llms.txt` documents the landing
+  patterns, while current Google guidance is recorded operationally: AI features use normal indexed search
+  pages and do not require special AI schema or llms.txt.
+- Verification: 232/232 tests, 106-page production build, local desktop/mobile server HTML, metadata,
+  canonicals, CollectionPage/Breadcrumb/ItemList JSON-LD, thin-page noindex, Vienna city-first ordering and
+  API/robots behavior pass. Production still returns 404 for `/events`; commit/deploy and Search Console
+  submission remain the release gate. No schema/storage change and no external AI/model call.
+- Current six-month matrix: 91 generated discovery pages including the `/events` hub; 81 qualify for the
+  sitemap/index. Ten thin Villach/Klagenfurt/Sankt Pölten windows correctly stay noindex and omitted.
+
 ## Where things stand (2026-08-16 — Enns/Wenns collision repaired; ongoing state labelled)
 - The Enns anomaly was a substring collision: `townCentroid("Wenns")` matched the known Linz-area
   centroid `Enns`. Fuzzy fallback now requires complete normalized place-name tokens, with Wenns and

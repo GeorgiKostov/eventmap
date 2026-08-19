@@ -6,6 +6,7 @@ import {
   SEO_CITIES,
   cityPageRange,
   cityPath,
+  isIndexableEventCount,
   resolveSeoCity,
 } from '../../../lib/seo-pages.js';
 import SeoEventPage, { collectionJsonLd } from '../seo-page.js';
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }) {
     title,
     description,
     alternates: { canonical },
+    robots: isIndexableEventCount(data.total) ? undefined : { index: false, follow: true },
     openGraph: { title, description, type: 'website', url: publicUrl(canonical) },
   };
 }
@@ -48,11 +50,11 @@ export default async function CityEventsPage({ params }) {
   const title = `Events in ${data.city.label}: Was ist los?`;
   const description = `Aktuelle Veranstaltungen und Ideen für Familien, Kultur, Musik, Märkte und mehr in und rund um ${data.city.label}.`;
   const path = cityPath(data.city);
-  const ld = collectionJsonLd({ city: data.city, title, description, path, events: data.events });
+  const ld = collectionJsonLd({ city: data.city, title, description, path, events: data.events, lastModified: data.lastModified });
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
-      <SeoEventPage city={data.city} title={title} intro={description} total={data.total} events={data.events} />
+      <SeoEventPage city={data.city} title={title} intro={description} total={data.total} events={data.events} facets={data.facets} range={data.range} lastModified={data.lastModified} />
     </>
   );
 }

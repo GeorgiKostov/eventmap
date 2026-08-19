@@ -80,11 +80,11 @@ export default async function CityIntentPage({ params }) {
   const title = copy.heading(data.city.label);
   const description = copy.description(data.city.label);
   const path = cityIntentPath(data.city, segment);
-  const ld = collectionJsonLd({ city: data.city, title, description, path, events: data.events });
+  const ld = collectionJsonLd({ city: data.city, title, description, path, events: data.events, lastModified: data.lastModified });
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
-      <SeoEventPage city={data.city} title={title} intro={description} total={data.total} events={data.events} intent={segment} />
+      <SeoEventPage city={data.city} title={title} intro={description} total={data.total} events={data.events} facets={data.facets} range={data.range} lastModified={data.lastModified} intent={segment} />
     </>
   );
 }

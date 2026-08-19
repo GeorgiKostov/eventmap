@@ -3,6 +3,7 @@ import { CATS } from '../../lib/icons.js';
 import { STRINGS } from '../../lib/i18n.js';
 import { getChannel } from '../../lib/city-channels.js';
 import { publicUrl } from '../../lib/public-url.js';
+import { validDateOf } from '../../lib/event-time.js';
 import {
   SEO_CITIES,
   cityIntentPath,
@@ -22,15 +23,45 @@ const S = {
 };
 
 function eventDate(ev) {
-  const date = new Date(`${ev.starts_at.slice(0, 10)}T12:00:00Z`);
-  const day = new Intl.DateTimeFormat('de-AT', {
+  const format = (value) => new Intl.DateTimeFormat('de-AT', {
     weekday: 'short',
     day: '2-digit',
     month: 'short',
+    year: 'numeric',
     timeZone: 'UTC',
-  }).format(date);
-  if (ev.all_day || ev.starts_at.length === 10) return `${day} · ganztägig`;
+  }).format(new Date(`${value}T12:00:00Z`));
+  if (ev.ongoing) {
+    const end = validDateOf(ev.ends_at);
+    return end ? `Veröffentlichter Zeitraum · bis ${format(end)}` : 'Veröffentlichter Zeitraum';
+  }
+  const day = format(ev.starts_at.slice(0, 10));
+  if (ev.all_day) return `${day} · ganztägig`;
+  if (ev.starts_at.length === 10) return `${day} · Uhrzeit nicht angegeben`;
   return `${day} · ${ev.starts_at.slice(11, 16)} Uhr`;
+}
+
+function eventPlace(ev) {
+  return [ev.venue, ev.town]
+    .filter((value, index, values) => value && values.indexOf(value) === index)
+    .join(' · ');
+}
+
+function localDate(value, options = {}) {
+  if (!value) return null;
+  return new Intl.DateTimeFormat('de-AT', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Europe/Vienna',
+    ...options,
+  }).format(new Date(value));
+}
+
+function rangeLabel(range) {
+  if (!range?.from || !range?.to) return null;
+  const from = localDate(`${range.from}T12:00:00+02:00`);
+  const to = localDate(`${range.to}T12:00:00+02:00`);
+  return range.from === range.to ? from : `${from} bis ${to}`;
 }
 
 function EventList({ events }) {
@@ -42,18 +73,20 @@ function EventList({ events }) {
       {events.map((ev) => {
         const cat = ev.categories[0];
         const color = CATS[cat]?.color || S.accent;
+        const place = eventPlace(ev);
         return (
           <li key={ev.id} style={{ background: S.panel, border: `1px solid ${S.line}`, borderLeft: `5px solid ${color}`, borderRadius: 14, padding: '16px 18px' }}>
             <Link href={`/event/${ev.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
               <h2 style={{ fontSize: 19, lineHeight: 1.3, margin: 0 }}>{ev.title}</h2>
               <p style={{ color, fontSize: 14, fontWeight: 700, margin: '6px 0 0' }}>
                 {eventDate(ev)}
-                {(ev.venue || ev.town) && <span style={{ color: S.muted, fontWeight: 400 }}> · {ev.venue || ev.town}</span>}
+                {place && <span style={{ color: S.muted, fontWeight: 400 }}> · {place}</span>}
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
                 {ev.is_free === 1 && <span style={badgeStyle(color)}>Gratis</span>}
                 {ev.categories.slice(0, 3).map((key) => <span key={key} style={badgeStyle(color)}>{STRINGS.de.cats[key] || key}</span>)}
               </div>
+              {ev.source_name && <p style={{ color: S.muted, fontSize: 12, margin: '9px 0 0' }}>Quelle: {ev.source_name}</p>}
             </Link>
           </li>
         );
@@ -66,7 +99,7 @@ function badgeStyle(color) {
   return { background: color, color: '#fff', fontSize: 11, fontWeight: 700, borderRadius: 99, padding: '4px 9px' };
 }
 
-export function collectionJsonLd({ city, title, description, path, events }) {
+export function collectionJsonLd({ city, title, description, path, events, lastModified }) {
   const url = publicUrl(path);
   return {
     '@context': 'https://schema.org',
@@ -76,6 +109,7 @@ export function collectionJsonLd({ city, title, description, path, events }) {
         name: title,
         description,
         url,
+        ...(lastModified ? { dateModified: new Date(lastModified).toISOString() } : {}),
         about: { '@type': 'City', name: city.label, addressCountry: 'AT' },
         mainEntity: { '@id': `${url}#event-list` },
       },
@@ -102,10 +136,12 @@ export function collectionJsonLd({ city, title, description, path, events }) {
   };
 }
 
-export default function SeoEventPage({ city, title, intro, total, events, month, intent }) {
+export default function SeoEventPage({ city, title, intro, total, events, facets, range, lastModified, month, intent }) {
   const months = upcomingMonthSlugs();
   const channel = getChannel(city.slug);
   const mapUrl = `/?lat=${city.lat}&lng=${city.lng}`;
+  const period = rangeLabel(range);
+  const refreshed = localDate(lastModified, { hour: '2-digit', minute: '2-digit' });
   return (
     <main lang="de-AT" style={{ minHeight: '100vh', background: S.bg, color: S.ink, fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '30px 20px 72px' }}>
@@ -118,7 +154,17 @@ export default function SeoEventPage({ city, title, intro, total, events, month,
 
         <h1 style={{ fontSize: 34, lineHeight: 1.15, letterSpacing: -0.5, margin: '18px 0 10px' }}>{title}</h1>
         <p style={{ color: S.muted, fontSize: 17, lineHeight: 1.6, margin: 0 }}>{intro}</p>
-        <p style={{ color: S.muted, fontSize: 14, margin: '10px 0 0' }}>{total} veröffentlichte Veranstaltungen im gewählten Zeitraum.</p>
+
+        <section aria-label="Kurzantwort" style={{ background: S.panel, border: `1px solid ${S.line}`, borderRadius: 14, padding: '16px 18px', marginTop: 18 }}>
+          <p style={{ fontSize: 16, lineHeight: 1.55, margin: 0 }}>
+            <strong>Kurz gesagt:</strong> Okolo kennt {total} veröffentlichte Veranstaltungen für {period} im Umkreis von {city.radiusKm} km rund um {city.label}.
+            {facets?.kids > 0 && ` ${facets.kids} davon sind für Kinder oder Familien geeignet.`}
+            {facets?.free > 0 && ` ${facets.free} sind als gratis gekennzeichnet.`}
+          </p>
+          <p style={{ color: S.muted, fontSize: 12.5, lineHeight: 1.5, margin: '9px 0 0' }}>
+            Zeitraum: {period} · Gebiet: {city.label} und Umgebung · {events.length < total ? `${events.length} passende Termine angezeigt · ` : ''}Datenstand: {refreshed || 'noch keine veröffentlichten Termine'}. Mehrtagestermine zählen, wenn ihr veröffentlichter Zeitraum das Datum umfasst. Quellen und Original-Link stehen auf jeder Eventseite.
+          </p>
+        </section>
 
         <nav aria-label="Themen" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 24 }}>
           <Link href={cityPath(city)} style={navPill(!month && !intent)}>Alle</Link>

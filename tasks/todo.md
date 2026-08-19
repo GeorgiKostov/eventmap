@@ -3,42 +3,40 @@
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
 ## Programmatic SEO + AIO landing pages (2026-08-16)
-- [ ] Ship the Linz-first SSR landing-page slice at `/events/linz`, `/events/linz/heute`,
+- [x] Ship the Linz-first SSR landing-page slice at `/events/linz`, `/events/linz/heute`,
       `/events/linz/wochenende`, and `/events/linz/kinder`. Return the actual matching event
       titles, dates/times, venues, categories and crawlable detail links in the initial HTML; do not
       make these aliases that merely boot the client-side map. Compute relative date windows in
       Europe/Vienna and reuse `lib/db.js` for bounded reads.
-- [ ] Give each page truthful German search-intent metadata and visible content: a unique title,
+- [x] Give each page truthful German search-intent metadata and visible content: a unique title,
       H1, description, canonical URL, current Vienna date/count, useful event groupings, nearby-town
       links, and crawlable links to the other Linz intent pages and the map. Keep all descriptions
       original and factual; never copy publisher prose.
-- [ ] Make the same pages answer-engine-ready: lead with a concise, self-contained answer generated
+- [x] Make the same pages answer-engine-ready: lead with a concise, self-contained answer generated
       deterministically from current event rows; state the exact Vienna date/time window, geographic
       scope, result count and last refresh; expose event facts and source attribution in semantic
       HTML; and add only valid structured data that mirrors the visible page. Do not add generic
       AI-written city filler or claims unsupported by the indexed events.
-- [ ] Give AI assistants a stable machine-readable route to the same bounded result set through the
+- [x] Give AI assistants a stable machine-readable route to the same bounded result set through the
       existing `/api/events` and MCP surfaces, with canonical event URLs and `source_url` provenance.
       Document the landing-page patterns in `llms.txt` if that improves discovery, while keeping
       `lib/db.js` as the shared query boundary and avoiding a second, drifting search implementation.
-- [ ] Add the four permanent URLs to `sitemap.xml`, link them from an indexable navigation surface,
+- [x] Add the four permanent URLs to `sitemap.xml`, link them from an indexable navigation surface,
       and add relevant upward links from Linz event pages (all Linz events / today / weekend / kids)
       so the landing pages and detail pages form a clear crawlable hierarchy.
-- [ ] Define and test a thin-page/indexing gate before scaling: empty or low-inventory combinations
+- [x] Define and test a thin-page/indexing gate before scaling: empty or low-inventory combinations
       must noindex or 404 rather than become doorway pages. Keep stable intent URLs such as `heute`
       and `wochenende`; do not create daily archives or expose arbitrary filter combinations as
       crawlable URLs.
-- [ ] Verify the real server HTML, canonical/meta tags, mobile/desktop flow, sitemap output and a
-      sample event's JSON-LD with the production call path; also compare the visible answer, page
-      rows and API/MCP results for the same Vienna window. After deployment, track landing-page
-      impressions, clicks, CTR, event/map opens, newsletter starts and identifiable AI-assistant
-      referrals separately in Search Console and PostHog through the four-weekend Linz validation
-      window. Treat citations/mentions in answer engines as observational evidence, not a promised
-      ranking outcome.
-- [ ] Expand the same system to additional cities, states and proven category intents only after
-      the Linz pages show useful inventory and search demand. Generate only allow-listed combinations
-      above the indexing threshold; defer Austria-wide matrices and `veranstaltungen in der naehe`
-      until the Linz-first validation evidence justifies them.
+- [ ] After deployment, verify the live server HTML, sitemap and a sample event with URL Inspection / Rich
+      Results Test, then track landing-page impressions, clicks, CTR, event/map opens, newsletter starts
+      and identifiable AI-assistant referrals separately in Search Console and PostHog through the
+      four-weekend Linz validation window. Local server HTML, canonical/meta, JSON-LD, mobile layout,
+      sitemap rules and API output passed on 2026-08-19. Treat citations/mentions in answer engines as
+      observational evidence, not a promised ranking outcome.
+- [ ] Keep states, nationwide pages, more category facets and `veranstaltungen in der naehe` deferred
+      until the nine allow-listed city pages show useful inventory and search demand. Add only proven
+      combinations above the indexing threshold.
 
 ## Advertiser / publisher proof (2026-08-16)
 - [x] Instrument anonymous organic event landings and their map, recommendation, source and
@@ -114,6 +112,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Bounded build concurrency below the Supabase pool and reduced each 80-card query from ~60 KB to
       ~15 KB by selecting facts only. No Supabase storage or schema change. Full 215-test suite and
       production build pass; browser QA covered Linz city/today/September and Vienna weekend behavior.
+- [x] Passed the SEO/AIO release audit: visible deterministic answer blocks now state the exact window,
+      30/40 km catchment, distinct count, family/free counts and refresh time; cards distinguish unknown
+      times from all-day events, identify town/source and rank city-proper rows first. Only bounded
+      multi-day windows (start within 45 days, duration at most 120 days) may overlap a target date.
+      Sitemap thresholds use the same deduplication, the public catalog is crawler-allowed/CDN-cached,
+      and API/MCP results carry canonical Okolo URLs. 232 tests and the 106-page build pass.
 - [ ] After deployment, resubmit `https://www.okolo.events/sitemap.xml` in Search Console and inspect
       city/intent impressions before adding state, nationwide, or more category facets.
 

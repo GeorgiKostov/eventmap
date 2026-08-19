@@ -14,9 +14,15 @@ its authoritative source.
   venue, address, town, categories, is_free, age_min/age_max, indoor,
   source_name, source_url)
 - /event/{id} — human-readable page per event with schema.org/Event JSON-LD
+- /events/{city} — server-rendered current event calendar for supported Austrian cities
+- /events/{city}/heute, /wochenende, /kinder — permanent intent pages
+- /events/{city}/{year}/{month} — rolling, inventory-backed month pages
 - /sitemap.xml — all event URLs
 - MCP server (Model Context Protocol): `npm run mcp` in the repository exposes
   search_events / get_event / list_sources tools over stdio.
+
+Public catalog and MCP results include canonical Okolo URLs and original source
+name/URL. City pages state their exact date window, catchment and data refresh.
 
 ## Attribution
 

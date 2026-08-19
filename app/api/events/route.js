@@ -9,6 +9,7 @@ import { cleanText } from '../../../lib/entities.js';
 import { limit } from '../../../lib/ratelimit.js';
 import { spamReason, sanitizeText, submissionProblem } from '../../../lib/moderation.js';
 import { notifyOperator } from '../../../lib/mail.js';
+import { publicUrl } from '../../../lib/public-url.js';
 
 export const dynamic = 'force-dynamic';
 const MESSAGES = {
@@ -40,6 +41,10 @@ const SPARSE_PINS_MAX = 50;
 
 function bad(msg) {
   return NextResponse.json({ error: msg }, { status: 400 });
+}
+
+function withCanonicalUrl(event) {
+  return event ? { ...event, url: publicUrl(`event/${event.id}`) } : event;
 }
 
 // Returns [minLng,minLat,maxLng,maxLat] | undefined (missing) | null (invalid).
@@ -94,7 +99,7 @@ export async function GET(req) {
   const sp = req.nextUrl.searchParams;
 
   const id = sp.get('id');
-  if (id) return NextResponse.json({ event: await getEvent(id) });
+  if (id) return NextResponse.json({ event: withCanonicalUrl(await getEvent(id)) });
 
   // Saved-list resolution: usually NOT in the current viewport, so this is a
   // plain id lookup, never bbox-scoped (brief: don't prune ids that are just
@@ -105,7 +110,7 @@ export async function GET(req) {
     if (!ids.length || ids.length > 100 || ids.some((s) => !/^\d+$/.test(s))) {
       return bad('ids must be 1-100 comma-separated integers');
     }
-    return NextResponse.json({ events: await eventsByIds(ids) });
+    return NextResponse.json({ events: (await eventsByIds(ids)).map(withCanonicalUrl) });
   }
 
   // Global text search — independent of the viewport.
@@ -113,7 +118,7 @@ export async function GET(req) {
   if (q !== null) {
     const trimmed = q.trim();
     if (!trimmed) return NextResponse.json({ results: [] });
-    return NextResponse.json({ results: await searchEvents(trimmed) });
+    return NextResponse.json({ results: (await searchEvents(trimmed)).map(withCanonicalUrl) });
   }
 
   const view = sp.get('view');
@@ -157,7 +162,10 @@ export async function GET(req) {
     afterId: cursor,
     limit: pageLimit,
   });
-  return NextResponse.json({ events, next_cursor: nextCursor });
+  return NextResponse.json(
+    { events: events.map(withCanonicalUrl), next_cursor: nextCursor },
+    { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } },
+  );
 }
 
 export async function POST(req) {
