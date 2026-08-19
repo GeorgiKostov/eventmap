@@ -21,7 +21,7 @@ export const revalidate = 86400;
 export default async function sitemap() {
   const base = publicBaseUrl();
 
-  const events = (await sitemapEvents()).map((ev) => ({
+  const events = (await sitemapEvents({ cities: SEO_CITIES })).map((ev) => ({
     url: `${base}/event/${ev.id}`,
     lastModified: new Date(ev.updated_at || Date.now()),
     changeFrequency: 'daily',

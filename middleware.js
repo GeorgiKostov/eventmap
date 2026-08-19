@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
 import { LANGS, languageFromCountry } from './lib/i18n.js';
 import { canonicalSeoPath } from './lib/seo-pages.js';
+import { canonicalEventPath } from './lib/event-aliases.js';
 
 const LANG_COOKIE = 'okolo-lang';
 
 export function middleware(request) {
-  const seoCanonical = canonicalSeoPath(request.nextUrl.pathname);
-  if (seoCanonical) {
+  const canonicalPath = canonicalSeoPath(request.nextUrl.pathname)
+    || canonicalEventPath(request.nextUrl.pathname);
+  if (canonicalPath) {
     const canonical = request.nextUrl.clone();
-    canonical.pathname = seoCanonical;
+    canonical.pathname = canonicalPath;
     return NextResponse.redirect(canonical, 308);
   }
 

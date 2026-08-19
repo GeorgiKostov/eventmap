@@ -118,8 +118,15 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       multi-day windows (start within 45 days, duration at most 120 days) may overlap a target date.
       Sitemap thresholds use the same deduplication, the public catalog is crawler-allowed/CDN-cached,
       and API/MCP results carry canonical Okolo URLs. 232 tests and the 106-page build pass.
-- [ ] After deployment, resubmit `https://www.okolo.events/sitemap.xml` in Search Console and inspect
-      city/intent impressions before adding state, nationwide, or more category facets.
+- [x] Repaired the Search Console crawl inventory: event sitemap leaves fell from 29,279 to 4,124 by
+      excluding place rows, expired/undated/thin events, disputed events, and events outside the nine
+      supported city catchments. Nine source-verified duplicate rows now permanently redirect to two
+      canonical survivors; result-to-detail navigation preserves its exact list without crawlable
+      `?from=` links. Full 235-test suite, 106-page build, redirects, sitemap, browser flow and console pass.
+- [ ] After deployment, resubmit `https://www.okolo.events/sitemap.xml`, URL-inspect representative
+      city/intent/event pages, and start validation for the duplicate-without-canonical issue. Do not
+      validate intentional noindex event archives as if they should become indexed. Inspect city/intent
+      impressions before adding state, nationwide, or more category facets.
 
 ## Weekend picks — Linz + Vienna (2026-08-14)
 - [x] Refreshed Linz-Termine, OÖ Familienkarte, Wien Kinder, and Kultursommer sources for

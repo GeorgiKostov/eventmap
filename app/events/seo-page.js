@@ -12,6 +12,7 @@ import {
   monthLabel,
   upcomingMonthSlugs,
 } from '../../lib/seo-pages.js';
+import DiscoveryEventLink from './event-link.js';
 
 const S = {
   ink: '#212B28',
@@ -64,7 +65,7 @@ function rangeLabel(range) {
   return range.from === range.to ? from : `${from} bis ${to}`;
 }
 
-function EventList({ events }) {
+function EventList({ events, returnPath }) {
   if (!events.length) {
     return <p style={{ color: S.muted, lineHeight: 1.6 }}>Für diesen Zeitraum sind noch keine Veranstaltungen veröffentlicht. Wir aktualisieren diese Seite laufend.</p>;
   }
@@ -76,7 +77,7 @@ function EventList({ events }) {
         const place = eventPlace(ev);
         return (
           <li key={ev.id} style={{ background: S.panel, border: `1px solid ${S.line}`, borderLeft: `5px solid ${color}`, borderRadius: 14, padding: '16px 18px' }}>
-            <Link href={`/event/${ev.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+            <DiscoveryEventLink id={ev.id} returnPath={returnPath} style={{ color: 'inherit', textDecoration: 'none' }}>
               <h2 style={{ fontSize: 19, lineHeight: 1.3, margin: 0 }}>{ev.title}</h2>
               <p style={{ color, fontSize: 14, fontWeight: 700, margin: '6px 0 0' }}>
                 {eventDate(ev)}
@@ -87,7 +88,7 @@ function EventList({ events }) {
                 {ev.categories.slice(0, 3).map((key) => <span key={key} style={badgeStyle(color)}>{STRINGS.de.cats[key] || key}</span>)}
               </div>
               {ev.source_name && <p style={{ color: S.muted, fontSize: 12, margin: '9px 0 0' }}>Quelle: {ev.source_name}</p>}
-            </Link>
+            </DiscoveryEventLink>
           </li>
         );
       })}
@@ -136,7 +137,7 @@ export function collectionJsonLd({ city, title, description, path, events, lastM
   };
 }
 
-export default function SeoEventPage({ city, title, intro, total, events, facets, range, lastModified, month, intent }) {
+export default function SeoEventPage({ city, title, intro, total, events, facets, range, lastModified, path, month, intent }) {
   const months = upcomingMonthSlugs();
   const channel = getChannel(city.slug);
   const mapUrl = `/?lat=${city.lat}&lng=${city.lng}`;
@@ -181,7 +182,7 @@ export default function SeoEventPage({ city, title, intro, total, events, facets
           ))}
         </nav>
 
-        <EventList events={events} />
+        <EventList events={events} returnPath={path} />
 
         <section style={{ background: S.panel, border: `1px solid ${S.line}`, borderRadius: 14, padding: 20, marginTop: 28 }}>
           <h2 style={{ fontSize: 19, margin: 0 }}>Mehr rund um {city.label}</h2>

@@ -23,6 +23,7 @@ test('request-time event surfaces never call the maintenance full-catalog helper
 test('public catalog access is bounded and the sitemap is minimal plus cached', () => {
   const route = read('app/api/events/route.js');
   const sitemap = read('app/sitemap.js');
+  const eventLink = read('app/events/event-link.js');
   const db = read('lib/db.js');
 
   assert.match(route, /publishedEventsPage/);
@@ -30,7 +31,12 @@ test('public catalog access is bounded and the sitemap is minimal plus cached', 
   assert.match(route, /next_cursor/);
   assert.match(sitemap, /sitemapEvents/);
   assert.match(sitemap, /revalidate = 86400/);
-  assert.match(db, /SELECT id, updated_at\s+FROM events/);
+  assert.match(sitemap, /sitemapEvents\(\{ cities: SEO_CITIES \}\)/);
+  assert.match(db, /e\.kind='event'/);
+  assert.match(db, /length\(trim\(COALESCE\(e\.description/);
+  assert.match(db, /ST_DWithin/);
+  assert.match(eventLink, /const href = `\/event\/\$\{id\}`/);
+  assert.match(eventLink, /router\.push\(`\$\{href\}\?from=/);
 });
 
 test('public event projections cannot leak embeddings or geometry', () => {

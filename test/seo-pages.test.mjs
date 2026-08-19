@@ -17,6 +17,7 @@ import {
   upcomingMonthSlugs,
 } from '../lib/seo-pages.js';
 import robots from '../app/robots.js';
+import { canonicalEventPath } from '../lib/event-aliases.js';
 
 test('supports the explicit nine-city Austrian rollout and the Vienna ingress alias', () => {
   assert.equal(SEO_CITIES.length, 9);
@@ -82,4 +83,11 @@ test('normalizes only the Vienna ingress path family', () => {
   assert.equal(canonicalSeoPath('/events/vienna/heute'), '/events/wien/heute');
   assert.equal(canonicalSeoPath('/events/vienna/2026/09'), '/events/wien/2026/09');
   assert.equal(canonicalSeoPath('/events/wien'), null);
+});
+
+test('permanently consolidates reviewed event duplicate URLs', () => {
+  assert.equal(canonicalEventPath('/event/34677'), '/event/22241');
+  assert.equal(canonicalEventPath('/event/44999'), '/event/1146');
+  assert.equal(canonicalEventPath('/event/1146'), null);
+  assert.equal(canonicalEventPath('/event/not-a-number'), null);
 });

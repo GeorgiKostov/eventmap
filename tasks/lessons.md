@@ -1078,3 +1078,12 @@ on a cadence is not enough when ordinary caching can answer 304 or match `page_h
 very extraction needed to disprove the label. **Lesson:** any automatically inferred terminal
 state needs a low-frequency, cache-bypassing liveness probe. Here, `dead` is a 28-day quarantine
 whose due crawl forces a fresh extraction; `works=false` remains the deliberate human decision.
+
+## Public is not the same as sitemap-worthy (2026-08-19)
+The event sitemap queried every `published` row even though the same table also stores place records,
+expired archives and sparse events. Google was therefore given 29,279 event URLs while detail-page
+metadata correctly noindexed thousands of them, including 3,015 places with no event date. That sent
+conflicting quality signals and enlarged crawl inventory without adding indexable content. **Lesson:**
+a sitemap is a curated set of preferred, indexable canonicals, not an export of every public record.
+Its SQL predicate must mirror page-level indexability and rollout scope, and tests should pin known
+noindex classes out of the sitemap while retaining a known strong leaf.

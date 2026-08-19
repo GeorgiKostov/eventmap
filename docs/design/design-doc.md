@@ -175,7 +175,9 @@ We prepare event data better than the municipalities can, for both search engine
   leaf links in HTML, no generated filler prose. Each page leads with its exact date window, catchment,
   distinct/family/free counts and data refresh; city-proper rows lead, unknown times stay unknown, and
   only bounded multi-day records may overlap a target date. Thin windows remain noindex; the sitemap
-  publishes only inventory-backed canonicals. Dated `/weekend/<city>/<friday>` pages remain editorial archives.
+  publishes only inventory-backed canonicals. Event leaves in the sitemap must be dated, described,
+  source-linked, undisputed events inside a supported city catchment; verified duplicate leaves use
+  permanent redirects to one canonical event. Dated `/weekend/<city>/<friday>` pages remain editorial archives.
 - **sitemap.xml**, **llms.txt**, open cursor-paginated **/api/events** JSON, and an **MCP server** so an AI
   assistant can answer "kids events this weekend near Linz" in one tool call, with source attribution
   and canonical Okolo leaf URLs. The public catalog is CDN-cached; Google needs no special AI markup.

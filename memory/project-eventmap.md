@@ -9,6 +9,22 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-19 — Search Console crawl inventory repaired locally)
+- Search Console's 158 noindex examples were mostly legitimate expired archives, but the sitemap was
+  incorrectly submitting every published row: 29,279 event-shaped URLs, including 3,015 place records
+  whose detail metadata deliberately says noindex. The sitemap now requires a dated, described,
+  source-linked, undisputed event inside one of the nine supported city catchments.
+- The resulting local sitemap has 4,265 total URLs and 4,124 event leaves. Sampled place `/event/30304`,
+  thin `/event/10101`, and retired duplicate `/event/34677` are absent; strong `/event/7` remains.
+  This reduces Supabase sitemap reads and Google's crawl inventory without changing schema or storage.
+- Source review confirmed two duplicate clusters. Nine rows were reversibly marked removed and map via
+  permanent aliases to canonical events 22241 (Varna opera) and 1146 (Mariendom concert); no row was
+  deleted. Search landing clicks keep crawlable clean event URLs while client navigation carries a
+  validated return path; direct Google visits still return to the map.
+- Verification: 235/235 tests, 106-page production build, 308 aliases, sitemap contents, list → detail →
+  list navigation, direct-event fallback and browser console all pass. Commit/push and a new George-run
+  Vercel deployment remain; then resubmit the sitemap and validate the duplicate issue in Search Console.
+
 ## Where things stand (2026-08-19 — SEO/AIO release audit passed locally)
 - The `/events` layer now leads with a deterministic answer: exact Vienna date window, explicit 30/40 km
   catchment, deduplicated total, family/free counts, refresh time and provenance. Cards show venue plus
