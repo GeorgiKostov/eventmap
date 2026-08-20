@@ -9,6 +9,15 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-20 — city navigation is bounded and clearly labelled)
+- The map menu now distinguishes the comprehensive calendar (“Alle Events in {city}”) from the
+  editorial shortlist (“Die besten Events dieses Wochenende in {city}”) in DE/EN/BG.
+- Weekend navigation uses `channelForPoint` and disappears outside the channel's 35/40 km catchment;
+  city calendars keep their existing 30/40 km SEO catchments. Deep countryside stays map-first and
+  receives no misleading link to a distant city page.
+- Verification: 239 tests, the 106-page production build, and browser checks pass. Central Vienna
+  shows both links; Liezen shows neither while the map and general menu remain available.
+
 ## Where things stand (2026-08-20 — discovery navigation and Dublin runtime live)
 - Production now includes the map-to-city-calendar results/menu links from `d734514` plus launch
   hardening from `90b026d`. City/event `?lat=&lng=` handoffs seed the distance reference as well as

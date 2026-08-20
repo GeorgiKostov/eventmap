@@ -11,7 +11,7 @@ import { TOWNS, townCentroid } from '../lib/towns.js';
 import { searchPlaces, normalizePlace } from '../lib/places.js';
 import { groupEventSeries } from '../lib/map-groups.js';
 import { isForKids } from '../lib/kid-cats.js';
-import { nearestChannel } from '../lib/city-channels.js';
+import { channelForPoint } from '../lib/city-channels.js';
 import { seoCityForPoint } from '../lib/seo-pages.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
@@ -704,10 +704,11 @@ export default function Home() {
 
   // top-right actions menu + search
   const [menuOpen, setMenuOpen] = useState(false);
-  // Map centre, refreshed on every settle — it drives the local editorial page
-  // and, within a supported Austrian catchment, the matching city calendar.
+  // Map centre, refreshed on every settle — within a supported catchment it
+  // drives the matching city calendar and editorial weekend page. Outside all
+  // city catchments the map remains the universal discovery surface.
   const [mapCenter, setMapCenter] = useState(HOME);
-  const weekendChannel = useMemo(() => nearestChannel(mapCenter.lat, mapCenter.lng), [mapCenter]);
+  const weekendChannel = useMemo(() => channelForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
   const calendarCity = useMemo(() => seoCityForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
   const [manualEntry, setManualEntry] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);

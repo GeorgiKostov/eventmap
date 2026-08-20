@@ -130,6 +130,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       German city pages emit the correct document language, malformed event IDs return 404 before the
       bigint query, provider identity is current, and Vercel Functions run in Dublin beside Supabase.
       Production browser navigation and post-deploy error logs passed on 2026-08-20.
+- [x] Give the two city destinations distinct menu jobs and bound them geographically: “All events”
+      is the complete calendar, “Best events this weekend” is the editorial shortlist, and neither
+      claims a distant city in deep countryside. The map remains the universal discovery surface.
 - [ ] After deployment, resubmit `https://www.okolo.events/sitemap.xml`, URL-inspect representative
       city/intent/event pages, and start validation for the duplicate-without-canonical issue. Do not
       validate intentional noindex event archives as if they should become indexed. Inspect city/intent
@@ -481,10 +484,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       yesterday all carry those params — every one silently dropped the reader in **Linz**, from
       the Sofia digest the wrong country. Now honoured at map construction; mapCenter seeded from
       the same value (moveend never fires for a map CONSTRUCTED at its target). Verified live.
-- [x] Menu → `/weekend/<city>` for the channel nearest the map centre (`nearestChannel`,
-      deliberately NOT `channelForPoint` — that must stay catchment-bounded for SUBSCRIBER
-      routing). Verified: Vienna→Wien, Sofia→София, rural Mühlviertel→Linz. `NL_CONSENT_VERSION`
-      bumped (nlBlurb now says families AND everyone, because the newsletter does).
+- [x] Menu → `/weekend/<city>` only while the map centre is inside that channel's catchment
+      (`channelForPoint`). Verified after the 2026-08-20 correction: Vienna→Wien; rural Liezen→no
+      city-specific link. `NL_CONSENT_VERSION` was bumped when the newsletter copy changed.
 - [x] Prod writes made: **wien + graz 07-17 snapshots regenerated** (both unsent; = the desk's own
       Regenerate). **Linz 07-17 is SENT + IG/FB-posted — untouched.**
 - [ ] **innsbruck / salzburg / sofia 07-17 still hold OLD 5-item family-framed snapshots** (built
