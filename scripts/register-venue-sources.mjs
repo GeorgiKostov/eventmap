@@ -12,6 +12,7 @@ const SOURCES = [
   {
     name: 'Posthof Linz — Programm',
     url: 'https://www.posthof.at/',
+    cms: 'posthof',
     town: 'Linz', region: 'Oberösterreich',
     notes: 'Official Posthof programme; highest-volume Linz venue gap in the Somo comparison. '
       + 'Rich server-rendered programme, with event JSON-LD on detail pages.',
@@ -83,8 +84,9 @@ const SOURCES = [
   {
     name: 'Rockhouse Salzburg — Programm',
     url: 'https://www.rockhouse.at/de/events',
+    cms: 'rockhouse',
     town: 'Salzburg', region: 'Salzburg',
-    notes: 'Official Rockhouse programme; largest repeated Salzburg venue in the Somo comparison.',
+    notes: 'Official Rockhouse Nuxt/Vivenu programme; embedded dated listing with official detail links.',
   },
   {
     name: 'Salzburgarena — Events & Tickets',

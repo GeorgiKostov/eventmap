@@ -14,10 +14,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   repeated venues. Twenty-four official venue calendars were registered across Linz/Wels, Wien,
   Salzburg, Graz, Innsbruck, Bregenz and Wieselburg; all 24 now survive a targeted crawl with
   `works=true`, `zero_streak=0` and facts/linkback to the official publisher.
-- The final source snapshot has 720 accepted occurrences, 699 stored rows, 656 future published
-  events and 45 events for 21–23 August. Deterministic adapters now cover Salzburgarena (32),
-  Grazer Spielstätten (213) and Bregenzer Festspiele (34); Messe Wieselburg resolves its internal
-  halls through the official Volksfestplatz address and yielded 22/22.
+- The current source snapshot has 946 accepted occurrences, 924 stored rows, 881 future published
+  events and 44 events for 21–23 August. Deterministic adapters now cover Salzburgarena (32),
+  Grazer Spielstätten (213), Bregenzer Festspiele (34), Posthof (158) and Rockhouse (99); Messe
+  Wieselburg resolves its internal halls through the official Volksfestplatz address and yielded
+  22/22.
 - The 20 August scheduled structured crawl succeeded: 348 due sources, 4,874 upserts, 622 genuinely
   new rows (621 future), 12 fetch failures and no extraction failures. No Austrian deterministic
   source is over 2× cadence stale. The remaining debt is the weekly LLM lane: 517 sources are over

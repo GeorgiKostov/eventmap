@@ -10,10 +10,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       occurrences, 699 stored rows and 656 future published events. Added deterministic official
       adapters for Salzburgarena (32), Grazer Spielstätten (213), and Bregenzer Festspiele (34),
       plus a source-level address fallback for Messe Wieselburg (22/22).
-- [ ] Improve partial high-value venue extraction before another broad source search: Posthof
-      currently returns 8 future events versus 53 Posthof-labelled Somo cards, while Rockhouse
-      returns 23 versus 33. Prefer official deterministic/detail-page adapters over adding more
-      overlapping aggregators.
+- [x] Improve partial high-value venue extraction before another broad source search. Deterministic
+      official adapters now return 158 Posthof occurrences (up from 8) and 99 Rockhouse events
+      (up from 23), with exact detail links, Vienna times, venue rooms and conservative categories.
 
 ## Programmatic SEO + AIO landing pages (2026-08-16)
 - [x] Ship the Linz-first SSR landing-page slice at `/events/linz`, `/events/linz/heute`,

@@ -39,6 +39,8 @@ import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
 import { fetchSalzburgarenaEvents } from '../lib/salzburgarena-events.js';
 import { fetchGrazerSpielstaettenEvents } from '../lib/grazer-spielstaetten-events.js';
 import { fetchBregenzerFestspieleEvents } from '../lib/bregenzer-festspiele-events.js';
+import { fetchPosthofEvents } from '../lib/posthof-events.js';
+import { fetchRockhouseEvents } from '../lib/rockhouse-events.js';
 import {
   isPflasterFixedSourceUrl, parsePflasterEvents, PFLASTER_HOME_URL,
 } from '../lib/pflaster-events.js';
@@ -69,7 +71,7 @@ const CAT_EMOJI = {
 };
 
 const DYNAMIC_CALENDAR_CMS = new Set([
-  'salzburgarena', 'grazer-spielstaetten', 'bregenzer-festspiele',
+  'salzburgarena', 'grazer-spielstaetten', 'bregenzer-festspiele', 'posthof', 'rockhouse',
 ]);
 
 // Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
@@ -676,6 +678,16 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'bregenzer-festspiele') {
     const events = await fetchBregenzerFestspieleEvents(src, { shellHtml: html });
     if (events.length) return { route: 'bregenzer-festspiele', events };
+  }
+
+  if (src.cms === 'posthof') {
+    const events = await fetchPosthofEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'posthof', events };
+  }
+
+  if (src.cms === 'rockhouse') {
+    const events = await fetchRockhouseEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'rockhouse', events };
   }
 
   if (src.cms === 'dvv') {
