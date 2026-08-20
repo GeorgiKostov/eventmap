@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   getEvent, publishedEventsPage, upsertEvent, updateEventFields, viennaNow,
-  mapPins, mapCells, searchEvents, eventsByIds, dedupCandidates,
+  mapPins, mapCells, searchEvents, eventsByIds, dedupCandidates, relatedUpcomingEvents,
 } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
@@ -99,7 +99,17 @@ export async function GET(req) {
   const sp = req.nextUrl.searchParams;
 
   const id = sp.get('id');
-  if (id) return NextResponse.json({ event: withCanonicalUrl(await getEvent(id)) });
+  if (id) {
+    const event = await getEvent(id);
+    const related = event ? await relatedUpcomingEvents(event) : { series: [], venue: [] };
+    return NextResponse.json({
+      event: withCanonicalUrl(event),
+      related: {
+        series: related.series.map(withCanonicalUrl),
+        venue: related.venue.map(withCanonicalUrl),
+      },
+    });
+  }
 
   // Saved-list resolution: usually NOT in the current viewport, so this is a
   // plain id lookup, never bbox-scoped (brief: don't prune ids that are just

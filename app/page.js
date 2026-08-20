@@ -903,7 +903,7 @@ export default function Home() {
     flyAssured({ center: [ev.lng, ev.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 13), duration: 800 });
     fetch(`/api/events?id=${encodeURIComponent(ev.id)}`)
       .then((res) => (res.ok ? res.json() : null))
-      .then((data) => { if (data?.event) selectEvent(data.event, { fly: false }); })
+      .then((data) => { if (data?.event) selectEvent(data.event, { fly: false, related: data.related }); })
       .catch(() => {});
   }
 
@@ -1506,8 +1506,11 @@ export default function Home() {
     return () => window.removeEventListener('paste', onPaste);
   }, [capture, scanState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function selectEvent(ev, { fly = true } = {}) {
+  function selectEvent(ev, { fly = true, related } = {}) {
     setSelected(ev);
+    setRelatedEvents(ev
+      ? { eventId: String(ev.id), series: related?.series || [], venue: related?.venue || [] }
+      : { eventId: null, series: [], venue: [] });
     setDetailFull(false);
     if (ev) {
       // Second trigger: someone opening a THIRD event is planning a weekend, not
@@ -1515,13 +1518,19 @@ export default function Home() {
       // persisted: a returning visitor gets a fresh benefit of the doubt.)
       eventOpens.current += 1;
       if (eventOpens.current === 3) maybePromptNewsletter();
-      // The homepage payload intentionally omits heavy detail-only fields.
-      // Hydrate just the row the user opens, without delaying the map response.
-      if (!Object.prototype.hasOwnProperty.call(ev, 'description')) {
+      // The homepage payload intentionally omits heavy detail-only fields. The
+      // same bounded detail read also returns future dates and other programme
+      // at this venue, independent of the active map filters.
+      if (related === undefined) {
         fetch(`/api/events?id=${encodeURIComponent(ev.id)}`)
           .then((res) => res.ok ? res.json() : null)
           .then((data) => {
             if (data?.event) setSelected((current) => current?.id === ev.id ? data.event : current);
+            if (data?.related) {
+              setRelatedEvents((current) => current.eventId === String(ev.id)
+                ? { eventId: String(ev.id), series: data.related.series || [], venue: data.related.venue || [] }
+                : current);
+            }
           })
           .catch(() => {});
       }
@@ -1566,7 +1575,10 @@ export default function Home() {
       .then((data) => {
         if (!active || !data?.event) return;
         setWhenMode('all');
-        selectEvent(data.event, { fly: data.event.lat != null && data.event.lng != null });
+        selectEvent(data.event, {
+          fly: data.event.lat != null && data.event.lng != null,
+          related: data.related,
+        });
       })
       .catch(() => {});
     return () => { active = false; };
@@ -1597,6 +1609,7 @@ export default function Home() {
   const [cells, setCells] = useState([]); // cells mode only: [{lat,lng,n}]
   const [viewTotal, setViewTotal] = useState(0);
   const [viewTruncated, setViewTruncated] = useState(false); // drives the "zoom in to see all" hint (truncatedNote below)
+  const [relatedEvents, setRelatedEvents] = useState({ eventId: null, series: [], venue: [] });
   const viewportAbort = useRef(null);
 
   // Clamp to the server's bbox span cap (brief: >20° -> 400) around the current
@@ -2875,20 +2888,9 @@ export default function Home() {
     const place = ev.kind === 'place';
     const ongoing = !place && isOngoingAt(ev, dFrom);
     const community = isCommunitySubmitted(ev);
-    const series = seriesGroups.byId.get(ev.id);
-    const seriesIds = new Set(series?.members.map((item) => item.id) || []);
-    const seriesSiblings = (series?.members || [])
-      .filter((item) => item.id !== ev.id)
-      .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-    // Task 3: "more at this venue" — for an event, its venue-group siblings; for a
-    // place, other upcoming events at/near it (same venue-matching rule).
-    const venueSiblings = place
-      ? (events || [])
-          .filter((e) => e.kind !== 'place' && e.id !== ev.id && sameVenue(e, ev))
-          .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
-      : (events || [])
-          .filter((e) => e.kind !== 'place' && e.id !== ev.id && !seriesIds.has(e.id) && sameVenue(e, ev))
-          .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+    const related = relatedEvents.eventId === String(ev.id) ? relatedEvents : null;
+    const seriesSiblings = place ? [] : (related?.series || []);
+    const venueSiblings = related?.venue || [];
     const captureSourceOpen = () => {
       const props = { id: String(ev.id), kind: ev.kind, town: ev.town || null, highlight: ev.highlight || null, surface: 'map' };
       track('event_source_open', props);

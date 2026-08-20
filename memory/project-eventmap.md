@@ -9,6 +9,14 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-20 — venue discovery restored)
+- Event details now load a bounded server-side related set independent of the map's active date,
+  category and viewport filters. Repeat dates stay under “Weitere Termine dieser Serie”; up to 12
+  distinct upcoming titles appear under “Weitere Veranstaltungen hier”. Town-scoped whole-word
+  venue variants such as `Posthof` / `Posthof Linz` match, while town-centroid proximity never does.
+- The Linz discovery-page answer block is one concise factual paragraph instead of two repetitive
+  summaries. All 271 tests, the 106-page production build and the local Posthof click/switch flow pass.
+
 ## Where things stand (2026-08-20 — Somo venue gap converted to official recurring sources)
 - Somo's live Austrian city pages were inventoried with Luna agents and used only to discover
   repeated venues. Twenty-four official venue calendars were registered across Linz/Wels, Wien,

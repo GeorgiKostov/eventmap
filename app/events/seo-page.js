@@ -158,12 +158,11 @@ export default function SeoEventPage({ city, title, intro, total, events, facets
 
         <section aria-label="Kurzantwort" style={{ background: S.panel, border: `1px solid ${S.line}`, borderRadius: 14, padding: '16px 18px', marginTop: 18 }}>
           <p style={{ fontSize: 16, lineHeight: 1.55, margin: 0 }}>
-            <strong>Kurz gesagt:</strong> Okolo kennt {total} veröffentlichte Veranstaltungen für {period} im Umkreis von {city.radiusKm} km rund um {city.label}.
+            <strong>{total} Veranstaltungen</strong> im Umkreis von {city.radiusKm} km rund um {city.label} · {period}.
             {facets?.kids > 0 && ` ${facets.kids} davon sind für Kinder oder Familien geeignet.`}
             {facets?.free > 0 && ` ${facets.free} sind als gratis gekennzeichnet.`}
-          </p>
-          <p style={{ color: S.muted, fontSize: 12.5, lineHeight: 1.5, margin: '9px 0 0' }}>
-            Zeitraum: {period} · Gebiet: {city.label} und Umgebung · {events.length < total ? `${events.length} passende Termine angezeigt · ` : ''}Datenstand: {refreshed || 'noch keine veröffentlichten Termine'}. Mehrtagestermine zählen, wenn ihr veröffentlichter Zeitraum das Datum umfasst. Quellen und Original-Link stehen auf jeder Eventseite.
+            {events.length < total && ` Angezeigt werden ${events.length} passende Termine.`}
+            {' '}Stand: {refreshed || 'noch keine veröffentlichten Termine'}. Quelle und Original-Link stehen bei jedem Event.
           </p>
         </section>
 
