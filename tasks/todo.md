@@ -126,6 +126,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Exposed the supported city calendars from the live map through a current-city results link and
       highlighted menu entry, while keeping the curated weekend page distinct. The link follows Linz/Wien
       as the map moves, stays hidden outside supported SEO catchments, and is localized in DE/EN/BG.
+- [x] Deployed the discovery links and launch hardening: linked map coordinates now anchor distances,
+      German city pages emit the correct document language, malformed event IDs return 404 before the
+      bigint query, provider identity is current, and Vercel Functions run in Dublin beside Supabase.
+      Production browser navigation and post-deploy error logs passed on 2026-08-20.
 - [ ] After deployment, resubmit `https://www.okolo.events/sitemap.xml`, URL-inspect representative
       city/intent/event pages, and start validation for the duplicate-without-canonical issue. Do not
       validate intentional noindex event archives as if they should become indexed. Inspect city/intent

@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-20 — discovery navigation and Dublin runtime live)
+- Production now includes the map-to-city-calendar results/menu links from `d734514` plus launch
+  hardening from `90b026d`. City/event `?lat=&lng=` handoffs seed the distance reference as well as
+  the camera, so Vienna opens with local distances instead of the Linz fallback.
+- Static German `/events` pages emit `<html lang="de">`; malformed non-numeric event IDs return 404
+  before reaching Postgres; Nominatim/Photon requests identify Okolo and `hello@okolo.events`.
+- Vercel Functions are pinned to `dub1` beside Supabase in Ireland. Production deployment
+  `dpl_2UHKF3uT24pLmvDSoZDfsMcLVxF8` is Ready and aliased to `www.okolo.events`; live headers confirm
+  `fra1 → dub1`. Vienna calendar → event → exact map selection passed with no browser errors, and the
+  post-deploy scan found 62 HTTP 200s, three intentional 404 checks, and zero error/fatal logs.
+- Verification: all 237 tests and the 106-page production build pass. Exact duplicate cleanup remains
+  a separate evidence-based data task; no production event rows were deleted in this release.
+
 ## Where things stand (2026-08-19 — city calendars are discoverable from the map)
 - The main map now exposes the `/events/<city>` structure through a compact “All events” link beside
   the live result count on desktop and in the mobile results-sheet header. The actions menu carries a
@@ -19,7 +32,7 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   calendar link. The map remains open because these server-rendered pages open in a new tab.
 - DE/EN/BG copy and privacy-safe `event_calendar_open` tracking ship with `city` plus `menu|results`
   surface. All 235 tests and the 106-page production build pass; desktop/mobile browser QA found no
-  overflow or console errors. Commit/push and a new George-run Vercel deployment remain.
+  overflow or console errors. Shipped in `d734514` and deployed with the 2026-08-20 release above.
 
 ## Where things stand (2026-08-19 — Search Console crawl inventory repaired locally)
 - Search Console's 158 noindex examples were mostly legitimate expired archives, but the sitemap was
