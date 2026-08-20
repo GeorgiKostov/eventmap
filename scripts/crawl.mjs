@@ -41,6 +41,10 @@ import { fetchGrazerSpielstaettenEvents } from '../lib/grazer-spielstaetten-even
 import { fetchBregenzerFestspieleEvents } from '../lib/bregenzer-festspiele-events.js';
 import { fetchPosthofEvents } from '../lib/posthof-events.js';
 import { fetchRockhouseEvents } from '../lib/rockhouse-events.js';
+import { fetchBrucknerhausEvents } from '../lib/brucknerhaus-events.js';
+import { fetchKapuEvents } from '../lib/kapu-events.js';
+import { fetchTabakfabrikEvents } from '../lib/tabakfabrik-events.js';
+import { parseSchlachthofWelsPage } from '../lib/schlachthof-wels-events.js';
 import {
   isPflasterFixedSourceUrl, parsePflasterEvents, PFLASTER_HOME_URL,
 } from '../lib/pflaster-events.js';
@@ -690,6 +694,26 @@ async function tryStructuredExtraction(html, src) {
     if (events.length) return { route: 'rockhouse', events };
   }
 
+  if (src.cms === 'brucknerhaus') {
+    const events = await fetchBrucknerhausEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'brucknerhaus', events };
+  }
+
+  if (src.cms === 'kapu') {
+    const events = await fetchKapuEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'kapu', events };
+  }
+
+  if (src.cms === 'tabakfabrik') {
+    const events = await fetchTabakfabrikEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'tabakfabrik', events };
+  }
+
+  if (src.cms === 'schlachthof-wels') {
+    const events = parseSchlachthofWelsPage(html, src);
+    if (events.length) return { route: 'schlachthof-wels', events };
+  }
+
   if (src.cms === 'dvv') {
     const dvvEvents = parseDvvEvents(html, src);
     if (dvvEvents.length) return { route: 'dvv', events: dvvEvents };
@@ -1296,7 +1320,12 @@ async function main() {
     });
   }
   if (urlArg > -1 || recoverZeros) {
-    sources = sources.filter((s) => sourceMatchesCrawlPolicy(s, { country, mode }));
+    // An explicit structured URL is a safe adapter probe even when the source
+    // still carries feed_kind='llm' from its last crawl. It never permits the
+    // paid fallback because crawlSource() remains in mode='structured'.
+    if (!(urlArg > -1 && mode === 'structured')) {
+      sources = sources.filter((s) => sourceMatchesCrawlPolicy(s, { country, mode }));
+    }
   }
   if (requestedScope) {
     sources = sources.filter((s) => (

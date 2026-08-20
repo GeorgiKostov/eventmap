@@ -27,27 +27,33 @@ const SOURCES = [
   {
     name: 'KAPU Linz — Events',
     url: 'https://www.kapu.or.at/events',
+    cms: 'kapu',
     town: 'Linz', region: 'Oberösterreich',
-    notes: 'Official KAPU programme. Stable server-rendered Drupal event list.',
+    notes: 'Official KAPU programme. Stable server-rendered Drupal event list with dated event cards.',
   },
   {
     name: 'Brucknerhaus Linz — Veranstaltungen',
     url: 'https://www.brucknerhaus.at/programm/veranstaltungen',
+    cms: 'brucknerhaus',
     town: 'Linz', region: 'Oberösterreich',
-    notes: 'Official Brucknerhaus and Brucknerfest programme, including dedicated family and '
-      + 'children listings.',
+    notes: 'Official Brucknerhaus and Brucknerfest programme. Server-rendered dated cards with '
+      + 'six paginated pages.',
   },
   {
     name: 'Tabakfabrik Linz — Events',
     url: 'https://tabakfabrik-linz.at/events/',
+    cms: 'tabakfabrik',
     town: 'Linz', region: 'Oberösterreich',
-    notes: 'Official Tabakfabrik calendar with workshops, exhibitions, tours and family events.',
+    notes: 'Official Tabakfabrik calendar. Listing cards link to detail pages whose schema.org '
+      + 'Event JSON-LD supplies full dates and ranges.',
   },
   {
     name: 'Alter Schlachthof Wels — Programm',
     url: 'https://www.schlachthofwels.at/programm/',
+    cms: 'schlachthof-wels',
     town: 'Wels', region: 'Oberösterreich',
-    notes: 'Official Alter Schlachthof Wels cultural programme.',
+    notes: 'Official Alter Schlachthof Wels cultural programme. Server-rendered TYPO3 event rows '
+      + 'with dated detail links.',
   },
 
   {
@@ -201,7 +207,7 @@ async function main() {
     await upsertSource({
       ...source,
       kind: 'venue',
-      cms: null,
+      cms: source.cms ?? null,
       country: 'AT',
       works: true,
     });

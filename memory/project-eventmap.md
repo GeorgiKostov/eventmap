@@ -14,11 +14,17 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   repeated venues. Twenty-four official venue calendars were registered across Linz/Wels, Wien,
   Salzburg, Graz, Innsbruck, Bregenz and Wieselburg; all 24 now survive a targeted crawl with
   `works=true`, `zero_streak=0` and facts/linkback to the official publisher.
-- The current source snapshot has 946 accepted occurrences, 924 stored rows, 881 future published
-  events and 44 events for 21–23 August. Deterministic adapters now cover Salzburgarena (32),
-  Grazer Spielstätten (213), Bregenzer Festspiele (34), Posthof (158) and Rockhouse (99); Messe
-  Wieselburg resolves its internal halls through the official Volksfestplatz address and yielded
-  22/22.
+- Deterministic venue adapters now also cover Brucknerhaus (265 accepted occurrences), KAPU (14),
+  Tabakfabrik (34) and Alter Schlachthof Wels (76), alongside Salzburgarena, Grazer Spielstätten,
+  Bregenzer Festspiele, Posthof and Rockhouse. All four new adapters obey robots policy, store only
+  event facts with official linkback, and passed a fresh targeted crawl without malformed dates.
+- Linz data repair matched 24 exact source/venue/address rows to precise registry coordinates,
+  removed nine evidence-checked duplicate rows, and unpublished one Hofpürglhütte camp that was
+  incorrectly pinned to Linz. Ambiguous global merge proposals remain untouched.
+- Successful scheduled crawls now call an authenticated ISR invalidation endpoint, so the Linz
+  all-events, weekend and month pages refresh immediately instead of waiting for their 24-hour TTL.
+  After the repair and venue crawls the database contains 1,689 Linz events through October: 201
+  for 21–23 August, 526 in August, 857 in September and 483 in October.
 - The 20 August scheduled structured crawl succeeded: 348 due sources, 4,874 upserts, 622 genuinely
   new rows (621 future), 12 fetch failures and no extraction failures. No Austrian deterministic
   source is over 2× cadence stale. The remaining debt is the weekly LLM lane: 517 sources are over

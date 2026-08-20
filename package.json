@@ -10,6 +10,7 @@
     "seed": "node --env-file=.env.local scripts/seed.mjs",
     "seed:sql": "node --env-file=.env.local scripts/import-sql.mjs",
     "crawl": "node --env-file=.env.local scripts/crawl.mjs",
+    "refresh:seo": "node --env-file=.env.local scripts/refresh-seo.mjs",
     "subscribers": "node --env-file=.env.local scripts/export-subscribers.mjs",
     "digest": "node --env-file=.env.local scripts/weekly-digest.mjs",
     "social": "node --env-file=.env.local scripts/publish-social.mjs",

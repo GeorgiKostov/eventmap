@@ -56,3 +56,9 @@ jobs:
           MAX_LLM_CALLS: 750
           CRAWL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || github.event.schedule == '30 4 * * 0' && 'llm' || 'structured' }}
         run: node scripts/crawl.mjs --country AT --mode "$CRAWL_MODE"
+
+      - name: Refresh SEO pages
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          NEXT_PUBLIC_BASE_URL: https://www.okolo.events
+        run: node scripts/refresh-seo.mjs

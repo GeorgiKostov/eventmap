@@ -36,19 +36,23 @@ Keeps the map fresh without anyone remembering to run it. The workflow
 
 ## What YOU must do once (manual, ~3 minutes)
 
-The workflow needs two secrets. GitHub encrypts them and masks them in logs; they
+The workflow needs three secrets. GitHub encrypts them and masks them in logs; they
 are never written to disk.
 
 1. Go to the repo on GitHub → **Settings → Secrets and variables → Actions → New
    repository secret**.
-2. Add these two:
+2. Add these three:
 
    | Secret name | Value | Where to find it |
    |---|---|---|
    | `DATABASE_URL` | the Supabase pooler connection string | copy the exact value from your local `.env.local` |
    | `GEMINI_API_KEY` | the Gemini API key | copy from `.env.local` |
+   | `ADMIN_TOKEN` | the existing admin token (at least 16 characters) | copy from the Vercel production environment |
 
-3. That's it. To test immediately without waiting for 04:00 UTC: **Actions →
+3. That's it. Each successful crawl now invalidates the `/events` ISR subtree; the next request
+   regenerates it from Supabase. To refresh manually, run `npm run refresh:seo` with
+   `ADMIN_TOKEN` and `NEXT_PUBLIC_BASE_URL` set. To test immediately without waiting for 04:00 UTC:
+   **Actions →
    Scheduled crawl → Run workflow**. Watch the log; the final line is
    `Crawl done: N events upserted, M expired`.
 
