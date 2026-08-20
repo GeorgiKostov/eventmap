@@ -66,7 +66,10 @@ const SITE_LD = {
 export default async function RootLayout({ children }) {
   const requestHeaders = await headers();
   const detectedLang = requestHeaders.get('x-okolo-lang');
-  const lang = LANGS.includes(detectedLang) ? detectedLang : 'en';
+  // Request middleware always supplies a supported language for dynamic pages.
+  // The only build-time HTML descendants are the German /events landing pages,
+  // where force-static intentionally makes headers() empty to preserve ISR.
+  const lang = LANGS.includes(detectedLang) ? detectedLang : 'de';
   return (
     <html lang={lang}>
       <body>

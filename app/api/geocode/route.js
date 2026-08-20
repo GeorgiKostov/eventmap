@@ -16,7 +16,7 @@ const GEO_LIMIT = { perHour: 120, perDay: 600 };
 // DB access — a small in-memory cache is enough and avoids a geocache
 // roundtrip per keystroke. Ranking is biased toward the caller's country;
 // hits from any served country are accepted.
-const SUGGEST_UA = 'umkreis-prototype/0.1 (address suggest; contact: bobojojok@gmail.com)';
+const SUGGEST_UA = 'Okolo/1.0 (+https://www.okolo.events; contact: hello@okolo.events)';
 const suggestCache = new Map();
 
 function photonLabel(props) {

@@ -25,8 +25,9 @@ const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
 // newsletter's "Alle Events auf der Karte" CTA, every weekend page's map button
 // and the event pages all carry ?lat=&lng=, and every one of them silently
 // dropped the reader in Linz. From the Sofia digest that is simply the wrong
-// country. Read-only and viewport-only: the params move the camera (the viewport
-// IS the spatial filter), they don't set the "Around X" search anchor.
+// country. The params seed both the camera and the fallback distance reference.
+// A city calendar or event deep-link must not show Vienna events as 150 km from
+// the hard-coded Linz fallback before the visitor searches or shares location.
 //
 // parseFloat, not Number: Number('') and Number(null) are both 0, which is a
 // perfectly finite coordinate in the Gulf of Guinea.
@@ -1281,6 +1282,7 @@ export default function Home() {
     // the camera gets, so the menu's "Wochenende in X" is right on first paint —
     // moveend never fires for a map that was CONSTRUCTED at its target.
     const start = initialCenter();
+    setMe(start);
     setMapCenter(start);
     const map = new maplibregl.Map({
       container: mapRef.current,

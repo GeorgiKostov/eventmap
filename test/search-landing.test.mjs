@@ -4,6 +4,12 @@ import fs from 'node:fs';
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
+test('map deep-link coordinates seed both camera and distance reference', () => {
+  const page = read('app/page.js');
+
+  assert.match(page, /const start = initialCenter\(\);\s+setMe\(start\);\s+setMapCenter\(start\);/);
+});
+
 test('nearby recommendations are future-starting and render on current and archived event pages', () => {
   const db = read('lib/db.js');
   const page = read('app/event/[id]/page.js');

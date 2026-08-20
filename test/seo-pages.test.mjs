@@ -17,7 +17,7 @@ import {
   upcomingMonthSlugs,
 } from '../lib/seo-pages.js';
 import robots from '../app/robots.js';
-import { canonicalEventPath } from '../lib/event-aliases.js';
+import { canonicalEventPath, isEventId } from '../lib/event-aliases.js';
 
 test('supports the explicit nine-city Austrian rollout and the Vienna ingress alias', () => {
   assert.equal(SEO_CITIES.length, 9);
@@ -90,4 +90,11 @@ test('permanently consolidates reviewed event duplicate URLs', () => {
   assert.equal(canonicalEventPath('/event/44999'), '/event/1146');
   assert.equal(canonicalEventPath('/event/1146'), null);
   assert.equal(canonicalEventPath('/event/not-a-number'), null);
+});
+
+test('rejects malformed event IDs before they reach the bigint query', () => {
+  assert.equal(isEventId('1146'), true);
+  assert.equal(isEventId('not-a-real-event'), false);
+  assert.equal(isEventId('12.5'), false);
+  assert.equal(isEventId(''), false);
 });
