@@ -27,7 +27,7 @@ intent. Last full pass: **2026-07-14**. Companion docs: [`docs/design/design-doc
                                                     │ no
                                                     ▼
                                    structured waterfall (deterministic, $0):
-                                   JSON-LD → iCal → Sitepark / GEM2GO / DVV parsers (cms-gated)
+                                   JSON-LD → iCal → Sitepark / GEM2GO / DVV / venue adapters (cms-gated)
                                    → RSS/Atom
                                                     │ nothing matched
                                                     ▼
@@ -96,10 +96,10 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 | `town`, `region` | `town` = Gemeinde; `region` is normally the Bundesland (`Oberösterreich`\|`Salzburg`\|…), with an exact named-scope token such as `Stuttgart 40km` while a country rollout is deliberately radius-limited. |
 | `works` | false = known-dead/unfetchable (JS-only SPA, TLS issue) — excluded from crawl candidates entirely. |
 | `notes` | Free text — quirks, why `works=false`, robots-block, etc. |
-| `cms` | `ris`\|`gem2go`\|`dvv`\|`sitepark-ical`\|`pflaster`\|`other`\|`unknown`\|null. Gates CMS-specific parsers in the waterfall. |
+| `cms` | Adapter routing key such as `gem2go`, `dvv`, `sitepark-ical`, `pflaster`, `salzburgarena`, `grazer-spielstaetten`, `bregenzer-festspiele`, `other`, `unknown`, or null. Gates source-specific parsers in the waterfall. |
 | `discovered_at` | When first registered. |
 | `page_hash` | sha256 of the stripped page text from the last crawl — change-detection. |
-| `feed_kind` | Which route won the *last* crawl: `jsonld`\|`ical`\|`gem2go`\|`dvv`\|`rss`\|`llm`\|`siteswift`\|`kalkalpen`\|`naturfreunde`\|`kinderfreunde`\|`pflaster`\|null. |
+| `feed_kind` | Which route won the *last* crawl: generic structured routes (`jsonld`, `ical`, `microdata`, `rss`), CMS/venue adapters (including `gem2go`, `siteswift`, `kalkalpen`, `naturfreunde`, `kinderfreunde`, `pflaster`, `salzburgarena`, `grazer-spielstaetten`, `bregenzer-festspiele`), `llm`, or null. |
 | `crawl_count`, `events_last`, `events_sum`, `zero_streak`, `last_changed`, `tier` | Content-rating / tiering, see §3. |
 | `etag`, `last_modified` | Last response's caching headers (2026-07-14). The next crawl sends `If-None-Match`/`If-Modified-Since`; a **304 skips the transfer entirely** — cheaper than `page_hash`, which still needs the body. Generic shell only. |
 | `default_categories` | Categories every event from this source inherits, **appended never substituted** (2026-07-14). The extractor reads an *event's* words, not its publisher's identity — a children's museum's 144 events extracted as `culture` and were invisible to the For-kids filter. Set only for unambiguously single-audience sources (FRida & freD, Kinderfreunde, Naturfreunde's family target-group, Familienbund, ASVÖ, Alpenverein Jugend&Familie); forcing `family` onto a diocese or a library would be hard-rule-5 fabrication in the category column. `scripts/migrate-source-categories.mjs`. |
@@ -535,14 +535,11 @@ summary of what's actually implemented:
 - **robots.txt honored** before every fetch (`robotsAllowed()`), **identifying UA** on every request
   (`UmkreisBot/0.1` for crawl, a separate `umkreis-prototype/0.1` UA for Nominatim per its own usage
   policy), **per-host rate limiting** (≥1s crawl, 1/s global Nominatim).
-- **Named-AI-crawler blocks honored** (`aiPolicyAllowed()`, a *second* question asked at both crawl
-  gates — decision: `docs/decisions/2026-07-16-ai-bot-policy.md`). A site naming ClaudeBot/GPTBot
-  with a `Disallow` covering our path is skipped with `blocked_reason='ai_bot_policy'`, even though
-  RFC 9309 permits us (our UA is never on those lists — which is exactly why `robotsAllowed()` can't
-  express this and must stay a clean spec implementation). Search crawlers (petalbot/Huawei,
-  amazonbot) and nuisance-scraper lists (bytespider alone) are **not** AI stances. Live cost:
-  11 sources / 138 events, incl. all of Stuttgart. Both this and `robots` self-clear on the next
-  crawl if a site drops the rule.
+- **Crawler-specific robots rules honored.** Permission is determined by the group that applies to
+  `UmkreisBot`, falling back to `User-agent: *` (`robotsAllowed()`). A rule that names only another
+  crawler such as CCBot, GPTBot or ClaudeBot does not apply to Okolo. `aiPolicyAllowed()` remains as
+  a compatibility alias for historical callers and audit evidence. Decision:
+  `docs/decisions/2026-08-20-crawler-identity-policy.md`.
 - **Linkback on every event** (`source_url`, a hard rule) — the traffic-back argument that a
   deterministic parser reading the same public HTML "changes how we parse, not what we access," and
   that GEM2GO's own ToS (no account/API involved) don't bind us.

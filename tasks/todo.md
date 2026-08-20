@@ -2,6 +2,19 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Austrian venue coverage vs Somo (2026-08-20)
+- [x] Audit Somo's live Austrian city inventories, map repeated venues to their official calendars,
+      and register 24 new `kind='venue'` sources. Somo is discovery evidence only; Okolo stores
+      event facts from the official publisher with linkback.
+- [x] Target-crawl all 24 sources. The final pass has zero zero-yield sources: 720 accepted
+      occurrences, 699 stored rows and 656 future published events. Added deterministic official
+      adapters for Salzburgarena (32), Grazer Spielstätten (213), and Bregenzer Festspiele (34),
+      plus a source-level address fallback for Messe Wieselburg (22/22).
+- [ ] Improve partial high-value venue extraction before another broad source search: Posthof
+      currently returns 8 future events versus 53 Posthof-labelled Somo cards, while Rockhouse
+      returns 23 versus 33. Prefer official deterministic/detail-page adapters over adding more
+      overlapping aggregators.
+
 ## Programmatic SEO + AIO landing pages (2026-08-16)
 - [x] Ship the Linz-first SSR landing-page slice at `/events/linz`, `/events/linz/heute`,
       `/events/linz/wochenende`, and `/events/linz/kinder`. Return the actual matching event

@@ -36,6 +36,9 @@ import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfin
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
 import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderfreunde-events.js';
 import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
+import { fetchSalzburgarenaEvents } from '../lib/salzburgarena-events.js';
+import { fetchGrazerSpielstaettenEvents } from '../lib/grazer-spielstaetten-events.js';
+import { fetchBregenzerFestspieleEvents } from '../lib/bregenzer-festspiele-events.js';
 import {
   isPflasterFixedSourceUrl, parsePflasterEvents, PFLASTER_HOME_URL,
 } from '../lib/pflaster-events.js';
@@ -48,7 +51,7 @@ import {
 import {
   normalizeCountry, normalizeCrawlMode, sourceMatchesCrawlPolicy,
 } from '../lib/crawl-policy.js';
-import { politeFetch, robotsAllowed, aiPolicyAllowed } from '../lib/crawl-net.js';
+import { politeFetch, robotsAllowed } from '../lib/crawl-net.js';
 import { pathToFileURL } from 'node:url';
 
 // One end-time builder for every adapter. Keeps a known end DATE even when the
@@ -64,6 +67,10 @@ const CAT_EMOJI = {
   family: '🎈', festival: '🎪', market: '🧺', music: '🎶',
   culture: '🎭', food: '🥨', sport: '⚽', workshop: '🎨',
 };
+
+const DYNAMIC_CALENDAR_CMS = new Set([
+  'salzburgarena', 'grazer-spielstaetten', 'bregenzer-festspiele',
+]);
 
 // Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
 // page-hash change detection and the LLM fallback. (Restored 2026-07-14: the
@@ -571,7 +578,8 @@ async function parseKalkalpenSource(sitemapXml, src) {
 // Waterfall: JSON-LD → iCal → wien-erleben (cms-gated, two-hop) → GEM2GO
 // (cms-gated) → siteswift (cms-gated) → kalkalpen (cms-gated, two-hop) →
 // jevents (cms-gated, two-hop: month.calendar listings → icalrepeat.detail
-// pages) → DVV hCalendar RSS (cms-gated) → sitepark/hwveranstaltung/
+// pages) → venue-specific API adapters (cms-gated) → DVV hCalendar RSS
+// (cms-gated) → sitepark/hwveranstaltung/
 // wordpress-ical/kinderfreunde (cms-gated) → generic RSS/Atom. First route
 // that yields ≥1 valid event wins and the LLM call is skipped entirely.
 // (Naturfreunde is not in this waterfall — its registered source URL is a
@@ -653,6 +661,21 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'twohop') {
     const twoHop = await fetchTwoHopEvents(src);
     if (twoHop.length) return { route: 'twohop', events: twoHop };
+  }
+
+  if (src.cms === 'salzburgarena') {
+    const events = await fetchSalzburgarenaEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'salzburgarena', events };
+  }
+
+  if (src.cms === 'grazer-spielstaetten') {
+    const events = await fetchGrazerSpielstaettenEvents(src);
+    if (events.length) return { route: 'grazer-spielstaetten', events };
+  }
+
+  if (src.cms === 'bregenzer-festspiele') {
+    const events = await fetchBregenzerFestspieleEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'bregenzer-festspiele', events };
   }
 
   if (src.cms === 'dvv') {
@@ -834,15 +857,15 @@ async function fetchNaturfreundeEvents(src) {
 }
 
 // --- blocked_reason (docs/design/big-city-quality.md §2) ---
-// A robots-disallow (or an ai_bot_policy skip, or a hand/fingerprint-sweep-set
-// js_spa/bot_block) is a STATE, not a failure streak: it must never feed
+// A robots-disallow (or a hand/fingerprint-sweep-set js_spa/bot_block) is a
+// STATE, not a failure streak: it must never feed
 // zero_streak or nudge a source toward tier='dead' the way an ordinary
 // zero-event round does (the Stuttgart lesson, tasks/lessons.md 2026-07-14 — a
 // robots skip was silently counted the same as "found nothing").
 //
-// These two reasons are re-derived from the live robots.txt on every run, so a
-// source un-blocks itself the moment a site drops the rule — unlike js_spa /
-// bot_block, which are human/sweep judgements no crawl can re-evaluate.
+// `ai_bot_policy` is retained here only to clear historical blocks under the
+// superseding 2026-08-20 crawler-identity decision. `robots` is re-derived from
+// the live file; js_spa/bot_block remain human/sweep judgements.
 const AUTO_DERIVED_BLOCKS = new Set(['robots', 'ai_bot_policy']);
 
 async function clearBlockedIfSet(src) {
@@ -890,8 +913,8 @@ async function tryFuzzyMerge(ev) {
 async function crawlNaturfreundeSource(src, { force } = {}) {
   console.log(`\n→ ${src.name} (${src.url})`);
 
-  // 'robots' and 'ai_bot_policy' are re-derived by THIS crawl's own checks every
-  // run (below), so they clear themselves the moment a site's policy changes.
+  // `robots` is re-derived by this crawl. Historical `ai_bot_policy` states are
+  // also allowed through once so a successful fetch clears them.
   // Any OTHER reason (js_spa/bot_block) is set by hand or by the CMS fingerprint
   // sweep, never auto-detected here — respect it and skip without an attempt.
   if (src.blocked_reason && !AUTO_DERIVED_BLOCKS.has(src.blocked_reason)) {
@@ -906,14 +929,6 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
       // Blocked is a STATE, not a failure streak (tasks/lessons.md 2026-07-14):
       // leave crawl stats untouched entirely, same treatment as a provider
       // error — no zero_streak bump, no tier nudge.
-      return { ok: 0, fail: 0 };
-    }
-    // robots.txt says WE may fetch this (our UA is never on these lists) — but
-    // the site named AI crawlers and shut them out, and we honor that as intent
-    // (docs/decisions/2026-07-16-ai-bot-policy.md). Same STATE treatment.
-    if (!(await aiPolicyAllowed(src.url))) {
-      console.log('  robots.txt blocks named AI crawlers — honoring, skipping');
-      await setSourceBlockedReason(src.id, 'ai_bot_policy');
       return { ok: 0, fail: 0 };
     }
   } catch { /* robots check itself failed → default allow, proceed */ }
@@ -990,8 +1005,8 @@ async function crawlSource(src, {
   const scope = requestedScope || scopeForSource(src);
   console.log(`\n→ ${src.name} (${src.url})`);
 
-  // 'robots' and 'ai_bot_policy' are re-derived by THIS crawl's own checks every
-  // run (below), so they clear themselves the moment a site's policy changes.
+  // `robots` is re-derived by this crawl. Historical `ai_bot_policy` states are
+  // also allowed through once so a successful fetch clears them.
   // Any OTHER reason (js_spa/bot_block) is set by hand or by the CMS fingerprint
   // sweep, never auto-detected here — respect it and skip without an attempt.
   if (src.blocked_reason && !AUTO_DERIVED_BLOCKS.has(src.blocked_reason)) {
@@ -1006,14 +1021,6 @@ async function crawlSource(src, {
       // Blocked is a STATE, not a failure streak (tasks/lessons.md 2026-07-14):
       // leave crawl stats untouched entirely, same treatment as a provider
       // error — no zero_streak bump, no tier nudge.
-      return { ok: 0, fail: 0 };
-    }
-    // robots.txt says WE may fetch this (our UA is never on these lists) — but
-    // the site named AI crawlers and shut them out, and we honor that as intent
-    // (docs/decisions/2026-07-16-ai-bot-policy.md). Same STATE treatment.
-    if (!(await aiPolicyAllowed(src.url))) {
-      console.log('  robots.txt blocks named AI crawlers — honoring, skipping');
-      await setSourceBlockedReason(src.id, 'ai_bot_policy');
       return { ok: 0, fail: 0 };
     }
   } catch { /* robots check itself failed → default allow, proceed */ }
@@ -1031,7 +1038,11 @@ async function crawlSource(src, {
     // homepage. Always fetch both so a homepage-only annual date change cannot
     // be hidden by a 304 from the otherwise-unchanged programme page.
     const pflasterFixed = src.cms === 'pflaster' && isPflasterFixedSourceUrl(src.url);
-    const condHeaders = pflasterFixed ? {} : conditionalHeadersForSource(src, force);
+    // These sources publish a stable HTML shell while their official calendar
+    // data changes behind an API/server action. The shell's 304/hash cannot be
+    // used as freshness evidence for the underlying events.
+    const dynamicCalendar = DYNAMIC_CALENDAR_CMS.has(src.cms);
+    const condHeaders = (pflasterFixed || dynamicCalendar) ? {} : conditionalHeadersForSource(src, force);
     res = await politeFetch(src.url, Object.keys(condHeaders).length ? { headers: condHeaders } : {});
     if (res.status === 304) {
       console.log('  304 not modified, skipped');
@@ -1062,7 +1073,8 @@ async function crawlSource(src, {
   }
 
   const hash = createHash('sha256').update(text).digest('hex');
-  if (!force && src.page_hash && src.page_hash === hash) {
+  const dynamicCalendar = DYNAMIC_CALENDAR_CMS.has(src.cms);
+  if (!force && !dynamicCalendar && src.page_hash && src.page_hash === hash) {
     console.log('  unchanged, skipped');
     const tier = await recordStats(src, { type: 'unchanged' });
     return { ok: 0, fail: 0, tier };

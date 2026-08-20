@@ -9,6 +9,23 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-20 — Somo venue gap converted to official recurring sources)
+- Somo's live Austrian city pages were inventoried with Luna agents and used only to discover
+  repeated venues. Twenty-four official venue calendars were registered across Linz/Wels, Wien,
+  Salzburg, Graz, Innsbruck, Bregenz and Wieselburg; all 24 now survive a targeted crawl with
+  `works=true`, `zero_streak=0` and facts/linkback to the official publisher.
+- The final source snapshot has 720 accepted occurrences, 699 stored rows, 656 future published
+  events and 45 events for 21–23 August. Deterministic adapters now cover Salzburgarena (32),
+  Grazer Spielstätten (213) and Bregenzer Festspiele (34); Messe Wieselburg resolves its internal
+  halls through the official Volksfestplatz address and yielded 22/22.
+- The 20 August scheduled structured crawl succeeded: 348 due sources, 4,874 upserts, 622 genuinely
+  new rows (621 future), 12 fetch failures and no extraction failures. No Austrian deterministic
+  source is over 2× cadence stale. The remaining debt is the weekly LLM lane: 517 sources are over
+  2× cadence stale and 540 are due, still within Sunday's 750-call ceiling.
+- Robots permission now follows the group applicable to `UmkreisBot` (or `User-agent: *`). Named
+  blocks for unrelated crawlers no longer gate Okolo; the two historical Austrian
+  `ai_bot_policy` states were rechecked and cleared.
+
 ## Where things stand (2026-08-20 — city navigation is bounded and clearly labelled)
 - The map menu now distinguishes the comprehensive calendar (“Alle Events in {city}”) from the
   editorial shortlist (“Die besten Events dieses Wochenende in {city}”) in DE/EN/BG.

@@ -1087,3 +1087,10 @@ conflicting quality signals and enlarged crawl inventory without adding indexabl
 a sitemap is a curated set of preferred, indexable canonicals, not an export of every public record.
 Its SQL predicate must mirror page-level indexability and rollout scope, and tests should pin known
 noindex classes out of the sitemap while retaining a known strong leaf.
+
+## 2026-08-20 — Apply robots permission to our own crawler, not unrelated agents
+
+George clarified that an official source is crawlable when robots.txt allows
+`UmkreisBot` or `User-agent: *`. A separate ban on CCBot/GPTBot/ClaudeBot does
+not apply to Okolo. Keep the identifying UA, rate limits, facts-only extraction
+and linkback; do not infer a ban on our crawler from another agent's group.

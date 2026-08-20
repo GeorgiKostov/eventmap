@@ -1,6 +1,6 @@
 # 2026-07-16 — Named-AI-crawler robots policy, enforced in code
 
-Status: adopted + shipped (George's calls, this date) · Owner: Architect.
+Status: superseded 2026-08-20 by `2026-08-20-crawler-identity-policy.md` · Owner: Architect.
 Companions: `docs/decisions/2026-07-11-crawl-scaling-and-legal.md` (the posture this serves),
 `docs/design/big-city-quality.md` §2 (`blocked_reason` as a state).
 

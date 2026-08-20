@@ -8,12 +8,7 @@
 //                  (lib/crawl-scopes.js). A scope is an explicit product decision;
 //                  a row outside it is a silently widened radius.
 //   2. ROBOTS    — RFC 9309, via our own parser.
-//   3. AI POLICY — a site naming ClaudeBot/GPTBot with a Disallow over our path is
-//                  honored even though our UA is never listed (George's Variant B,
-//                  docs/decisions/2026-07-16-ai-bot-policy.md). The todo is explicit
-//                  that this must be applied at DISCOVERY time or a probe keeps
-//                  proposing sources we may not crawl.
-//   4. OPT-OUT   — a row marked `"register": false` is a measured 0-yield trap; it
+//   3. OPT-OUT   — a row marked `"register": false` is a measured 0-yield trap; it
 //                  is skipped with its reason printed, never silently dropped.
 //
 // Dry-run by default (house convention). Pass --write to actually upsert.
@@ -27,7 +22,7 @@
 
 import { readFileSync } from 'node:fs';
 import { upsertSource } from '../lib/db.js';
-import { robotsAllowed, aiPolicyAllowed } from '../lib/crawl-net.js';
+import { robotsAllowed } from '../lib/crawl-net.js';
 import { scopeFromCatalog, isWithinCrawlScope, sourceCatalogPoint } from '../lib/crawl-scopes.js';
 
 const args = process.argv.slice(2);
@@ -84,18 +79,12 @@ for (const row of rows) {
     continue;
   }
 
-  const [robots, ai] = await Promise.all([robotsAllowed(row.url), aiPolicyAllowed(row.url)]);
+  const robots = await robotsAllowed(row.url);
   if (!robots) {
     skipped.push([name, 'robots.txt disallows our path']);
     console.log(`SKIP  ${label} robots.txt disallows`);
     continue;
   }
-  if (!ai) {
-    skipped.push([name, 'named-AI-bot policy']);
-    console.log(`SKIP  ${label} named-AI-bot policy`);
-    continue;
-  }
-
   kept.push(row);
   console.log(`OK    ${label} ${row.cms || 'cms=auto'} · ${row.url}`);
   if (write) {

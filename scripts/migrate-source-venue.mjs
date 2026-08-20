@@ -22,6 +22,10 @@ await sql`alter table sources add column if not exists default_address text`;
 // Single-venue publishers whose events name internal rooms/stages.
 const VENUES = [
   ['https://www.dschungelwien.at/spielplan', 'Dschungel Wien', 'Museumsplatz 1, 1070 Wien', ['family']],
+  // Nominatim has no result for the official address. These OSM-backed
+  // Mostviertel coordinates identify the exhibition complex; individual hall
+  // names remain on each event.
+  ['https://www.messewieselburg.at/veranstaltungskalender/', 'Messe Wieselburg', 'Volksfestplatz 3, 3250 Wieselburg', [], { lat: 48.12939, lng: 15.13811 }],
 ];
 
 for (const [url, venue, address, cats] of VENUES) {
@@ -43,8 +47,8 @@ if (WRITE) {
   // sources resolves through the registry — repeatable, not a one-off data fix.
   const { normalizeName } = await import('../lib/geocode.js');
   const { forwardGeocode } = await import('../lib/geocode.js');
-  for (const [, venue, address] of VENUES) {
-    const hit = await forwardGeocode(address, 'AT');
+  for (const [, venue, address, , fixedPoint] of VENUES) {
+    const hit = fixedPoint || await forwardGeocode(address, 'AT');
     if (!hit) { console.log(`! could not geocode ${address}`); continue; }
     const town = address.split(',').pop().trim().replace(/^\d+\s*/, '');
     await sql`
