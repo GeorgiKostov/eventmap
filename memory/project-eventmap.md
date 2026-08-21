@@ -19,7 +19,9 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   `placement=header|hero|after_nearby`, including gold-placement attribution.
 - Verification: 234 tests, the 106-page production build, and local 390 px mobile QA pass. The hero
   opens event 12258 selected on a working map with nearby results; list return paths remain intact;
-  no browser warnings or errors. Ready for production deployment.
+  no browser warnings or errors. Commit `97825e5` is live at `www.okolo.events` in Vercel deployment
+  `dpl_3YSNLEB6DYp24jwsvt9cpcxHkPLK`; production event/map routes return 200, the exact-pin handoff
+  and `/events/linz` return path pass browser QA, and the post-deploy error/fatal log scan is clean.
 
 ## Where things stand (2026-08-20 — venue discovery restored)
 - Event details now load a bounded server-side related set independent of the map's active date,
