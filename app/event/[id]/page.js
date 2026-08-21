@@ -9,7 +9,7 @@ import { safeDiscoveryReturn } from '../../../lib/return-path.js';
 import { STRINGS } from '../../../lib/i18n.js';
 import { cityIntentPath, cityMonthPath, cityPath, isSupportedMonth, monthLabel, seoCityForPoint } from '../../../lib/seo-pages.js';
 import NewsletterSignup from '../../newsletter-signup.js';
-import { EventLandingView, TrackedEventLink } from '../../event-analytics.js';
+import { EventLandingView, MapDiscoveryLink, TrackedEventLink } from '../../event-analytics.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,9 +19,9 @@ export const dynamic = 'force-dynamic';
 const HIGHLIGHT = { gold: '#E8A800', editorial: '#C93A5B' };
 
 const PAGE_COPY = {
-  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', until: 'bis', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', more: (city) => `Mehr in ${city}`, cityEvents: (city) => `Alle Events in ${city}`, today: 'Events heute', weekend: 'Dieses Wochenende', kids: 'Kinderveranstaltungen', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', discoveryBack: 'Zurück zur Eventliste', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt', ageFrom: (n) => `Ab ${n} Jahren`, ageTo: (n) => `Bis ${n} Jahre` },
-  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', until: 'until', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', more: (city) => `More in ${city}`, cityEvents: (city) => `All events in ${city}`, today: 'Events today', weekend: 'This weekend', kids: 'Events for children', back: 'Back to the map', weekendBack: 'Back to the weekend page', discoveryBack: 'Back to the event list', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away', ageFrom: (n) => `Ages ${n}+`, ageTo: (n) => `Up to age ${n}` },
-  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', until: 'до', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', more: (city) => `Още в ${city}`, cityEvents: (city) => `Всички събития в ${city}`, today: 'Събития днес', weekend: 'Този уикенд', kids: 'Събития за деца', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', discoveryBack: 'Обратно към списъка със събития', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние', ageFrom: (n) => `За ${n}+ години`, ageTo: (n) => `До ${n} години` },
+  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', until: 'bis', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', mapHero: 'Event auf der Karte öffnen', mapHeroNote: 'Entdecke weitere Veranstaltungen in der Nähe.', archiveMapHero: 'Kommende Events in der Nähe ansehen', archiveMapHeroNote: 'Entdecke, was rund um diesen Ort als Nächstes passiert.', exploreMap: 'Events in der Nähe entdecken', more: (city) => `Mehr in ${city}`, cityEvents: (city) => `Alle Events in ${city}`, today: 'Events heute', weekend: 'Dieses Wochenende', kids: 'Kinderveranstaltungen', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', discoveryBack: 'Zurück zur Eventliste', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt', ageFrom: (n) => `Ab ${n} Jahren`, ageTo: (n) => `Bis ${n} Jahre` },
+  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', until: 'until', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', mapHero: 'Open this event on the map', mapHeroNote: 'Discover more events happening nearby.', archiveMapHero: 'See upcoming events nearby', archiveMapHeroNote: 'Discover what is happening next around this place.', exploreMap: 'Explore events nearby', more: (city) => `More in ${city}`, cityEvents: (city) => `All events in ${city}`, today: 'Events today', weekend: 'This weekend', kids: 'Events for children', back: 'Back to the map', weekendBack: 'Back to the weekend page', discoveryBack: 'Back to the event list', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away', ageFrom: (n) => `Ages ${n}+`, ageTo: (n) => `Up to age ${n}` },
+  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', until: 'до', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', mapHero: 'Отвори събитието на картата', mapHeroNote: 'Открий още събития наблизо.', archiveMapHero: 'Виж предстоящите събития наблизо', archiveMapHeroNote: 'Открий какво предстои около това място.', exploreMap: 'Открий събития наблизо', more: (city) => `Още в ${city}`, cityEvents: (city) => `Всички събития в ${city}`, today: 'Събития днес', weekend: 'Този уикенд', kids: 'Събития за деца', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', discoveryBack: 'Обратно към списъка със събития', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние', ageFrom: (n) => `За ${n}+ години`, ageTo: (n) => `До ${n} години` },
 };
 
 async function pageCopy() {
@@ -112,8 +112,8 @@ export default async function EventPage({ params, searchParams }) {
   const discoveryReturn = safeDiscoveryReturn((await searchParams)?.from);
   const weekendReturn = discoveryReturn?.startsWith('/weekend/') ? discoveryReturn : null;
   const eventListReturn = discoveryReturn?.startsWith('/events/') ? discoveryReturn : null;
-  const backHref = discoveryReturn || mapHref;
   const backLabel = weekendReturn ? t.weekendBack : eventListReturn ? t.discoveryBack : t.back;
+  const headerLabel = discoveryReturn ? backLabel : t.exploreMap;
 
   // Google Event structured data must describe a current publisher claim, not
   // an archive. The facts stay readable, but expired pages emit no Event JSON-LD.
@@ -161,21 +161,41 @@ export default async function EventPage({ params, searchParams }) {
         highlight={ev.highlight || null}
       />
 
-      {/* Back affordance + city branding in one row — the wordmark IS the way
-          back, which is what was missing (there was a link home, but nothing
-          that read as "back"). Matches the weekend page's header treatment. */}
-      <Link
-        href={backHref}
-        aria-label={backLabel}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', textDecoration: 'none' }}
-      >
-        <span aria-hidden="true" style={{ fontSize: 15, color: 'var(--muted)' }}>←</span>
-        <span>
-          okolo
-          <span style={{ color: 'var(--accent)' }}>{channel ? channel.handle.replace(/^okolo/, '') : '.'}</span>
-        </span>
-        <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600 }}>{backLabel}</span>
-      </Link>
+      {/* A genuine internal return restores its list/weekend context. A direct
+          search landing has nowhere to go "back" to, so its wordmark invites
+          nearby discovery and records this otherwise invisible map entrance. */}
+      {discoveryReturn ? (
+        <Link
+          href={discoveryReturn}
+          aria-label={headerLabel}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', textDecoration: 'none' }}
+        >
+          <span aria-hidden="true" style={{ fontSize: 15, color: 'var(--muted)' }}>←</span>
+          <span>
+            okolo
+            <span style={{ color: 'var(--accent)' }}>{channel ? channel.handle.replace(/^okolo/, '') : '.'}</span>
+          </span>
+          <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600 }}>{headerLabel}</span>
+        </Link>
+      ) : (
+        <MapDiscoveryLink
+          href={mapHref}
+          aria-label={headerLabel}
+          eventId={ev.id}
+          status={ev.status}
+          town={ev.town}
+          highlight={ev.highlight}
+          placement="header"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', textDecoration: 'none' }}
+        >
+          <span aria-hidden="true" style={{ fontSize: 15, color: 'var(--muted)' }}>⌖</span>
+          <span>
+            okolo
+            <span style={{ color: 'var(--accent)' }}>{channel ? channel.handle.replace(/^okolo/, '') : '.'}</span>
+          </span>
+          <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600 }}>{headerLabel}</span>
+        </MapDiscoveryLink>
+      )}
 
       <article
         style={{
@@ -234,6 +254,29 @@ export default async function EventPage({ params, searchParams }) {
             ))}
           </div>
         )}
+        <MapDiscoveryLink
+          href={mapHref}
+          eventId={ev.id}
+          status={ev.status}
+          town={ev.town}
+          highlight={ev.highlight}
+          placement="hero"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14,
+            background: 'var(--accent)', color: '#fff', borderRadius: 12, padding: '13px 16px',
+            margin: '16px 0 4px', textDecoration: 'none', boxShadow: '0 4px 14px rgba(201, 58, 91, .18)',
+          }}
+        >
+          <span>
+            <span style={{ display: 'block', fontWeight: 800, fontSize: 15, lineHeight: 1.35 }}>
+              {isArchived ? t.archiveMapHero : t.mapHero}
+            </span>
+            <span style={{ display: 'block', marginTop: 2, fontSize: 12.5, lineHeight: 1.35, opacity: 0.9 }}>
+              {isArchived ? t.archiveMapHeroNote : t.mapHeroNote}
+            </span>
+          </span>
+          <span aria-hidden="true" style={{ flex: '0 0 auto', fontSize: 20 }}>→</span>
+        </MapDiscoveryLink>
         {ev.description && <p style={{ fontSize: 15.5, lineHeight: 1.65, margin: '16px 0' }}>{ev.description}</p>}
         {/* overflowWrap: a source_url can be a 300-char Facebook permalink with no
             spaces, which otherwise runs off the page (and, now that a highlighted
@@ -295,19 +338,20 @@ export default async function EventPage({ params, searchParams }) {
       )}
 
       <p style={{ marginTop: 20 }}>
-        <TrackedEventLink
+        <MapDiscoveryLink
           href={mapHref}
-          eventName="event_map_open"
-          eventProps={{ id: String(ev.id), status: ev.status, town: ev.town || null, highlight: ev.highlight || null, surface: 'event_page' }}
-          secondaryEventName={ev.highlight === 'gold' ? 'sponsored_open' : null}
-          secondaryEventProps={{ id: String(ev.id), tier: 'gold', surface: 'event_page', target: 'map' }}
+          eventId={ev.id}
+          status={ev.status}
+          town={ev.town}
+          highlight={ev.highlight}
+          placement="after_nearby"
           style={{
             display: 'inline-block', background: 'var(--accent)', color: '#fff', fontWeight: 700,
             padding: '11px 20px', borderRadius: 12, textDecoration: 'none', fontSize: 14,
           }}
         >
           {isArchived ? t.archiveMap : t.map}
-        </TrackedEventLink>
+        </MapDiscoveryLink>
       </p>
 
       {seoCity && (

@@ -99,6 +99,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       future-starting nearby events on both live and archive pages, and track anonymous landing,
       map, source, recommendation, and newsletter-area conversions in PostHog. Disputed pages stay
       readable but show the report, noindex, and suppress Event JSON-LD.
+- [x] Move the event-to-map invitation above descriptions and recommendations, give direct search
+      arrivals discovery copy instead of a false “back” label, preserve real list/weekend returns,
+      and attribute header/hero/after-nearby map opens separately in PostHog.
 - [ ] Clean the confirmed syndicated duplicate clusters for “ORANGE IS THE NEW BLACK” and
       “FF-Fest Judenau”, and reject/fix the four malformed `2026-*-XX` legacy rows (54438, 54442,
       54443, 54445). The read surface is crash-safe and noindexes them meanwhile.

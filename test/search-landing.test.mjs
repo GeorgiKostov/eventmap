@@ -25,10 +25,37 @@ test('event landing conversions cover views, map, source, recommendations, and n
   const newsletter = read('app/newsletter-signup.js');
 
   assert.match(analytics, /event_landing_view/);
-  assert.match(page, /event_map_open/);
+  assert.match(analytics, /event_map_open/);
+  assert.match(page, /MapDiscoveryLink/);
   assert.match(page, /event_source_open/);
   assert.match(page, /event_recommendation_open/);
   assert.match(newsletter, /newsletter_signup_started.*area: area\.label/);
+});
+
+test('direct event landings invite map discovery before recommendations and preserve genuine returns', () => {
+  const page = read('app/event/[id]/page.js');
+
+  assert.match(page, /\{discoveryReturn \? \(\s*<Link\s+href=\{discoveryReturn\}/);
+  assert.match(page, /headerLabel = discoveryReturn \? backLabel : t\.exploreMap/);
+  assert.match(page, /placement="header"/);
+  assert.match(page, /placement="hero"/);
+  assert.match(page, /placement="after_nearby"/);
+  assert.ok(page.indexOf('placement="hero"') < page.indexOf('aria-labelledby="nearby-events"'));
+  for (const copy of [
+    'Event auf der Karte öffnen',
+    'Open this event on the map',
+    'Отвори събитието на картата',
+  ]) assert.ok(page.includes(copy), `missing map discovery copy: ${copy}`);
+});
+
+test('map discovery tracking attributes every placement and preserves paid opens', () => {
+  const analytics = read('app/event-analytics.js');
+
+  assert.match(analytics, /export function MapDiscoveryLink/);
+  assert.match(analytics, /eventName="event_map_open"/);
+  assert.match(analytics, /surface: 'event_page', placement/);
+  assert.match(analytics, /secondaryEventName=\{highlight === 'gold' \? 'sponsored_open' : null\}/);
+  assert.match(analytics, /target: 'map', placement/);
 });
 
 test('disputed events remain readable but lose search claims and show their warning', () => {

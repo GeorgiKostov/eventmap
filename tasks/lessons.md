@@ -1094,3 +1094,13 @@ George clarified that an official source is crawlable when robots.txt allows
 `UmkreisBot` or `User-agent: *`. A separate ban on CCBot/GPTBot/ClaudeBot does
 not apply to Okolo. Keep the identifying UA, rate limits, facts-only extraction
 and linkback; do not infer a ban on our crawler from another agent's group.
+
+## 2026-08-21 — A visible link is not part of the funnel unless that exact path is measured
+
+The event page's small header link already opened the map, but only the lower CTA emitted
+`event_map_open`. Counting destination `$pageview`s did not repair the blind spot because the
+Next.js client transition can keep the root layout and does not provide a dependable full-load
+pageview for every navigation. The result was an apparently exact conversion rate with an unknown
+numerator. **Lesson:** funnel instrumentation belongs on every actionable entrance, behind one
+shared component, with a closed placement property. Do not infer client-side navigation from page
+loads when the click itself is the fact the product needs to measure.

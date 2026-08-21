@@ -76,3 +76,23 @@ export function TrackedEventLink({ eventName, eventProps, secondaryEventName, se
   }
   return <Link {...props} onClick={capture}>{children}</Link>;
 }
+
+// One contract for every event-page entrance to the map. Keeping the organic
+// and paid signals together prevents a newly placed CTA from silently dropping
+// either attribution, while `placement` shows which invitation worked.
+export function MapDiscoveryLink({ eventId, status, town, highlight, placement, children, ...props }) {
+  return (
+    <TrackedEventLink
+      {...props}
+      eventName="event_map_open"
+      eventProps={{
+        id: String(eventId), status, town: town || null, highlight: highlight || null,
+        surface: 'event_page', placement,
+      }}
+      secondaryEventName={highlight === 'gold' ? 'sponsored_open' : null}
+      secondaryEventProps={{ id: String(eventId), tier: 'gold', surface: 'event_page', target: 'map', placement }}
+    >
+      {children}
+    </TrackedEventLink>
+  );
+}

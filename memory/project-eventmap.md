@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-21 — event landings now lead into map discovery)
+- Direct event-page arrivals now see a benefit-led, full-width map invitation immediately after
+  the date/location/facts, before description and nearby recommendations. Current events reopen
+  their exact selected pin; archives open upcoming events around the original location.
+- The header no longer tells a Google visitor to go “back”: direct arrivals get nearby-discovery
+  copy and tracked map navigation, while validated `/events/...` and `/weekend/...` returns still
+  restore their exact source page. All map entrances share one analytics contract with
+  `placement=header|hero|after_nearby`, including gold-placement attribution.
+- Verification: 234 tests, the 106-page production build, and local 390 px mobile QA pass. The hero
+  opens event 12258 selected on a working map with nearby results; list return paths remain intact;
+  no browser warnings or errors. Ready for production deployment.
+
 ## Where things stand (2026-08-20 — venue discovery restored)
 - Event details now load a bounded server-side related set independent of the map's active date,
   category and viewport filters. Repeat dates stay under “Weitere Termine dieser Serie”; up to 12
