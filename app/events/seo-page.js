@@ -13,14 +13,12 @@ import {
   upcomingMonthSlugs,
 } from '../../lib/seo-pages.js';
 import DiscoveryEventLink from './event-link.js';
+import EventsBrand from './events-brand.js';
+import styles from './events.module.css';
 
 const S = {
-  ink: '#212B28',
   muted: '#4A5652',
   accent: '#C93A5B',
-  line: '#E4E4DD',
-  panel: '#FFFFFF',
-  bg: '#F7F6F1',
 };
 
 function eventDate(ev) {
@@ -47,37 +45,19 @@ function eventPlace(ev) {
     .join(' · ');
 }
 
-function localDate(value, options = {}) {
-  if (!value) return null;
-  return new Intl.DateTimeFormat('de-AT', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'Europe/Vienna',
-    ...options,
-  }).format(new Date(value));
-}
-
-function rangeLabel(range) {
-  if (!range?.from || !range?.to) return null;
-  const from = localDate(`${range.from}T12:00:00+02:00`);
-  const to = localDate(`${range.to}T12:00:00+02:00`);
-  return range.from === range.to ? from : `${from} bis ${to}`;
-}
-
 function EventList({ events, returnPath }) {
   if (!events.length) {
     return <p style={{ color: S.muted, lineHeight: 1.6 }}>Für diesen Zeitraum sind noch keine Veranstaltungen veröffentlicht. Wir aktualisieren diese Seite laufend.</p>;
   }
   return (
-    <ol style={{ listStyle: 'none', padding: 0, margin: '24px 0 0', display: 'grid', gap: 12 }}>
+    <ol className={styles.eventList}>
       {events.map((ev) => {
         const cat = ev.categories[0];
         const color = CATS[cat]?.color || S.accent;
         const place = eventPlace(ev);
         return (
-          <li key={ev.id} style={{ background: S.panel, border: `1px solid ${S.line}`, borderLeft: `5px solid ${color}`, borderRadius: 14, padding: '16px 18px' }}>
-            <DiscoveryEventLink id={ev.id} returnPath={returnPath} style={{ color: 'inherit', textDecoration: 'none' }}>
+          <li key={ev.id} className={styles.eventCard} style={{ '--event-color': color }}>
+            <DiscoveryEventLink id={ev.id} returnPath={returnPath} className={styles.eventLink}>
               <h2 style={{ fontSize: 19, lineHeight: 1.3, margin: 0 }}>{ev.title}</h2>
               <p style={{ color, fontSize: 14, fontWeight: 700, margin: '6px 0 0' }}>
                 {eventDate(ev)}
@@ -137,65 +117,57 @@ export function collectionJsonLd({ city, title, description, path, events, lastM
   };
 }
 
-export default function SeoEventPage({ city, title, intro, total, events, facets, range, lastModified, path, month, intent }) {
+export default function SeoEventPage({ city, title, intro, events, path, month, intent }) {
   const months = upcomingMonthSlugs();
   const channel = getChannel(city.slug);
-  const mapUrl = `/?lat=${city.lat}&lng=${city.lng}`;
-  const period = rangeLabel(range);
-  const refreshed = localDate(lastModified, { hour: '2-digit', minute: '2-digit' });
+  const mapUrl = `/?when=all&lat=${city.lat}&lng=${city.lng}`;
   return (
-    <main lang="de-AT" style={{ minHeight: '100vh', background: S.bg, color: S.ink, fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '30px 20px 72px' }}>
-        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, color: S.ink, fontSize: 20, fontWeight: 800, textDecoration: 'none' }}>
-          <span aria-hidden="true" style={{ color: S.accent }}>●</span> Okolo
-        </Link>
-        <nav aria-label="Breadcrumb" style={{ color: S.muted, fontSize: 13, marginTop: 20 }}>
-          <Link href="/events" style={{ color: S.muted }}>Events</Link> / {month ? <><Link href={cityPath(city)} style={{ color: S.muted }}>{city.label}</Link> / {monthLabel(month)}</> : city.label}
+    <main lang="de-AT" className={styles.page}>
+      <div className={styles.shell}>
+        <EventsBrand />
+        <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+          <Link href="/events">Events</Link> / {month ? <><Link href={cityPath(city)}>{city.label}</Link> / {monthLabel(month)}</> : city.label}
         </nav>
 
-        <h1 style={{ fontSize: 34, lineHeight: 1.15, letterSpacing: -0.5, margin: '18px 0 10px' }}>{title}</h1>
-        <p style={{ color: S.muted, fontSize: 17, lineHeight: 1.6, margin: 0 }}>{intro}</p>
-
-        <section aria-label="Kurzantwort" style={{ background: S.panel, border: `1px solid ${S.line}`, borderRadius: 14, padding: '16px 18px', marginTop: 18 }}>
-          <p style={{ fontSize: 16, lineHeight: 1.55, margin: 0 }}>
-            <strong>{total} Veranstaltungen</strong> im Umkreis von {city.radiusKm} km rund um {city.label} · {period}.
-            {facets?.kids > 0 && ` ${facets.kids} davon sind für Kinder oder Familien geeignet.`}
-            {facets?.free > 0 && ` ${facets.free} sind als gratis gekennzeichnet.`}
-            {events.length < total && ` Angezeigt werden ${events.length} passende Termine.`}
-            {' '}Stand: {refreshed || 'noch keine veröffentlichten Termine'}. Quelle und Original-Link stehen bei jedem Event.
-          </p>
+        <section className={styles.detailHero}>
+          <h1 className={`${styles.title} ${styles.cityTitle}`}>{title}</h1>
+          <p className={styles.intro}>{intro}</p>
+          <div className={styles.actions}>
+            <Link href={mapUrl} className={styles.primaryAction}>
+              Auf der Karte ansehen <span className={styles.actionArrow} aria-hidden="true">→</span>
+            </Link>
+            {channel && (
+              <Link href={`/weekend/${channel.slug}`} className={styles.secondaryAction}>
+                Dieses Wochenende <span aria-hidden="true">→</span>
+              </Link>
+            )}
+          </div>
         </section>
 
-        <nav aria-label="Themen" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 24 }}>
-          <Link href={cityPath(city)} style={navPill(!month && !intent)}>Alle</Link>
-          <Link href={cityIntentPath(city, 'heute')} style={navPill(intent === 'heute')}>Heute</Link>
-          <Link href={cityIntentPath(city, 'wochenende')} style={navPill(intent === 'wochenende')}>Wochenende</Link>
-          <Link href={cityIntentPath(city, 'kinder')} style={navPill(intent === 'kinder')}>Für Kinder</Link>
-        </nav>
+        <div className={styles.filterBlock}>
+          <nav aria-label="Themen" className={styles.filterNav}>
+            <Link href={cityPath(city)} className={pillClass(!month && !intent)}>Alle</Link>
+            <Link href={cityIntentPath(city, 'heute')} className={pillClass(intent === 'heute')}>Heute</Link>
+            <Link href={cityIntentPath(city, 'wochenende')} className={pillClass(intent === 'wochenende')}>Wochenende</Link>
+            <Link href={cityIntentPath(city, 'kinder')} className={pillClass(intent === 'kinder')}>Für Kinder</Link>
+          </nav>
 
-        <nav aria-label="Monate" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-          {months.map((slug) => (
-            <Link key={slug} href={cityMonthPath(city, slug)} aria-current={slug === month ? 'page' : undefined} style={{ border: `1px solid ${slug === month ? S.accent : S.line}`, background: slug === month ? '#FBEEF1' : S.panel, color: slug === month ? S.accent : S.ink, borderRadius: 99, padding: '8px 12px', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
-              {monthLabel(slug)}
-            </Link>
-          ))}
-        </nav>
+          <nav aria-label="Monate" className={`${styles.filterNav} ${styles.monthNav}`}>
+            {months.map((slug) => (
+              <Link key={slug} href={cityMonthPath(city, slug)} aria-current={slug === month ? 'page' : undefined} className={pillClass(slug === month)}>
+                {monthLabel(slug)}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <EventList events={events} returnPath={path} />
 
-        <section style={{ background: S.panel, border: `1px solid ${S.line}`, borderRadius: 14, padding: 20, marginTop: 28 }}>
-          <h2 style={{ fontSize: 19, margin: 0 }}>Mehr rund um {city.label}</h2>
-          <p style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 18px', margin: '14px 0 0' }}>
-            <a href={mapUrl} style={{ color: S.accent, fontWeight: 700 }}>Events auf der Karte →</a>
-            {channel && <Link href={`/weekend/${channel.slug}`} style={{ color: S.accent, fontWeight: 700 }}>Dieses Wochenende →</Link>}
-          </p>
-        </section>
-
-        <nav aria-label="Weitere Städte" style={{ marginTop: 30 }}>
-          <h2 style={{ fontSize: 16, margin: '0 0 10px' }}>Weitere Städte in Österreich</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px' }}>
+        <nav aria-label="Weitere Städte" className={styles.otherCities}>
+          <h2>Weitere Städte in Österreich</h2>
+          <div className={styles.otherCitiesLinks}>
             {SEO_CITIES.filter((other) => other.slug !== city.slug).map((other) => (
-              <Link key={other.slug} href={cityPath(other)} style={{ color: S.accent }}>{other.label}</Link>
+              <Link key={other.slug} href={cityPath(other)} className={styles.otherCity}>{other.label}</Link>
             ))}
           </div>
         </nav>
@@ -204,6 +176,6 @@ export default function SeoEventPage({ city, title, intro, total, events, facets
   );
 }
 
-function navPill(active) {
-  return { border: `1px solid ${active ? S.accent : S.line}`, background: active ? '#FBEEF1' : S.panel, color: active ? S.accent : S.ink, borderRadius: 99, padding: '8px 12px', fontSize: 13, fontWeight: 700, textDecoration: 'none' };
+function pillClass(active) {
+  return `${styles.pill}${active ? ` ${styles.pillActive}` : ''}`;
 }

@@ -1,5 +1,22 @@
 # Lessons
 
+## 2026-08-22 — Explicit page requirements come before general visual polish
+
+George asked for the city discovery page to lose its statistics text and gain a visible map button;
+the first response focused on the duplicate event CTA and then started broader logo/button polish
+without first closing those two concrete gaps. **Lesson:** turn every explicit visual correction into
+an acceptance check before refining styling. For this page that means: no statistics card in the DOM,
+one above-fold map action, and no second copy of that action lower down.
+
+## 2026-08-22 — Moving a CTA does not mean keeping its old copy lower on the same page
+
+Adding the event page's stronger above-fold map invitation while leaving the original button after
+nearby recommendations produced two visually equivalent actions in one desktop viewport. Placement
+tracking made both clicks measurable, but measurement did not justify duplicate UI. **Lesson:** when
+promoting an existing action, explicitly decide whether it is moved or duplicated; inspect the whole
+desktop page after the change, and keep a second entrance only when it serves a distinct navigation
+job such as the direct-arrival header versus a genuine list return.
+
 ## 2026-08-19 — Direct event-addition work must not spend extraction API credits by default
 
 When George asks the assistant to add or refresh events directly, inspect the allowed source facts and

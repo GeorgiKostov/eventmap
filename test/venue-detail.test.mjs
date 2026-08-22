@@ -20,10 +20,23 @@ test('event detail gets bounded related dates and distinct venue events from the
   assert.doesNotMatch(page, /const venueSiblings = place\s*\? \(events \|\| \[\]\)/);
 });
 
-test('city discovery page keeps one concise factual summary', () => {
+test('city discovery page leads to the map without a statistics block', () => {
   const page = read('app/events/seo-page.js');
 
-  assert.doesNotMatch(page, /<strong>Kurz gesagt:<\/strong>/);
-  assert.doesNotMatch(page, /Mehrtagestermine zählen/);
-  assert.match(page, /Quelle und Original-Link stehen bei jedem Event/);
+  assert.doesNotMatch(page, /Kurzantwort|Veranstaltungen<\/strong> im Umkreis|Angezeigt werden/);
+  assert.match(page, /Auf der Karte ansehen/);
+  assert.match(page, /\?when=all&lat=/);
+  assert.ok(page.indexOf('Auf der Karte ansehen') < page.indexOf('aria-label="Themen"'));
+});
+
+test('country and city discovery pages share the Okolo brand and polished navigation', () => {
+  const index = read('app/events/page.js');
+  const city = read('app/events/seo-page.js');
+  const brand = read('app/events/events-brand.js');
+
+  assert.match(index, /<EventsBrand \/>/);
+  assert.match(city, /<EventsBrand \/>/);
+  assert.match(brand, /brandName}>okolo/);
+  assert.match(index, /Zur Event-Karte/);
+  assert.match(index, /className=\{styles\.cityCard\}/);
 });

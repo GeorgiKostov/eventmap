@@ -39,7 +39,7 @@ test('direct event landings invite map discovery before recommendations and pres
   assert.match(page, /headerLabel = discoveryReturn \? backLabel : t\.exploreMap/);
   assert.match(page, /placement="header"/);
   assert.match(page, /placement="hero"/);
-  assert.match(page, /placement="after_nearby"/);
+  assert.doesNotMatch(page, /placement="after_nearby"/);
   assert.ok(page.indexOf('placement="hero"') < page.indexOf('aria-labelledby="nearby-events"'));
   for (const copy of [
     'Event auf der Karte öffnen',

@@ -21,14 +21,13 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       make these aliases that merely boot the client-side map. Compute relative date windows in
       Europe/Vienna and reuse `lib/db.js` for bounded reads.
 - [x] Give each page truthful German search-intent metadata and visible content: a unique title,
-      H1, description, canonical URL, current Vienna date/count, useful event groupings, nearby-town
-      links, and crawlable links to the other Linz intent pages and the map. Keep all descriptions
-      original and factual; never copy publisher prose.
-- [x] Make the same pages answer-engine-ready: lead with a concise, self-contained answer generated
-      deterministically from current event rows; state the exact Vienna date/time window, geographic
-      scope, result count and last refresh; expose event facts and source attribution in semantic
-      HTML; and add only valid structured data that mirrors the visible page. Do not add generic
-      AI-written city filler or claims unsupported by the indexed events.
+      H1, description, canonical URL, useful event groupings, nearby-town links, and crawlable links
+      to the other Linz intent pages and the map. The user-facing page now prioritizes a direct map
+      action over the previous live-count/date statistics block. Keep all descriptions original and
+      factual; never copy publisher prose.
+- [x] Keep the same pages answer-engine-readable through concise deterministic intros, semantic event
+      facts, source attribution, canonicals and valid CollectionPage/Breadcrumb/ItemList structured
+      data. Do not add generic AI-written city filler or claims unsupported by indexed events.
 - [x] Give AI assistants a stable machine-readable route to the same bounded result set through the
       existing `/api/events` and MCP surfaces, with canonical event URLs and `source_url` provenance.
       Document the landing-page patterns in `llms.txt` if that improves discovery, while keeping
@@ -101,7 +100,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       readable but show the report, noindex, and suppress Event JSON-LD.
 - [x] Move the event-to-map invitation above descriptions and recommendations, give direct search
       arrivals discovery copy instead of a false “back” label, preserve real list/weekend returns,
-      and attribute header/hero/after-nearby map opens separately in PostHog.
+      and attribute header/hero map opens separately in PostHog. Keep only the primary above-fold
+      CTA; the previous button below nearby recommendations was redundant on desktop.
 - [ ] Clean the confirmed syndicated duplicate clusters for “ORANGE IS THE NEW BLACK” and
       “FF-Fest Judenau”, and reject/fix the four malformed `2026-*-XX` legacy rows (54438, 54442,
       54443, 54445). The read surface is crash-safe and noindexes them meanwhile.

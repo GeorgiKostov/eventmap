@@ -9,19 +9,34 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-21 — event landings now lead into map discovery)
+## Where things stand (2026-08-22 — event discovery pages are map-led and visually unified)
+- `/events` now uses the Okolo pin wordmark, a clear map action and responsive city cards with aligned
+  labels/arrows, hover/focus states and mobile stacking. All nine existing city routes and the page's
+  structured-data contract remain unchanged.
+- Shared `/events/<city>` pages use the same brand and control system. The live-count/date statistics
+  card is removed; an above-fold “Auf der Karte ansehen” button opens the city in the All-dates map
+  lens, with the editorial weekend action beside it when the city has a channel. The old lower map
+  section is removed so the action appears once.
+- This visual pass and the event-page duplicate-button correction are local and not committed, pushed
+  or deployed. All 235 tests and the 106-page production build pass. Desktop and 390 px mobile QA
+  confirm zero statistics cards, one city map CTA, nine responsive city cards, no horizontal overflow
+  or browser warnings, and a working Vienna All-dates handoff with local map results.
+
+## Where things stand (2026-08-22 — event landings now lead into map discovery)
 - Direct event-page arrivals now see a benefit-led, full-width map invitation immediately after
   the date/location/facts, before description and nearby recommendations. Current events reopen
   their exact selected pin; archives open upcoming events around the original location.
 - The header no longer tells a Google visitor to go “back”: direct arrivals get nearby-discovery
   copy and tracked map navigation, while validated `/events/...` and `/weekend/...` returns still
-  restore their exact source page. All map entrances share one analytics contract with
-  `placement=header|hero|after_nearby`, including gold-placement attribution.
+  restore their exact source page. The primary above-fold CTA is the only in-content map button;
+  the redundant button below nearby recommendations is removed. Map entrances share one analytics
+  contract with `placement=header|hero`, including gold-placement attribution.
 - Verification: 234 tests, the 106-page production build, and local 390 px mobile QA pass. The hero
   opens event 12258 selected on a working map with nearby results; list return paths remain intact;
   no browser warnings or errors. Commit `97825e5` is live at `www.okolo.events` in Vercel deployment
   `dpl_3YSNLEB6DYp24jwsvt9cpcxHkPLK`; production event/map routes return 200, the exact-pin handoff
   and `/events/linz` return path pass browser QA, and the post-deploy error/fatal log scan is clean.
+  The 22 August duplicate-button correction is included in the newer local visual pass above.
 
 ## Where things stand (2026-08-20 — venue discovery restored)
 - Event details now load a bounded server-side related set independent of the map's active date,

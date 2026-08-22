@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { SEO_CITIES, cityPath } from '../../lib/seo-pages.js';
 import { publicUrl } from '../../lib/public-url.js';
+import EventsBrand from './events-brand.js';
+import styles from './events.module.css';
 
 export const metadata = {
   title: 'Events in Österreich',
@@ -18,17 +20,31 @@ const ld = {
 
 export default function EventsIndex() {
   return (
-    <main lang="de-AT" style={{ minHeight: '100vh', background: '#F7F6F1', color: '#212B28', fontFamily: 'system-ui, sans-serif' }}>
+    <main lang="de-AT" className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '42px 20px 72px' }}>
-        <Link href="/" style={{ color: '#212B28', fontSize: 20, fontWeight: 800, textDecoration: 'none' }}>● Okolo</Link>
-        <h1 style={{ fontSize: 36, lineHeight: 1.15, margin: '28px 0 10px' }}>Events in Österreich</h1>
-        <p style={{ color: '#4A5652', fontSize: 17, lineHeight: 1.6 }}>Entdecke aktuelle Veranstaltungen, Familienprogramm, Märkte, Kultur und Ausflugsideen in deiner Stadt.</p>
-        <ul style={{ listStyle: 'none', padding: 0, margin: '28px 0 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: 12 }}>
+      <div className={styles.shell}>
+        <EventsBrand />
+
+        <section className={styles.indexHero}>
+          <p className={styles.eyebrow}>Dein Eventkalender für Österreich</p>
+          <h1 className={styles.title}>Events in Österreich</h1>
+          <p className={styles.intro}>Entdecke aktuelle Veranstaltungen, Familienprogramm, Märkte, Kultur und Ausflugsideen in deiner Stadt.</p>
+          <div className={styles.actions}>
+            <Link href="/?when=all" className={styles.primaryAction}>
+              Zur Event-Karte <span className={styles.actionArrow} aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </section>
+
+        <ul className={styles.cityGrid} aria-label="Städte in Österreich">
           {SEO_CITIES.map((city) => (
             <li key={city.slug}>
-              <Link href={cityPath(city)} style={{ display: 'block', background: '#fff', border: '1px solid #E4E4DD', borderRadius: 14, padding: 18, color: '#C93A5B', fontSize: 18, fontWeight: 750, textDecoration: 'none' }}>
-                Events in {city.label} →
+              <Link href={cityPath(city)} className={styles.cityCard}>
+                <span>
+                  <span className={styles.cityName}>{city.label}</span>
+                  <span className={styles.cityMeta}>Events &amp; Ausflugsideen</span>
+                </span>
+                <span className={styles.cardArrow} aria-hidden="true">→</span>
               </Link>
             </li>
           ))}

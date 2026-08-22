@@ -84,7 +84,7 @@ export default async function CityIntentPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
-      <SeoEventPage city={data.city} title={title} intro={description} total={data.total} events={data.events} facets={data.facets} range={data.range} lastModified={data.lastModified} path={path} intent={segment} />
+      <SeoEventPage city={data.city} title={title} intro={description} events={data.events} path={path} intent={segment} />
     </>
   );
 }

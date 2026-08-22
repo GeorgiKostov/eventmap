@@ -19,9 +19,9 @@ export const dynamic = 'force-dynamic';
 const HIGHLIGHT = { gold: '#E8A800', editorial: '#C93A5B' };
 
 const PAGE_COPY = {
-  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', until: 'bis', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', map: 'Auf der Karte ansehen →', archiveMap: 'Kommende Events auf der Karte ansehen →', mapHero: 'Event auf der Karte öffnen', mapHeroNote: 'Entdecke weitere Veranstaltungen in der Nähe.', archiveMapHero: 'Kommende Events in der Nähe ansehen', archiveMapHeroNote: 'Entdecke, was rund um diesen Ort als Nächstes passiert.', exploreMap: 'Events in der Nähe entdecken', more: (city) => `Mehr in ${city}`, cityEvents: (city) => `Alle Events in ${city}`, today: 'Events heute', weekend: 'Dieses Wochenende', kids: 'Kinderveranstaltungen', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', discoveryBack: 'Zurück zur Eventliste', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt', ageFrom: (n) => `Ab ${n} Jahren`, ageTo: (n) => `Bis ${n} Jahre` },
-  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', until: 'until', free: 'Free entry', source: 'Source', upload: 'Photo upload', map: 'View on the map →', archiveMap: 'See upcoming events on the map →', mapHero: 'Open this event on the map', mapHeroNote: 'Discover more events happening nearby.', archiveMapHero: 'See upcoming events nearby', archiveMapHeroNote: 'Discover what is happening next around this place.', exploreMap: 'Explore events nearby', more: (city) => `More in ${city}`, cityEvents: (city) => `All events in ${city}`, today: 'Events today', weekend: 'This weekend', kids: 'Events for children', back: 'Back to the map', weekendBack: 'Back to the weekend page', discoveryBack: 'Back to the event list', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away', ageFrom: (n) => `Ages ${n}+`, ageTo: (n) => `Up to age ${n}` },
-  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', until: 'до', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', map: 'Виж на картата →', archiveMap: 'Виж предстоящите събития на картата →', mapHero: 'Отвори събитието на картата', mapHeroNote: 'Открий още събития наблизо.', archiveMapHero: 'Виж предстоящите събития наблизо', archiveMapHeroNote: 'Открий какво предстои около това място.', exploreMap: 'Открий събития наблизо', more: (city) => `Още в ${city}`, cityEvents: (city) => `Всички събития в ${city}`, today: 'Събития днес', weekend: 'Този уикенд', kids: 'Събития за деца', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', discoveryBack: 'Обратно към списъка със събития', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние', ageFrom: (n) => `За ${n}+ години`, ageTo: (n) => `До ${n} години` },
+  de: { locale: 'de-AT', notFound: 'Event nicht gefunden', inTown: 'in', onDate: 'am', allDay: 'ganztägig', timeTbd: 'Uhrzeit nicht angegeben', clock: 'Uhr', until: 'bis', free: 'Eintritt frei', source: 'Quelle', upload: 'Foto-Upload', mapHero: 'Event auf der Karte öffnen', mapHeroNote: 'Entdecke weitere Veranstaltungen in der Nähe.', archiveMapHero: 'Kommende Events in der Nähe ansehen', archiveMapHeroNote: 'Entdecke, was rund um diesen Ort als Nächstes passiert.', exploreMap: 'Events in der Nähe entdecken', more: (city) => `Mehr in ${city}`, cityEvents: (city) => `Alle Events in ${city}`, today: 'Events heute', weekend: 'Dieses Wochenende', kids: 'Kinderveranstaltungen', back: 'Zurück zur Karte', weekendBack: 'Zurück zur Wochenendseite', discoveryBack: 'Zurück zur Eventliste', past: 'Diese Veranstaltung ist vorbei', pastNote: 'Die Seite bleibt als Archiv erhalten. Entdecke, was als Nächstes in der Nähe passiert.', nearby: 'Demnächst in der Nähe', away: 'km entfernt', ageFrom: (n) => `Ab ${n} Jahren`, ageTo: (n) => `Bis ${n} Jahre` },
+  en: { locale: 'en-GB', notFound: 'Event not found', inTown: 'in', onDate: 'on', allDay: 'all day', timeTbd: 'time not stated', clock: '', until: 'until', free: 'Free entry', source: 'Source', upload: 'Photo upload', mapHero: 'Open this event on the map', mapHeroNote: 'Discover more events happening nearby.', archiveMapHero: 'See upcoming events nearby', archiveMapHeroNote: 'Discover what is happening next around this place.', exploreMap: 'Explore events nearby', more: (city) => `More in ${city}`, cityEvents: (city) => `All events in ${city}`, today: 'Events today', weekend: 'This weekend', kids: 'Events for children', back: 'Back to the map', weekendBack: 'Back to the weekend page', discoveryBack: 'Back to the event list', past: 'This event has ended', pastNote: 'This page remains as an archive. Discover what is coming up nearby.', nearby: 'Coming up nearby', away: 'km away', ageFrom: (n) => `Ages ${n}+`, ageTo: (n) => `Up to age ${n}` },
+  bg: { locale: 'bg-BG', notFound: 'Събитието не е намерено', inTown: 'в', onDate: 'на', allDay: 'целодневно', timeTbd: 'часът не е посочен', clock: 'ч.', until: 'до', free: 'Безплатен вход', source: 'Източник', upload: 'Качена снимка', mapHero: 'Отвори събитието на картата', mapHeroNote: 'Открий още събития наблизо.', archiveMapHero: 'Виж предстоящите събития наблизо', archiveMapHeroNote: 'Открий какво предстои около това място.', exploreMap: 'Открий събития наблизо', more: (city) => `Още в ${city}`, cityEvents: (city) => `Всички събития в ${city}`, today: 'Събития днес', weekend: 'Този уикенд', kids: 'Събития за деца', back: 'Обратно към картата', weekendBack: 'Обратно към страницата за уикенда', discoveryBack: 'Обратно към списъка със събития', past: 'Това събитие приключи', pastNote: 'Страницата остава като архив. Открий какво предстои наблизо.', nearby: 'Предстоящи събития наблизо', away: 'км разстояние', ageFrom: (n) => `За ${n}+ години`, ageTo: (n) => `До ${n} години` },
 };
 
 async function pageCopy() {
@@ -336,23 +336,6 @@ export default async function EventPage({ params, searchParams }) {
           </div>
         </section>
       )}
-
-      <p style={{ marginTop: 20 }}>
-        <MapDiscoveryLink
-          href={mapHref}
-          eventId={ev.id}
-          status={ev.status}
-          town={ev.town}
-          highlight={ev.highlight}
-          placement="after_nearby"
-          style={{
-            display: 'inline-block', background: 'var(--accent)', color: '#fff', fontWeight: 700,
-            padding: '11px 20px', borderRadius: 12, textDecoration: 'none', fontSize: 14,
-          }}
-        >
-          {isArchived ? t.archiveMap : t.map}
-        </MapDiscoveryLink>
-      </p>
 
       {seoCity && (
         <nav aria-label={t.more(seoCity.label)} style={{ background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: 14, padding: 18, marginTop: 22 }}>
