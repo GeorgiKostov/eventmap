@@ -19,7 +19,7 @@ intent. Last full pass: **2026-07-14**. Companion docs: [`docs/design/design-doc
       │ scripts/seed.mjs (events)                  │  npm run crawl
       │ scripts/seed-places.mjs (places)            ▼
       ▼                                    robots.txt check + politeFetch
- events / sources tables                    (UmkreisBot UA, ≥1s/host, up to
+ events / sources tables                    (OkoloBot UA, ≥1s/host, up to
                                              6 hosts in parallel — never the
                                              same host twice at once)
                                                     │
@@ -175,17 +175,18 @@ repeating.
 ## 3. Crawl (`scripts/crawl.mjs`)
 
 **Politeness by design**, not an afterthought: every fetch goes through `politeFetch()` — identifying
-UA (`UmkreisBot/0.1 … contact: bobojojok@gmail.com`), a per-host ≥1s delay enforced by a
+UA (`OkoloBot/1.0 … contact: hello@okolo.events`), a per-host ≥1s delay enforced by a
 `lastFetchByHost` map, and a `robots.txt` check (`robotsAllowed()`) cached per origin, gating on a
-match for `umkreisbot` or `*` in a small hand-rolled RFC-9309 group parser
+match for `okolobot` or `*` in a small hand-rolled RFC-9309 group parser
 (`parseRobots`/`isDisallowed`) — good enough for the two agents that matter, not a full spec
 implementation. It does handle the parts that bite in practice (fixed 2026-07-14 after the
 Stuttgart false block): `Allow:` lines count as rules (Cloudflare's managed layout otherwise
 merges named AI-bot `Disallow: /` blocks into the `*` group), multiple groups for the same agent
 token are unioned, precedence is longest-match with allow winning ties, and a trailing `*` in a
-pattern is treated as the equivalent prefix. Interior wildcards/`$` remain unsupported.
+pattern is treated as the equivalent prefix. Interior wildcards, query components and `$` anchors
+are supported. Missing/4xx robots permits access; network/5xx unavailability fails closed for the run.
 
-**Change detection.** The fetched page is stripped to text (`htmlToText`), hashed (sha256), and
+**Change detection.** The fetched page's visible text plus JSON-LD payload is hashed (sha256), and
 compared to `sources.page_hash`. Unchanged (and no `--force`) → skip extraction entirely, only
 `crawl_count` advances. This is the single biggest cost lever (per the crawl-scaling decision doc):
 municipal calendars change slowly, so most recrawls cost a fetch and a compare.
@@ -508,7 +509,7 @@ explicit `{"always":true}` marker; everything else with unknown hours correctly 
 | Gemini Flash-Lite | Primary crawl/scan LLM | Scheduled crawl: ≤750 metered requests each Sunday, Austria only | Paid tier ($0.10/$0.40 per MTok in/out, per `docs/research/scraping-cost.md`); poster/manual paths may fall back to Claude, scheduled crawling does not |
 | Claude Haiku 4.5 | Poster/manual extraction fallback | Whatever the configured API key allows | ~12x Gemini's per-page cost (measured); deliberately absent from the scheduled crawl job |
 | Grok CLI (`~/.grok/bin/grok`) | Bulk backfill LLM (opt-in `EXTRACT_PROVIDER=grok`) | Subscription tokens (fixed), ~30–60s/page (agent startup overhead) | xAI API fallback if `XAI_API_KEY` set; otherwise falls into Gemini→Claude |
-| Source servers (municipal sites) | Everything crawled | Small servers — treated as the real constraint, not our infra | Per-host ≥1s delay (`politeFetch`), robots.txt honored, identifying `UmkreisBot` UA |
+| Source servers (municipal sites) | Everything crawled | Small servers — treated as the real constraint, not our infra | Per-host ≥1s delay (`politeFetch`), robots.txt honored, identifying `OkoloBot` UA |
 | Vercel | Hosting | Read-only project dir, ephemeral `/tmp`; `app/api/scan/route.js` sets `maxDuration = 120` | Uploads write to `/tmp/uploads` when `process.env.VERCEL`, local `data/uploads` otherwise; nothing on `/tmp` is kept after extraction (`finally { fs.unlink(...) }`) |
 | Supabase (Postgres) | Data store | Transaction pooler, `max: 5` connections, `prepare: false` (Supavisor doesn't support prepared statements) | Dedicated `umkreis` schema inside a shared project — `search_path` scoped, portable to a standalone project by schema dump/restore |
 
@@ -533,10 +534,10 @@ summary of what's actually implemented:
   extraction path (`crawl.mjs`'s structured parsers, `lib/extract.js`'s LLM prompts, the Overpass
   places mining) writes `description` as a fresh one-liner or leaves it `null`.
 - **robots.txt honored** before every fetch (`robotsAllowed()`), **identifying UA** on every request
-  (`UmkreisBot/0.1` for crawl, a separate `umkreis-prototype/0.1` UA for Nominatim per its own usage
+  (`OkoloBot/1.0` for crawl, a separate geocoder UA for Nominatim per its own usage
   policy), **per-host rate limiting** (≥1s crawl, 1/s global Nominatim).
 - **Crawler-specific robots rules honored.** Permission is determined by the group that applies to
-  `UmkreisBot`, falling back to `User-agent: *` (`robotsAllowed()`). A rule that names only another
+  `OkoloBot`, falling back to `User-agent: *` (`robotsAllowed()`). A rule that names only another
   crawler such as CCBot, GPTBot or ClaudeBot does not apply to Okolo. `aiPolicyAllowed()` remains as
   a compatibility alias for historical callers and audit evidence. Decision:
   `docs/decisions/2026-08-20-crawler-identity-policy.md`.

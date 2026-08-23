@@ -2,7 +2,7 @@
 // or "ganztägig". Run: node --test test/event-time.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { hasTime, timeOf, dayOf, makeStartsAt, makeEndsAt, inTimeOfDay, isOngoingAt, validDateOf, validTimeOf } from '../lib/event-time.js';
+import { hasTime, timeOf, dayOf, makeStartsAt, makeEndsAt, inTimeOfDay, isOngoingAt, validDateOf, validTimeOf, validLocalEventTime } from '../lib/event-time.js';
 import { contentHash } from '../lib/db.js';
 import { formatWhen } from '../lib/digest.js';
 import { submissionProblem } from '../lib/moderation.js';
@@ -45,6 +45,15 @@ test('read surfaces reject malformed and impossible local dates without throwing
   assert.equal(validDateOf('2026-08-16T09:00'), '2026-08-16');
   assert.equal(validTimeOf('2026-08-16T23:59'), '23:59');
   assert.equal(validTimeOf('2026-08-16T25:00'), null);
+});
+
+test('write boundary accepts only real local date/date-time storage shapes', () => {
+  assert.equal(validLocalEventTime('2026-08-23'), '2026-08-23');
+  assert.equal(validLocalEventTime('2026-08-23T09:05'), '2026-08-23T09:05');
+  assert.equal(validLocalEventTime('2026-02-30'), null);
+  assert.equal(validLocalEventTime('2026-07-XX'), null);
+  assert.equal(validLocalEventTime('2026-08-23T24:00'), null);
+  assert.equal(validLocalEventTime('2026-08-23T09:05:00Z'), null);
 });
 
 test('ongoing means the event started before and still overlaps the active date', () => {

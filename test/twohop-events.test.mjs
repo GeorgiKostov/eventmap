@@ -31,6 +31,12 @@ test('a detail page with no Event JSON-LD yields nothing (no fabrication)', () =
   assert.deepEqual(parseJsonLdEvents(noDate, { town: 'Berlin' }), []); // no startDate → skip
 });
 
+test('relative JSON-LD linkbacks resolve against the registered source', () => {
+  const html = '<script type="application/ld+json">{"@type":"Event","name":"Test","startDate":"2026-09-01","url":"/events/test"}</script>';
+  const [event] = parseJsonLdEvents(html, { url: 'https://example.org/calendar', town: 'Sofia' });
+  assert.equal(event.source_url, 'https://example.org/events/test');
+});
+
 test('twoHopConfig resolves the German visitberlin listing, trailing slash tolerant', () => {
   assert.ok(twoHopConfig('https://www.visitberlin.de/de/kategorie/familie'));
   assert.ok(twoHopConfig('https://www.visitberlin.de/de/kategorie/familie/'));

@@ -13,7 +13,7 @@ import path from 'node:path';
 const FEED_URL = 'https://www.stuttgart.de/service/veranstaltungen?form=eventSearch-1.form&action=submit&sp%3Acategories%5B77309%5D%5B%5D=77311&sp%3Aout=rss&sp%3Acmp=eventSearch-1-0-searchResult';
 const SOURCE_NAME = 'Landeshauptstadt Stuttgart';
 const TIME_ZONE = 'Europe/Berlin';
-const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; event facts indexing with linkback; contact: hello@okolo.events)';
 const HOST_DELAY_MS = 1000;
 const lastFetchByHost = new Map();
 

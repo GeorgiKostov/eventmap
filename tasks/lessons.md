@@ -1108,7 +1108,7 @@ noindex classes out of the sitemap while retaining a known strong leaf.
 ## 2026-08-20 — Apply robots permission to our own crawler, not unrelated agents
 
 George clarified that an official source is crawlable when robots.txt allows
-`UmkreisBot` or `User-agent: *`. A separate ban on CCBot/GPTBot/ClaudeBot does
+the declared Okolo crawler or `User-agent: *`. A separate ban on CCBot/GPTBot/ClaudeBot does
 not apply to Okolo. Keep the identifying UA, rate limits, facts-only extraction
 and linkback; do not infer a ban on our crawler from another agent's group.
 
@@ -1121,3 +1121,18 @@ pageview for every navigation. The result was an apparently exact conversion rat
 numerator. **Lesson:** funnel instrumentation belongs on every actionable entrance, behind one
 shared component, with a closed placement property. Do not infer client-side navigation from page
 loads when the click itself is the fact the product needs to measure.
+
+## 2026-08-23 — Freshness evidence must cover the payload that produced the events
+
+Stripping every script before hashing made JSON-LD-only pages look empty and made changed JSON-LD
+look unchanged. Likewise, a stable HTML shell could hide a changing linked calendar. **Lesson:** the
+freshness identity is the complete extraction input, not merely visible shell text. Structured
+payloads must participate in the hash, and dynamic/secondary calendars must bypass shell-only
+conditional/hash exits.
+
+## 2026-08-23 — A failed attempt must not become source health or freshness evidence
+
+A transport failure and a deterministic parser that found candidates but could store none both used
+to advance crawl state; the next run could then skip a source that had never succeeded. **Lesson:**
+only a completed content decision may stamp validators, stats and `last_crawled`. Transport,
+provider and downstream write failures stay due, and a systemic batch of them must fail the job.

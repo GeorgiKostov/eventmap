@@ -20,8 +20,8 @@ import { listSourcesForDedup, closeDb } from '../lib/db.js';
 import { decodeEntities } from '../lib/entities.js';
 import { fingerprintCms, structuredSignals, looksLikeCalendar } from '../lib/cms-fingerprint.js';
 
-const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
-const BOT_TOKEN = 'umkreisbot';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; event facts indexing with linkback; contact: hello@okolo.events)';
+const BOT_TOKEN = 'okolobot';
 const CATALOG_PATH = path.join(process.cwd(), 'data', 'catalog', 'municipalities-at.json');
 const REQUEST_TIMEOUT_MS = 6000;
 const HOST_DELAY_MS = 1000;

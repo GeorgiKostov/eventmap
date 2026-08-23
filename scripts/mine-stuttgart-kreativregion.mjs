@@ -19,7 +19,7 @@ const ARCHIVE_URL = `${ORIGIN}/termine/`;
 const REST_URL = `${ORIGIN}/wp-json/wp/v2/dmwpevents`;
 const SOURCE_NAME = 'Kreativregion Stuttgart';
 const TIME_ZONE = 'Europe/Berlin';
-const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; event facts indexing with linkback; contact: hello@okolo.events)';
 const MIN_DELAY_MS = 1000;
 let lastFetchAt = 0;
 

@@ -11,7 +11,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; event facts indexing with linkback; contact: hello@okolo.events)';
 const MINED = path.join(process.cwd(), 'data', 'mined');
 const OUT = path.join(process.cwd(), 'data', 'catalog', 'probed-bg.json');
 const TIMEOUT_MS = 7000;

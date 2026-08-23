@@ -2,6 +2,30 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Adversarial crawler + Sofia check (2026-08-23)
+- [x] Run the official Visit Sofia JEvents adapter in strict structured mode with all external-model
+      credentials blank: 126/126 occurrences upserted, five fuzzy-merged and 47 expired.
+- [x] Repair crawler integrity: hash JSON-LD, bypass shell caching for dynamic/secondary calendars,
+      fail closed on unavailable robots, match query rules, authorize linked feeds and two-hop pages,
+      preserve source health on transport/pipeline failure, and fail systemic broken runs.
+- [x] Enforce real local dates and absolute HTTP(S) linkbacks at the shared write boundary; quarantine
+      the six malformed published legacy events instead of guessing their dates, and repair 109
+      legacy relative/mail/tel linkbacks against their unique registered source pages.
+- [x] Keep canonical Sofia source 1964; pause 20 redundant, restricted or non-approved Sofia rows.
+      Seed no longer re-registers known ticketing/editorial aggregators or JEvents occurrence pages.
+- [x] Add original deterministic BG/DE/EN fact summaries to empty structured events and export Sofia
+      calendar times with Europe/Sofia instead of Europe/Vienna.
+- [ ] Build a deterministic adapter for the authorized Sofia History Museum K2 calendar before
+      registration; the official calendar currently has one August item and no reliable generic feed.
+- [ ] Build the Windows-1251 Sofia Puppet monthly-program adapter before re-enabling source 2503;
+      current August–October programme is empty, but robots explicitly permits search/reference.
+- [ ] Obtain written permission before re-enabling Sofia Opera, SGHG, Muzeiko or NMNHS; do not crawl
+      ArtSofia until authorization is clarified. Keep Sofia Municipality automation paused while its
+      robots endpoint rejects the declared crawler.
+- [ ] Resolve remaining crawler debt separately: concurrency-safe per-host queues, complete LLM
+      pagination/coverage signals, country-scoped
+      dedup, and distinct persisted transport/empty/extraction health outcomes.
+
 ## Austrian venue coverage vs Somo (2026-08-20)
 - [x] Audit Somo's live Austrian city inventories, map repeated venues to their official calendars,
       and register 24 new `kind='venue'` sources. Somo is discovery evidence only; Okolo stores

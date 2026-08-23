@@ -56,7 +56,7 @@ export async function generateMetadata({ params }) {
     // this page's own "· Okolo" suffix got the template appended on top and every
     // event tab read "… · Okolo · Okolo" (live bug, visible in the browser).
     title: { absolute: when ? `${ev.title} — ${when} · ${brand}` : `${ev.title} · ${brand}` },
-    description: ev.description || `${ev.title}${ev.town ? ` ${t.inTown} ${ev.town}` : ''}${when ? ` ${t.onDate} ${when}.` : '.'}`,
+    description: eventDescription(ev),
     // Override the root layout's canonical '/': without this every event page
     // declares itself a duplicate of the homepage and Google drops it.
     alternates: { canonical: `/event/${id}` },
@@ -277,7 +277,7 @@ export default async function EventPage({ params, searchParams }) {
           </span>
           <span aria-hidden="true" style={{ flex: '0 0 auto', fontSize: 20 }}>→</span>
         </MapDiscoveryLink>
-        {ev.description && <p style={{ fontSize: 15.5, lineHeight: 1.65, margin: '16px 0' }}>{ev.description}</p>}
+        <p style={{ fontSize: 15.5, lineHeight: 1.65, margin: '16px 0' }}>{eventDescription(ev)}</p>
         {/* overflowWrap: a source_url can be a 300-char Facebook permalink with no
             spaces, which otherwise runs off the page (and, now that a highlighted
             event sits in a bordered card, visibly bursts out of it). */}

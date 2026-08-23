@@ -9,7 +9,7 @@ import { parseDvvEvents } from '../lib/dvv-events.js';
 
 const CATALOG = 'data/catalog/probed-stuttgart-40km.json';
 const TIME_ZONE = 'Europe/Berlin';
-const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; event facts indexing with linkback; contact: hello@okolo.events)';
 
 function berlinNow(date = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', {

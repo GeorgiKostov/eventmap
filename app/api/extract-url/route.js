@@ -5,6 +5,7 @@ import http from 'node:http';
 import https from 'node:https';
 import { extractFromImage, extractSingleFromText } from '../../../lib/extract.js';
 import { limit } from '../../../lib/ratelimit.js';
+import { splitLocalDateTime } from '../../../lib/event-time.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -175,26 +176,6 @@ const isEventType = (node) => typeList(node).some((t) => /Event$/.test(t) || t =
 const PLACE_TYPES = /^(Place|LocalBusiness|CivicStructure|TouristAttraction|Museum|Park|Zoo|Playground|StadiumOrArena|PerformingArtsTheater|MovieTheater|Aquarium|AmusementPark|Restaurant|Library)$/;
 const isPlaceType = (node) => typeList(node).some((t) => PLACE_TYPES.test(t));
 
-// ISO datetime → Vienna wall-clock {date,time}. Offset-bearing timestamps are
-// converted to Europe/Vienna (hard rule: stored times are Vienna wall-clock);
-// bare local datetimes are taken literally.
-function viennaFromIso(iso) {
-  if (!iso || typeof iso !== 'string') return { date: null, time: null };
-  const hasTz = /[T ]\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?\s*(Z|[+-]\d{2}:?\d{2})$/.test(iso.trim());
-  if (hasTz) {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return { date: null, time: null };
-    const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Europe/Vienna', hourCycle: 'h23',
-      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
-    }).formatToParts(d);
-    const g = (t) => parts.find((p) => p.type === t).value;
-    return { date: `${g('year')}-${g('month')}-${g('day')}`, time: `${g('hour')}:${g('minute')}` };
-  }
-  const m = iso.trim().match(/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2}))?/);
-  if (!m) return { date: null, time: null };
-  return { date: m[1], time: m[2] ? `${m[2]}:${m[3]}` : null };
-}
 function flattenAddress(addr) {
   if (!addr) return { address: null, town: null };
   if (typeof addr === 'string') return { address: addr, town: null };
@@ -224,8 +205,10 @@ function extractionFromLd(node) {
       description: '', confidence: { title: title ? 0.9 : 0.2, datetime: 0, location: loc.town || loc.address ? 0.8 : 0.3 },
     };
   }
-  const start = viennaFromIso(node.startDate);
-  const end = viennaFromIso(node.endDate);
+  // Publisher-local wall-clock digits are the fact being submitted. Converting
+  // an explicit Sofia offset to Vienna silently moved the event by an hour.
+  const start = splitLocalDateTime(node.startDate);
+  const end = splitLocalDateTime(node.endDate);
   const locName = firstString(node.location);
   const loc = flattenAddress(node.location && typeof node.location === 'object' ? node.location.address : null);
   return {

@@ -14,7 +14,7 @@ test('emits canonical URL, owned image, actual country, and a factual fallback d
   assert.equal(ld.url, 'https://www.okolo.events/event/9007199254740993');
   assert.deepEqual(ld.image, ['https://www.okolo.events/event/9007199254740993/opengraph-image']);
   assert.equal(ld.location.address.addressCountry, 'BG');
-  assert.equal(ld.description, 'Kinderfest in City Park on 2026-08-08.');
+  assert.equal(ld.description, 'Kinderfest в City Park на 8 август 2026 г.');
   assert.equal(ld.startDate, '2026-08-08T14:00:00+03:00');
   assert.equal(ld.endDate, undefined);
 });

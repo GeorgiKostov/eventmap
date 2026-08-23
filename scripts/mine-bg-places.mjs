@@ -11,7 +11,7 @@ import path from 'path';
 
 const OUT = path.join(process.cwd(), 'data', 'mined', 'places-family-bg.json');
 const ENDPOINTS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter'];
-const UA = 'okolo-eventmap/0.1 (family places from OSM; contact: bobojojok@gmail.com)';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; family places from OSM; contact: hello@okolo.events)';
 
 // selector -> category; `always` = keep wholesale (low noise); otherwise keep
 // only when notable (wikidata/wikipedia) or has a town.

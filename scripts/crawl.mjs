@@ -1,5 +1,5 @@
 // Recrawl registered sources every few days: fetch page → structured-data-first
-// extraction (JSON-LD / iCal / CMS-specific feeds / RSS) with Claude/Gemini as the fallback →
+// extraction (JSON-LD / iCal / CMS-specific feeds / RSS) with provider-routed LLM fallback →
 // geocode → upsert (dedup by title+day+town) → expire finished events.
 // Sources are grouped by host and crawled with a bounded worker pool so different
 // hosts run in parallel — the per-host ≥1s politeness delay (politeFetch) is what
@@ -24,7 +24,7 @@ import { findDuplicate, mergePlan, titleSubstitution } from '../lib/dedup.js';
 import { decodeEntities, stripTags, cleanText } from '../lib/entities.js';
 import { makeStartsAt, makeEndsAt, splitLocalDateTime } from '../lib/event-time.js';
 import {
-  extractFromPage, isExtractionBudgetError, isProviderQuotaExhausted,
+  extractFromPage, isExtractionBudgetError, isProviderQuotaExhausted, sanitizeExtractedEvents,
 } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseMicrodataEvents } from '../lib/microdata-events.js';
@@ -69,22 +69,36 @@ function endsAtOf(raw, starts_at) {
   return ends && ends > starts_at ? ends : null;
 }
 
+export function eventSourceUrl(value, sourceUrl) {
+  try {
+    const url = new URL(value || sourceUrl, sourceUrl);
+    return /^https?:$/.test(url.protocol) ? url.toString() : sourceUrl;
+  } catch {
+    return sourceUrl;
+  }
+}
+
 const CAT_EMOJI = {
   family: '🎈', festival: '🎪', market: '🧺', music: '🎶',
-  culture: '🎭', food: '🥨', sport: '⚽', workshop: '🎨',
+  party: '🪩', culture: '🎭', food: '🥨', sport: '⚽', workshop: '🎨',
 };
 
 const DYNAMIC_CALENDAR_CMS = new Set([
-  'salzburgarena', 'grazer-spielstaetten', 'bregenzer-festspiele', 'posthof', 'rockhouse',
+  'jevents', 'familienportal', 'twohop', 'salzburgarena', 'grazer-spielstaetten',
+  'bregenzer-festspiele', 'posthof', 'rockhouse', 'brucknerhaus', 'kapu',
+  'tabakfabrik', 'schlachthof-wels',
 ]);
 
 // Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
 // page-hash change detection and the LLM fallback. (Restored 2026-07-14: the
 // crawl-net.js extraction accidentally removed it along with the politeness
 // block — every generic-shell source silently extracted zero until then.)
-function htmlToText(html) {
-  return decodeEntities(
-    html
+export function htmlToText(html) {
+  const jsonLd = [...String(html).matchAll(
+    /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+  )].map((match) => match[1].trim()).filter(Boolean).join('\n');
+  const visible = decodeEntities(
+    String(html)
       .replace(/<script[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style[\s\S]*?<\/style>/gi, ' ')
       .replace(/<br\s*\/?>/gi, '\n')
@@ -94,6 +108,9 @@ function htmlToText(html) {
     .replace(/[ \t]+/g, ' ')
     .replace(/\n\s*\n+/g, '\n')
     .trim();
+  // JSON-LD-only event pages are common. Its exact factual payload belongs in
+  // both the thin-page gate and page hash even though scripts are not LLM text.
+  return [visible, jsonLd].filter(Boolean).join('\n').trim();
 }
 
 // --- structured-data-first extraction; LLM fallback stays in crawlSource ---
@@ -129,11 +146,13 @@ function icsLineValue(block, name) {
   return m ? unescapeIcsText(m[1].trim()) : null;
 }
 
-// ICS date/date-time → Vienna wall-clock. Floating/TZID values are taken
-// literally (Austrian sources); a trailing "Z" (true UTC instant) is the one
+// ICS date/date-time → source-local wall-clock. Floating/TZID values are taken
+// literally; a trailing "Z" (true UTC instant) is the one
 // case that legitimately needs a timezone conversion — done once via Intl,
 // not the "now"-in-host-tz bug the hard rule warns about.
-function icsDateToVienna(value) {
+const COUNTRY_TZ = { AT: 'Europe/Vienna', BG: 'Europe/Sofia', DE: 'Europe/Berlin' };
+
+export function icsDateToZone(value, timeZone = 'Europe/Vienna') {
   const m = value.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})(Z)?)?$/);
   if (!m) return { date: null, time: null };
   const [, y, mo, d, h, mi, s, z] = m;
@@ -141,7 +160,7 @@ function icsDateToVienna(value) {
   if (z) {
     const utcDate = new Date(Date.UTC(+y, +mo - 1, +d, +h, +mi, +s));
     const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Europe/Vienna', hourCycle: 'h23',
+      timeZone, hourCycle: 'h23',
       year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
     }).formatToParts(utcDate);
     const g = (t) => parts.find((p) => p.type === t).value;
@@ -150,20 +169,20 @@ function icsDateToVienna(value) {
   return { date: `${y}-${mo}-${d}`, time: `${h}:${mi}` };
 }
 
-function icsDateValue(block, name) {
+function icsDateValue(block, name, timeZone) {
   const m = block.match(new RegExp(`^${name}(?:;[^:]*)?:(.*)$`, 'im'));
-  return m ? icsDateToVienna(m[1].trim()) : { date: null, time: null };
+  return m ? icsDateToZone(m[1].trim(), timeZone) : { date: null, time: null };
 }
 
-function parseIcsEvents(icsText, town) {
+function parseIcsEvents(icsText, town, timeZone = 'Europe/Vienna') {
   const unfolded = icsText.replace(/\r\n/g, '\n').replace(/\n[ \t]/g, '');
   const blocks = [...unfolded.matchAll(/BEGIN:VEVENT([\s\S]*?)END:VEVENT/gi)].map((m) => m[1]);
   const events = [];
   for (const block of blocks) {
     const title = icsLineValue(block, 'SUMMARY');
-    const { date: date_start, time: time_start } = icsDateValue(block, 'DTSTART');
+    const { date: date_start, time: time_start } = icsDateValue(block, 'DTSTART', timeZone);
     if (!title || !date_start) continue; // no date → skip
-    const { date: date_end, time: time_end } = icsDateValue(block, 'DTEND');
+    const { date: date_end, time: time_end } = icsDateValue(block, 'DTEND', timeZone);
     events.push({
       title, date_start, time_start, date_end: date_end || null, time_end: time_end || null,
       venue: icsLineValue(block, 'LOCATION'), address: null, town: town || null,
@@ -531,6 +550,7 @@ async function parseWordpressIcalEvents(src) {
     listUrl.searchParams.set('per_page', '100');
     listUrl.searchParams.set('page', String(page));
     listUrl.searchParams.set('_fields', 'id,link,title');
+    if (!await robotsAllowed(listUrl.toString())) break;
     const res = await politeFetch(listUrl.toString(), { headers: { Accept: 'application/json' } });
     if (!res.ok) break;
     const batch = await res.json();
@@ -604,7 +624,7 @@ async function tryStructuredExtraction(html, src) {
   // event-date tag, so this can't hijack a normal page.
   const head = html.slice(0, 4096).trimStart();
   if (/^BEGIN:VCALENDAR/i.test(head)) {
-    const icsEvents = parseIcsEvents(html, src.town);
+    const icsEvents = parseIcsEvents(html, src.town, COUNTRY_TZ[src.country] || 'UTC');
     if (icsEvents.length) return { route: 'ical', events: icsEvents };
   }
   if (/^<\?xml|^<(?:rss|feed)\b/i.test(head)) {
@@ -626,9 +646,10 @@ async function tryStructuredExtraction(html, src) {
   if (icsHref) {
     try {
       const icsUrl = new URL(icsHref.replace(/^webcal:/i, 'https:'), src.url).toString();
+      if (!await robotsAllowed(icsUrl)) throw new Error('linked iCal disallowed by robots.txt');
       const res = await politeFetch(icsUrl);
       if (res.ok) {
-        const icsEvents = parseIcsEvents(await res.text(), src.town);
+        const icsEvents = parseIcsEvents(await res.text(), src.town, COUNTRY_TZ[src.country] || 'UTC');
         if (icsEvents.length) return { route: 'ical', events: icsEvents };
       }
     } catch { /* fall through */ }
@@ -738,7 +759,7 @@ async function tryStructuredExtraction(html, src) {
         if (!await robotsAllowed(icsUrl)) continue;
         const res = await politeFetch(icsUrl);
         if (!res.ok) continue;
-        events.push(...parseIcsEvents(await res.text(), src.town));
+        events.push(...parseIcsEvents(await res.text(), src.town, COUNTRY_TZ[src.country] || 'UTC'));
       } catch { /* one broken calendar item must not abort the source */ }
     }
     if (events.length) return { route: 'ical', events };
@@ -763,6 +784,7 @@ async function tryStructuredExtraction(html, src) {
   if (feedHref) {
     try {
       const feedUrl = new URL(feedHref, src.url).toString();
+      if (!await robotsAllowed(feedUrl)) throw new Error('linked feed disallowed by robots.txt');
       const res = await politeFetch(feedUrl);
       if (res.ok) {
         const rssEvents = parseRssEvents(await res.text(), src.town);
@@ -967,15 +989,19 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
       // error — no zero_streak bump, no tier nudge.
       return { ok: 0, fail: 0 };
     }
-  } catch { /* robots check itself failed → default allow, proceed */ }
+  } catch (e) {
+    console.log(`  robots check failed closed: ${e.message}`);
+    return { ok: 0, fail: 0 };
+  }
 
   let events, hashParts;
   try {
     ({ events, hashParts } = await fetchNaturfreundeEvents(src));
   } catch (e) {
     console.log(`  fetch failed: ${e.message}`);
-    const tier = await recordStats(src, { type: 'noContent' });
-    return { ok: 0, fail: 0, fetchError: true, tier, attempted: true };
+    // Transport failure says nothing about the source's content or health.
+    // Leave stats and last_crawled untouched so it remains due for retry.
+    return { ok: 0, fail: 0, fetchError: true };
   }
   await clearBlockedIfSet(src); // reachable → whatever blocked it before is gone
 
@@ -1077,7 +1103,7 @@ async function crawlSource(src, {
     // These sources publish a stable HTML shell while their official calendar
     // data changes behind an API/server action. The shell's 304/hash cannot be
     // used as freshness evidence for the underlying events.
-    const dynamicCalendar = DYNAMIC_CALENDAR_CMS.has(src.cms);
+    const dynamicCalendar = DYNAMIC_CALENDAR_CMS.has(src.cms) || ['ical', 'rss'].includes(src.feed_kind);
     const condHeaders = (pflasterFixed || dynamicCalendar) ? {} : conditionalHeadersForSource(src, force);
     res = await politeFetch(src.url, Object.keys(condHeaders).length ? { headers: condHeaders } : {});
     if (res.status === 304) {
@@ -1102,14 +1128,8 @@ async function crawlSource(src, {
   }
   await clearBlockedIfSet(src); // reachable → whatever blocked it before is gone
   const text = htmlToText(html);
-  if (text.length < 200) {
-    console.log('  page too thin, skipping');
-    const tier = await recordStats(src, { type: 'noContent' });
-    return { ok: 0, fail: 0, tier, attempted: true };
-  }
-
   const hash = createHash('sha256').update(text).digest('hex');
-  const dynamicCalendar = DYNAMIC_CALENDAR_CMS.has(src.cms);
+  const dynamicCalendar = DYNAMIC_CALENDAR_CMS.has(src.cms) || ['ical', 'rss'].includes(src.feed_kind);
   if (!force && !dynamicCalendar && src.page_hash && src.page_hash === hash) {
     console.log('  unchanged, skipped');
     const tier = await recordStats(src, { type: 'unchanged' });
@@ -1118,6 +1138,11 @@ async function crawlSource(src, {
 
   let events, route;
   const structured = await tryStructuredExtraction(html, src);
+  if (text.length < 200 && !structured.events.length && !structured.exclusive) {
+    console.log('  page too thin and has no structured events, skipping');
+    const tier = await recordStats(src, { type: 'noContent' });
+    return { ok: 0, fail: 0, tier, attempted: true };
+  }
   if (structured.events.length || structured.exclusive) {
     ({ events, route } = structured);
     console.log(`  structured route: ${route} (${events.length} candidate event(s))`);
@@ -1132,7 +1157,10 @@ async function crawlSource(src, {
     }
     route = 'llm';
     try {
-      events = await extractFromPage({ text, sourceName: src.name, town: src.town });
+      events = await extractFromPage({
+        text, sourceName: src.name, town: src.town, country: src.country || 'AT',
+      });
+      events = sanitizeExtractedEvents(events, text);
     } catch (e) {
       if (llmCircuit && (isExtractionBudgetError(e) || isProviderQuotaExhausted(e))) {
         llmCircuit.halted = true;
@@ -1187,7 +1215,7 @@ async function crawlSource(src, {
         emoji: CAT_EMOJI[(raw.categories || [])[0]] || CAT_EMOJI[(src.default_categories || [])[0]] || '📌',
         src_kind: 'crawl',
         source_name: src.name,
-        source_url: raw.source_url || src.url,
+        source_url: eventSourceUrl(raw.source_url, src.url),
         // Inherit the source's country so geocodeEvent uses the right Nominatim
         // countrycodes/suffix (BG addresses must not be geocoded as AT) and the
         // event is tagged for its country. Sources default to 'AT'.
@@ -1233,6 +1261,10 @@ async function crawlSource(src, {
   console.log(`  ${ok}/${events.length} events upserted (route: ${route})`
     + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : '')
     + (fuzzyMerged ? `, ${fuzzyMerged} fuzzy-merged` : ''));
+  if (events.length > 0 && ok === 0) {
+    console.log('  pipeline failure: candidates existed but none reached storage; freshness/stats untouched');
+    return { ok: 0, fail: events.length, pipelineError: true };
+  }
   // An LLM round with ZERO candidates is ambiguous: an empty calendar, or a
   // model that silently returned nothing (an overloaded Gemini answers 200
   // with an empty list). Stamping page_hash/etag here wedged the source: every
@@ -1241,7 +1273,7 @@ async function crawlSource(src, {
   // the next due crawl re-extracts instead of trusting a possibly-bogus empty.
   // Structured routes ($0, deterministic) and any round with candidates stamp
   // as before. Costs one flash-lite call per genuinely-empty source per crawl.
-  if (!(route === 'llm' && events.length === 0)) {
+  if (!((route === 'llm' && events.length === 0) || (events.length > 0 && ok === 0))) {
     await updateSourceMeta(src.id, {
       page_hash: hash, feed_kind: route,
       etag: res.headers.get('etag'), last_modified: res.headers.get('last-modified'),
@@ -1349,7 +1381,7 @@ async function main() {
   // 2026-07-14) is that N identical per-source zero-yield rounds must read as
   // ONE systemic failure, not N unrelated ones — and mixing in the sources
   // that were SUPPOSED to yield 0 (unchanged) would drown that signal.
-  let attempted = 0, attemptedZero = 0;
+  let attempted = 0, attemptedZero = 0, fetchErrors = 0, pipelineErrors = 0, sourceCrashes = 0;
   const tierCounts = { active: 0, slow: 0, dormant: 0, dead: 0 };
   await runHostPool(groups, async (src) => {
     if (mode === 'llm' && llmCircuit.halted) {
@@ -1361,7 +1393,7 @@ async function main() {
     // rest of the batch — log and move on to the next source.
     try {
       const {
-        ok, tier, outsideScope = 0, extractError, deferred: wasDeferred,
+        ok, tier, outsideScope = 0, extractError, fetchError, pipelineError, deferred: wasDeferred,
         attempted: wasAttempted, fuzzyMerged = 0,
       } = await crawlSource(src, {
         force: shouldForceCrawl(src, force),
@@ -1377,7 +1409,11 @@ async function main() {
         attempted += 1;
         if (ok === 0) attemptedZero += 1;
       }
-      if (extractError) {
+      if (fetchError) {
+        fetchErrors += 1;
+      } else if (pipelineError) {
+        pipelineErrors += 1;
+      } else if (extractError) {
         extractErrors += 1;
         // A provider-side extraction failure leaves last_crawled alone so the
         // source stays due and retries next run instead of waiting out its
@@ -1388,6 +1424,7 @@ async function main() {
         await markSourceCrawled(src.id);
       }
     } catch (e) {
+      sourceCrashes += 1;
       console.log(`! skip source "${src.name}" (${src.url}): ${e.code || e.message}`);
     }
   });
@@ -1395,6 +1432,9 @@ async function main() {
   const expired = await expireFinished();
   console.log(`\nCrawl done: ${total} events upserted, ${expired} expired.`);
   if (extractErrors) console.log(`Provider errors: ${extractErrors} source(s) skipped without stats change — they stay due and retry next run.`);
+  if (fetchErrors) console.log(`Fetch errors: ${fetchErrors} source(s) skipped without stats change — they stay due and retry next run.`);
+  if (pipelineErrors) console.log(`Pipeline errors: ${pipelineErrors} source(s) had candidates but stored none — they stay due and retry next run.`);
+  if (sourceCrashes) console.log(`Source crashes: ${sourceCrashes} source(s) failed outside the per-event guard.`);
   if (deferred) console.log(`Policy deferrals: ${deferred} source(s) left due without extraction.`);
   if (llmCircuit.halted) console.log(`LLM circuit open: ${llmCircuit.reason}.`);
   if (totalOutsideScope) console.log(`Scope guard: ${totalOutsideScope} out-of-radius event(s) skipped.`);
@@ -1407,6 +1447,10 @@ async function main() {
   if (attempted > 0 && attemptedZero / attempted > 0.5) {
     console.log(`\n⚠ SYSTEMIC: ${attemptedZero}/${attempted} attempted source(s) yielded 0 events this run — `
       + 'check the extraction pipeline before assuming this many unrelated source failures.');
+    if (attempted >= 5) process.exitCode = 1;
+  }
+  if (sourceCrashes && (urlArg > -1 || (sources.length >= 5 && sourceCrashes / sources.length > 0.5))) {
+    process.exitCode = 1;
   }
 }
 

@@ -5,7 +5,7 @@ Supersedes: `2026-07-16-ai-bot-policy.md`.
 
 ## Decision
 
-Okolo obeys the robots.txt rules that apply to its identifying `UmkreisBot`
+Okolo obeys the robots.txt rules that apply to its identifying `OkoloBot`
 user-agent, falling back to the `User-agent: *` group. A rule that names only a
 different crawler such as CCBot, GPTBot or ClaudeBot does not block Okolo.
 

@@ -12,7 +12,7 @@ const ORIGIN = 'https://www.sindelfingen.de';
 const BASE_PATH = '/kultur-freizeit/veranstaltungen/veranstaltungskalender';
 const SOURCE_URL = `${ORIGIN}${BASE_PATH}/seite-1/suche-none`;
 const TIME_ZONE = 'Europe/Berlin';
-const UA = 'UmkreisBot/0.1 (+https://umkreis-eventmap.vercel.app; event facts indexing with linkback; contact: bobojojok@gmail.com)';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; event facts indexing with linkback; contact: hello@okolo.events)';
 let lastFetch = 0;
 
 function berlinDate() {

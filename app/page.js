@@ -15,6 +15,7 @@ import { channelForPoint } from '../lib/city-channels.js';
 import { seoCityForPoint } from '../lib/seo-pages.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
+import { eventSummary } from '../lib/event-summary.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
@@ -498,7 +499,10 @@ function calLocation(ev) {
 }
 function calDetails(ev) {
   const src = ev.source_url ? `\n\nQuelle: ${ev.source_url}` : '';
-  return `${ev.description || ''}${src}`.trim();
+  return `${eventSummary(ev)}${src}`.trim();
+}
+function calTimezone(ev) {
+  return ev.tz || ({ AT: 'Europe/Vienna', BG: 'Europe/Sofia', DE: 'Europe/Berlin' }[ev.country]) || 'UTC';
 }
 
 // "Add to Google Calendar" — opens a prefilled event, no file download (the
@@ -506,7 +510,7 @@ function calDetails(ev) {
 function googleCalUrl(ev) {
   const d = calDates(ev);
   const p = new URLSearchParams({ action: 'TEMPLATE', text: ev.title, dates: `${d.start}/${d.end}`, location: calLocation(ev), details: calDetails(ev) });
-  if (!d.allDay) p.set('ctz', 'Europe/Vienna');
+  if (!d.allDay) p.set('ctz', calTimezone(ev));
   return `https://calendar.google.com/calendar/render?${p.toString()}`;
 }
 // Outlook.com / Microsoft 365 web compose.
@@ -527,7 +531,7 @@ function makeIcs(ev) {
   const d = calDates(ev);
   const dtLines = d.allDay
     ? [`DTSTART;VALUE=DATE:${d.start}`, `DTEND;VALUE=DATE:${d.end}`]
-    : [`DTSTART;TZID=Europe/Vienna:${d.start}`, `DTEND;TZID=Europe/Vienna:${d.end}`];
+    : [`DTSTART;TZID=${calTimezone(ev)}:${d.start}`, `DTEND;TZID=${calTimezone(ev)}:${d.end}`];
   const body = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//okolo//events//DE', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
     `UID:okolo-${ev.id}@okolo.events`, ...dtLines,
@@ -2946,7 +2950,7 @@ export default function Home() {
               <div><span className="k">📅</span><span className="mutedt">{ev.seasonal}</span></div>
             )}
           </div>
-          {ev.description && <p className="ddesc">{ev.description}</p>}
+          {!place && <p className="ddesc">{eventSummary(ev)}</p>}
           <div className="prov">
             <span>{community ? (ev.src_kind === 'user_photo' ? '📷' : '👤') : '🌐'}</span>
             <span>
@@ -3461,7 +3465,7 @@ export default function Home() {
                   {selected.kind !== 'place' && isOngoingAt(selected, dFrom) && <span className="ongoing-tag">{t.ongoing}</span>}
                 </span>
                 <span className="m">{[selected.venue, selected.town].filter(Boolean).join(', ')} · {distKm(refPoint, selected).toFixed(1).replace('.', ',')} km</span>
-                {selected.description && <span className="d">{selected.description}</span>}
+                {selected.kind !== 'place' && <span className="d">{eventSummary(selected)}</span>}
               </span>
               <button className="morebtn" onClick={(e) => { e.stopPropagation(); setDetailFull(true); }} aria-label={t.learnMore}><CaretRight size={18} weight="bold" /></button>
               <button className="xbtn" onClick={(e) => { e.stopPropagation(); selectEvent(null, { fly: false }); }} aria-label={t.close}><X size={14} weight="bold" /></button>

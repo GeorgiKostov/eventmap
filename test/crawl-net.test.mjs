@@ -1,13 +1,14 @@
 // robots.txt parsing/matching (RFC 9309 subset). Run: node --test test/crawl-net.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import {
-  parseRobots, matchingRobotsGroup, isDisallowed, aiBotGroup,
+  parseRobots, matchingRobotsGroup, isDisallowed, aiBotGroup, politeFetch, robotsAllowed,
 } from '../lib/crawl-net.js';
 
 const groupFor = (txt) => matchingRobotsGroup(parseRobots(txt));
 // Historical classifier retained for audit evidence. Named third-party crawler
-// blocks no longer gate UmkreisBot; only groupFor()/robotsAllowed() decides that.
+// blocks no longer gate OkoloBot; only groupFor()/robotsAllowed() decides that.
 const aiBlocked = (txt, path = '/veranstaltungen') => isDisallowed(aiBotGroup(parseRobots(txt)), path);
 
 test('trailing $ anchors the end of the path (was silently fail-open)', () => {
@@ -44,12 +45,37 @@ test('strictest delay wins when multiple groups name the same agent', () => {
 
 // --- historical named-AI classification fixtures (read live 2026-07-16) ---
 
-test('a dedicated ClaudeBot block does not apply to UmkreisBot', () => {
+test('a dedicated ClaudeBot block does not apply to OkoloBot', () => {
   // www.stuttgart.de, verbatim shape. RFC 9309 says we may fetch (we are not
   // ClaudeBot) — that stays true; the policy is the separate question.
   const txt = 'User-agent: ClaudeBot\nDisallow: /\n\nUser-agent: GPTBot\nDisallow: /\n';
   assert.equal(isDisallowed(groupFor(txt), '/veranstaltungen'), false); // robots: allowed, correctly
   assert.equal(aiBlocked(txt), true);                                   // classified, not enforced
+});
+
+test('robots matching includes query strings', () => {
+  const group = groupFor('User-agent: *\nDisallow: /*?print=1');
+  assert.equal(isDisallowed(group, '/events?print=1'), true);
+  assert.equal(isDisallowed(group, '/events?view=calendar'), false);
+});
+
+test('a redirect target gets its own robots authorization check', async (t) => {
+  const blocked = http.createServer((req, res) => {
+    if (req.url === '/robots.txt') return res.end('User-agent: *\nDisallow: /blocked');
+    res.end('should never be fetched');
+  });
+  await new Promise((resolve) => blocked.listen(0, '127.0.0.1', resolve));
+  const blockedPort = blocked.address().port;
+  const origin = http.createServer((req, res) => {
+    if (req.url === '/robots.txt') return res.end('User-agent: *\nAllow: /');
+    res.writeHead(302, { Location: `http://127.0.0.1:${blockedPort}/blocked` });
+    res.end();
+  });
+  await new Promise((resolve) => origin.listen(0, '127.0.0.1', resolve));
+  t.after(() => { origin.close(); blocked.close(); });
+  const url = `http://127.0.0.1:${origin.address().port}/start`;
+  assert.equal(await robotsAllowed(url), true);
+  await assert.rejects(() => politeFetch(url), /Redirect target disallowed/);
 });
 
 test('historical classifier finds AI bots in a kitchen-sink agent list', () => {

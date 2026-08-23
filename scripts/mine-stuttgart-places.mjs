@@ -17,7 +17,7 @@ const ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.private.coffee/api/interpreter',
 ];
-const UA = 'UmkreisBot/0.1 (family event map; contact: bobojojok@gmail.com)';
+const UA = 'OkoloBot/1.0 (+https://okolo.events; family event facts; contact: hello@okolo.events)';
 
 const EMOJI = {
   playground: '🛝', pool: '🏊', park: '🌳', indoor_play: '🎪',
@@ -127,7 +127,7 @@ function robotsDisallows(text, pathname) {
     if (split < 0) continue;
     const key = line.slice(0, split).trim().toLowerCase();
     const value = line.slice(split + 1).trim();
-    if (key === 'user-agent') applies = ['*', 'umkreisbot'].includes(value.toLowerCase());
+    if (key === 'user-agent') applies = ['*', 'okolobot'].includes(value.toLowerCase());
     if (applies && key === 'disallow' && value && pathname.startsWith(value)) return true;
   }
   return false;

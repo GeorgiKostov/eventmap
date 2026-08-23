@@ -9,6 +9,26 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-23 — adversarial crawler audit and bounded Sofia refresh)
+- A credentials-blank, `--mode structured` crawl of the canonical official Visit Sofia JEvents
+  source upserted all 126 occurrences, fuzzy-merged five and expired 47. No third-party model path
+  ran; Codex subscription tokens are not exposed as an in-repository extraction provider.
+- Crawler freshness now includes JSON-LD and bypasses shell-only caches for dynamic/secondary
+  calendars. Robots is checked on linked feeds, two-hop requests and redirect targets;
+  unavailable/5xx robots fails closed, query rules are matched, transport/candidate-write failures stay due without poisoning
+  source health, and systemic zero/crash runs exit nonzero.
+- The shared event write boundary rejects impossible/malformed local starts, drops invalid ends and
+  invalid linkbacks. Six malformed published legacy rows were recoverably quarantined and 109
+  relative/mail/tel linkbacks were repaired against unique registered source pages. Empty
+  structured descriptions render original locale-aware fact summaries; Sofia calendar exports use
+  Europe/Sofia.
+- Source 1964 is the only enabled Visit Sofia calendar. Twenty duplicate, contract-restricted or
+  non-approved ticketing/editorial Sofia rows are paused without deleting their historical events.
+  Sofia History Museum and Sofia Puppet are authorized deterministic-adapter follow-ups; restricted
+  official sources remain permission-gated.
+- This audit/change set is local and not committed, pushed or deployed. Production data mutations
+  above were applied directly and idempotent repair scripts now record/reproduce them.
+
 ## Where things stand (2026-08-22 — event discovery pages are map-led and visually unified)
 - `/events` now uses the Okolo pin wordmark, a clear map action and responsive city cards with aligned
   labels/arrows, hover/focus states and mobile stacking. All nine existing city routes and the page's
@@ -66,7 +86,7 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   new rows (621 future), 12 fetch failures and no extraction failures. No Austrian deterministic
   source is over 2× cadence stale. The remaining debt is the weekly LLM lane: 517 sources are over
   2× cadence stale and 540 are due, still within Sunday's 750-call ceiling.
-- Robots permission now follows the group applicable to `UmkreisBot` (or `User-agent: *`). Named
+- Robots permission now follows the group applicable to the declared Okolo crawler (or `User-agent: *`). Named
   blocks for unrelated crawlers no longer gate Okolo; the two historical Austrian
   `ai_bot_policy` states were rechecked and cleared.
 

@@ -8,13 +8,31 @@ import path from 'path';
 import { upsertEvent, upsertSource, expireFinished, closeDb } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { CRAWL_SCOPES, isWithinCrawlScope, scopeFromCatalog } from '../lib/crawl-scopes.js';
-import { makeStartsAt, makeEndsAt } from '../lib/event-time.js';
+import { makeStartsAt, makeEndsAt, validDateOf } from '../lib/event-time.js';
 
 const MINED_DIR = path.join(process.cwd(), 'data', 'mined');
 const CAT_EMOJI = {
   family: '🎈', festival: '🎪', market: '🧺', music: '🎶',
-  culture: '🎭', food: '🥨', sport: '⚽', workshop: '🎨',
+  party: '🪩', culture: '🎭', food: '🥨', sport: '⚽', workshop: '🎨',
 };
+
+const UNAPPROVED_RECURRING_HOSTS = new Set([
+  'eventim.bg', 'www.eventim.bg', 'bilet.bg', 'www.bilet.bg',
+  'sofia.plays.bg', 'sdeteto.com', 'www.sdeteto.com', 'aroundyou-bg.com',
+  'www.aroundyou-bg.com', 'programata.bg', 'www.programata.bg',
+]);
+
+function approvedRegistryRow(source) {
+  try {
+    const url = new URL(source.url);
+    if (UNAPPROVED_RECURRING_HOSTS.has(url.hostname.toLowerCase())) return false;
+    // Occurrence/detail pages are linkbacks, never recurring source roots.
+    if (/visitsofia\.bg$/i.test(url.hostname) && /icalrepeat\.detail/i.test(url.pathname)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function argValue(name) {
   const index = process.argv.indexOf(name);
@@ -26,19 +44,22 @@ function argValue(name) {
 
 function normalizeEvent(raw) {
   if (!raw.title || !raw.date_start) return null;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw.date_start)) return null;
+  if (validDateOf(raw.date_start) !== raw.date_start) return null;
   const validTime = (value) => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value || '');
   const time = validTime(raw.time_start) ? raw.time_start : null;
   const starts_at = makeStartsAt(raw.date_start, time);
   // A known end DATE with no end time is stored date-only (read as end-of-day in
   // expireFinished) — never fabricate a 23:59, never drop the date. Same builder
   // as crawl.mjs (lib/event-time.js makeEndsAt).
-  let ends_at = makeEndsAt(raw.date_end, raw.time_end, raw.date_start);
+  const dateEnd = validDateOf(raw.date_end) === raw.date_end ? raw.date_end : null;
+  let ends_at = makeEndsAt(dateEnd, raw.time_end, raw.date_start);
   if (ends_at && ends_at <= starts_at) ends_at = null;
   const cats = (raw.categories || []).filter((c) => CAT_EMOJI[c]);
   return {
     title: String(raw.title).slice(0, 200),
-    description: raw.description_short || raw.description || null,
+    // Mining files may carry only original Okolo summaries. Never revive an
+    // old raw-source prose field through the seed path.
+    description: raw.description_short || null,
     starts_at,
     ends_at,
     // Unknown time is NOT an all-day event — see lib/event-time.js. all_day is a
@@ -94,6 +115,10 @@ async function main() {
     // would break the recrawl geocode — sources default to 'AT' in upsertSource).
     const fileCountry = data.country || (data.events || []).find((e) => e.country)?.country || scope?.country || 'AT';
     for (const s of data.source_registry || []) {
+      if (!approvedRegistryRow(s)) {
+        console.log(`  source skipped (unapproved/detail URL): ${s.url}`);
+        continue;
+      }
       const country = s.country || fileCountry;
       if (scope && (country !== scope.country || s.region !== scope.sourceRegion)) {
         sourceScopeFail++;
