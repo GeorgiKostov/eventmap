@@ -2,6 +2,26 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Account-gated contributions and synced saves (2026-08-29)
+- [x] Add Supabase Auth with Google OAuth and email magic links. Google uses the dedicated
+      `okolo-events-auth` project; Supabase has the production/local callback allow-list and Resend
+      custom SMTP from `hello@okolo.events`.
+- [x] Gate every event-creation path at both UI and API boundaries. The plus button opens sign-in
+      for visitors, the actions menu carries the account entry, and scan/link/manual writes return
+      `AUTH_REQUIRED` before rate-limited or paid extraction work runs.
+- [x] Track each authenticated contribution against its Supabase user UUID and expose the account's
+      submission history. Keep the event tables provider-neutral and private account tables under RLS.
+- [x] Migrate the browser's existing saved-event IDs on first sign-in and sync future saves through
+      the account favorites API, while retaining local saves for signed-out visitors.
+- [x] Complete the live identity smoke test: Google consent returns to the fixed localhost callback,
+      resumes the add chooser, and exposes the account in the menu; submission history is empty,
+      Resend reports the magic link delivered, and a synthetic favorite write/read/delete passed
+      with cleanup. No fabricated event was published. The test caught and fixed a query-bearing
+      callback allow-list mismatch by moving return intent into a short-lived HTTP-only cookie.
+- [ ] Before production release, deploy manually and repeat the Google/magic-link callback test on
+      `www.okolo.events` plus a clean error-log scan. Both public Supabase variables are already
+      provisioned for Vercel Production; no deployment was triggered.
+
 ## Adversarial crawler + Sofia check (2026-08-23)
 - [x] Run the official Visit Sofia JEvents adapter in strict structured mode with all external-model
       credentials blank: 126/126 occurrences upserted, five fuzzy-merged and 47 expired.
@@ -1654,13 +1674,14 @@ are OK before the Linz gate. Country registration (item 8) is explicitly post-Li
   Apify, thread maximization (EU aggregate is ~0.2 req/s), agents as the recurring crawler.
 
 ## Backlog (post-validation, not now)
-- [ ] Retention loop: saved favorites + reminders + private/invite events.
+- [ ] Retention loop: account-synced favorites are built; add reminders + private/invite events.
 - [ ] **Social layer on event/place detail** (George 2026-07-11): favorite star (save to list),
       "interested" like (count visible to organizers), comment section below detail. Detail action
       row already reserves space for the star. Target model: Facebook Events × Google Maps interfaces
       + Airbnb-smooth filters/dates UI.
-- [ ] **User accounts**: sign-up, own submitted events (form or poster scan), favorites/saved list,
-      gamification points for contributing/engaging (add, like, comment).
+- [x] **User accounts — validation slice**: Google + magic-link sign-in, own submitted-event history,
+      account-synced favorites, and account-gated form/poster/link submissions. Gamification,
+      comments, profiles, reminders and organizer tooling remain post-validation scope.
 - [ ] **Anti-spam/scam filters** for user-contributed events (basic heuristics + review queue)
       — prerequisite for opening submissions.
 - [ ] **Business tier**: paid event highlighting (special pin visuals, ranked-first placement).

@@ -211,8 +211,33 @@ a { color: inherit; }
 .nl-done { margin: 8px 0 6px; font-size: 15px; font-weight: 650; color: var(--good); }
 .nl-fine { margin: 14px 0 0; font-size: 11px; line-height: 1.5; color: var(--muted); }
 .nl-fine a { color: var(--accent); text-decoration: underline; }
+.account-modal { max-width: 400px; max-height: calc(100dvh - 40px); overflow-y: auto; }
+.account-email { margin: 4px 0 18px; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+.google-signin {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px;
+  background: var(--panel); color: var(--ink); font-size: 14px; font-weight: 700;
+}
+.google-signin:hover { background: var(--panel2); border-color: #cfcfc6; }
+.google-signin:disabled { opacity: 0.6; }
+.google-signin span { font-size: 17px; font-weight: 800; color: #4285f4; }
+.account-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; color: var(--muted); font-size: 11px; }
+.account-divider::before, .account-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.nl-label { color: var(--ink); font-size: 12px; font-weight: 700; text-align: left; }
+.account-success { margin: 12px 0 0; color: var(--good); font-size: 12.5px; line-height: 1.5; }
+.nl-error { margin: 12px 0 0; color: var(--accent); font-size: 12.5px; line-height: 1.45; }
+.account-section-title { margin: 0 0 8px; color: var(--ink); font-size: 12px; font-weight: 800; text-align: left; }
+.account-submissions { display: grid; gap: 5px; max-height: 34vh; overflow-y: auto; text-align: left; }
+.account-submission { display: grid; gap: 2px; padding: 9px 10px; border-radius: 10px; background: var(--panel2); text-decoration: none; }
+.account-submission span { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-submission small { color: var(--muted); font-size: 10.5px; }
+.account-signout, .saved-signin {
+  width: 100%; margin-top: 14px; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 11px; color: var(--accent); font-size: 13px; font-weight: 700;
+}
+.account-signout:hover, .saved-signin:hover { background: var(--accent-soft); }
 @media (max-width: 480px) {
-  .nl-preferences-modal { max-width: none; max-height: calc(100dvh - 40px); padding: 24px 20px 18px; }
+  .nl-preferences-modal, .account-modal { max-width: none; max-height: calc(100dvh - 40px); padding: 24px 20px 18px; }
 }
 .advertise-modal { max-width: 390px; }
 .ad-benefits { display: grid; gap: 8px; margin: 16px 0 12px; text-align: left; }
@@ -443,6 +468,7 @@ a.menuitem { text-decoration: none; }
 .calendar-menuitem { color: var(--accent); background: var(--accent-soft); }
 .calendar-menuitem:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
 .menuitem .ic { width: 18px; text-align: center; flex: 0 0 auto; }
+.account-menuitem span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .language-picker { padding: 8px 8px 7px; border-top: 1px solid var(--line); }
 .language-label { display: flex; align-items: center; gap: 10px; padding: 2px 4px 8px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .language-label .ic { width: 18px; text-align: center; }

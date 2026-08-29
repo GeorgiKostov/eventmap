@@ -9,6 +9,31 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-29 — account-gated contributions ready for live identity smoke test)
+- George explicitly approved the first account slice despite the earlier validation-phase deferment.
+  Supabase Auth now supports Google OAuth and passwordless email magic links; Google has a dedicated
+  production OAuth project/client, and Supabase has canonical Okolo plus local callback URLs.
+- Resend-backed custom SMTP is enabled in Supabase from `hello@okolo.events`. The database has private,
+  RLS-enabled `event_contributions` and `user_favorites` tables keyed by provider-neutral user UUIDs.
+- Visitors can still browse, save locally and use anonymous structured reactions. Event creation is
+  account-gated in the plus-button flow and every server write/extraction route; authenticated event
+  upserts record ownership, the account dialog shows submission history, and pre-login local saves
+  migrate to and then sync with the account.
+- Privacy copy documents account, contribution and saved-event processing under GDPR Art. 6(1)(b),
+  while newsletter consent remains separate. No profile, password, free-text comment, reminder,
+  public social graph or fabricated QA event was added.
+- Production schema migration is applied. Google OAuth now passes the full callback/session/resume
+  flow with the approved account, and Resend reports the magic-link email delivered. The live test
+  caught Supabase falling back to the production Site URL when `next` was embedded in the callback
+  query; the callback is now exact and the validated return intent travels in a ten-minute HTTP-only,
+  SameSite=Lax cookie that is deleted after exchange. The account menu/email, empty submission history,
+  protected endpoint 401s and synthetic favorite write/read/delete cleanup all pass.
+- All 294 tests and the 108-page production build pass. Vercel Production now has the two public
+  Supabase variables, but no deployment was triggered; production callback QA and logs remain the
+  release step.
+- This account change is local and not committed, pushed or deployed. Unrelated live-GPS and festival
+  work is concurrently present in the worktree and must be preserved.
+
 ## Where things stand (2026-08-23 — adversarial crawler audit and bounded Sofia refresh)
 - A credentials-blank, `--mode structured` crawl of the canonical official Visit Sofia JEvents
   source upserted all 126 occurrences, fuzzy-merged five and expired 47. No third-party model path

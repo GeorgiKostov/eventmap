@@ -5,6 +5,7 @@ import http from 'node:http';
 import https from 'node:https';
 import { extractFromImage, extractSingleFromText } from '../../../lib/extract.js';
 import { limit } from '../../../lib/ratelimit.js';
+import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 import { splitLocalDateTime } from '../../../lib/event-time.js';
 
 export const dynamic = 'force-dynamic';
@@ -243,6 +244,9 @@ function metaContent(html, prop) {
 
 export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
+  if (!(await currentAccount())) {
+    return NextResponse.json({ error: authRequiredMessage(req), code: 'AUTH_REQUIRED' }, { status: 401 });
+  }
 
   // Validate the URL BEFORE spending a rate-limit slot — a typo or empty body
   // must not burn one of the (shared-with-scan) AI-intake allowances.

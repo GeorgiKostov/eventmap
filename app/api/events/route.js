@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import {
   getEvent, publishedEventsPage, upsertEvent, updateEventFields, viennaNow,
   mapPins, mapCells, searchEvents, eventsByIds, dedupCandidates, relatedUpcomingEvents,
+  recordEventContribution,
 } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
@@ -10,6 +11,7 @@ import { limit } from '../../../lib/ratelimit.js';
 import { spamReason, sanitizeText, submissionProblem } from '../../../lib/moderation.js';
 import { notifyOperator } from '../../../lib/mail.js';
 import { publicUrl } from '../../../lib/public-url.js';
+import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 
 export const dynamic = 'force-dynamic';
 const MESSAGES = {
@@ -180,8 +182,12 @@ export async function GET(req) {
 
 export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
+  const account = await currentAccount();
+  if (!account) {
+    return NextResponse.json({ error: authRequiredMessage(req), code: 'AUTH_REQUIRED' }, { status: 401 });
+  }
   // Durable per-IP-hash rate limit (the old in-memory Map didn't survive
-  // serverless isolation). Anonymous submissions: 5/hour, 15/day per IP,
+  // serverless isolation). Community submissions: 5/hour, 15/day per IP,
   // 150/day across everyone (a flood of "valid" entries is itself abuse).
   // POST-LAUNCH (advertised 2026-07-13): cap at 20/hr per IP while monitoring for
   // abuse; was 50/hr during testing, 5/hr originally.
@@ -288,6 +294,8 @@ export async function POST(req) {
     if (match) {
       const patch = mergePlan(match, candidate);
       await updateEventFields(match.id, patch);
+      const contributionKind = body.photo_path ? 'photo' : sourceUrl ? 'link' : 'manual';
+      await recordEventContribution(account.id, match.id, contributionKind, { merged: true });
       console.log(`[intake] publish: MERGED into ${match.id} (fields: ${Object.keys(patch).join(',') || 'none'}) title="${(body.title || '').slice(0, 60)}"`);
       return NextResponse.json({ ok: true, merged: true, id: match.id, lat: match.lat, lng: match.lng });
     }
@@ -320,6 +328,8 @@ export async function POST(req) {
     source_name: null,
     source_url: sourceUrl,
   });
+  const contributionKind = body.photo_path ? 'photo' : sourceUrl ? 'link' : 'manual';
+  await recordEventContribution(account.id, res.id, contributionKind, { merged: res.updated });
 
   // Every community submission goes live immediately — so tell the operator,
   // with a one-click remove link (see /api/admin/remove).

@@ -6,6 +6,7 @@ import { dedupCandidates } from '../../../lib/db.js';
 import { findDuplicate } from '../../../lib/dedup.js';
 import { makeStartsAt } from '../../../lib/event-time.js';
 import { limit } from '../../../lib/ratelimit.js';
+import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -32,6 +33,9 @@ function sniffImage(buf) {
 
 export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
+  if (!(await currentAccount())) {
+    return NextResponse.json({ error: authRequiredMessage(req), code: 'AUTH_REQUIRED' }, { status: 401 });
+  }
   // Each scan calls an LLM ($$), so cap it hard: 4/hour + 10/day per IP hash,
   // and a global 100/day circuit-breaker to bound worst-case cost/abuse.
   // POST-LAUNCH (advertised 2026-07-13): cap at 20/hr per IP while monitoring for

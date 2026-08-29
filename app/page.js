@@ -16,6 +16,7 @@ import { seoCityForPoint } from '../lib/seo-pages.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 import { eventSummary } from '../lib/event-summary.js';
+import AccountDialog from './account-dialog.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
@@ -61,6 +62,7 @@ function initialShowsAllDates() {
 // stays hidden until enough people agree — showing "1 interested" reads as an
 // empty room and is worse than showing nothing at all.
 const SAVED_KEY = 'okolo_saved';
+const SAVED_OWNER_KEY = 'okolo_saved_owner';
 const INTEREST_SHOW_MIN = 3;
 // All-GL pin handoff band: below LOW the clustered overview owns the map, above
 // HIGH the detail sprite pins do; across the band both cross-fade via a single
@@ -708,6 +710,19 @@ export default function Home() {
 
   // top-right actions menu + search
   const [menuOpen, setMenuOpen] = useState(false);
+  // Client auth state is presentation-only; every protected API route validates
+  // the signed JWT independently before doing work.
+  const [account, setAccount] = useState(undefined); // undefined=checking, null=signed out
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [resumeAddAfterAuth, setResumeAddAfterAuth] = useState(false);
+  useEffect(() => {
+    let active = true;
+    fetch('/api/account/session', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((data) => { if (active) setAccount(data.account || null); })
+      .catch(() => { if (active) setAccount(null); });
+    return () => { active = false; };
+  }, []);
   // Map centre, refreshed on every settle — within a supported catchment it
   // drives the matching city calendar and editorial weekend page. Outside all
   // city catchments the map remains the universal discovery surface.
@@ -1102,9 +1117,10 @@ export default function Home() {
   }
 
   /* ---------------- interested / save + data-quality reports ---------------- */
-  // saved = this device's list (localStorage, no account). interestCounts = optimistic
-  // overrides on top of the server counts that ride along with each row.
+  // saved = local offline cache, adopted by an account on first sign-in.
+  // interestCounts = optimistic overrides on top of each row's server count.
   const [saved, setSaved] = useState([]);
+  const [savedLoaded, setSavedLoaded] = useState(false);
   // Full rows for saved ids, resolved via /api/events?ids= — saved events are
   // usually OFF the current viewport now, so they can no longer be looked up in
   // `events` (which is just the loaded viewport rows). Keyed by string id.
@@ -1149,7 +1165,39 @@ export default function Home() {
         if (ids.length) resolveSavedIds(ids);
       }
     } catch { /* corrupt/blocked storage — start empty */ }
+    finally { setSavedLoaded(true); }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // First sign-in adopts anonymous device saves. Thereafter the account is the
+  // authority and localStorage is only an offline cache. A different account
+  // on the same browser never inherits the previous account's list.
+  useEffect(() => {
+    if (!savedLoaded || account === undefined) return;
+    let owner = null;
+    try { owner = localStorage.getItem(SAVED_OWNER_KEY); } catch { /* private mode */ }
+    if (!account) {
+      if (owner) {
+        persistSaved([]);
+        try { localStorage.removeItem(SAVED_OWNER_KEY); } catch { /* private mode */ }
+      }
+      return;
+    }
+    const mergeIds = !owner || owner === account.id ? saved : [];
+    fetch('/api/account/favorites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-okolo-lang': lang },
+      body: JSON.stringify({ action: 'merge', ids: mergeIds }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || t.requestFailed);
+        const ids = (data.ids || []).map(String);
+        persistSaved(ids);
+        if (ids.length) resolveSavedIds(ids);
+        try { localStorage.setItem(SAVED_OWNER_KEY, account.id); } catch { /* private mode */ }
+      })
+      .catch(() => { /* keep the offline cache and retry on next session */ });
+  }, [account, savedLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Also re-resolve whenever the modal opens, so a save made from a search
   // result / another session's data is fresh and any newly-expired event drops.
@@ -1197,6 +1245,14 @@ export default function Home() {
     // and the newsletter is literally "we'll remind you of these every week" — so
     // this is the one moment the offer answers a need they just expressed.
     if (on) maybePromptNewsletter();
+    if (account) {
+      try { localStorage.setItem(SAVED_OWNER_KEY, account.id); } catch { /* private mode */ }
+      fetch('/api/account/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-okolo-lang': lang },
+        body: JSON.stringify({ id, on }),
+      }).catch(() => { /* local cache stays useful offline; next sign-in merges */ });
+    }
     // The save already happened locally; the counter is best-effort. A failed
     // request must never cost the user their saved event.
     fetch('/api/react', {
@@ -2224,6 +2280,31 @@ export default function Home() {
     setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setManualEntry(false);
     setMapPick(false); setUrlInput(''); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
   }
+  function requestOpenCapture() {
+    if (account) { openCapture(); return; }
+    setResumeAddAfterAuth(true);
+    setAccountOpen(true);
+  }
+  function openAccount(resumeAdd = false) {
+    setResumeAddAfterAuth(resumeAdd);
+    setAccountOpen(true);
+  }
+  useEffect(() => {
+    if (account === undefined) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('auth_error') === '1') {
+      setResumeAddAfterAuth(false);
+      setAccountOpen(true);
+      params.delete('auth_error');
+      history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}${location.hash}`);
+      return;
+    }
+    if (account && params.get('add') === '1') {
+      params.delete('add');
+      history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}${location.hash}`);
+      openCapture();
+    }
+  }, [account]); // eslint-disable-line react-hooks/exhaustive-deps
   // "Type it in manually" reuses the exact same confirm-screen UI as the scan
   // flow, just pre-seeded with empty fields and skipping the photo/extraction
   // steps. Defaults to an event; the Event|Place switch flips draft.kind.
@@ -2591,6 +2672,9 @@ export default function Home() {
                     <span className="ic">📅</span>{t.weekendPicksMenu.replace('{city}', weekendChannel.label)}
                   </a>
                 )}
+                <button className="menuitem account-menuitem" onClick={() => { setMenuOpen(false); openAccount(false); }}>
+                  <span className="ic">👤</span><span>{account?.email || t.signIn}</span>
+                </button>
                 <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>
@@ -2619,7 +2703,6 @@ export default function Home() {
                   <span>·</span>
                   <a href="/datenschutz" target="_blank" rel="noreferrer">{t.privacyLink}</a>
                 </div>
-                {/* Future: Account / Login entry goes here — add one more <button className="menuitem"> */}
               </div>
             </>
           )}
@@ -3559,7 +3642,7 @@ export default function Home() {
             at the bottom (primary, DOM-first → column-reverse), locate above it.
             The whole stack hides where it would overlap a sheet / full detail. */}
         <div className={`floatstack ${capture || (!isDesktop && (sheet !== 'closed' || detailFull)) ? 'hidden' : ''}`}>
-          <button className="fab" onClick={openCapture} aria-label={t.addToMap}>
+          <button className="fab" onClick={requestOpenCapture} aria-label={t.addToMap}>
             +
           </button>
           <button
@@ -3658,6 +3741,15 @@ export default function Home() {
         </div>
       )}
 
+      <AccountDialog
+        open={accountOpen}
+        onClose={() => { setAccountOpen(false); setResumeAddAfterAuth(false); }}
+        onSignedOut={() => setAccount(null)}
+        account={account || null}
+        resumeAdd={resumeAddAfterAuth}
+        t={t}
+      />
+
       {savedOpen && (
         <div className="nl-scrim" onClick={() => setSavedOpen(false)}>
           <div className="nl-modal saved-modal" role="dialog" aria-modal="true" aria-labelledby="saved-title" onClick={(e) => e.stopPropagation()}>
@@ -3691,7 +3783,10 @@ export default function Home() {
                 })}
               </div>
             )}
-            <p className="nl-fine">{t.savedFine}</p>
+            <p className="nl-fine">{account ? t.savedSynced : t.savedFine}</p>
+            {!account && (
+              <button className="saved-signin" onClick={() => { setSavedOpen(false); openAccount(false); }}>{t.savedSignIn}</button>
+            )}
           </div>
         </div>
       )}

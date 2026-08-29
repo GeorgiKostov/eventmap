@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { LANGS, languageFromCountry } from './lib/i18n.js';
 import { canonicalSeoPath } from './lib/seo-pages.js';
 import { canonicalEventPath } from './lib/event-aliases.js';
+import { refreshSupabaseSession } from './lib/supabase-middleware.js';
 
 const LANG_COOKIE = 'okolo-lang';
 
-export function middleware(request) {
+export async function middleware(request) {
   const canonicalPath = canonicalSeoPath(request.nextUrl.pathname)
     || canonicalEventPath(request.nextUrl.pathname);
   if (canonicalPath) {
@@ -23,9 +24,9 @@ export function middleware(request) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-okolo-lang', lang);
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return refreshSupabaseSession(request, requestHeaders);
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|manifest.webmanifest|robots.txt|sitemap.xml).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|manifest.webmanifest|robots.txt|sitemap.xml|sw.js).*)'],
 };

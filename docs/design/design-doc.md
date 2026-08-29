@@ -257,6 +257,20 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
   precision, letting the user drag-refine the pin (re-submits with explicit lat/lng, which updates
   the just-created row via its existing content-hash match rather than creating a duplicate).
 
+### Account and contribution identity
+
+- **Discovery stays open.** Browsing, signed-out local saves and closed-enum anonymous reactions do
+  not require an account. Google OAuth or an email magic link is required only when a visitor starts
+  an event contribution through the plus button, manual form, pasted link or poster scan.
+- The same sign-in surface lives in the top-right actions menu. After sign-in, existing local saves
+  migrate once to a private account favorites list and subsequent saves sync across devices.
+- Every accepted event upsert records a private contribution row keyed by the Supabase user UUID;
+  the account surface lists that user's submitted events. This is ownership/tracking, not public
+  organizer verification, and duplicate submissions may point multiple contributors at one event.
+- The validation slice deliberately has no password, profile, comments, public activity feed,
+  gamification or reminder system. Account/favorite/contribution data is processed to provide the
+  requested service (GDPR Art. 6(1)(b)); newsletter consent remains separate.
+
 ## 10. Deployment
 
 - **GitHub Pages: won't work** (static only; we need a Node server for API/SSR/DB).
@@ -264,7 +278,9 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
   verified releases use `vercel deploy --prod --yes`, followed by live flow and error-log checks.
 - **Backend = Supabase Postgres** (done): dedicated project `eventmap`, `umkreis` schema,
   transaction-pooler connection, PostGIS geometry/indexes. Writes persist across serverless instances.
-- Env vars: `DATABASE_URL` (Supabase pooler, **required**); `GEMINI_API_KEY` (scan primary) /
+- Env vars: `DATABASE_URL` (Supabase pooler, **required**);
+  `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (account auth);
+  `GEMINI_API_KEY` (scan primary) /
   `ANTHROPIC_API_KEY` (fallback where enabled); `NEXT_PUBLIC_BASE_URL` for canonical/share links;
   mail/admin/social secrets for their respective server-only features.
 - **Crawl automation is live in GitHub Actions:** deterministic Austria sources daily and a
@@ -274,8 +290,8 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
 
 ## 11. Open questions / risks
 
-1. Retention — the category-killer. Reminders + saved favorites + private events (invites are a
-   viral+retention loop) are the levers; not yet built.
+1. Retention — the category-killer. Account-synced favorites are built; reminders + private events
+   (invites are a viral+retention loop) remain the larger levers and are not yet built.
 2. Does Familienkarte / Land OÖ respond to a partnership ask? (Cheapest legal path to their data,
    and first B2B contact.) Not yet attempted.
 3. Is "family-friendly" a filter or the *default lens*? If test users only touch family events,

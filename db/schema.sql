@@ -193,6 +193,39 @@ create table if not exists reactions (
 );
 create index if not exists reactions_event_idx on reactions(event_id, kind);
 
+-- Account identity is supplied by Supabase Auth, but the product schema keeps
+-- provider-neutral UUIDs and no cross-schema foreign key. That preserves the
+-- one-schema portability boundary: auth can later move providers without
+-- rewriting events or making an umkreis dump depend on Supabase's auth schema.
+-- A contribution is separate from ownership because a submitted event can
+-- fuzzy-merge into an older official/crawled canonical row.
+create table if not exists event_contributions (
+  id                bigint generated always as identity primary key,
+  user_id           uuid not null,
+  event_id          bigint not null references events(id) on delete cascade,
+  contribution_kind text not null check (contribution_kind in ('manual','photo','link')),
+  merged            boolean not null default false,
+  created_at        timestamptz default now(),
+  updated_at        timestamptz default now(),
+  unique (user_id, event_id)
+);
+create index if not exists event_contributions_user_idx
+  on event_contributions(user_id, updated_at desc);
+alter table event_contributions enable row level security;
+
+-- Personal, account-synced favourites. No Data API policy is granted: browser
+-- code goes through authenticated Next.js routes and lib/db.js, so these rows
+-- stay private even if the umkreis schema is exposed accidentally later.
+create table if not exists user_favorites (
+  user_id  uuid not null,
+  event_id bigint not null references events(id) on delete cascade,
+  saved_at timestamptz default now(),
+  primary key (user_id, event_id)
+);
+create index if not exists user_favorites_user_idx
+  on user_favorites(user_id, saved_at desc);
+alter table user_favorites enable row level security;
+
 -- Paid/editorial placement (admin desk, app/admin/highlights/page.js). A row is
 -- one ACTIVE PERIOD, not a toggle — history accrues (new period = new row,
 -- never an update-in-place), so "who was highlighted when" stays auditable.
