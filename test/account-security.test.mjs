@@ -54,3 +54,23 @@ test('costly and writable account paths have account-principal limits', () => {
   assert.match(db, /pg_advisory_xact_lock/);
   assert.match(db, /export async function takeRateSlot/);
 });
+
+test('account authorization rejects revoked sessions, not just valid JWTs', () => {
+  const auth = read('lib/account-auth.js');
+  const db = read('lib/db.js');
+  assert.match(auth, /claims\.session_id/);
+  assert.match(auth, /isActiveAuthSession\(claims\.session_id, claims\.sub\)/);
+  assert.match(db, /FROM auth\.sessions/);
+  assert.match(db, /id=\$\{sessionId\}::uuid AND user_id=\$\{userId\}::uuid/);
+});
+
+test('all account mutation surfaces reject cross-origin browser requests', () => {
+  for (const path of [
+    'app/api/account/login/route.js',
+    'app/api/account/favorites/route.js',
+    'app/api/account/session/route.js',
+    'app/api/events/route.js',
+    'app/api/scan/route.js',
+    'app/api/extract-url/route.js',
+  ]) assert.match(read(path), /isSameOriginMutation\(req\)/, `${path} needs the mutation guard`);
+});

@@ -1160,3 +1160,11 @@ the completion UI then called a helper removed during the viewport-loading refac
 tests and a clean build could not catch that post-response path. **Lesson:** for every live write,
 verify the complete browser story after the server returns success — refresh, selection, toast and
 history — and pin any missing-helper regression in the smallest relevant test.
+
+## 2026-08-30 — A valid JWT is not necessarily an active session
+
+Local signature/expiry verification proves a token was issued, but a signed-out session's access
+token can remain usable until its short expiry. For account writes, bind the JWT `session_id` to a
+current `auth.sessions` row and fail closed when it is gone. The same review exposed a quieter denial
+path: a honeypot checked after global rate limiting lets simple bots consume the real-user quota.
+Reject cross-origin mutations first and return honeypot fake-success before consuming scarce slots.

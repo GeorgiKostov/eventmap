@@ -58,6 +58,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   and keyed by network plus account (and email target for magic links); scan/link provenance is a
   short-lived account-bound HMAC; and community submissions cannot mutate official or other users'
   canonical events. Categories, opening hours, ages and URL credentials are also constrained.
+- The final adversarial pass also verifies the JWT's `session_id` still exists so logout/revocation
+  is immediate, rejects cross-origin login and contribution mutations, moves honeypots ahead of
+  durable quotas, expands SSRF protection across special/private IPv4 and IPv6 space, and adds
+  global anti-framing/MIME/referrer/permission headers. Supabase confirms the private account tables
+  grant neither schema nor table access to `anon`/`authenticated`; FK-covering indexes are applied.
 - Production magic-link delivery/callback/session/resume passes with Resend and a disposable mailbox;
   Google OAuth also returns to Okolo, establishes the session and resumes the add chooser. A real
   favourite write was confirmed directly in the private Supabase table, removed through the UI and

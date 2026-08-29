@@ -38,6 +38,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Adversarially harden the account boundary: close callback redirects, make auth cookies
       HTTP-only, atomically rate-limit by network/account/email target, sign extraction provenance,
       prevent contributors from mutating canonical rows, and whitelist structured submission fields.
+- [x] Run the final independent abuse review: revoked sessions now fail immediately against
+      `auth.sessions`; all login/write routes reject cross-origin browser requests; form-filling
+      honeypots cannot drain real-user quotas; user-supplied URL fetches reject all special/private
+      IPv4/IPv6 ranges while pinning DNS; account tables remain Data-API-inaccessible; and baseline
+      anti-framing, MIME-sniffing, referrer and browser-permission headers ship globally. CAPTCHA is
+      the remaining escalation if observed abuse justifies adding a provider/widget.
 - [x] Redeploy the hardened build and repeat Google/magic-link, favourites and duplicate-submission
       tracking on `www.okolo.events`. Production magic-link and Google callbacks both resume the add
       flow; a favourite was confirmed in and removed from the private table; exact real-event

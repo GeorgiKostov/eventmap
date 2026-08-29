@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '../../../../lib/supabase-server.js';
 import { safeAuthNext } from '../../../../lib/auth-redirect.js';
 import { limit, limitSubject } from '../../../../lib/ratelimit.js';
+import { isSameOriginMutation } from '../../../../lib/request-security.js';
 
 export const dynamic = 'force-dynamic';
 const AUTH_NEXT_COOKIE = 'okolo-auth-next';
@@ -18,11 +19,18 @@ function withAuthNext(response, next, req) {
 }
 
 export async function POST(req) {
+  if (!isSameOriginMutation(req)) {
+    return NextResponse.json({ error: 'Cross-origin request blocked.' }, { status: 403 });
+  }
+  const body = await req.json().catch(() => ({}));
+  const next = safeAuthNext(body.next);
+  // Do this before consuming any durable quota: a naive form-filling bot gets
+  // a plausible success but cannot use the honeypot to deny real users login.
+  if (body.website) return withAuthNext(NextResponse.json({ sent: true }), next, req);
+
   const rl = await limit(req, 'account_login', { perHour: 10, perDay: 30, globalPerDay: 500 });
   if (rl) return NextResponse.json({ error: 'Too many sign-in attempts — try again later.' }, { status: 429 });
 
-  const body = await req.json().catch(() => ({}));
-  const next = safeAuthNext(body.next);
   const callback = new URL('/auth/callback', req.url);
   const supabase = await getSupabaseServerClient();
   if (!supabase) return NextResponse.json({ error: 'Sign-in is not configured.' }, { status: 503 });
@@ -42,9 +50,6 @@ export async function POST(req) {
   if (body.provider !== 'email') {
     return NextResponse.json({ error: 'Unsupported sign-in method.' }, { status: 400 });
   }
-  // Simple form-filling bots get a plausible success without sending mail.
-  if (body.website) return withAuthNext(NextResponse.json({ sent: true }), next, req);
-
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 254) {
     return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });

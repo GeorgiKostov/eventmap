@@ -8,6 +8,8 @@ import { limit, limitSubject } from '../../../lib/ratelimit.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 import { issueIntakeProof } from '../../../lib/intake-proof.js';
 import { splitLocalDateTime } from '../../../lib/event-time.js';
+import { isPublicIp } from '../../../lib/public-ip.js';
+import { isSameOriginMutation } from '../../../lib/request-security.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -52,47 +54,16 @@ function sniffImage(buf) {
 // Covers loopback, RFC1918 private, link-local (incl. IPv6 fe80::/10 and
 // IPv4-mapped ::ffff:), unique-local fc00::/7, CGNAT 100.64/10, and the
 // unspecified/broadcast edges.
-function isPrivateIp(ip) {
-  if (net.isIPv4(ip)) {
-    const p = ip.split('.').map(Number);
-    if (p[0] === 0 || p[0] === 10 || p[0] === 127) return true;
-    if (p[0] === 172 && p[1] >= 16 && p[1] <= 31) return true;
-    if (p[0] === 192 && p[1] === 168) return true;
-    if (p[0] === 169 && p[1] === 254) return true; // link-local
-    if (p[0] === 100 && p[1] >= 64 && p[1] <= 127) return true; // CGNAT
-    if (p[0] >= 224) return true; // multicast + reserved/broadcast
-    return false;
-  }
-  if (net.isIPv6(ip)) {
-    const v = ip.toLowerCase();
-    if (v === '::1' || v === '::') return true;
-    if (/^fe[89ab]/.test(v)) return true; // fe80::/10 link-local (fe80–febf)
-    if (/^f[cd]/.test(v)) return true;     // fc00::/7 unique-local
-    if (v.startsWith('64:ff9b:')) return true; // NAT64 well-known prefix → embedded v4
-    // IPv4-mapped ::ffff:a.b.c.d (dotted) — re-check the embedded v4.
-    let m = v.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-    if (m) return isPrivateIp(m[1]);
-    // IPv4-mapped in hex form ::ffff:7f00:1 — reconstruct the dotted v4.
-    m = v.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
-    if (m) {
-      const hi = parseInt(m[1], 16), lo = parseInt(m[2], 16);
-      return isPrivateIp(`${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`);
-    }
-    return false;
-  }
-  return true; // unparseable → refuse
-}
-
 async function resolvePublicAddr(hostname) {
   // IP literals: check directly. Hostnames: resolve EVERY A/AAAA and reject if
   // any is private, then return one validated address to PIN the connection to.
   if (net.isIP(hostname)) {
-    if (isPrivateIp(hostname)) throw new Error('blocked');
+    if (!isPublicIp(hostname)) throw new Error('blocked');
     return hostname;
   }
   const addrs = await dns.promises.lookup(hostname, { all: true });
   if (!addrs.length) throw new Error('blocked');
-  for (const a of addrs) if (isPrivateIp(a.address)) throw new Error('blocked');
+  for (const a of addrs) if (!isPublicIp(a.address)) throw new Error('blocked');
   return addrs[0].address;
 }
 
@@ -254,6 +225,9 @@ function metaContent(html, prop) {
 }
 
 export async function POST(req) {
+  if (!isSameOriginMutation(req)) {
+    return NextResponse.json({ error: 'Cross-origin request blocked.' }, { status: 403 });
+  }
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
   const account = await currentAccount();
   if (!account) {

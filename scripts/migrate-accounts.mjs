@@ -22,6 +22,7 @@ await sql`
   )
 `;
 await sql`create index if not exists event_contributions_user_idx on event_contributions(user_id, updated_at desc)`;
+await sql`create index if not exists event_contributions_event_idx on event_contributions(event_id)`;
 await sql`alter table event_contributions enable row level security`;
 
 await sql`
@@ -33,6 +34,7 @@ await sql`
   )
 `;
 await sql`create index if not exists user_favorites_user_idx on user_favorites(user_id, saved_at desc)`;
+await sql`create index if not exists user_favorites_event_idx on user_favorites(event_id)`;
 await sql`alter table user_favorites enable row level security`;
 
 const [counts] = await sql`

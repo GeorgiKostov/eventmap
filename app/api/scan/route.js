@@ -8,6 +8,7 @@ import { makeStartsAt } from '../../../lib/event-time.js';
 import { limit, limitSubject } from '../../../lib/ratelimit.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 import { issueIntakeProof } from '../../../lib/intake-proof.js';
+import { isSameOriginMutation } from '../../../lib/request-security.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -33,6 +34,9 @@ function sniffImage(buf) {
 }
 
 export async function POST(req) {
+  if (!isSameOriginMutation(req)) {
+    return NextResponse.json({ error: 'Cross-origin request blocked.' }, { status: 403 });
+  }
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
   const account = await currentAccount();
   if (!account) {

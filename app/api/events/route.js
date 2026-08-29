@@ -13,6 +13,7 @@ import { notifyOperator } from '../../../lib/mail.js';
 import { publicUrl } from '../../../lib/public-url.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 import { verifyIntakeProof } from '../../../lib/intake-proof.js';
+import { isSameOriginMutation } from '../../../lib/request-security.js';
 
 export const dynamic = 'force-dynamic';
 const MESSAGES = {
@@ -209,11 +210,20 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  if (!isSameOriginMutation(req)) {
+    return NextResponse.json({ error: 'Cross-origin request blocked.' }, { status: 403 });
+  }
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
   const account = await currentAccount();
   if (!account) {
     return NextResponse.json({ error: authRequiredMessage(req), code: 'AUTH_REQUIRED' }, { status: 401 });
   }
+  const raw = await req.json().catch(() => null);
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return bad('Invalid submission.');
+  // Honeypot before quota consumption: bots get fake success without spending
+  // the global allowance and denying real customers the ability to publish.
+  if (raw.website) { console.warn('[intake] publish: honeypot tripped (silent fake-ok)'); return NextResponse.json({ ok: true, id: null }); }
+
   // Durable network + account limits survive serverless isolation. The account
   // ceiling follows a user across rotating IPs; the global circuit breaker caps
   // a coordinated flood of otherwise valid entries.
@@ -230,12 +240,6 @@ export async function POST(req) {
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
-  const raw = await req.json().catch(() => null);
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return bad('Invalid submission.');
-  // Honeypot: a hidden "website" field humans never see. Bots that fill it get
-  // a fake success (no row written) so they don't adapt.
-  if (raw.website) { console.warn('[intake] publish: honeypot tripped (silent fake-ok)'); return NextResponse.json({ ok: true, id: null }); }
-
   // Sanitize every free-text field (strip tags/control chars) before anything
   // else looks at it.
   const body = {

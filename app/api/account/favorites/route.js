@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { currentAccount, authRequiredMessage } from '../../../../lib/account-auth.js';
 import { mergeUserFavorites, setUserFavorite, userFavoriteIds } from '../../../../lib/db.js';
 import { limit, limitSubject } from '../../../../lib/ratelimit.js';
+import { isSameOriginMutation } from '../../../../lib/request-security.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +24,9 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  if (!isSameOriginMutation(req)) {
+    return NextResponse.json({ error: 'Cross-origin request blocked.' }, { status: 403 });
+  }
   const { account, response } = await accountOr401(req);
   if (response) return response;
   const rl = await limit(req, 'account_favorite', { perHour: 180, perDay: 1000 })

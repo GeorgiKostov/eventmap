@@ -211,6 +211,8 @@ create table if not exists event_contributions (
 );
 create index if not exists event_contributions_user_idx
   on event_contributions(user_id, updated_at desc);
+create index if not exists event_contributions_event_idx
+  on event_contributions(event_id);
 alter table event_contributions enable row level security;
 
 -- Personal, account-synced favourites. No Data API policy is granted: browser
@@ -224,6 +226,8 @@ create table if not exists user_favorites (
 );
 create index if not exists user_favorites_user_idx
   on user_favorites(user_id, saved_at desc);
+create index if not exists user_favorites_event_idx
+  on user_favorites(event_id);
 alter table user_favorites enable row level security;
 
 -- Paid/editorial placement (admin desk, app/admin/highlights/page.js). A row is

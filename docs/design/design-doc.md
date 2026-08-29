@@ -267,6 +267,9 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
 - Every accepted event upsert records a private contribution row keyed by the Supabase user UUID;
   the account surface lists that user's submitted events. This is ownership/tracking, not public
   organizer verification, and duplicate submissions may point multiple contributors at one event.
+- Authorization requires both a signed, unexpired JWT and its still-active Supabase session. All
+  account mutations are same-origin, private tables are inaccessible through the Data API, and
+  network/account/email/global quotas, honeypots and account-bound extraction proofs bound abuse.
 - The validation slice deliberately has no password, profile, comments, public activity feed,
   gamification or reminder system. Account/favorite/contribution data is processed to provide the
   requested service (GDPR Art. 6(1)(b)); newsletter consent remains separate.
