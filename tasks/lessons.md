@@ -1152,3 +1152,11 @@ authenticated duplicate could fill fields on an official event. IP-only count-th
 also admitted concurrent and rotating-IP bursts. **Lesson:** bind privileged workflow claims to a
 short-lived server signature and the verified account, authorize canonical mutations from explicit
 ownership records, and consume network/account/global quota slots atomically in the database.
+
+## 2026-08-30 — Verify the client after a successful server mutation
+
+A production duplicate submission was safely recorded and the canonical row stayed protected, but
+the completion UI then called a helper removed during the viewport-loading refactor. Static security
+tests and a clean build could not catch that post-response path. **Lesson:** for every live write,
+verify the complete browser story after the server returns success — refresh, selection, toast and
+history — and pin any missing-helper regression in the smallest relevant test.

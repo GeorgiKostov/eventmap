@@ -32,7 +32,7 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   in-app QA browser alone emitted a URL-less MutationObserver instrumentation error around the
   same-origin iframe; no application source uses that API and the page remained fully functional.
 
-## Where things stand (2026-08-29 — account release deployed; adversarial hardening ready)
+## Where things stand (2026-08-30 — hardened account release live and production-verified)
 - George explicitly approved the first account slice despite the earlier validation-phase deferment.
   Supabase Auth now supports Google OAuth and passwordless email magic links; Google has a dedicated
   production OAuth project/client, and Supabase has canonical Okolo plus local callback URLs.
@@ -51,16 +51,29 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   query; the callback is now exact and the validated return intent travels in a ten-minute HTTP-only,
   SameSite=Lax cookie that is deleted after exchange. The account menu/email, empty submission history,
   protected endpoint 401s and synthetic favorite write/read/delete cleanup all pass.
-- Account commit `5427022` is pushed and included in the current production base; signed-out UI/API
-  gates pass. The clean partner-release log scan does not substitute for identity-specific QA.
+- Account commit `5427022` and hardening commit `9a0c6e9` are pushed. Signed-out plus-button gating
+  and all five protected production APIs pass (`401` before extraction or write work).
 - A second adversarial review closed five abuse classes before final identity QA: callback redirects
   now use a closed destination list; server-only Supabase cookies are HTTP-only; quotas are atomic
   and keyed by network plus account (and email target for magic links); scan/link provenance is a
   short-lived account-bound HMAC; and community submissions cannot mutate official or other users'
   canonical events. Categories, opening hours, ages and URL credentials are also constrained.
-- The exact staged hardening snapshot passes 294 tests and the 107-page production build; its atomic
-  limiter passed against Supabase with its synthetic row deleted. Commit/push, hardened deployment,
-  production Google/magic-link/favourite/duplicate-tracking QA, cleanup and live logs remain.
+- Production magic-link delivery/callback/session/resume passes with Resend and a disposable mailbox;
+  Google OAuth also returns to Okolo, establishes the session and resumes the add chooser. A real
+  favourite write was confirmed directly in the private Supabase table, removed through the UI and
+  confirmed gone. The account dialog rendered both test contributions.
+- Two exact submissions of existing real events recorded `merged=true` while the canonical event
+  count, official source and `updated_at` remained unchanged. The first production pass exposed a
+  stale client call to removed `loadEvents()` after the server had already succeeded; commit
+  `13f17d7` replaces it with viewport refresh plus ID hydration and adds a regression test.
+- The exact merged release passes 297 tests and a 109-page production build. Vercel deployment
+  `dpl_FTLveXEwjMXsXyqodQWyi8ReNrT4` is Ready and aliased to `www.okolo.events`; repeated live submit
+  completion passes, and Vercel reports zero production errors. Supabase Auth logs show successful
+  PKCE login/logout/user deletion with empty error fields.
+- Disposable contribution/favourite rows, the Supabase test user, mail.tm mailbox and local temporary
+  credentials were deleted. The Supabase security advisor reports only intentional no-policy RLS
+  notices for the server-only account tables plus leaked-password protection being off; password
+  authentication is not enabled, so that warning does not apply to the Google/magic-link slice.
 - Unrelated live-GPS and festival work is concurrently present in the worktree and must be preserved.
 
 ## Where things stand (2026-08-23 — adversarial crawler audit and bounded Sofia refresh)

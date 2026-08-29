@@ -38,8 +38,13 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Adversarially harden the account boundary: close callback redirects, make auth cookies
       HTTP-only, atomically rate-limit by network/account/email target, sign extraction provenance,
       prevent contributors from mutating canonical rows, and whitelist structured submission fields.
-- [ ] Redeploy the hardened build and repeat Google/magic-link, favourites and duplicate-submission
-      tracking on `www.okolo.events`; remove the disposable mailbox/user and scan live error logs.
+- [x] Redeploy the hardened build and repeat Google/magic-link, favourites and duplicate-submission
+      tracking on `www.okolo.events`. Production magic-link and Google callbacks both resume the add
+      flow; a favourite was confirmed in and removed from the private table; exact real-event
+      duplicates recorded `merged=true` without changing or multiplying canonical rows; account
+      history rendered both contributions. Browser QA caught and fixed the stale `loadEvents()`
+      completion call before final release. Disposable contribution rows, Supabase user, mailbox and
+      local credentials were deleted, and Vercel/Auth logs contain no runtime errors.
 
 ## Adversarial crawler + Sofia check (2026-08-23)
 - [x] Run the official Visit Sofia JEvents adapter in strict structured mode with all external-model
