@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
 import {
-  getEvent, publishedEventsPage, upsertEvent, updateEventFields, viennaNow,
+  getEvent, publishedEventsPage, upsertEvent, updateOwnedEventFields, viennaNow,
   mapPins, mapCells, searchEvents, eventsByIds, dedupCandidates, relatedUpcomingEvents,
   recordEventContribution,
 } from '../../../lib/db.js';
 import { geocodeEvent } from '../../../lib/geocode.js';
 import { findDuplicate, mergePlan } from '../../../lib/dedup.js';
 import { cleanText } from '../../../lib/entities.js';
-import { limit } from '../../../lib/ratelimit.js';
+import { limit, limitSubject } from '../../../lib/ratelimit.js';
 import { spamReason, sanitizeText, submissionProblem } from '../../../lib/moderation.js';
 import { notifyOperator } from '../../../lib/mail.js';
 import { publicUrl } from '../../../lib/public-url.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
+import { verifyIntakeProof } from '../../../lib/intake-proof.js';
 
 export const dynamic = 'force-dynamic';
 const MESSAGES = {
@@ -40,6 +41,33 @@ const ZOOM_TIER = 11.5; // >= pins, < cells (HANDOFF 12.0-12.6 crossfade band)
 // needed (≥2 points within its 48px radius). Well under mapPins' LIMIT 800,
 // so the switch can never truncate.
 const SPARSE_PINS_MAX = 50;
+const EVENT_CATS = new Set(['family', 'festival', 'market', 'music', 'party', 'culture', 'food', 'sport', 'workshop']);
+const PLACE_CATS = new Set(['playground', 'pool', 'park', 'trail', 'indoor_play', 'museum', 'zoo', 'climbing']);
+const HOUR_RE = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+function cleanOpeningHours(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  if (value.always === true) return { always: true };
+  const clean = {};
+  for (const day of DAYS) {
+    if (value[day] == null) continue;
+    if (!Array.isArray(value[day]) || value[day].length > 2) return null;
+    const ranges = [];
+    for (const range of value[day]) {
+      if (!Array.isArray(range) || range.length !== 2 || !HOUR_RE.test(range[0]) || !HOUR_RE.test(range[1]) || range[0] >= range[1]) return null;
+      ranges.push([range[0], range[1]]);
+    }
+    if (ranges.length) clean[day] = ranges;
+  }
+  return Object.keys(clean).length ? clean : null;
+}
+
+function boundedAge(value) {
+  if (value == null || value === '') return null;
+  const age = Number(value);
+  return Number.isFinite(age) && age >= 0 && age <= 120 ? age : null;
+}
 
 function bad(msg) {
   return NextResponse.json({ error: msg }, { status: 400 });
@@ -186,24 +214,24 @@ export async function POST(req) {
   if (!account) {
     return NextResponse.json({ error: authRequiredMessage(req), code: 'AUTH_REQUIRED' }, { status: 401 });
   }
-  // Durable per-IP-hash rate limit (the old in-memory Map didn't survive
-  // serverless isolation). Community submissions: 5/hour, 15/day per IP,
-  // 150/day across everyone (a flood of "valid" entries is itself abuse).
-  // POST-LAUNCH (advertised 2026-07-13): cap at 20/hr per IP while monitoring for
-  // abuse; was 50/hr during testing, 5/hr originally.
-  const rl = await limit(req, 'submit', { perHour: 20, perDay: 200, globalPerDay: 500 });
+  // Durable network + account limits survive serverless isolation. The account
+  // ceiling follows a user across rotating IPs; the global circuit breaker caps
+  // a coordinated flood of otherwise valid entries.
+  const rl = await limit(req, 'submit', { perHour: 20, perDay: 200, globalPerDay: 150 })
+    || await limitSubject('account', account.id, 'submit_account', { perHour: 5, perDay: 20 });
   if (rl) {
     console.warn(`[intake] publish: rate-limited (scope=${rl.scope} window=${rl.window})`);
     return NextResponse.json({
       error: messages.limited,
       code: 'RATE_LIMITED',
       rateLimit: {
-        action: 'publish', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 20, perDay: 200,
+        action: 'publish', scope: rl.scope === 'global' ? 'service' : rl.scope === 'ip' ? 'network' : 'account', window: rl.window,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: rl.scope === 'ip' ? 20 : 5, perDay: rl.scope === 'ip' ? 200 : 20,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
-  const raw = await req.json();
+  const raw = await req.json().catch(() => null);
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return bad('Invalid submission.');
   // Honeypot: a hidden "website" field humans never see. Bots that fill it get
   // a fake success (no row written) so they don't adapt.
   if (raw.website) { console.warn('[intake] publish: honeypot tripped (silent fake-ok)'); return NextResponse.json({ ok: true, id: null }); }
@@ -218,17 +246,32 @@ export async function POST(req) {
     address: sanitizeText(raw.address, 200),
     town: sanitizeText(raw.town, 80),
   };
-  // Link-pipeline submissions carry the page they were extracted from — keep it
-  // as the linkback (facts + source_url doctrine). Only http(s); anything else
-  // is dropped rather than trusted.
+  // Linkback/photo provenance is trusted only when the corresponding extraction
+  // endpoint signed it for this account. Direct API callers cannot forge an
+  // “AI-vetted” submission by inventing source_url or photo_path.
   let sourceUrl = null;
   if (typeof raw.source_url === 'string') {
     try {
       const u = new URL(raw.source_url.trim());
-      if (u.protocol === 'http:' || u.protocol === 'https:') sourceUrl = u.href.slice(0, 500);
+      if ((u.protocol === 'http:' || u.protocol === 'https:') && !u.username && !u.password) sourceUrl = u.href.slice(0, 500);
     } catch { /* not a URL → no linkback */ }
   }
+  const rawPhotoPath = typeof raw.photo_path === 'string' && /^scan-\d+\.(?:jpg|png|webp|gif)$/.test(raw.photo_path)
+    ? raw.photo_path
+    : null;
+  const trustedPhoto = rawPhotoPath && verifyIntakeProof(raw.intake_proof, account.id, 'photo', rawPhotoPath)
+    ? rawPhotoPath
+    : null;
+  const trustedSourceUrl = sourceUrl && verifyIntakeProof(raw.intake_proof, account.id, 'link', sourceUrl)
+    ? sourceUrl
+    : null;
   const kind = body.kind === 'place' ? 'place' : 'event';
+  const allowedCats = kind === 'place' ? PLACE_CATS : EVENT_CATS;
+  const categories = Array.isArray(body.categories)
+    ? [...new Set(body.categories.filter((value) => typeof value === 'string' && allowedCats.has(value)))].slice(0, 3)
+    : [];
+  const openingHours = kind === 'place' ? cleanOpeningHours(body.opening_hours) : null;
+  const seasonal = kind === 'place' ? sanitizeText(body.seasonal, 80) : null;
   // Places are evergreen (no date); events still require starts_at.
   if (!body.title || (kind === 'event' && !body.starts_at)) {
     console.warn(`[intake] publish: rejected — missing ${!body.title ? 'title' : 'date'} (kind=${kind})`);
@@ -248,7 +291,7 @@ export async function POST(req) {
   // Basic spam/abuse guard for anonymous content. Scan (photo_path) and link
   // (source_url) submissions are AI-vetted, so only the keyword blocklist applies;
   // hand-typed entries get the full heuristic pass (see spamReason).
-  const strict = !body.photo_path && !sourceUrl;
+  const strict = !trustedPhoto && !trustedSourceUrl;
   const spam = spamReason(body.title, body.description, { strict });
   if (spam) {
     console.warn(`[intake] publish: rejected — spam (${spam}, strict=${strict}) title="${(body.title || '').slice(0, 60)}"`);
@@ -280,9 +323,10 @@ export async function POST(req) {
       title: cleanText(body.title), starts_at: body.starts_at, ends_at, town: cleanText(body.town) || null, lat, lng,
       geo_precision,
       description: body.description || null, address: cleanText(body.address) || null, venue: cleanText(body.venue) || null,
-      is_free: body.is_free ?? null, age_min: body.age_min ?? null, age_max: body.age_max ?? null,
-      indoor: body.indoor ?? null, photo_path: body.photo_path || null,
-      categories: Array.isArray(body.categories) ? body.categories.slice(0, 3) : [],
+      is_free: typeof body.is_free === 'boolean' ? body.is_free : null,
+      age_min: boundedAge(body.age_min), age_max: boundedAge(body.age_max),
+      indoor: typeof body.indoor === 'boolean' ? body.indoor : null, photo_path: trustedPhoto,
+      categories,
     };
     const candidates = await dedupCandidates(
       body.starts_at.slice(0, 10),
@@ -293,11 +337,12 @@ export async function POST(req) {
     const match = findDuplicate(candidate, candidates);
     if (match) {
       const patch = mergePlan(match, candidate);
-      await updateEventFields(match.id, patch);
-      const contributionKind = body.photo_path ? 'photo' : sourceUrl ? 'link' : 'manual';
-      await recordEventContribution(account.id, match.id, contributionKind, { merged: true });
-      console.log(`[intake] publish: MERGED into ${match.id} (fields: ${Object.keys(patch).join(',') || 'none'}) title="${(body.title || '').slice(0, 60)}"`);
-      return NextResponse.json({ ok: true, merged: true, id: match.id, lat: match.lat, lng: match.lng });
+      if (body.lat != null && body.lng != null) Object.assign(patch, { lat, lng, geo_precision });
+      const update = await updateOwnedEventFields(account.id, match.id, patch);
+      const contributionKind = trustedPhoto ? 'photo' : trustedSourceUrl ? 'link' : 'manual';
+      await recordEventContribution(account.id, match.id, contributionKind, { merged: update.protected });
+      console.log(`[intake] publish: ${update.protected ? 'MATCHED protected' : 'UPDATED owned'} ${match.id} title="${(body.title || '').slice(0, 60)}"`);
+      return NextResponse.json({ ok: true, merged: update.protected, updated: update.updated, id: match.id, lat: update.updated ? lat : match.lat, lng: update.updated ? lng : match.lng });
     }
   }
 
@@ -312,24 +357,27 @@ export async function POST(req) {
     venue: body.venue || null,
     address: body.address || null,
     town: body.town || null,
-    categories: Array.isArray(body.categories) ? body.categories.slice(0, 3) : [],
-    is_free: body.is_free ?? null,
-    age_min: body.age_min ?? null,
-    age_max: body.age_max ?? null,
-    indoor: body.indoor ?? null,
-    emoji: body.emoji || '📌',
-    photo_path: body.photo_path || null,
-    opening_hours: kind === 'place' ? (body.opening_hours ?? null) : null,
-    seasonal: kind === 'place' ? (body.seasonal || null) : null,
+    categories,
+    is_free: typeof body.is_free === 'boolean' ? body.is_free : null,
+    age_min: boundedAge(body.age_min),
+    age_max: boundedAge(body.age_max),
+    indoor: typeof body.indoor === 'boolean' ? body.indoor : null,
+    emoji: '📌',
+    photo_path: trustedPhoto,
+    opening_hours: openingHours,
+    seasonal,
     // Genuine public submissions: photo scans carry a photo_path, everything
     // else (typed place/event) is a hand-typed community entry. source_name is
     // left null so the detail view renders a localized "community" label.
-    src_kind: body.photo_path ? 'user_photo' : sourceUrl ? 'user_link' : 'user_manual',
+    src_kind: trustedPhoto ? 'user_photo' : trustedSourceUrl ? 'user_link' : 'user_manual',
     source_name: null,
-    source_url: sourceUrl,
-  });
-  const contributionKind = body.photo_path ? 'photo' : sourceUrl ? 'link' : 'manual';
-  await recordEventContribution(account.id, res.id, contributionKind, { merged: res.updated });
+    source_url: trustedSourceUrl,
+  }, { actorUserId: account.id });
+  const contributionKind = trustedPhoto ? 'photo' : trustedSourceUrl ? 'link' : 'manual';
+  await recordEventContribution(account.id, res.id, contributionKind, { merged: !!res.protected });
+  if (res.protected) {
+    return NextResponse.json({ ok: true, merged: true, id: res.id, lat: res.lat, lng: res.lng });
+  }
 
   // Every community submission goes live immediately — so tell the operator,
   // with a one-click remove link (see /api/admin/remove).
@@ -346,12 +394,12 @@ export async function POST(req) {
       kind === 'event' ? `Datum: ${body.starts_at}` : null,
       `Ort: ${[body.venue, body.address, body.town].filter(Boolean).join(', ') || '—'}`,
       body.description ? `Beschreibung: ${body.description}` : null,
-      `Quelle: ${body.photo_path ? 'Poster-Scan' : sourceUrl ? sourceUrl : 'Formular'}`,
+      `Quelle: ${trustedPhoto ? 'Poster-Scan' : trustedSourceUrl || 'Formular'}`,
       '',
       `Ansehen: ${base}/event/${res.id}`,
       `Entfernen: ${removeUrl}`,
     ].filter(Boolean).join('\n')
   );
-  console.log(`[intake] publish: OK ${res.updated ? 'updated' : 'created'} ${res.id} (kind=${kind}, src=${body.photo_path ? 'user_photo' : sourceUrl ? 'user_link' : 'user_manual'}) title="${(body.title || '').slice(0, 60)}"`);
+  console.log(`[intake] publish: OK ${res.updated ? 'updated' : 'created'} ${res.id} (kind=${kind}, src=${trustedPhoto ? 'user_photo' : trustedSourceUrl ? 'user_link' : 'user_manual'}) title="${(body.title || '').slice(0, 60)}"`);
   return NextResponse.json({ ok: true, id: res.id, updated: res.updated, lat, lng, geo_precision });
 }

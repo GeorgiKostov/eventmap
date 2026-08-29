@@ -4,8 +4,9 @@ import net from 'net';
 import http from 'node:http';
 import https from 'node:https';
 import { extractFromImage, extractSingleFromText } from '../../../lib/extract.js';
-import { limit } from '../../../lib/ratelimit.js';
+import { limit, limitSubject } from '../../../lib/ratelimit.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
+import { issueIntakeProof } from '../../../lib/intake-proof.js';
 import { splitLocalDateTime } from '../../../lib/event-time.js';
 
 export const dynamic = 'force-dynamic';
@@ -31,11 +32,21 @@ const BROWSER_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 const CRAWLER_UA = 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)';
 const FB_HOST = /(^|\.)(facebook\.com|fb\.me|fb\.com|fb\.watch)$/i;
 const MAX_BYTES = 2 * 1024 * 1024;
+const REMOTE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 // Socket inactivity timeout for the page fetch. 20s (not 10s) so a cold
 // serverless container that stalls the socket before the event loop services
 // it doesn't spuriously fail a fetch that is otherwise ~1s — the first-tap
 // flake. Still well under the route's 60s maxDuration.
 const FETCH_TIMEOUT = 20000;
+
+function sniffImage(buf) {
+  if (buf.length < 12) return null;
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'image/png';
+  if (buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP') return 'image/webp';
+  if (buf.slice(0, 4).toString('ascii') === 'GIF8') return 'image/gif';
+  return null;
+}
 
 // Reject anything that isn't a routable public address — the core SSRF guard.
 // Covers loopback, RFC1918 private, link-local (incl. IPv6 fe80::/10 and
@@ -115,7 +126,7 @@ async function safeFetch(rawUrl) {
   // facebook.com, so the whole redirect chain must speak as the crawler.
   const ua = FB_HOST.test(current.hostname) ? CRAWLER_UA : BROWSER_UA;
   for (let hop = 0; hop < 5; hop++) {
-    if (current.protocol !== 'http:' && current.protocol !== 'https:') throw new Error('badUrl');
+    if ((current.protocol !== 'http:' && current.protocol !== 'https:') || current.username || current.password) throw new Error('badUrl');
     const pinned = await resolvePublicAddr(current.hostname);
     const family = net.isIPv6(pinned) ? 6 : 4;
     // node calls lookup either as (err, address, family) or, when opts.all is
@@ -244,7 +255,8 @@ function metaContent(html, prop) {
 
 export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
-  if (!(await currentAccount())) {
+  const account = await currentAccount();
+  if (!account) {
     return NextResponse.json({ error: authRequiredMessage(req), code: 'AUTH_REQUIRED' }, { status: 401 });
   }
 
@@ -257,13 +269,12 @@ export async function POST(req) {
   }
   let parsed;
   try { parsed = new URL(url.trim()); } catch { parsed = null; }
-  if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) {
+  if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') || parsed.username || parsed.password) {
     return NextResponse.json({ error: messages.badUrl }, { status: 400 });
   }
 
-  // POST-LAUNCH (advertised 2026-07-13): cap at 20/hr per IP while monitoring for
-  // abuse; was 50/hr during testing, 4/hr originally.
-  const rl = await limit(req, 'scan', { perHour: 20, perDay: 200, globalPerDay: 500 });
+  const rl = await limit(req, 'scan', { perHour: 20, perDay: 200, globalPerDay: 100 })
+    || await limitSubject('account', account.id, 'scan_account', { perHour: 6, perDay: 20 });
   if (rl) {
     console.warn(`[intake] extract-url: rate-limited (scope=${rl.scope} window=${rl.window})`);
     const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
@@ -271,8 +282,8 @@ export async function POST(req) {
       error: msg,
       code: 'RATE_LIMITED',
       rateLimit: {
-        action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 20, perDay: 200,
+        action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : rl.scope === 'ip' ? 'network' : 'account', window: rl.window,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: rl.scope === 'ip' ? 20 : 6, perDay: rl.scope === 'ip' ? 200 : 20,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
@@ -295,13 +306,20 @@ export async function POST(req) {
 
   // Image URL → run the poster-scan path on the bytes.
   if (contentType.startsWith('image/')) {
+    const mediaType = contentType.split(';')[0].trim();
+    if (!REMOTE_IMAGE_TYPES.has(mediaType)) {
+      res.destroy();
+      return NextResponse.json({ error: messages.failed, fallback: true }, { status: 415 });
+    }
     const { buf, truncated } = await readCapped(res);
     // A truncated image is corrupt bytes — reject rather than feed it to the model.
     if (truncated || !buf.length) {
       console.warn(`[intake] extract-url: image truncated/empty (${buf.length}b) url=${finalUrl.slice(0, 200)}`);
       return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
     }
-    const mediaType = contentType.split(';')[0].trim();
+    if (sniffImage(buf) !== mediaType) {
+      return NextResponse.json({ error: messages.failed, fallback: true }, { status: 415 });
+    }
     try {
       const extraction = await extractFromImage({ base64: buf.toString('base64'), mediaType, geoHint: null });
       if (!extraction?.is_event) {
@@ -309,7 +327,12 @@ export async function POST(req) {
         return NextResponse.json({ error: messages.noEvent, fallback: true }, { status: 422 });
       }
       console.log(`[intake] extract-url: OK via image-scan url=${finalUrl.slice(0, 200)}`);
-      return NextResponse.json({ extraction: { ...extraction, kind: 'event' }, source_url: finalUrl });
+      const sourceUrl = finalUrl.slice(0, 500);
+      return NextResponse.json({
+        extraction: { ...extraction, kind: 'event' },
+        source_url: sourceUrl,
+        intake_proof: issueIntakeProof(account.id, 'link', sourceUrl),
+      });
     } catch (err) {
       console.error(`[intake] extract-url: image path threw (${err?.message}) url=${finalUrl.slice(0, 200)}`);
       return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
@@ -357,7 +380,12 @@ export async function POST(req) {
     if (!extraction.title) extraction.title = metaContent(html, 'og:title') || metaContent(html, 'twitter:title') || '';
     if (extraction.title && (extraction.kind === 'place' || extraction.date_start)) {
       console.log(`[intake] extract-url: OK via JSON-LD url=${finalUrl.slice(0, 200)}`);
-      return NextResponse.json({ extraction, source_url: finalUrl });
+      const sourceUrl = finalUrl.slice(0, 500);
+      return NextResponse.json({
+        extraction,
+        source_url: sourceUrl,
+        intake_proof: issueIntakeProof(account.id, 'link', sourceUrl),
+      });
     }
   }
 
@@ -382,7 +410,12 @@ export async function POST(req) {
       return NextResponse.json({ error: messages.noEvent, fallback: true }, { status: 422 });
     }
     console.log(`[intake] extract-url: OK via AI-text url=${finalUrl.slice(0, 200)}`);
-    return NextResponse.json({ extraction: { ...extraction, kind: 'event' }, source_url: finalUrl });
+    const sourceUrl = finalUrl.slice(0, 500);
+    return NextResponse.json({
+      extraction: { ...extraction, kind: 'event' },
+      source_url: sourceUrl,
+      intake_proof: issueIntakeProof(account.id, 'link', sourceUrl),
+    });
   } catch (err) {
     console.error(`[intake] extract-url: AI text path threw (${err?.message}) url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });

@@ -7,9 +7,11 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), '
 
 test('auth callback only accepts same-site relative return paths', () => {
   assert.equal(safeAuthNext('/?add=1'), '/?add=1');
-  assert.equal(safeAuthNext('/events/linz'), '/events/linz');
+  assert.equal(safeAuthNext('/'), '/');
+  assert.equal(safeAuthNext('/events/linz'), '/');
   assert.equal(safeAuthNext('https://evil.example'), '/');
   assert.equal(safeAuthNext('//evil.example'), '/');
+  assert.equal(safeAuthNext('/\\evil.example'), '/');
   assert.equal(safeAuthNext(null), '/');
 });
 
@@ -47,8 +49,8 @@ test('submissions are tracked separately on both merge and upsert paths', () => 
   const route = read('app/api/events/route.js');
   const calls = route.match(/recordEventContribution\(/g) || [];
   assert.equal(calls.length, 2);
-  assert.match(route, /recordEventContribution\(account\.id, match\.id,[\s\S]*merged: true/);
-  assert.match(route, /recordEventContribution\(account\.id, res\.id,[\s\S]*merged: res\.updated/);
+  assert.match(route, /recordEventContribution\(account\.id, match\.id,[\s\S]*merged: update\.protected/);
+  assert.match(route, /recordEventContribution\(account\.id, res\.id,[\s\S]*merged: !!res\.protected/);
 });
 
 test('account tables remain provider-neutral and private', () => {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { currentAccount, authRequiredMessage } from '../../../../lib/account-auth.js';
 import { mergeUserFavorites, setUserFavorite, userFavoriteIds } from '../../../../lib/db.js';
-import { limit } from '../../../../lib/ratelimit.js';
+import { limit, limitSubject } from '../../../../lib/ratelimit.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +25,8 @@ export async function GET(req) {
 export async function POST(req) {
   const { account, response } = await accountOr401(req);
   if (response) return response;
-  const rl = await limit(req, 'account_favorite', { perHour: 180, perDay: 1000 });
+  const rl = await limit(req, 'account_favorite', { perHour: 180, perDay: 1000 })
+    || await limitSubject('account', account.id, 'account_favorite_user', { perHour: 180, perDay: 300 });
   if (rl) return NextResponse.json({ error: 'Too many actions — try again later.' }, { status: 429 });
 
   const body = await req.json().catch(() => ({}));

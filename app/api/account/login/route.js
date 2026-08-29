@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '../../../../lib/supabase-server.js';
 import { safeAuthNext } from '../../../../lib/auth-redirect.js';
-import { limit } from '../../../../lib/ratelimit.js';
+import { limit, limitSubject } from '../../../../lib/ratelimit.js';
 
 export const dynamic = 'force-dynamic';
 const AUTH_NEXT_COOKIE = 'okolo-auth-next';
@@ -32,18 +32,40 @@ export async function POST(req) {
       provider: 'google',
       options: { redirectTo: callback.toString(), skipBrowserRedirect: true },
     });
-    if (error || !data?.url) return NextResponse.json({ error: error?.message || 'Could not start Google sign-in.' }, { status: 502 });
+    if (error || !data?.url) {
+      console.error(`[auth] Google OAuth start failed (${error?.code || 'provider_error'})`);
+      return NextResponse.json({ error: 'Could not start Google sign-in.' }, { status: 502 });
+    }
     return withAuthNext(NextResponse.json({ url: data.url }), next, req);
   }
+
+  if (body.provider !== 'email') {
+    return NextResponse.json({ error: 'Unsupported sign-in method.' }, { status: 400 });
+  }
+  // Simple form-filling bots get a plausible success without sending mail.
+  if (body.website) return withAuthNext(NextResponse.json({ sent: true }), next, req);
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
   if (!/^\S+@\S+\.\S+$/.test(email) || email.length > 254) {
     return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400 });
   }
+  // Stop a bot rotating networks to repeatedly send mail to one victim. The
+  // target is stored only as a salted opaque hash, never as an email address.
+  const targetLimit = await limitSubject('login-email', email, 'account_login_email', {
+    perHour: 3,
+    perDay: 8,
+    globalPerDay: 200,
+  });
+  if (targetLimit) {
+    return NextResponse.json({ error: 'Too many sign-in attempts — try again later.' }, { status: 429 });
+  }
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: callback.toString(), shouldCreateUser: true },
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 502 });
+  if (error) {
+    console.error(`[auth] magic-link start failed (${error.code || 'provider_error'})`);
+    return NextResponse.json({ error: 'Could not send the sign-in link.' }, { status: 502 });
+  }
   return withAuthNext(NextResponse.json({ sent: true }), next, req);
 }

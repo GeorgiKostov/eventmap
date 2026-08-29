@@ -29,9 +29,11 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       Resend reports the magic link delivered, and a synthetic favorite write/read/delete passed
       with cleanup. No fabricated event was published. The test caught and fixed a query-bearing
       callback allow-list mismatch by moving return intent into a short-lived HTTP-only cookie.
-- [ ] Repeat the Google/magic-link callback test on `www.okolo.events`. Account commit `5427022` is
-      now the production base and the partner release produced a clean error-log scan, but that does
-      not substitute for the separate live identity callback test.
+- [x] Adversarially harden the account boundary: close callback redirects, make auth cookies
+      HTTP-only, atomically rate-limit by network/account/email target, sign extraction provenance,
+      prevent contributors from mutating canonical rows, and whitelist structured submission fields.
+- [ ] Redeploy the hardened build and repeat Google/magic-link, favourites and duplicate-submission
+      tracking on `www.okolo.events`; remove the disposable mailbox/user and scan live error logs.
 
 ## Adversarial crawler + Sofia check (2026-08-23)
 - [x] Run the official Visit Sofia JEvents adapter in strict structured mode with all external-model

@@ -5,6 +5,7 @@ import { X } from '@phosphor-icons/react';
 
 export default function AccountDialog({ open, onClose, onSignedOut, account, resumeAdd, t }) {
   const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
@@ -53,7 +54,7 @@ export default function AccountDialog({ open, onClose, onSignedOut, account, res
     try {
       const res = await fetch('/api/account/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: normalized, next: resumeAdd ? '/?add=1' : '/' }),
+        body: JSON.stringify({ provider: 'email', email: normalized, website, next: resumeAdd ? '/?add=1' : '/' }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t.requestFailed);
@@ -113,6 +114,7 @@ export default function AccountDialog({ open, onClose, onSignedOut, account, res
             </button>
             <div className="account-divider"><span>{t.or}</span></div>
             <form onSubmit={sendMagicLink}>
+              <input type="text" name="website" value={website} onChange={(e) => setWebsite(e.target.value)} className="hp-field" tabIndex={-1} autoComplete="off" aria-hidden="true" />
               <label className="nl-label" htmlFor="account-email">{t.email}</label>
               <input id="account-email" className="nl-input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.emailPlaceholder} />
               <button type="submit" className="nl-submit" disabled={busy || !email.trim()}>{busy ? t.nlSending : t.sendMagicLink}</button>

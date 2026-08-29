@@ -5,8 +5,9 @@ import { extractFromImage } from '../../../lib/extract.js';
 import { dedupCandidates } from '../../../lib/db.js';
 import { findDuplicate } from '../../../lib/dedup.js';
 import { makeStartsAt } from '../../../lib/event-time.js';
-import { limit } from '../../../lib/ratelimit.js';
+import { limit, limitSubject } from '../../../lib/ratelimit.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
+import { issueIntakeProof } from '../../../lib/intake-proof.js';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -33,14 +34,14 @@ function sniffImage(buf) {
 
 export async function POST(req) {
   const messages = MESSAGES[req.headers.get('x-okolo-lang')] || MESSAGES.en;
-  if (!(await currentAccount())) {
+  const account = await currentAccount();
+  if (!account) {
     return NextResponse.json({ error: authRequiredMessage(req), code: 'AUTH_REQUIRED' }, { status: 401 });
   }
-  // Each scan calls an LLM ($$), so cap it hard: 4/hour + 10/day per IP hash,
-  // and a global 100/day circuit-breaker to bound worst-case cost/abuse.
-  // POST-LAUNCH (advertised 2026-07-13): cap at 20/hr per IP while monitoring for
-  // abuse; was 50/hr during testing, 4/hr originally.
-  const rl = await limit(req, 'scan', { perHour: 20, perDay: 200, globalPerDay: 500 });
+  // Network + account limits make both ordinary bursts and rotating-IP abuse
+  // expensive, while the global breaker bounds worst-case model spend.
+  const rl = await limit(req, 'scan', { perHour: 20, perDay: 200, globalPerDay: 100 })
+    || await limitSubject('account', account.id, 'scan_account', { perHour: 6, perDay: 20 });
   if (rl) {
     console.warn(`[intake] scan: rate-limited (scope=${rl.scope} window=${rl.window})`);
     const msg = rl.scope === 'global' ? messages.globalLimit : messages.limit;
@@ -48,8 +49,8 @@ export async function POST(req) {
       error: msg,
       code: 'RATE_LIMITED',
       rateLimit: {
-        action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : 'network', window: rl.window,
-        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: 20, perDay: 200,
+        action: 'ai_intake', scope: rl.scope === 'global' ? 'service' : rl.scope === 'ip' ? 'network' : 'account', window: rl.window,
+        ...(rl.scope === 'global' ? {} : { max: rl.max }), perHour: rl.scope === 'ip' ? 20 : 6, perDay: rl.scope === 'ip' ? 200 : 20,
       },
     }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   }
@@ -110,7 +111,12 @@ export async function POST(req) {
     }
 
     console.log(`[intake] scan: OK is_event=${extraction?.is_event} title=${(extraction?.title || '').slice(0, 60)}${duplicate ? ' (dup of ' + duplicate.id + ')' : ''}`);
-    return NextResponse.json({ extraction, photo_path: name, duplicate });
+    return NextResponse.json({
+      extraction,
+      photo_path: name,
+      intake_proof: issueIntakeProof(account.id, 'photo', name),
+      duplicate,
+    });
   } catch (err) {
     console.error(`[intake] scan: extraction threw (${err?.message || err})`);
     return NextResponse.json(

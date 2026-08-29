@@ -976,6 +976,7 @@ export default function Home() {
   const [scanErr, setScanErr] = useState('');
   const [draft, setDraft] = useState(null);
   const [photoPath, setPhotoPath] = useState(null);
+  const [intakeProof, setIntakeProof] = useState(null);
   const [urlInput, setUrlInput] = useState(''); // intake: paste-a-link field
   const [mapPick, setMapPick] = useState(false); // location picking happens on the MAIN map
   const [refine, setRefine] = useState(null); // pending low-precision publish awaiting pin refine
@@ -2277,8 +2278,8 @@ export default function Home() {
   // image → scan) + a paste-a-link field (→ /api/extract-url) + "type it in
   // manually". Every input converges on the shared confirm screen.
   function openCapture() {
-    setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setManualEntry(false);
-    setMapPick(false); setUrlInput(''); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
+    setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setPhotoPath(null); setManualEntry(false);
+    setMapPick(false); setUrlInput(''); setRefine(null); setIntakeProof(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
   }
   function requestOpenCapture() {
     if (account) { openCapture(); return; }
@@ -2309,7 +2310,7 @@ export default function Home() {
   // flow, just pre-seeded with empty fields and skipping the photo/extraction
   // steps. Defaults to an event; the Event|Place switch flips draft.kind.
   function openManualAdd() {
-    setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setManualEntry(true);
+    setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setIntakeProof(null); setManualEntry(true);
     setMapPick(false); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
     setDraft({
       kind: 'event', title: '', date_start: todayStr(), time_start: '', date_end: '', time_end: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
@@ -2365,6 +2366,7 @@ export default function Home() {
       if (!res.ok || !data.extraction) {
         setScanErr(t.scanFallbackManual);
         setPhotoPath(data.photo_path || null);
+        setIntakeProof(null);
         setDupNotice(null);
         setManualEntry(true);
         setDraft({
@@ -2381,6 +2383,7 @@ export default function Home() {
       // nudge and let the user complete whatever the AI couldn't read.
       if (!x.is_event) setScanErr(t.noEventDetected);
       setPhotoPath(data.photo_path);
+      setIntakeProof(data.intake_proof || null);
       setDupNotice(data.duplicate || null);
       setDraft({
         kind: 'event',
@@ -2404,6 +2407,7 @@ export default function Home() {
       // fall through to the manual form rather than bouncing back to the start.
       setScanErr(t.scanFallbackManual);
       setPhotoPath(null);
+      setIntakeProof(null);
       setManualEntry(true);
       setDraft({
         kind: 'event', title: '', date_start: '', time_start: '', date_end: '', time_end: '',
@@ -2432,7 +2436,7 @@ export default function Home() {
       if (!res.ok) { setScanErr(data.error || t.extractionFailed); setScanState('pick'); return; }
       const x = data.extraction;
       const place = x.kind === 'place';
-      setPhotoPath(null); setDupNotice(null);
+      setPhotoPath(null); setIntakeProof(data.intake_proof || null); setDupNotice(null);
       setDraft({
         kind: place ? 'place' : 'event',
         title: x.title || '',
@@ -2552,6 +2556,7 @@ export default function Home() {
           ...coordsPatch,
         };
     if (draft.source_url) body.source_url = draft.source_url; // link-pipeline linkback
+    if (intakeProof) body.intake_proof = intakeProof;
     body.website = draft.website || ''; // honeypot — server rejects if filled
     try {
       const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify(body) });

@@ -23,7 +23,7 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   partner/day filters, zero-overflow checks and browser-console checks pass. `/aecfestival` returns
   404 and the post-deploy error log scan is clean.
 
-## Where things stand (2026-08-29 — account-gated contributions live; identity smoke test pending)
+## Where things stand (2026-08-29 — account release deployed; adversarial hardening ready)
 - George explicitly approved the first account slice despite the earlier validation-phase deferment.
   Supabase Auth now supports Google OAuth and passwordless email magic links; Google has a dedicated
   production OAuth project/client, and Supabase has canonical Okolo plus local callback URLs.
@@ -42,9 +42,17 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   query; the callback is now exact and the validated return intent travels in a ten-minute HTTP-only,
   SameSite=Lax cookie that is deleted after exchange. The account menu/email, empty submission history,
   protected endpoint 401s and synthetic favorite write/read/delete cleanup all pass.
-- The account slice is committed as `5427022` and is now the production base. Production callback QA
-  for Google and magic-link sign-in remains outstanding; the clean partner-release log scan does not
-  substitute for that identity-specific test.
+- Account commit `5427022` is pushed and included in the current production base; signed-out UI/API
+  gates pass. The clean partner-release log scan does not substitute for identity-specific QA.
+- A second adversarial review closed five abuse classes before final identity QA: callback redirects
+  now use a closed destination list; server-only Supabase cookies are HTTP-only; quotas are atomic
+  and keyed by network plus account (and email target for magic links); scan/link provenance is a
+  short-lived account-bound HMAC; and community submissions cannot mutate official or other users'
+  canonical events. Categories, opening hours, ages and URL credentials are also constrained.
+- The exact staged hardening snapshot passes 294 tests and the 107-page production build; its atomic
+  limiter passed against Supabase with its synthetic row deleted. Commit/push, hardened deployment,
+  production Google/magic-link/favourite/duplicate-tracking QA, cleanup and live logs remain.
+- Unrelated live-GPS and festival work is concurrently present in the worktree and must be preserved.
 
 ## Where things stand (2026-08-23 — adversarial crawler audit and bounded Sofia refresh)
 - A credentials-blank, `--mode structured` crawl of the canonical official Visit Sofia JEvents

@@ -1136,3 +1136,12 @@ A transport failure and a deterministic parser that found candidates but could s
 to advance crawl state; the next run could then skip a source that had never succeeded. **Lesson:**
 only a completed content decision may stamp validators, stats and `last_crawled`. Transport,
 provider and downstream write failures stay due, and a systemic batch of them must fail the job.
+
+## 2026-08-29 — Authentication is not authorization for provenance or canonical edits
+
+Requiring a valid account closed anonymous writes but did not make client fields trustworthy: a
+caller could invent `photo_path` or `source_url` to claim the lenient extracted-content path, and an
+authenticated duplicate could fill fields on an official event. IP-only count-then-insert limits
+also admitted concurrent and rotating-IP bursts. **Lesson:** bind privileged workflow claims to a
+short-lived server signature and the verified account, authorize canonical mutations from explicit
+ownership records, and consume network/account/global quota slots atomically in the database.
