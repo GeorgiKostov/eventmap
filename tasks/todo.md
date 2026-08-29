@@ -2,6 +2,17 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Public festival-partner demonstration (2026-08-29)
+- [x] Build a fictional, self-contained `/partners/demo` route with an original sample identity,
+      partner/day filters, branded event states, nearby-event context, a direct contact action and
+      privacy-safe measurement hooks. Keep the page out of search indexes and production event data.
+- [x] Produce desktop/mobile screenshots and an eight-slide customer presentation. Keep the
+      uncommissioned Ars Electronica concept and its screenshots local/private; do not deploy its
+      route or present it as a real affiliation.
+- [x] Deploy the public fictional demo from the current production base. Deployment
+      `dpl_9XZLLbtSjTWo8u7FZi3BwTtN62pQ` is live at `www.okolo.events/partners/demo`; desktop and
+      390 px mobile QA pass, `/aecfestival` returns 404, and the production error-log scan is clean.
+
 ## Account-gated contributions and synced saves (2026-08-29)
 - [x] Add Supabase Auth with Google OAuth and email magic links. Google uses the dedicated
       `okolo-events-auth` project; Supabase has the production/local callback allow-list and Resend
@@ -18,9 +29,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       Resend reports the magic link delivered, and a synthetic favorite write/read/delete passed
       with cleanup. No fabricated event was published. The test caught and fixed a query-bearing
       callback allow-list mismatch by moving return intent into a short-lived HTTP-only cookie.
-- [ ] Before production release, deploy manually and repeat the Google/magic-link callback test on
-      `www.okolo.events` plus a clean error-log scan. Both public Supabase variables are already
-      provisioned for Vercel Production; no deployment was triggered.
+- [ ] Repeat the Google/magic-link callback test on `www.okolo.events`. Account commit `5427022` is
+      now the production base and the partner release produced a clean error-log scan, but that does
+      not substitute for the separate live identity callback test.
 
 ## Adversarial crawler + Sofia check (2026-08-23)
 - [x] Run the official Visit Sofia JEvents adapter in strict structured mode with all external-model

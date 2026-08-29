@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Sample Festival demo mark</title>
+  <desc id="desc">An original abstract festival mark made from a location pin, a sun and two river lines.</desc>
+  <rect width="160" height="160" rx="38" fill="#212b28"/>
+  <circle cx="80" cy="58" r="24" fill="#f7c451"/>
+  <path d="M80 25c-28 0-50 21-50 48 0 35 50 69 50 69s50-34 50-69c0-27-22-48-50-48Zm0 25a23 23 0 1 1 0 46 23 23 0 0 1 0-46Z" fill="#fff" fill-rule="evenodd"/>
+  <path d="M44 111c14-8 26-8 38 0s24 8 36 0" fill="none" stroke="#c93a5b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M47 127c12-6 23-6 34 0s22 6 33 0" fill="none" stroke="#f7c451" stroke-width="5" stroke-linecap="round"/>
+</svg>
+

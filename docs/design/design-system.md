@@ -116,6 +116,17 @@ approx halo. **Selection is the only thing allowed to add a ring/scale.**
 - **Vienna wall-clock** for every now/today/expiry/bucket computation (`viennaNow()` server-side;
   `Intl` with `timeZone:'Europe/Vienna'` client-side).
 
+### Public partner demonstrations
+
+- A public sales demo must identify itself as fictional and use an original placeholder identity;
+  never publish an organizer's name, logo or artwork without written permission.
+- Keep sample events self-contained and separate from production APIs and the event database. A
+  direct-share demo is `noindex, nofollow` and must not create or mutate real events.
+- Partner emphasis may appear in the page header, event list and detail card. Category remains the
+  map pin's primary meaning; a partner-only filter supplies the explicit festival lens.
+- Reuse the normal Okolo type, spacing, category and interaction vocabulary so the demo represents
+  a credible extension of the product rather than a separate microsite theme.
+
 ## Interaction principles (from lessons.md — keep)
 
 - **One control, one meaning** — don't overload a control with a second job to save space.

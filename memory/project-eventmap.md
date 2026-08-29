@@ -9,7 +9,21 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-29 — account-gated contributions ready for live identity smoke test)
+## Where things stand (2026-08-29 — fictional partner showcase live)
+- A public, direct-share `/partners/demo` sales page now demonstrates a dedicated festival URL,
+  original sample identity, partner-only and day filters, branded list/detail states, nearby-event
+  context and a contact action. Its six festival and two nearby entries are clearly fictional,
+  self-contained client data; the route is `noindex, nofollow` and never touches production events.
+- Desktop and 390 px mobile browser QA pass with no overflow or console warnings/errors. The
+  partner-only control exposes/hides the two nearby sample events as designed. The customer deck and
+  private AEC concept screenshots are local artifacts; the uncommissioned AEC route is not included
+  in the public release and real partner branding remains permission-gated.
+- Vercel production deployment `dpl_9XZLLbtSjTWo8u7FZi3BwTtN62pQ` is Ready and aliased to
+  `www.okolo.events`. Live HTML returns 200 with `noindex, nofollow`; desktop and 390 px mobile QA,
+  partner/day filters, zero-overflow checks and browser-console checks pass. `/aecfestival` returns
+  404 and the post-deploy error log scan is clean.
+
+## Where things stand (2026-08-29 — account-gated contributions live; identity smoke test pending)
 - George explicitly approved the first account slice despite the earlier validation-phase deferment.
   Supabase Auth now supports Google OAuth and passwordless email magic links; Google has a dedicated
   production OAuth project/client, and Supabase has canonical Okolo plus local callback URLs.
@@ -28,11 +42,9 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   query; the callback is now exact and the validated return intent travels in a ten-minute HTTP-only,
   SameSite=Lax cookie that is deleted after exchange. The account menu/email, empty submission history,
   protected endpoint 401s and synthetic favorite write/read/delete cleanup all pass.
-- All 294 tests and the 108-page production build pass. Vercel Production now has the two public
-  Supabase variables, but no deployment was triggered; production callback QA and logs remain the
-  release step.
-- This account change is local and not committed, pushed or deployed. Unrelated live-GPS and festival
-  work is concurrently present in the worktree and must be preserved.
+- The account slice is committed as `5427022` and is now the production base. Production callback QA
+  for Google and magic-link sign-in remains outstanding; the clean partner-release log scan does not
+  substitute for that identity-specific test.
 
 ## Where things stand (2026-08-23 — adversarial crawler audit and bounded Sofia refresh)
 - A credentials-blank, `--mode structured` crawl of the canonical official Visit Sofia JEvents
