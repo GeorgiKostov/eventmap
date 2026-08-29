@@ -13,8 +13,11 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Deploy the public fictional demo from the current production base. Deployment
       `dpl_9XZLLbtSjTWo8u7FZi3BwTtN62pQ` is live at `www.okolo.events/partners/demo`; desktop and
       390 px mobile QA pass, `/aecfestival` returns 404, and the production error-log scan is clean.
-- [ ] Deploy and verify the new `/partners` HTML showcase on desktop and mobile, including its
-      embedded interactive demo, language controls, CTAs, `noindex` metadata and clean browser logs.
+- [x] Deploy and verify the new `/partners` HTML showcase on desktop and mobile. Production
+      deployment `dpl_6eXo5Bmq7t8HzE2H6GyL79SehwJ4` includes the concurrent account-hardening base;
+      the embedded demo, language controls, CTAs, 390 px layout, `noindex` metadata and server logs
+      pass. The in-app QA browser emitted one URL-less MutationObserver error while instrumenting the
+      same-origin iframe; the application and Vercel logs are clean.
 
 ## Account-gated contributions and synced saves (2026-08-29)
 - [x] Add Supabase Auth with Google OAuth and email magic links. Google uses the dedicated

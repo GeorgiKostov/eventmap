@@ -9,7 +9,7 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-29 — HTML partner showcase ready for release)
+## Where things stand (2026-08-29 — HTML partner showcase live)
 - `/partners` is now the canonical customer presentation: a responsive HTML story with a live
   embedded demo, a simple between-venues use case, six partner features, three pilot layers and a
   direct contact action. It replaces the earlier PowerPoint deliverable and is localized in DE/EN/BG.
@@ -25,6 +25,12 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   `www.okolo.events`. Live HTML returns 200 with `noindex, nofollow`; desktop and 390 px mobile QA,
   partner/day filters, zero-overflow checks and browser-console checks pass. `/aecfestival` returns
   404 and the post-deploy error log scan is clean.
+- The canonical sales URL `www.okolo.events/partners` is live in deployment
+  `dpl_6eXo5Bmq7t8HzE2H6GyL79SehwJ4`, rebased on concurrent account-hardening commit `9a0c6e9`.
+  It returns 200 with `noindex, nofollow`; desktop and 390 px mobile layouts, embedded demo,
+  language switching and zero horizontal overflow pass. Vercel reports no production errors. The
+  in-app QA browser alone emitted a URL-less MutationObserver instrumentation error around the
+  same-origin iframe; no application source uses that API and the page remained fully functional.
 
 ## Where things stand (2026-08-29 — account release deployed; adversarial hardening ready)
 - George explicitly approved the first account slice despite the earlier validation-phase deferment.
