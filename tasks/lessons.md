@@ -1,5 +1,12 @@
 # Lessons
 
+## 2026-08-29 — Partner showcases are web experiences, not slide decks
+
+The first partner package included a PowerPoint even though the product's value is its responsive,
+interactive map. George corrected the format. **Lesson:** make a shareable HTML page the canonical
+sales showcase for Okolo so prospects can use the demo, open it on any screen and produce measurable
+actions. Create a PPTX or PDF only when George explicitly requests a static export.
+
 ## 2026-08-22 — Explicit page requirements come before general visual polish
 
 George asked for the city discovery page to lose its statistics text and gain a visible map button;

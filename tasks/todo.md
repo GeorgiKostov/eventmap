@@ -6,12 +6,15 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Build a fictional, self-contained `/partners/demo` route with an original sample identity,
       partner/day filters, branded event states, nearby-event context, a direct contact action and
       privacy-safe measurement hooks. Keep the page out of search indexes and production event data.
-- [x] Produce desktop/mobile screenshots and an eight-slide customer presentation. Keep the
+- [x] Produce desktop/mobile screenshots and a responsive HTML customer showcase at `/partners`.
+      HTML is the canonical sales format; retire the earlier PowerPoint artifact. Keep the
       uncommissioned Ars Electronica concept and its screenshots local/private; do not deploy its
       route or present it as a real affiliation.
 - [x] Deploy the public fictional demo from the current production base. Deployment
       `dpl_9XZLLbtSjTWo8u7FZi3BwTtN62pQ` is live at `www.okolo.events/partners/demo`; desktop and
       390 px mobile QA pass, `/aecfestival` returns 404, and the production error-log scan is clean.
+- [ ] Deploy and verify the new `/partners` HTML showcase on desktop and mobile, including its
+      embedded interactive demo, language controls, CTAs, `noindex` metadata and clean browser logs.
 
 ## Account-gated contributions and synced saves (2026-08-29)
 - [x] Add Supabase Auth with Google OAuth and email magic links. Google uses the dedicated

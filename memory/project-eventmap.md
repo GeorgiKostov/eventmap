@@ -9,15 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-29 — fictional partner showcase live)
+## Where things stand (2026-08-29 — HTML partner showcase ready for release)
+- `/partners` is now the canonical customer presentation: a responsive HTML story with a live
+  embedded demo, a simple between-venues use case, six partner features, three pilot layers and a
+  direct contact action. It replaces the earlier PowerPoint deliverable and is localized in DE/EN/BG.
 - A public, direct-share `/partners/demo` sales page now demonstrates a dedicated festival URL,
   original sample identity, partner-only and day filters, branded list/detail states, nearby-event
   context and a contact action. Its six festival and two nearby entries are clearly fictional,
   self-contained client data; the route is `noindex, nofollow` and never touches production events.
 - Desktop and 390 px mobile browser QA pass with no overflow or console warnings/errors. The
-  partner-only control exposes/hides the two nearby sample events as designed. The customer deck and
-  private AEC concept screenshots are local artifacts; the uncommissioned AEC route is not included
-  in the public release and real partner branding remains permission-gated.
+  partner-only control exposes/hides the two nearby sample events as designed. Private AEC concept
+  screenshots remain local artifacts; the uncommissioned AEC route is not included in the public
+  release and real partner branding remains permission-gated.
 - Vercel production deployment `dpl_9XZLLbtSjTWo8u7FZi3BwTtN62pQ` is Ready and aliased to
   `www.okolo.events`. Live HTML returns 200 with `noindex, nofollow`; desktop and 390 px mobile QA,
   partner/day filters, zero-overflow checks and browser-console checks pass. `/aecfestival` returns
