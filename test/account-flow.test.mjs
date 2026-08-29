@@ -71,3 +71,11 @@ test('the Add button is account-gated and favourites sync without numeric bigint
   assert.match(favorites, /const id = String\(body\.id \|\| ''\)/);
   assert.doesNotMatch(favorites, /Number\(body\.id/);
 });
+
+test('a successful contribution refreshes the viewport and hydrates merged details', () => {
+  const page = read('app/page.js');
+  const finish = page.slice(page.indexOf('async function finishPublish'), page.indexOf('async function publish'));
+  assert.match(finish, /await fetchViewport\(\)/);
+  assert.doesNotMatch(finish, /loadEvents\(/);
+  assert.match(page, /fetch\(`\/api\/events\?id=\$\{encodeURIComponent\(data\.id\)\}`\)/);
+});

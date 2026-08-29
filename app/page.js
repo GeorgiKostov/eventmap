@@ -2500,10 +2500,9 @@ export default function Home() {
     setCapture(false);
     setManualEntry(false);
     setRefine(null);
-    const freshEvents = await loadEvents();
+    await fetchViewport();
     showToast(t.toastLive);
     setWhenMode('all');
-    return freshEvents;
   }
   async function publish() {
     const isPlace = draft.kind === 'place';
@@ -2565,11 +2564,13 @@ export default function Home() {
       if (!res.ok) throw new Error(data.error || t.saveFailed);
       if (data.merged) {
         // This event was already on the map (crawled elsewhere, or scanned
-        // once before) — our info enriched the existing row instead of
-        // inserting a new one. Focus the map on that (now-enriched) row.
-        const fresh = await finishPublish();
-        const mergedEvent = fresh?.find((ev) => ev.id === data.id) || { id: data.id, lat: data.lat, lng: data.lng };
-        selectRef.current(mergedEvent);
+        // once before). Refresh the viewport and hydrate the canonical row by
+        // ID: React state updates are asynchronous, so a freshly-set events
+        // array is not available synchronously here.
+        await finishPublish();
+        const detailRes = await fetch(`/api/events?id=${encodeURIComponent(data.id)}`);
+        const detail = detailRes.ok ? await detailRes.json() : null;
+        selectRef.current(detail?.event || { id: data.id, lat: data.lat, lng: data.lng });
         return;
       }
       if (data.geo_precision === 'town' && data.lat != null) {
