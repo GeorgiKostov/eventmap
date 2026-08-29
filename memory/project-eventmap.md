@@ -63,6 +63,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   durable quotas, expands SSRF protection across special/private IPv4 and IPv6 space, and adds
   global anti-framing/MIME/referrer/permission headers. Supabase confirms the private account tables
   grant neither schema nor table access to `anon`/`authenticated`; FK-covering indexes are applied.
+- Final hardening commit `bd4e041` is pushed to `main`. The 301-test suite and 109-page build pass;
+  Vercel deployment `dpl_6J1rFwPZ5Nu9j7dmDssK1wszn9xf` is Ready and aliased to `www.okolo.events`.
+  The retained Google account, account dialog and private empty submission history pass after the
+  active-session change; live cross-origin login returns 403, anonymous publish returns 401, all
+  security headers are present, and Vercel plus recent Supabase/Postgres error scans are clean.
 - Production magic-link delivery/callback/session/resume passes with Resend and a disposable mailbox;
   Google OAuth also returns to Okolo, establishes the session and resumes the add chooser. A real
   favourite write was confirmed directly in the private Supabase table, removed through the UI and

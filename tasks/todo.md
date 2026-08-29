@@ -44,6 +44,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       IPv4/IPv6 ranges while pinning DNS; account tables remain Data-API-inaccessible; and baseline
       anti-framing, MIME-sniffing, referrer and browser-permission headers ship globally. CAPTCHA is
       the remaining escalation if observed abuse justifies adding a provider/widget.
+- [x] Deploy the final audit release (`bd4e041`) as Vercel production deployment
+      `dpl_6J1rFwPZ5Nu9j7dmDssK1wszn9xf`. The retained Google session passes the new active-session
+      check, account/submission UI remains private and functional, live cross-origin login is 403,
+      anonymous publish is 401, security headers are present, and Vercel/Supabase error scans are clean.
 - [x] Redeploy the hardened build and repeat Google/magic-link, favourites and duplicate-submission
       tracking on `www.okolo.events`. Production magic-link and Google callbacks both resume the add
       flow; a favourite was confirmed in and removed from the private table; exact real-event
