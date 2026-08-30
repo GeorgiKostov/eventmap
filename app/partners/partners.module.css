@@ -20,15 +20,6 @@
   backdrop-filter: blur(14px);
 }
 
-.wordmark {
-  color: var(--ink);
-  font-size: 28px;
-  font-weight: 850;
-  letter-spacing: -.055em;
-  text-decoration: none;
-}
-
-.wordmark span { color: var(--accent); }
 .navActions, .languages, .heroActions, .heroFacts { display: flex; align-items: center; }
 .navActions { gap: 14px; }
 .languages { gap: 3px; }

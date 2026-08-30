@@ -15,6 +15,7 @@ import {
 } from '@phosphor-icons/react';
 import { track } from '../../lib/analytics.js';
 import { useLanguage } from '../language-provider.js';
+import OkoloBrand from '../okolo-brand.js';
 import styles from './partners.module.css';
 
 const FEATURES = [
@@ -42,7 +43,7 @@ export default function PartnerShowcase() {
   return (
     <main className={styles.page}>
       <header className={styles.nav}>
-        <Link className={styles.wordmark} href="/" aria-label="Okolo">okolo<span>.</span></Link>
+        <OkoloBrand />
         <div className={styles.navActions}>
           <div className={styles.languages} aria-label={t.partnerDemoLanguage}>
             {['de', 'en', 'bg'].map((value) => (

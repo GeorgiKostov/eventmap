@@ -5,11 +5,12 @@
 
 ## Context
 
-The map shell, discovery pages, event landings, weekend issues, legal pages, partner demo and admin
-desks evolved independently. Their top-left identity drifted between no brand text, an arrow plus
-capitalized name, text-only handles and several separately drawn pin lockups. The earlier map-shell
-decision removed brand text to make room for the search-first Google Maps layout; in practice that
-made the primary product surface the exception and let every new page choose its own treatment.
+The map shell, discovery pages, event landings, weekend issues, legal pages, partner sales showcase,
+partner demo and admin desks evolved independently. Their top-left identity drifted between no brand
+text, an arrow plus capitalized name, text-only handles and several separately drawn pin lockups. The
+earlier map-shell decision removed brand text to make room for the search-first Google Maps layout;
+in practice that made the primary product surface the exception and let every new page choose its
+own treatment.
 
 ## Decision
 

@@ -15,6 +15,8 @@ test('partner sales material is a shareable HTML showcase, not a slide download'
   assert.doesNotMatch(showcase, /<iframe/);
   assert.match(showcase, /partner_showcase_view/);
   assert.doesNotMatch(showcase, /\.pptx|powerpoint/i);
+  assert.match(showcase, /<OkoloBrand \/>/);
+  assert.doesNotMatch(showcase, /className=\{styles\.wordmark\}/);
 });
 
 test('map menu links organisers to the partner showcase', () => {

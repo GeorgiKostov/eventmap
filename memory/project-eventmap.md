@@ -12,8 +12,8 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 ## Where things stand (2026-08-30 — one Okolo brand header live across page families)
 - `app/okolo-brand.js` now owns the tokenized raspberry pin, lowercase `okolo.` title, optional
   city-handle suffix and quiet qualifier. The persistent lockup is top-left on the map (desktop and
-  mobile), discovery, event, weekend, legal, partner-demo and admin shells; partner identity remains
-  secondary and event-header tracking/return behavior is unchanged.
+  mobile), discovery, event, weekend, legal, partner-sales, partner-demo and admin shells; partner
+  identity remains secondary and event-header tracking/return behavior is unchanged.
 - The design system and `docs/decisions/2026-08-30-brand-header-consistency.md` make this a binding
   rule that supersedes the old map-only decision to remove brand text. `test/brand-header.test.mjs`
   covers every route family so future pages cannot hand-roll another variant.

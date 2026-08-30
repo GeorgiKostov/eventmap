@@ -1,8 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+
+test('every App Router page enters a shell that owns the shared brand', () => {
+  const pages = readdirSync(new URL('../app/', import.meta.url), { recursive: true })
+    .filter((path) => path.endsWith('page.js'))
+    .map((path) => `app/${path.replaceAll('\\', '/')}`)
+    .sort();
+  const sharedShell = /<(?:OkoloBrand|AdminShell|Home|PartnerShowcase|PartnerDemo|SeoEventPage)(?:\s|\/>)/;
+
+  assert.ok(pages.length > 0);
+  for (const page of pages) {
+    assert.match(read(page), sharedShell, `${page} must enter a shared branded shell`);
+  }
+});
 
 test('one shared tokenized lockup owns the pin, lowercase title, suffix and qualifier', () => {
   const brand = read('app/okolo-brand.js');
@@ -20,6 +33,7 @@ test('map and partner-map families keep the shared brand persistent on desktop a
   const home = read('app/page.js');
   const preview = read('app/aecfestival/page.js');
   const demo = read('app/partners/demo/partner-demo.js');
+  const showcase = read('app/partners/partner-showcase.js');
 
   assert.match(home, /import OkoloBrand from '\.\/okolo-brand\.js'/);
   assert.equal((home.match(/<OkoloBrand channelHandle=\{weekendChannel\?\.handle\}/g) || []).length, 2);
@@ -27,6 +41,8 @@ test('map and partner-map families keep the shared brand persistent on desktop a
   assert.match(preview, /return <Home partnerSlug="aecfestival" \/>/);
   assert.equal((demo.match(/<OkoloBrand qualifier=\{t\.partnerDemoNotice\} \/>/g) || []).length, 2);
   assert.match(demo, /className=\{styles\.mobileBrandTop\}[\s\S]*?<OkoloBrand qualifier=\{t\.partnerDemoNotice\}/);
+  assert.match(showcase, /import OkoloBrand from '\.\.\/okolo-brand\.js'/);
+  assert.match(showcase, /<header className=\{styles\.nav\}>\s*<OkoloBrand \/>/);
 });
 
 test('discovery, event, weekend, legal and admin families all reuse the shared lockup', () => {

@@ -50,6 +50,12 @@ tokens across every visual page shell. Only a controlled city-handle suffix may 
 partner, admin and action context stays secondary. Lock the route-family inventory in a regression
 test so a new page cannot silently invent another header.
 
+The first enforcement test still omitted the public `/partners` sales page, and George found its
+text-only wordmark live after the general pass. **Lesson:** a cross-page rule needs a route inventory
+derived from every visual `app/**/page.js` entry, not a hand-written list of the page families that
+come to mind. When one route is corrected, add it to both the shared-rule test and its own feature
+test.
+
 ## 2026-08-29 — A location puck requires a live watch, not a fresh-looking snapshot
 
 The mobile map used `getCurrentPosition`, so pressing locate could centre on a valid fix while the
