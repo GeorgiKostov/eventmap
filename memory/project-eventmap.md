@@ -9,19 +9,20 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-30 — Austria-only newsletter market implemented locally)
+## Where things stand (2026-08-30 — Austria-only newsletter market live)
 - George set the newsletter market to Austria only while Bulgarian event coverage is not ready.
   Bulgarian and German public pages now replace signup with a localized warning; the map suppresses
   contextual prompts outside Austria and warns on a selected foreign locality.
 - Signup requires a resolved `AT` country and offline `Europe/Vienna` coordinate verification, while
   the admin route, scheduled sender and CLI all reject non-Austrian channels. The existing Plovdiv
   consent row remains stored but is excluded from delivery.
-- The change is local and not committed, pushed or deployed. No subscriber record was changed and no
-  email was sent during verification. All 338 tests and the 111-page production build pass; browser
-  QA confirms one email field and no warning for Linz, versus the warning and no email field for a
-  Plovdiv event, with no browser errors.
+- Commit `2594e5c` is pushed to `main` and production deployment
+  `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe` is Ready and aliased to `okolo.events` / `www.okolo.events`.
+  No subscriber record was changed and no email was sent during verification. All 338 tests and the
+  111-page local/Vercel builds pass; live browser QA confirms one email field and no warning for Linz,
+  versus the warning and no email field for a Plovdiv event, with no browser or Vercel runtime errors.
 
-## Where things stand (2026-08-30 — managed partner-pilot hardening implemented locally)
+## Where things stand (2026-08-30 — managed partner-pilot hardening live)
 - Public map reads now use canonical shared viewport keys, explicit browser/edge caching and no
   Supabase Auth refresh for anonymous GETs. Map SQL returns counts in the main query and aggregates
   reactions only after the 800-row bound; published spatial, source and accent-folded trigram search
@@ -36,12 +37,13 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - `docs/ops/partner-pilot-scaling.md` is the delivery/capacity playbook from signed scope through a
   later regional PMTiles or managed/self-hosted geocoder decision. The first deal stays a managed
   pilot; explicit partner tenancy begins with a second independent customer, not speculatively now.
-- The 111-page production build, all 291 repository tests, responsive partner/map QA and bounded
+- The 111-page production build, all 338 repository tests, responsive partner/map QA and bounded
   local API rehearsals pass. A warmed sequential 20-request local run had zero errors, 175 ms p95 and a
-  66.9 KB average response; local runs do not exercise Vercel's CDN. Application changes are not
-  committed, pushed or deployed. Concurrent newsletter work in the worktree remains untouched.
+  66.9 KB average response. Commit `2594e5c` and production deployment
+  `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe` are live; the canonical map API returns `x-vercel-cache: HIT`,
+  `/partners` renders without overflow or browser errors, and `/aecfestival` remains 404.
 
-## Where things stand (2026-08-30 — guarded automatic Linz newsletter implemented locally)
+## Where things stand (2026-08-30 — guarded automatic Linz newsletter live)
 - George changed the operating call from manual email approval to automatic Thursday delivery. The
   workflow now freshly regenerates Linz at 09:00 UTC and triggers the deployed sender at 14:00 UTC;
   subscriber routing is evaluated then, so only confirmed active Linz addresses receive it. Plovdiv
@@ -50,9 +52,11 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   picks, and every event remains eligible and unchanged. The existing per-recipient ledger is backed
   by a deterministic Resend idempotency key, and the scheduled token cannot force a resend or target
   another city. Social posting stays manual.
-- This change is local and not committed, pushed or deployed. The schedule is not live until the
-  repository workflow is published and the matching production route is manually deployed.
-  All 326 tests and the 111-page production build pass; no subscriber email was sent during QA.
+- The GitHub schedule and production route are live from commit `2594e5c` and deployment
+  `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe`; Vercel has the required admin and mail configuration. All 338
+  tests and the 111-page local/Vercel builds pass, the protected digest route rejects unauthenticated
+  requests, and no subscriber email was sent during QA. The first real Thursday delivery remains an
+  operational verification item.
 
 ## Where things stand (2026-08-30 — one Okolo brand header live across page families)
 - `app/okolo-brand.js` now owns the tokenized raspberry pin, lowercase `okolo.` title, optional

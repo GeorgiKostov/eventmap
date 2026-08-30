@@ -1,6 +1,6 @@
 # Austria-only newsletter market
 
-> Status: approved by George; implemented locally, not yet published · Date: 2026-08-30
+> Status: approved by George; live in production · Date: 2026-08-30
 
 ## Context
 
@@ -26,4 +26,5 @@ yet have the reliable weekly event coverage needed to make a newsletter promise.
 
 The Plovdiv signup remains stored but receives no Bulgarian or Austrian digest. Austrian visitors
 can still choose German or English UI copy; newsletter market and interface language are separate.
-The restriction becomes live only after these application changes are published and deployed.
+The restriction is live from commit `2594e5c`, production deployment
+`dpl_GQaLmghiEApe9uahz7e2HHri6Uqe`.

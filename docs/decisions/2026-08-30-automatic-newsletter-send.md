@@ -1,6 +1,6 @@
 # Automatic Thursday newsletter delivery
 
-> Status: approved by George; implemented locally, not yet published · Date: 2026-08-30
+> Status: approved by George; live in production · Date: 2026-08-30
 
 ## Context
 
@@ -33,5 +33,6 @@ that previously caught removed or changed events.
 
 The desk remains available during the five-hour review window for replacement, reordering, test mail,
 or dropping a pick. If freshness, inventory, eligibility, mail configuration, or delivery fails, the
-workflow fails visibly and no completed-send ledger is written. Automatic delivery becomes live only
-after the repository change is published and the matching application route is manually deployed.
+workflow fails visibly and no completed-send ledger is written. The schedule and matching production
+route went live in commit `2594e5c` and deployment `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe`; the first
+real Thursday run still needs an operational delivery check.

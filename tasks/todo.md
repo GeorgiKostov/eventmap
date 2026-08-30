@@ -11,8 +11,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       and cover country resolution, UI wiring and send guards with regression tests.
 - [x] Verify all 338 tests, the 111-page production build, and the rendered Linz-form versus
       Plovdiv-warning states with no browser errors or email side effects.
-- [ ] Publish and manually deploy when George wants the restriction live; until then production can
-      still expose the previous signup behavior.
+- [x] Publish commit `2594e5c` and deploy `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe`; live Linz/Plovdiv
+      browser QA passes and the production error scan is clean.
 
 ## Managed partner-pilot readiness (2026-08-30)
 - [x] Make public map reads cacheable and shareable across nearby viewports, bypass remote auth work
@@ -26,9 +26,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       demo `noindex` and the map-pin grammar stable.
 - [x] Add the first-customer delivery/scaling runbook and a bounded load-rehearsal script. Verify the
       111-page build, all 291 tests, responsive partner/map surfaces and local API behavior.
-- [ ] Commit/push and manually deploy the application changes when George wants them published; only
-      the new Supabase indexes are live. Then verify Vercel cache hits and run an authorized regional
-      rehearsal before promising a customer capacity or uptime figure.
+- [x] Commit/push and manually deploy the application changes in `2594e5c` / deployment
+      `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe`; the canonical map API returns a warm Vercel cache hit.
+- [ ] Run an authorized regional rehearsal before promising a customer capacity or uptime figure.
 
 ## Automatic Thursday Linz newsletter (2026-08-30)
 - [x] Rebuild a fresh Linz issue at 09:00 UTC and schedule delivery at 14:00 UTC to the confirmed,
@@ -38,10 +38,12 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       deterministic Resend idempotency key for the initial send.
 - [x] Restrict the scheduled bearer token to a non-forced Linz send and cover the freshness gates,
       workflow contract and provider idempotency with regression tests.
-- [x] Verify all 326 tests and the 111-page production build; QA sends no subscriber email.
-- [ ] Publish the repository change and manually deploy the matching application route; auto-send is
-      not live until both sides run the same contract. Then verify the first Thursday workflow result
-      and Resend delivery for the actual confirmed Linz audience.
+- [x] Verify all 338 tests and the 111-page local and Vercel production builds; QA sends no subscriber
+      email.
+- [x] Publish the workflow and matching application route in `2594e5c` / deployment
+      `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe` with the required Vercel mail and admin configuration present.
+- [ ] Verify the first Thursday workflow result and Resend delivery for the actual confirmed Linz
+      audience.
 
 ## Cross-page Okolo brand header (2026-08-30)
 - [x] Replace route-local or missing top-left treatments with one shared Okolo pin + lowercase
