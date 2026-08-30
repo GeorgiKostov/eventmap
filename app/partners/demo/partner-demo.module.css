@@ -82,13 +82,6 @@
 .benefitRail span + span { border-left: 1px solid var(--demo-line); }
 .benefitRail svg { color: var(--demo-accent); }
 
-.marker { position: relative; width: 34px; height: 42px; display: grid; place-items: center; padding: 0 0 7px; border: 0; color: #fff; background: transparent; filter: drop-shadow(0 2px 4px rgba(23,32,28,.28)); }
-.marker::before { content: ''; position: absolute; inset: 0 0 7px; border-radius: 50% 50% 50% 8px; background: var(--pin-color); transform: rotate(-45deg); }
-.marker span { position: relative; z-index: 1; display: grid; place-items: center; }
-.nearbyMarker { opacity: .58; filter: grayscale(.35) drop-shadow(0 2px 4px rgba(23,32,28,.2)); }
-.selectedMarker { transform: scale(1.22); z-index: 2; }
-.selectedMarker::after { content: ''; position: absolute; inset: -5px -4px 2px; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 3px var(--demo-accent); }
-
 .detail { position: absolute; z-index: 4; left: 18px; bottom: 18px; width: min(370px, calc(100% - 36px)); padding: 16px; border: 1px solid rgba(255,255,255,.8); border-radius: 18px; background: rgba(255,255,255,.96); box-shadow: 0 12px 40px rgba(23,32,28,.2); backdrop-filter: blur(10px); }
 .close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #f2f2ee; }
 .detailBrand { display: flex; align-items: center; gap: 7px; color: var(--demo-accent); font-size: 10px; font-weight: 760; text-transform: uppercase; letter-spacing: .04em; }
@@ -116,8 +109,4 @@
   .mobileBrand .mobileFilterActive { color: var(--demo-accent); border-color: var(--demo-accent); background: var(--demo-soft); }
   .detail { left: 10px; bottom: 64px; width: calc(100% - 20px); padding: 14px; }
   .detail h2 { font-size: 19px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .selectedMarker { transform: none; }
 }

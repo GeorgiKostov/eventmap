@@ -24,3 +24,16 @@ test('programme day tabs keep their full height inside the scrolling sidebar', a
 
   assert.match(styles, /\.dayTabs\s*\{[^}]*flex:\s*0 0 auto;/);
 });
+
+test('demo pins render inside MapLibre instead of a drifting DOM marker overlay', async () => {
+  const [client, styles] = await Promise.all([
+    readFile(clientPath, 'utf8'),
+    readFile(stylesPath, 'utf8'),
+  ]);
+
+  assert.doesNotMatch(client, /new maplibregl\.Marker/);
+  assert.match(client, /map\.addSource\(DEMO_SOURCE, \{ type: 'geojson'/);
+  assert.match(client, /id: DEMO_PIN_LAYER,\s*type: 'symbol'/);
+  assert.match(client, /source\.setData\(pins\)/);
+  assert.doesNotMatch(styles, /\.marker\s*\{/);
+});

@@ -5,13 +5,23 @@ import Image from 'next/image';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { ArrowSquareOut, CaretRight, ChartLineUp, Funnel, MapPin, X } from '@phosphor-icons/react';
-import { CatIcon, CATS, catIconSvg } from '../../../lib/icons.js';
+import { CatIcon, CATS, P } from '../../../lib/icons.js';
 import { track } from '../../../lib/analytics.js';
 import { useLanguage } from '../../language-provider.js';
 import styles from './partner-demo.module.css';
 import OkoloBrand from '../../okolo-brand.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+const DEMO_SOURCE = 'partner-demo-pins';
+const DEMO_PIN_LAYER = 'partner-demo-pin-symbols';
+const DEMO_SELECTED_LAYER = 'partner-demo-selected-symbols';
+const DEMO_HALO_LAYER = 'partner-demo-selected-halos';
+const DEMO_PIN_SIZE = 28;
+const DEMO_PIN_PAD = 3;
+const DEMO_PIN_BOX = DEMO_PIN_SIZE + DEMO_PIN_PAD * 2;
+const DEMO_HALO_SIZE = 44;
+const DEMO_HALO_BOX = 46;
+const DEMO_SPRITE_RATIO = 3;
 
 const DEMO_EVENTS = [
   { id: 'sample-1', title: 'partnerDemoEventOpening', venue: 'partnerDemoVenueRiver', day: 'fri', time: '18:00', category: 'festival', lat: 48.3067, lng: 14.2841, partner: true },
@@ -26,20 +36,81 @@ const DEMO_EVENTS = [
 
 const DAYS = ['all', 'fri', 'sat', 'sun'];
 
-function markerElement(event, selected) {
-  const element = document.createElement('button');
-  element.type = 'button';
-  element.className = `${styles.marker} ${event.partner ? styles.partnerMarker : styles.nearbyMarker}${selected ? ` ${styles.selectedMarker}` : ''}`;
-  element.style.setProperty('--pin-color', CATS[event.category]?.color || CATS.family.color);
-  element.innerHTML = `<span>${catIconSvg(event.category, 15)}</span>`;
-  return element;
+function pinSilhouette(size) {
+  const radius = size / 2;
+  return `M${radius} 0A${radius} ${radius} 0 0 1 ${size} ${radius}A${radius} ${radius} 0 0 1 ${radius} ${size}L4 ${size}`
+    + `A4 4 0 0 1 0 ${size - 4}L0 ${radius}A${radius} ${radius} 0 0 1 ${radius} 0Z`;
+}
+
+function demoPinSvg(category) {
+  const color = CATS[category]?.color || CATS.family.color;
+  const glyphSize = 15;
+  const glyphOffset = DEMO_PIN_PAD + (DEMO_PIN_SIZE - glyphSize) / 2;
+  const paths = (P[category] || P.family).map((path) => `<path d="${path}"/>`).join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${DEMO_PIN_BOX}" height="${DEMO_PIN_BOX}" viewBox="0 0 ${DEMO_PIN_BOX} ${DEMO_PIN_BOX}">`
+    + `<g transform="translate(${DEMO_PIN_PAD} ${DEMO_PIN_PAD})"><path d="${pinSilhouette(DEMO_PIN_SIZE)}" fill="${color}" stroke="#fff" stroke-width="2"/></g>`
+    + `<g transform="translate(${glyphOffset} ${glyphOffset}) scale(${glyphSize / 24})" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${paths}</g>`
+    + '</svg>';
+}
+
+function demoHaloSvg(category) {
+  const color = CATS[category]?.color || CATS.family.color;
+  const offset = (DEMO_HALO_BOX - DEMO_HALO_SIZE) / 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${DEMO_HALO_BOX}" height="${DEMO_HALO_BOX}" viewBox="0 0 ${DEMO_HALO_BOX} ${DEMO_HALO_BOX}">`
+    + `<g transform="translate(${offset} ${offset})"><path d="${pinSilhouette(DEMO_HALO_SIZE)}" fill="${color}"/></g></svg>`;
+}
+
+function rasterizeSprite(svg, cssSize) {
+  return new Promise((resolve, reject) => {
+    const image = new window.Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(cssSize * DEMO_SPRITE_RATIO);
+      canvas.height = Math.round(cssSize * DEMO_SPRITE_RATIO);
+      const context = canvas.getContext('2d');
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      resolve(context.getImageData(0, 0, canvas.width, canvas.height));
+    };
+    image.onerror = reject;
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  });
+}
+
+async function registerDemoSprites(map) {
+  const categories = [...new Set(DEMO_EVENTS.map((event) => event.category))];
+  await Promise.all(categories.flatMap((category) => [
+    rasterizeSprite(demoPinSvg(category), DEMO_PIN_BOX).then((data) => {
+      const id = `partner-demo-pin-${category}`;
+      if (!map.hasImage(id)) map.addImage(id, data, { pixelRatio: DEMO_SPRITE_RATIO });
+    }),
+    rasterizeSprite(demoHaloSvg(category), DEMO_HALO_BOX).then((data) => {
+      const id = `partner-demo-halo-${category}`;
+      if (!map.hasImage(id)) map.addImage(id, data, { pixelRatio: DEMO_SPRITE_RATIO });
+    }),
+  ]));
+}
+
+function pinCollection(events, selectedId) {
+  return {
+    type: 'FeatureCollection',
+    features: events.map((event) => ({
+      type: 'Feature',
+      id: event.id,
+      properties: {
+        id: event.id,
+        category: event.category,
+        partner: event.partner,
+        selected: event.id === selectedId,
+      },
+      geometry: { type: 'Point', coordinates: [event.lng, event.lat] },
+    })),
+  };
 }
 
 export default function PartnerDemo() {
   const { lang, t, chooseLanguage } = useLanguage();
   const mapNode = useRef(null);
   const mapRef = useRef(null);
-  const markersRef = useRef([]);
   const [day, setDay] = useState('all');
   const [partnerOnly, setPartnerOnly] = useState(true);
   const [selectedId, setSelectedId] = useState('sample-1');
@@ -48,6 +119,9 @@ export default function PartnerDemo() {
     if (partnerOnly && !event.partner) return false;
     return day === 'all' || event.day === day;
   }), [day, partnerOnly]);
+  const pins = useMemo(() => pinCollection(visibleEvents, selectedId), [selectedId, visibleEvents]);
+  const pinsRef = useRef(pins);
+  pinsRef.current = pins;
 
   const selected = DEMO_EVENTS.find((event) => event.id === selectedId) || null;
 
@@ -62,31 +136,77 @@ export default function PartnerDemo() {
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     mapRef.current = map;
+    map.on('load', async () => {
+      try {
+        await registerDemoSprites(map);
+        if (mapRef.current !== map) return;
+        map.addSource(DEMO_SOURCE, { type: 'geojson', data: pinsRef.current, promoteId: 'id' });
+        map.addLayer({
+          id: DEMO_HALO_LAYER,
+          type: 'symbol',
+          source: DEMO_SOURCE,
+          filter: ['==', ['get', 'selected'], true],
+          layout: {
+            'icon-image': ['concat', 'partner-demo-halo-', ['get', 'category']],
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+            'icon-anchor': 'center',
+          },
+          paint: { 'icon-opacity': 0.28 },
+        });
+        map.addLayer({
+          id: DEMO_PIN_LAYER,
+          type: 'symbol',
+          source: DEMO_SOURCE,
+          layout: {
+            'icon-image': ['concat', 'partner-demo-pin-', ['get', 'category']],
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+            'icon-anchor': 'center',
+          },
+          paint: { 'icon-opacity': ['case', ['get', 'partner'], 1, 0.58] },
+        });
+        map.addLayer({
+          id: DEMO_SELECTED_LAYER,
+          type: 'symbol',
+          source: DEMO_SOURCE,
+          filter: ['==', ['get', 'selected'], true],
+          layout: {
+            'icon-image': ['concat', 'partner-demo-pin-', ['get', 'category']],
+            'icon-size': 1.28,
+            'icon-allow-overlap': true,
+            'icon-ignore-placement': true,
+            'icon-anchor': 'center',
+          },
+        });
+        for (const layer of [DEMO_PIN_LAYER, DEMO_SELECTED_LAYER]) {
+          map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
+          map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
+        }
+      } catch (error) {
+        console.error('[partner-demo] pin sprites', error);
+      }
+    });
+    map.on('click', (event) => {
+      const layers = [DEMO_SELECTED_LAYER, DEMO_PIN_LAYER].filter((layer) => map.getLayer(layer));
+      if (!layers.length) return;
+      const feature = map.queryRenderedFeatures(event.point, { layers })[0];
+      const id = feature?.properties?.id;
+      if (!id) return;
+      setSelectedId(id);
+      track('partner_demo_event_open', { event_id: id, placement: 'map' });
+    });
     track('partner_demo_view', { placement: 'public_demo' });
     return () => {
-      markersRef.current.forEach((marker) => marker.remove());
-      markersRef.current = [];
       map.remove();
       mapRef.current = null;
     };
   }, []);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current = visibleEvents.map((event) => {
-      const element = markerElement(event, event.id === selectedId);
-      element.setAttribute('aria-label', `${t[event.title]}, ${event.time}`);
-      element.addEventListener('click', () => {
-        setSelectedId(event.id);
-        track('partner_demo_event_open', { event_id: event.id, placement: 'map' });
-      });
-      return new maplibregl.Marker({ element, anchor: 'bottom' })
-        .setLngLat([event.lng, event.lat])
-        .addTo(map);
-    });
-  }, [selectedId, t, visibleEvents]);
+    const source = mapRef.current?.getSource(DEMO_SOURCE);
+    if (source) source.setData(pins);
+  }, [pins]);
 
   function selectEvent(event, placement) {
     setSelectedId(event.id);
