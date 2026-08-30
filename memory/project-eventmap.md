@@ -9,6 +9,20 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-30 — partner delivery formats live)
+- `/partners` now states the three concrete delivery formats prominently in EN/DE/BG: a dedicated
+  Okolo-hosted partner page, a ready-to-print QR code pointing to it, and an optional responsive
+  embed on the organiser's event website.
+- The embed is deliberately conditional rather than a blanket promise: the host site must permit
+  it, and delivery includes a compatibility/privacy check plus exact-origin framing, responsive
+  height, keyboard, referrer and cookie-free-use verification. The managed-pilot runbook records
+  those requirements.
+- Commit `ed4389a` is pushed to `main`. Production deployment
+  `dpl_9pvLA5YF8GFt44JZxN1545zvUzBw` is Ready and aliased to `okolo.events` / `www.okolo.events`.
+  All 298 tests and the 111-page local/Vercel builds pass; live EN/DE/BG browser QA confirms the
+  new offer and qualification without horizontal overflow, and the post-traffic Vercel error scan
+  is clean.
+
 ## Where things stand (2026-08-30 — partner demo pins use native map rendering)
 - `/partners/demo` no longer stacks HTML marker buttons over the MapLibre canvas. Its fictional
   locations now live in one GeoJSON source with native category, selection and halo symbol layers,

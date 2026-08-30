@@ -58,6 +58,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       `af5b117` in production deployment `dpl_J1BZ9BtQUfCGHoqqJZq53ZND4gFt` with clean live QA/logs.
 
 ## Public festival-partner demonstration (2026-08-29)
+- [x] State the partner delivery formats prominently: a dedicated hosted page, printable QR code
+      and optional event-site embed after compatibility/privacy review. Record exact-origin embed
+      controls in the pilot runbook and ship commit `ed4389a` in production deployment
+      `dpl_9pvLA5YF8GFt44JZxN1545zvUzBw`; live EN/DE/BG QA and the error scan pass.
 - [x] Replace the demo's drifting HTML marker overlay with native MapLibre GeoJSON symbol layers.
       Preserve the fictional programme, category pins, selection halo, list `flyTo`, nearby context
       and both filters; cover the rendering contract with a regression test and browser zoom QA.
