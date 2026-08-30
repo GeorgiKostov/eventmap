@@ -1,5 +1,14 @@
 # Lessons
 
+## 2026-08-30 — MapLibre owns marker positioning or it must own the whole marker
+
+The partner demo passed coordinates to `new maplibregl.Marker`, but its custom marker class set
+`position: relative` after MapLibre's stylesheet. That overrode the renderer's required absolute
+positioning, so each 42 px button remained in normal flow and every successive pin carried another
+42 px geographic offset while zooming. **Lesson:** never override the positioning or transform of a
+MapLibre DOM marker element. For map data that must stay visually locked during camera animation,
+prefer a GeoJSON source and native symbol layers, and regress against reintroducing DOM markers.
+
 ## 2026-08-30 — B2B copy must name the service, the operator and the distribution benefit
 
 The first partner page demonstrated an attractive map but described “layers” and features without

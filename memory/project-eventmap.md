@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-30 — partner demo pins use native map rendering)
+- `/partners/demo` no longer stacks HTML marker buttons over the MapLibre canvas. Its fictional
+  locations now live in one GeoJSON source with native category, selection and halo symbol layers,
+  so MapLibre owns their projection throughout zoom, pan, filter updates and programme `flyTo`.
+- The underlying bug was a route-local `position: relative` rule overriding MapLibre's required
+  absolute marker positioning; every successive 42 px marker accumulated another layout offset.
+  The DOM marker code and conflicting CSS are removed, and a regression test requires the native
+  source/layer path.
+- Commit `49a7645` passes all 298 tests and the 111-page production build. Local 1280×720 browser QA
+  covers native-pin rendering, selected programme fly/zoom, the 6 → 8 → 4 partner/day filter path,
+  zero legacy marker elements and no horizontal overflow.
+
 ## Where things stand (2026-08-30 — Austria-only newsletter market live)
 - George set the newsletter market to Austria only while Bulgarian event coverage is not ready.
   Bulgarian and German public pages now replace signup with a localized warning; the map suppresses

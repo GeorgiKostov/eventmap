@@ -58,6 +58,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       `af5b117` in production deployment `dpl_J1BZ9BtQUfCGHoqqJZq53ZND4gFt` with clean live QA/logs.
 
 ## Public festival-partner demonstration (2026-08-29)
+- [x] Replace the demo's drifting HTML marker overlay with native MapLibre GeoJSON symbol layers.
+      Preserve the fictional programme, category pins, selection halo, list `flyTo`, nearby context
+      and both filters; cover the rendering contract with a regression test and browser zoom QA.
 - [x] Link the main map's localized “Advertise & partner” menu entry directly to `/partners` and
       retire the superseded quote modal. Track the menu placement as `partner_showcase_open`.
 - [x] Rewrite the partner showcase around the actual managed offer: Okolo builds, hosts and updates
