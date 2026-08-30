@@ -8,6 +8,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       Preserve city handles as the only wordmark variant and keep partner/admin context secondary.
 - [x] Record the binding design-system rule and decision, add route-family regression coverage, and
       verify representative desktop and 390 px pages without horizontal overflow.
+- [x] Commit and push `012eee3`, deploy production as `dpl_68eMUxG7XjHN3ACY9STFZdef4An8`, and
+      verify the canonical map/discovery/partner/legal surfaces plus an empty runtime error scan.
 
 ## Public festival-partner demonstration (2026-08-29)
 - [x] Link the main map's localized “Advertise & partner” menu entry directly to `/partners` and

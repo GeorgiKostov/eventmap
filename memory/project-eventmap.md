@@ -9,7 +9,7 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-30 — one Okolo brand header across page families)
+## Where things stand (2026-08-30 — one Okolo brand header live across page families)
 - `app/okolo-brand.js` now owns the tokenized raspberry pin, lowercase `okolo.` title, optional
   city-handle suffix and quiet qualifier. The persistent lockup is top-left on the map (desktop and
   mobile), discovery, event, weekend, legal, partner-demo and admin shells; partner identity remains
@@ -17,10 +17,12 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - The design system and `docs/decisions/2026-08-30-brand-header-consistency.md` make this a binding
   rule that supersedes the old map-only decision to remove brand text. `test/brand-header.test.mjs`
   covers every route family so future pages cannot hand-roll another variant.
-- This change is ready for the requested commit, push and production deployment. All 317 tests
-  (including the 32 focused overlapping checks) and the 111-page production build pass. Browser QA
-  at 1280 px and 390 px covers the map, city discovery, event detail, dated weekend, partner demo
-  and admin states with correct ordering and no horizontal overflow.
+- Commit `012eee3` is live in production deployment `dpl_68eMUxG7XjHN3ACY9STFZdef4An8` and aliased
+  to `www.okolo.events`. All 317 tests and the 111-page local and Vercel production builds pass.
+  Browser QA at 1280 px and 390 px covers the map, city discovery, event detail, dated weekend,
+  partner demo and admin states with correct ordering and no horizontal overflow; the live root,
+  Linz discovery, partner demo and legal page return 200, the private `/aecfestival` route returns
+  404, and the post-traffic Vercel error-log scan is empty.
 
 ## Where things stand (2026-08-30 — Linz weekend SEO evidence live)
 - `/events/linz/wochenende` now names the exact Vienna-local weekend in metadata and H1, leads with
@@ -171,8 +173,8 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   the background and the native locate button re-centres it. Previously granted permission resumes
   tracking automatically; a new permission prompt remains user-led. The control stays in Okolo's
   existing responsive floating stack and is localized in DE/EN/BG.
-- This change is included in the current verified release candidate but is not yet deployed. All 317
-  tests, including two dedicated live-location regressions, and the 111-page production build pass. Mobile
+- This change is live in production deployment `dpl_68eMUxG7XjHN3ACY9STFZdef4An8`. All 317 tests,
+  including two dedicated live-location regressions, and the 111-page production build pass. Mobile
   browser QA confirms the native watch control enters active state, fits the 390 px layout, and has
   no console errors or framework overlay; the desktop browser host cannot emulate physical movement.
 
