@@ -14,7 +14,8 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   horizontally scrollable container from collapsing the active `All days` pill at constrained
   desktop heights; the programme list continues to own vertical scrolling. The focused regression
   test, production build, 1280×720 visual check, Friday → All days count check and browser error
-  scan pass.
+  scan pass. Production deployment `dpl_CBboXENk1UxXgndcmHXbsJyP3tEq` is Ready and aliased to
+  `www.okolo.events`; live Friday → All days filtering and the Vercel error-log scan pass.
 - The `/partners` hero now uses responsive static screenshots rather than mounting the live map in
   its first viewport. This makes the sales page fast and presentation-stable; both the screenshot
   and primary action still open the full interactive `/partners/demo` experience. Production

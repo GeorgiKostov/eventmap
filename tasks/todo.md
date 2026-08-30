@@ -6,6 +6,7 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Keep the desktop day-filter row at its full content height so the active `All days` pill is
       not clipped when the programme list makes the sidebar vertically constrained. The 1280×720
       production build passes Friday → All days filtering, visual QA and browser error checks.
+      Deployment `dpl_CBboXENk1UxXgndcmHXbsJyP3tEq` is live and passes the same checks.
 - [x] Replace the live map iframe in the `/partners` hero with optimized desktop/mobile screenshots.
       Keep the screenshot and primary CTA linked to `/partners/demo`, so the pitch loads reliably
       while the interactive map remains available on deliberate click. Production deployment
