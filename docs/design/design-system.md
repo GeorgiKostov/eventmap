@@ -127,6 +127,9 @@ approx halo. **Selection is the only thing allowed to add a ring/scale.**
   direct-share demo is `noindex, nofollow` and must not create or mutate real events.
 - Partner emphasis may appear in the page header, event list and detail card. Category remains the
   map pin's primary meaning; a partner-only filter supplies the explicit festival lens.
+- On a public sales page, use an optimized responsive screenshot as the first product proof and link
+  it to the standalone interactive demo. Do not make the first impression depend on a live iframe or
+  map-tile load.
 - Reuse the normal Okolo type, spacing, category and interaction vocabulary so the demo represents
   a credible extension of the product rather than a separate microsite theme.
 
