@@ -88,6 +88,9 @@ approx halo. **Selection is the only thing allowed to add a ring/scale.**
 - **Date** → Today / Tomorrow / Weekend / 7-days chips + the calendar range picker. **Weekend is the
   family default.**
 - **Primary action** → `--accent` fill + `--accent-ink`. One primary per screen.
+- **Actions menu** → account identity is always the first isolated card. Signed out, it is the
+  single solid-accent CTA; signed in, it becomes accent-soft and shows the account email beneath
+  the label. Divider groups keep personal discovery, engagement and preferences/legal scannable.
 - **Floating controls** (locate + Add) live in **one reflowing bottom-right stack** (`.floatstack`,
   `flex-direction:column-reverse` so the primary Add FAB sits closest to the filter bar, locate above
   it). Anchored once above the filter bar; the whole stack hides where it would overlap a sheet or

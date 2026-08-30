@@ -2648,6 +2648,18 @@ export default function Home() {
             <>
               <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
               <div className="menudrop">
+                <button
+                  className={`menuitem account-menuitem ${account ? 'signed-in' : 'signed-out'}`}
+                  onClick={() => { setMenuOpen(false); openAccount(false); }}
+                >
+                  <span className="ic" aria-hidden="true">👤</span>
+                  <span className="account-menu-copy">
+                    <strong>{account ? t.account : t.signIn}</strong>
+                    {account?.email && <small>{account.email}</small>}
+                  </span>
+                  <CaretRight className="account-menu-arrow" size={15} weight="bold" aria-hidden="true" />
+                </button>
+                <div className="menu-divider" aria-hidden="true" />
                 <button className="menuitem" onClick={() => { setMenuOpen(false); setSavedOpen(true); }}>
                   <span className="ic">🔖</span>{t.savedMenu}
                   {saved.length > 0 && <span className="menucount">{saved.length}</span>}
@@ -2678,9 +2690,7 @@ export default function Home() {
                     <span className="ic">📅</span>{t.weekendPicksMenu.replace('{city}', weekendChannel.label)}
                   </a>
                 )}
-                <button className="menuitem account-menuitem" onClick={() => { setMenuOpen(false); openAccount(false); }}>
-                  <span className="ic">👤</span><span>{account?.email || t.signIn}</span>
-                </button>
+                <div className="menu-divider" aria-hidden="true" />
                 <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>

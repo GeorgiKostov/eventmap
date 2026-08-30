@@ -72,6 +72,18 @@ test('the Add button is account-gated and favourites sync without numeric bigint
   assert.doesNotMatch(favorites, /Number\(body\.id/);
 });
 
+test('the actions menu leads with a visually isolated account action', () => {
+  const page = read('app/page.js');
+  const css = read('app/globals.css');
+  const menu = page.slice(page.indexOf('<div className="menudrop">'), page.indexOf('<div className="language-picker">'));
+  assert.ok(menu.indexOf('account-menuitem') < menu.indexOf('setSavedOpen(true)'), 'account must be the first menu action');
+  assert.match(menu, /account \? 'signed-in' : 'signed-out'/);
+  assert.match(menu, /<strong>\{account \? t\.account : t\.signIn\}<\/strong>/);
+  assert.match(menu, /account\?\.email && <small>\{account\.email\}<\/small>/);
+  assert.match(css, /\.account-menuitem\.signed-out[\s\S]*background:\s*var\(--accent\)/);
+  assert.match(css, /\.menu-divider/);
+});
+
 test('a successful contribution refreshes the viewport and hydrates merged details', () => {
   const page = read('app/page.js');
   const finish = page.slice(page.indexOf('async function finishPublish'), page.indexOf('async function publish'));
