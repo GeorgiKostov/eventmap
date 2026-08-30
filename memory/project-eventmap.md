@@ -21,7 +21,15 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   highlight → event → return flow, methodology, sitemap presence and horizontal fit. The Vercel
   error-log scan is clean.
 
-## Where things stand (2026-08-30 — partner demo day tabs repaired)
+## Where things stand (2026-08-30 — partner offer clarified and linked from the map)
+- The main map's “Advertise & partner” menu item now opens `/partners` directly and records its
+  placement. The old modal and its unused copy/styles are removed.
+- The showcase now sells a managed service rather than implying a self-serve map tool: Okolo builds,
+  hosts and maintains the branded experience, structures programme and venue context, supports
+  timed highlights, distributes approved events on the main discovery map, offers optional clearly
+  labelled sponsored visibility, and reports agreed usage and official-source referrals. Current
+  event-map products informed the familiar B2B framing (no app, branded link, schedule/map and
+  measurement); Okolo's managed hosting plus public-map distribution is stated as the distinction.
 - The `/partners/demo` day-filter strip is now a non-shrinking sidebar row. This prevents its
   horizontally scrollable container from collapsing the active `All days` pill at constrained
   desktop heights; the programme list continues to own vertical scrolling. The focused regression

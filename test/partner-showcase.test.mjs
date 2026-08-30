@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 
 const page = readFileSync(new URL('../app/partners/page.js', import.meta.url), 'utf8');
 const showcase = readFileSync(new URL('../app/partners/partner-showcase.js', import.meta.url), 'utf8');
+const map = readFileSync(new URL('../app/page.js', import.meta.url), 'utf8');
+const translations = readFileSync(new URL('../lib/i18n.js', import.meta.url), 'utf8');
 
 test('partner sales material is a shareable HTML showcase, not a slide download', () => {
   assert.match(page, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
@@ -13,4 +15,17 @@ test('partner sales material is a shareable HTML showcase, not a slide download'
   assert.doesNotMatch(showcase, /<iframe/);
   assert.match(showcase, /partner_showcase_view/);
   assert.doesNotMatch(showcase, /\.pptx|powerpoint/i);
+});
+
+test('map menu links organisers to the partner showcase', () => {
+  assert.match(map, /className="menuitem"\s+href="\/partners"/);
+  assert.match(map, /partner_showcase_open/);
+  assert.doesNotMatch(map, /advertiseOpen|setAdvertiseOpen/);
+});
+
+test('partner showcase states the managed service and Okolo distribution offer', () => {
+  assert.match(translations, /Okolo designs, builds and hosts a branded map experience/);
+  assert.match(translations, /Approved events are also listed on Okolo’s main map/);
+  assert.match(translations, /Optional paid highlighting adds visibility and is always labelled clearly as sponsored/);
+  assert.match(translations, /You provide the programme\. We run the map\./);
 });

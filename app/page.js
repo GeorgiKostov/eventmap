@@ -956,7 +956,6 @@ export default function Home() {
     open: false, email: '', area: '', areaLat: null, areaLng: null,
     categories: [], busy: false, done: false, err: '',
   });
-  const [advertiseOpen, setAdvertiseOpen] = useState(false);
   const [limitNotice, setLimitNotice] = useState(null);
   const [toast, setToast] = useState('');
   // The newsletter prompt. It appears at a MOMENT OF INTENT — the tap that says
@@ -2694,9 +2693,13 @@ export default function Home() {
                 <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
                   <span className="ic">✉️</span>{t.newsletter}
                 </button>
-                <button className="menuitem" onClick={() => { setMenuOpen(false); setAdvertiseOpen(true); }}>
+                <a
+                  className="menuitem"
+                  href="/partners"
+                  onClick={() => { track('partner_showcase_open', { placement: 'map_menu' }); setMenuOpen(false); }}
+                >
                   <span className="ic">📣</span>{t.advertise}
-                </button>
+                </a>
                 <div className="language-picker">
                   <div className="language-label"><span className="ic">🌐</span>{t.language}</div>
                   <div className="language-options" role="radiogroup" aria-label={t.language}>
@@ -3803,24 +3806,6 @@ export default function Home() {
             {!account && (
               <button className="saved-signin" onClick={() => { setSavedOpen(false); openAccount(false); }}>{t.savedSignIn}</button>
             )}
-          </div>
-        </div>
-      )}
-
-      {advertiseOpen && (
-        <div className="nl-scrim" onClick={() => setAdvertiseOpen(false)}>
-          <div className="nl-modal advertise-modal" role="dialog" aria-modal="true" aria-labelledby="advertise-title" onClick={(e) => e.stopPropagation()}>
-            <button className="nl-close" onClick={() => setAdvertiseOpen(false)} aria-label={t.close}><X size={16} weight="bold" /></button>
-            <div className="nl-icon">📣</div>
-            <h3 id="advertise-title">{t.adTitle}</h3>
-            <p className="nl-blurb">{t.adBlurb}</p>
-            <div className="ad-benefits">
-              <p><span aria-hidden="true">✦</span>{t.adBenefitVisual}</p>
-              <p><span aria-hidden="true">↑</span>{t.adBenefitRanking}</p>
-            </div>
-            <p className="ad-disclosure">{t.adDisclosure}</p>
-            <a className="nl-submit ad-contact" href={`mailto:hello@okolo.events?subject=${encodeURIComponent(t.adEmailSubject)}`}>{t.adContact}</a>
-            <p className="nl-fine">{t.adPartnerships}</p>
           </div>
         </div>
       )}

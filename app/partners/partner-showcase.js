@@ -8,9 +8,9 @@ import {
   ChartLineUp,
   ClockCountdown,
   DeviceMobile,
-  Funnel,
   LinkSimple,
   MapPin,
+  Megaphone,
   PaintBrushBroad,
 } from '@phosphor-icons/react';
 import { track } from '../../lib/analytics.js';
@@ -18,11 +18,11 @@ import { useLanguage } from '../language-provider.js';
 import styles from './partners.module.css';
 
 const FEATURES = [
-  ['partnerShowcaseFeatureBrand', 'partnerShowcaseFeatureBrandCopy', PaintBrushBroad],
   ['partnerShowcaseFeatureUrl', 'partnerShowcaseFeatureUrlCopy', LinkSimple],
-  ['partnerShowcaseFeatureFilter', 'partnerShowcaseFeatureFilterCopy', Funnel],
+  ['partnerShowcaseFeatureBrand', 'partnerShowcaseFeatureBrandCopy', PaintBrushBroad],
+  ['partnerShowcaseFeatureFilter', 'partnerShowcaseFeatureFilterCopy', MapPin],
   ['partnerShowcaseFeatureSchedule', 'partnerShowcaseFeatureScheduleCopy', ClockCountdown],
-  ['partnerShowcaseFeatureMobile', 'partnerShowcaseFeatureMobileCopy', DeviceMobile],
+  ['partnerShowcaseFeatureMobile', 'partnerShowcaseFeatureMobileCopy', Megaphone],
   ['partnerShowcaseFeatureMeasure', 'partnerShowcaseFeatureMeasureCopy', ChartLineUp],
 ];
 

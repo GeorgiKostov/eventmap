@@ -52,18 +52,18 @@
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(300px, .85fr) minmax(560px, 1.35fr);
-  gap: 56px;
+  grid-template-columns: minmax(360px, .95fr) minmax(540px, 1.25fr);
+  gap: 42px;
   align-items: center;
   width: min(1180px, calc(100% - 48px));
   min-height: calc(100vh - 72px);
   margin: 0 auto;
-  padding: 72px 0;
+  padding: 54px 0;
 }
 
 .heroCopy { position: relative; z-index: 2; }
 .eyebrow { color: var(--accent); font-size: 11px; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
-.hero h1 { max-width: 620px; margin: 18px 0 22px; font-family: var(--font-display); font-size: clamp(48px, 6.3vw, 82px); line-height: .97; letter-spacing: -.055em; }
+.hero h1 { max-width: 620px; margin: 16px 0 20px; font-family: var(--font-display); font-size: clamp(46px, 5.5vw, 72px); line-height: .97; letter-spacing: -.055em; }
 .hero h1 span { display: block; color: var(--accent); }
 .heroCopy > p { max-width: 540px; margin: 0; color: var(--muted); font-size: 18px; line-height: 1.55; }
 .heroActions { gap: 14px; margin-top: 30px; }

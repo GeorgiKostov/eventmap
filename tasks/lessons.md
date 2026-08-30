@@ -1,5 +1,15 @@
 # Lessons
 
+## 2026-08-30 — B2B copy must name the service, the operator and the distribution benefit
+
+The first partner page demonstrated an attractive map but described “layers” and features without
+saying plainly what a customer buys or who runs it. George clarified the offer: Okolo builds and
+hosts the customized experience, structures the programme and highlights, lists the events on the
+main discovery map, and can add clearly labelled paid visibility. **Lesson:** lead a B2B page with
+the operating model and outcome before the feature inventory. Distinguish a managed service from a
+DIY tool, state what the partner provides versus what Okolo delivers, and make owned distribution
+an explicit benefit rather than leaving it implied.
+
 ## 2026-08-30 — Horizontal overflow can silently make a flex row vertically shrinkable
 
 The partner demo's day tabs used `overflow-x: auto` inside a fixed-height column. Browsers compute

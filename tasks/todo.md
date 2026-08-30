@@ -3,6 +3,12 @@
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
 ## Public festival-partner demonstration (2026-08-29)
+- [x] Link the main map's localized “Advertise & partner” menu entry directly to `/partners` and
+      retire the superseded quote modal. Track the menu placement as `partner_showcase_open`.
+- [x] Rewrite the partner showcase around the actual managed offer: Okolo builds, hosts and updates
+      the custom map; structures programme, venues and timed highlights; lists approved events on
+      the main Okolo map; offers optional clearly labelled sponsored highlighting; and measures
+      agreed usage and official-source referrals. Desktop, 390 px and DE/EN/BG QA pass.
 - [x] Keep the desktop day-filter row at its full content height so the active `All days` pill is
       not clipped when the programme list makes the sidebar vertically constrained. The 1280×720
       production build passes Friday → All days filtering, visual QA and browser error checks.
