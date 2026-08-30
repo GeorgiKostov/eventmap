@@ -10,10 +10,10 @@ import {
   CheckCircle,
   ClockCountdown,
   DeviceMobile,
-  LinkSimple,
   MapPin,
   Megaphone,
   PaintBrushBroad,
+  QrCode,
   ShieldCheck,
 } from '@phosphor-icons/react';
 import { track } from '../../lib/analytics.js';
@@ -22,7 +22,7 @@ import OkoloBrand from '../okolo-brand.js';
 import styles from './partners.module.css';
 
 const FEATURES = [
-  ['partnerShowcaseFeatureUrl', 'partnerShowcaseFeatureUrlCopy', LinkSimple],
+  ['partnerShowcaseFeatureUrl', 'partnerShowcaseFeatureUrlCopy', QrCode],
   ['partnerShowcaseFeatureBrand', 'partnerShowcaseFeatureBrandCopy', PaintBrushBroad],
   ['partnerShowcaseFeatureFilter', 'partnerShowcaseFeatureFilterCopy', MapPin],
   ['partnerShowcaseFeatureSchedule', 'partnerShowcaseFeatureScheduleCopy', ClockCountdown],
@@ -82,7 +82,7 @@ export default function PartnerShowcase() {
             </Link>
           </div>
           <div className={styles.heroFacts}>
-            <span><MapPin size={16} weight="fill" /> {t.partnerShowcaseFactCity}</span>
+            <span><QrCode size={16} weight="fill" /> {t.partnerShowcaseFactCity}</span>
             <span><DeviceMobile size={16} weight="fill" /> {t.partnerShowcaseFactScreens}</span>
             <span><ChartLineUp size={16} weight="fill" /> {t.partnerShowcaseFactProof}</span>
           </div>

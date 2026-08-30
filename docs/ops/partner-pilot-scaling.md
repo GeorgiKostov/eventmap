@@ -12,6 +12,9 @@ branding, a repeatable programme source and a bounded delivery agreement.
 For one managed pilot, Okolo can provide:
 
 - one dedicated, mobile-ready partner URL;
+- one ready-to-print QR-code asset pointing to that stable URL;
+- an optional responsive embed on the partner's event website after confirming that the host site
+  permits iframes and agreeing the exact allowed origin, layout and privacy behavior;
 - programme, venue, day and time context from an approved official source;
 - agreed branding in the page shell and partner surfaces while keeping Okolo's map-pin grammar;
 - approved event distribution on the main Okolo map and structured public event pages;
@@ -70,6 +73,8 @@ A one-off emailed spreadsheet is not a refresh path.
 ### D. Launch and evidence
 
 - Remove `noindex` only after approval, confirm canonical URL and publish QR/link destinations.
+- If an embed is in scope, allow framing only from the partner's exact approved site origin and
+  verify responsive height, keyboard access, referrer policy and cookie-free anonymous use there.
 - Start synthetic checks for page HTML, partner payload, source link and basemap style.
 - Watch Vercel error/latency/cache metrics and Supabase CPU, connections and slow queries.
 - Preserve the last-good programme version throughout the event window.

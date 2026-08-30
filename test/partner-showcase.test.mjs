@@ -29,6 +29,10 @@ test('map menu links organisers to the partner showcase', () => {
 
 test('partner showcase states the managed service and Okolo distribution offer', () => {
   assert.match(translations, /Okolo designs, builds and hosts a branded map experience/);
+  assert.match(translations, /Own page, QR code & embed/);
+  assert.match(translations, /after a compatibility and privacy check/);
+  assert.match(translations, /Eigene Seite, QR-Code & Einbettung/);
+  assert.match(translations, /Собствена страница, QR код и вграждане/);
   assert.match(translations, /Approved events are also listed on Okolo’s main map/);
   assert.match(translations, /Optional paid highlighting adds visibility and is always labelled clearly as sponsored/);
   assert.match(translations, /You provide the programme\. We run the map\./);
