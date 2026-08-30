@@ -3,6 +3,11 @@
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
 ## Public festival-partner demonstration (2026-08-29)
+- [x] Repair the production embed regression caused by global anti-framing headers. Only
+      `/partners` and `/partners/demo` now allow framing; the product, account surfaces and private
+      `/aecfestival` path retain CSP `frame-ancestors 'none'` plus `X-Frame-Options: DENY`.
+      Deployment `dpl_4SHaPMicYyWzphAkW3hcEjwU4DZY` passes live header, iframe, desktop/mobile and
+      error-log checks.
 - [x] Build a fictional, self-contained `/partners/demo` route with an original sample identity,
       partner/day filters, branded event states, nearby-event context, a direct contact action and
       privacy-safe measurement hooks. Keep the page out of search indexes and production event data.

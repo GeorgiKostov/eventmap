@@ -9,6 +9,16 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-30 — partner showcase embed repaired)
+- Global clickjacking hardening had unintentionally blocked both the `/partners` showcase in the
+  Codex browser panel and its same-origin `/partners/demo` iframe. The header policy is now scoped:
+  only these fictional, read-only sales routes use CSP `frame-ancestors *`; every product, account
+  and private route retains `frame-ancestors 'none'` and `X-Frame-Options: DENY`.
+- Production deployment `dpl_4SHaPMicYyWzphAkW3hcEjwU4DZY` is Ready and aliased to
+  `www.okolo.events`. Live header probes and browser DOM checks confirm the embedded Sample Festival
+  renders without the refusal; desktop and 390 px screenshots were refreshed, `/aecfestival` still
+  returns 404, and the one-hour Vercel error scan is clean.
+
 ## Where things stand (2026-08-29 — HTML partner showcase live)
 - `/partners` is now the canonical customer presentation: a responsive HTML story with a live
   embedded demo, a simple between-venues use case, six partner features, three pilot layers and a

@@ -1,5 +1,13 @@
 # Lessons
 
+## 2026-08-30 — Verify share surfaces with production framing headers
+
+The HTML showcase worked locally, but later global clickjacking hardening added CSP
+`frame-ancestors 'none'` and `X-Frame-Options: DENY` to every route. That blocked the showcase in an
+embedded browser panel and blocked its own same-origin demo iframe. **Lesson:** test customer-facing
+share surfaces through the final production response headers as well as the page DOM. Scope framing
+exceptions to explicitly public, read-only demo routes and keep account and product routes denied.
+
 ## 2026-08-29 — Partner showcases are web experiences, not slide decks
 
 The first partner package included a PowerPoint even though the product's value is its responsive,
