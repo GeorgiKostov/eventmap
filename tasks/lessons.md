@@ -1,5 +1,14 @@
 # Lessons
 
+## 2026-08-30 — Horizontal overflow can silently make a flex row vertically shrinkable
+
+The partner demo's day tabs used `overflow-x: auto` inside a fixed-height column. Browsers compute
+the other overflow axis as scrollable too, which removes the row's automatic minimum height; flexbox
+then compressed the buttons and clipped the selected pill at shorter desktop heights. **Lesson:**
+for horizontally scrollable control rows in a vertical flex layout, explicitly make the row
+non-shrinking and leave height compression to the intended scrolling content pane. Verify at a
+short desktop viewport, not only mobile and a tall desktop.
+
 ## 2026-08-30 — A sales-page preview should be stable before it is interactive
 
 The partner hero initially mounted the full map in an iframe. Even after repairing its framing

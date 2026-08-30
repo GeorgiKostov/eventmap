@@ -9,7 +9,12 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-08-30 — partner showcase embed repaired)
+## Where things stand (2026-08-30 — partner demo day tabs repaired)
+- The `/partners/demo` day-filter strip is now a non-shrinking sidebar row. This prevents its
+  horizontally scrollable container from collapsing the active `All days` pill at constrained
+  desktop heights; the programme list continues to own vertical scrolling. The focused regression
+  test, production build, 1280×720 visual check, Friday → All days count check and browser error
+  scan pass.
 - The `/partners` hero now uses responsive static screenshots rather than mounting the live map in
   its first viewport. This makes the sales page fast and presentation-stable; both the screenshot
   and primary action still open the full interactive `/partners/demo` experience. Production

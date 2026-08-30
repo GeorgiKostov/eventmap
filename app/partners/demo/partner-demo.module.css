@@ -61,7 +61,7 @@
 .actions a { display: inline-flex; align-items: center; gap: 5px; color: var(--demo-accent); font-size: 12px; font-weight: 760; text-decoration: none; }
 .actions a:hover { text-decoration: underline; }
 
-.dayTabs { display: flex; gap: 6px; padding: 0 18px 12px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--demo-line); }
+.dayTabs { display: flex; flex: 0 0 auto; gap: 6px; padding: 0 18px 12px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--demo-line); }
 .dayTabs::-webkit-scrollbar { display: none; }
 .dayTabs button { flex: 0 0 auto; padding: 7px 12px; border-radius: 999px; color: var(--demo-muted); border: 1px solid var(--demo-line); font-size: 12px; font-weight: 690; }
 .dayTabs .dayActive { color: #fff; background: var(--demo-ink); border-color: var(--demo-ink); }
@@ -130,4 +130,3 @@
 @media (prefers-reduced-motion: reduce) {
   .selectedMarker { transform: none; }
 }
-

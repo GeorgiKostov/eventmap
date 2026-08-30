@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const clientPath = new URL('../app/partners/demo/partner-demo.js', import.meta.url);
 const pagePath = new URL('../app/partners/demo/page.js', import.meta.url);
+const stylesPath = new URL('../app/partners/demo/partner-demo.module.css', import.meta.url);
 
 test('public partner demo keeps fictional programme outside production event paths', async () => {
   const [client, page] = await Promise.all([
@@ -17,3 +18,8 @@ test('public partner demo keeps fictional programme outside production event pat
   assert.match(page, /robots: \{ index: false, follow: false \}/);
 });
 
+test('programme day tabs keep their full height inside the scrolling sidebar', async () => {
+  const styles = await readFile(stylesPath, 'utf8');
+
+  assert.match(styles, /\.dayTabs\s*\{[^}]*flex:\s*0 0 auto;/);
+});
