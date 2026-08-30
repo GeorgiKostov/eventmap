@@ -130,12 +130,17 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       must noindex or 404 rather than become doorway pages. Keep stable intent URLs such as `heute`
       and `wochenende`; do not create daily archives or expose arbitrary filter combinations as
       crawlable URLs.
+- [x] Strengthen and deploy the permanent Linz weekend page with an exact Vienna-local date range,
+      current editorial picks, city/nearby sections, compact inventory/source/freshness evidence, a
+      public methodology page and direct canonical internal links. Deployment
+      `dpl_871cMTddFEJVb1R9RyuxK8ZH4aJo` passes live desktop/mobile navigation, sitemap and log checks.
 - [ ] After deployment, verify the live server HTML, sitemap and a sample event with URL Inspection / Rich
       Results Test, then track landing-page impressions, clicks, CTR, event/map opens, newsletter starts
       and identifiable AI-assistant referrals separately in Search Console and PostHog through the
-      four-weekend Linz validation window. Local server HTML, canonical/meta, JSON-LD, mobile layout,
-      sitemap rules and API output passed on 2026-08-19. Treat citations/mentions in answer engines as
-      observational evidence, not a promised ranking outcome.
+      four-weekend Linz validation window. Local and live server HTML, canonical/meta, mobile layout,
+      sitemap rules and navigation passed by 2026-08-30; Search Console URL Inspection and Rich Results
+      Test remain outside the repository. Treat citations/mentions in answer engines as observational
+      evidence, not a promised ranking outcome.
 - [ ] Keep states, nationwide pages, more category facets and `veranstaltungen in der naehe` deferred
       until the nine allow-listed city pages show useful inventory and search demand. Add only proven
       combinations above the indexing threshold.

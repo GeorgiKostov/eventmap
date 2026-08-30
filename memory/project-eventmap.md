@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-30 — Linz weekend SEO evidence live)
+- `/events/linz/wochenende` now names the exact Vienna-local weekend in metadata and H1, leads with
+  still-current picks from the frozen Linz digest, and keeps the current inventory in separate Linz
+  and nearby sections. City pages expose range, radius, family/free, named-source and freshness
+  evidence and link to the new public `/events/methodology` page.
+- Commit `f48b3bf` is pushed to `main`. Production deployment
+  `dpl_871cMTddFEJVb1R9RyuxK8ZH4aJo` is Ready and aliased to `www.okolo.events`.
+- The exact release base passes 306 tests and the 110-page production build. Live desktop and 390 px
+  QA cover metadata/canonical tags, highlights, evidence, child-page canonical navigation, the
+  highlight → event → return flow, methodology, sitemap presence and horizontal fit. The Vercel
+  error-log scan is clean.
+
 ## Where things stand (2026-08-30 — partner demo day tabs repaired)
 - The `/partners/demo` day-filter strip is now a non-shrinking sidebar row. This prevents its
   horizontally scrollable container from collapsing the active `All days` pill at constrained
