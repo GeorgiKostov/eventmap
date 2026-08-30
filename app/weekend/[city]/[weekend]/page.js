@@ -45,6 +45,7 @@ const COPY = {
     nlCta: 'Diese Tipps jede Woche per E-Mail',
     archive: 'Frühere Wochenenden',
     cityEvents: (city) => `Alle Events in ${city}`,
+    currentWeekend: (city) => `Alle Events dieses Wochenende in ${city}`,
     source: 'Details & Quelle',
     past: 'Dieses Wochenende ist vorbei — hier sind die Tipps für dieses Wochenende.',
     thisWeekend: 'Zum aktuellen Wochenende',
@@ -61,6 +62,7 @@ const COPY = {
     nlCta: 'Получавай тези идеи всяка седмица по имейл',
     archive: 'Предишни уикенди',
     cityEvents: (city) => `Всички събития в ${city}`,
+    currentWeekend: (city) => `Всички събития този уикенд в ${city}`,
     source: 'Детайли и източник',
     past: 'Този уикенд отмина — виж идеите за текущия.',
     thisWeekend: 'Към текущия уикенд',
@@ -77,6 +79,7 @@ const COPY = {
     nlCta: 'Get these by email every week',
     archive: 'Earlier weekends',
     cityEvents: (city) => `All events in ${city}`,
+    currentWeekend: (city) => `Every event this weekend in ${city}`,
     source: 'Details & source',
     past: 'This weekend is over — here are this week’s picks.',
     thisWeekend: 'Go to this weekend',
@@ -315,9 +318,13 @@ export default async function WeekendPage({ params }) {
       />
 
       <p style={{ marginTop: 28, fontSize: 14 }}>
-        <Link href={`/weekend/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.archive} →</Link>
-        {channel.country === 'AT' && (
-          <><br /><Link href={`/events/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.cityEvents(channel.label)} →</Link></>
+        {channel.country === 'AT' ? (
+          <>
+            <Link href={`/events/${channel.slug}/wochenende`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.currentWeekend(channel.label)} →</Link><br />
+            <Link href={`/events/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.cityEvents(channel.label)} →</Link>
+          </>
+        ) : (
+          <Link href={`/weekend/${channel.slug}`} style={{ color: '#C93A5B', fontWeight: 700 }}>{c.archive} →</Link>
         )}
       </p>
     </main>

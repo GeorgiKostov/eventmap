@@ -6,14 +6,17 @@ import { publicUrl } from '../../lib/public-url.js';
 import { validDateOf } from '../../lib/event-time.js';
 import {
   SEO_CITIES,
+  availableDigestItems,
   cityIntentPath,
   cityMonthPath,
   cityPath,
   monthLabel,
+  seoDateRangeLabel,
   upcomingMonthSlugs,
 } from '../../lib/seo-pages.js';
 import DiscoveryEventLink from './event-link.js';
 import EventsBrand from './events-brand.js';
+import WeekendHighlights from './weekend-highlights.js';
 import styles from './events.module.css';
 
 const S = {
@@ -45,10 +48,13 @@ function eventPlace(ev) {
     .join(' · ');
 }
 
-function EventList({ events, returnPath }) {
-  if (!events.length) {
-    return <p style={{ color: S.muted, lineHeight: 1.6 }}>Für diesen Zeitraum sind noch keine Veranstaltungen veröffentlicht. Wir aktualisieren diese Seite laufend.</p>;
-  }
+function isInCity(event, city) {
+  const town = String(event.town || '').toLocaleLowerCase('de-AT');
+  const label = city.label.toLocaleLowerCase('de-AT');
+  return town === label || town.startsWith(`${label}-`);
+}
+
+function EventCards({ events, returnPath }) {
   return (
     <ol className={styles.eventList}>
       {events.map((ev) => {
@@ -58,7 +64,7 @@ function EventList({ events, returnPath }) {
         return (
           <li key={ev.id} className={styles.eventCard} style={{ '--event-color': color }}>
             <DiscoveryEventLink id={ev.id} returnPath={returnPath} className={styles.eventLink}>
-              <h2 style={{ fontSize: 19, lineHeight: 1.3, margin: 0 }}>{ev.title}</h2>
+              <h3 style={{ fontSize: 19, lineHeight: 1.3, margin: 0 }}>{ev.title}</h3>
               <p style={{ color, fontSize: 14, fontWeight: 700, margin: '6px 0 0' }}>
                 {eventDate(ev)}
                 {place && <span style={{ color: S.muted, fontWeight: 400 }}> · {place}</span>}
@@ -73,6 +79,33 @@ function EventList({ events, returnPath }) {
         );
       })}
     </ol>
+  );
+}
+
+function EventList({ events, returnPath, city, excludedIds = new Set() }) {
+  if (!events.length) {
+    return <p style={{ color: S.muted, lineHeight: 1.6 }}>Für diesen Zeitraum sind noch keine Veranstaltungen veröffentlicht. Wir aktualisieren diese Seite laufend.</p>;
+  }
+  const remaining = events.filter((event) => !excludedIds.has(String(event.id)));
+  if (!remaining.length) return null;
+  const cityEvents = remaining.filter((event) => isInCity(event, city));
+  const nearbyEvents = remaining.filter((event) => !isInCity(event, city));
+  const groups = [
+    { key: 'city', title: `Veranstaltungen in ${city.label}`, events: cityEvents },
+    { key: 'nearby', title: `Weitere Termine rund um ${city.label}`, events: nearbyEvents },
+  ].filter((group) => group.events.length);
+  return (
+    <div className={styles.eventGroups}>
+      {groups.map((group) => (
+        <section key={group.key} aria-labelledby={`event-group-${group.key}`} className={styles.eventGroup}>
+          <div className={styles.eventGroupHeading}>
+            <h2 id={`event-group-${group.key}`}>{group.title}</h2>
+            <span>{group.events.length} angezeigt</span>
+          </div>
+          <EventCards events={group.events} returnPath={returnPath} />
+        </section>
+      ))}
+    </div>
   );
 }
 
@@ -117,10 +150,47 @@ export function collectionJsonLd({ city, title, description, path, events, lastM
   };
 }
 
-export default function SeoEventPage({ city, title, intro, events, path, month, intent }) {
+function formatFreshness(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat('de-AT', {
+    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    timeZone: 'Europe/Vienna',
+  }).format(date);
+}
+
+function PageEvidence({ city, events, range, total, facets, lastModified }) {
+  if (!range || total == null) return null;
+  const dates = seoDateRangeLabel(range.from, range.to);
+  const sources = new Set(events.map((event) => event.source_name).filter(Boolean)).size;
+  const freshness = formatFreshness(lastModified);
+  return (
+    <aside className={styles.evidence} aria-label="Aktualität und Quellen">
+      <div className={styles.evidencePrimary}>
+        <strong>{total} aktuelle Veranstaltungen</strong>
+        {dates && <span>{dates}</span>}
+        <span>bis {city.radiusKm} km rund um {city.label}</span>
+      </div>
+      <div className={styles.evidenceSecondary}>
+        {facets?.kids > 0 && <span>{facets.kids} für Kinder oder Familien</span>}
+        {facets?.free > 0 && <span>{facets.free} als gratis gekennzeichnet</span>}
+        {sources > 0 && <span>{sources} benannte Quellen in der angezeigten Auswahl</span>}
+        {freshness && <span>zuletzt aktualisiert: {freshness} Uhr</span>}
+      </div>
+      <Link href="/events/methodology" className={styles.methodLink}>So findet und prüft Okolo Veranstaltungen →</Link>
+    </aside>
+  );
+}
+
+export default function SeoEventPage({
+  city, title, intro, events, path, month, intent, digest, range, total, facets, lastModified,
+}) {
   const months = upcomingMonthSlugs();
   const channel = getChannel(city.slug);
   const mapUrl = `/?when=all&lat=${city.lat}&lng=${city.lng}`;
+  const digestItems = intent === 'wochenende' ? availableDigestItems(digest, events) : [];
+  const highlightedIds = new Set(digestItems.map((item) => String(item.id)));
   return (
     <main lang="de-AT" className={styles.page}>
       <div className={styles.shell}>
@@ -136,12 +206,20 @@ export default function SeoEventPage({ city, title, intro, events, path, month, 
             <Link href={mapUrl} className={styles.primaryAction}>
               Auf der Karte ansehen <span className={styles.actionArrow} aria-hidden="true">→</span>
             </Link>
-            {channel && (
-              <Link href={`/weekend/${channel.slug}`} className={styles.secondaryAction}>
+            {channel && intent !== 'wochenende' && (
+              <Link href={`/events/${city.slug}/wochenende`} className={styles.secondaryAction}>
                 Dieses Wochenende <span aria-hidden="true">→</span>
               </Link>
             )}
           </div>
+          <PageEvidence
+            city={city}
+            events={events}
+            range={range}
+            total={total}
+            facets={facets}
+            lastModified={lastModified}
+          />
         </section>
 
         <div className={styles.filterBlock}>
@@ -161,7 +239,9 @@ export default function SeoEventPage({ city, title, intro, events, path, month, 
           </nav>
         </div>
 
-        <EventList events={events} returnPath={path} />
+        <WeekendHighlights digest={digest} events={events} returnPath={path} />
+
+        <EventList events={events} returnPath={path} city={city} excludedIds={highlightedIds} />
 
         <nav aria-label="Weitere Städte" className={styles.otherCities}>
           <h2>Weitere Städte in Österreich</h2>
@@ -170,6 +250,7 @@ export default function SeoEventPage({ city, title, intro, events, path, month, 
               <Link key={other.slug} href={cityPath(other)} className={styles.otherCity}>{other.label}</Link>
             ))}
           </div>
+          <Link href="/events/methodology" className={styles.footerMethodLink}>Wie Okolo Veranstaltungen sammelt und prüft</Link>
         </nav>
       </div>
     </main>

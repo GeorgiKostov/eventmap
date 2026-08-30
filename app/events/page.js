@@ -49,6 +49,11 @@ export default function EventsIndex() {
             </li>
           ))}
         </ul>
+
+        <p className={styles.indexMethod}>
+          Okolo bündelt Termine aus offiziellen und freigegebenen lokalen Quellen, zeigt die Herkunft jedes Events und ergänzt keine unbekannten Angaben.{' '}
+          <Link href="/events/methodology">So arbeitet Okolo →</Link>
+        </p>
       </div>
     </main>
   );

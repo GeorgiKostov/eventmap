@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   SEO_CITIES,
+  availableDigestItems,
   canonicalSeoPath,
   cityIntentPath,
   cityMonthPath,
@@ -12,6 +13,7 @@ import {
   monthLabel,
   monthRange,
   resolveSeoCity,
+  seoDateRangeLabel,
   seoCityForPoint,
   todayRange,
   upcomingMonthSlugs,
@@ -64,6 +66,20 @@ test('builds canonical nested month and permanent intent paths', () => {
 
 test('today uses the Vienna-local calendar date', () => {
   assert.deepEqual(todayRange(new Date('2026-08-31T22:30:00Z')), { from: '2026-09-01', to: '2026-09-01' });
+});
+
+test('formats exact German date ranges for fresh landing-page titles', () => {
+  assert.equal(seoDateRangeLabel('2026-08-28', '2026-08-30'), '28.–30. August 2026');
+  assert.equal(seoDateRangeLabel('2026-08-30', '2026-08-30'), '30. August 2026');
+  assert.equal(seoDateRangeLabel('2026-08-30', '2026-09-02'), '30. August–2. September 2026');
+  assert.equal(seoDateRangeLabel('bad-date', '2026-09-02'), null);
+});
+
+test('shows only current published digest picks on the stable weekend page', () => {
+  const digest = { items: [{ id: '10' }, { id: '11' }, { id: '12' }] };
+  const events = [{ id: '11' }, { id: 12 }, { id: '13' }];
+  assert.deepEqual(availableDigestItems(digest, events), [{ id: '11' }, { id: '12' }]);
+  assert.deepEqual(availableDigestItems(null, events), []);
 });
 
 test('maps event coordinates upward to the nearest supported SEO city', () => {

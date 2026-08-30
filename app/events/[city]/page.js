@@ -54,7 +54,17 @@ export default async function CityEventsPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
-      <SeoEventPage city={data.city} title={title} intro={description} events={data.events} path={path} />
+      <SeoEventPage
+        city={data.city}
+        title={title}
+        intro={description}
+        events={data.events}
+        path={path}
+        range={data.range}
+        total={data.total}
+        facets={data.facets}
+        lastModified={data.lastModified}
+      />
     </>
   );
 }

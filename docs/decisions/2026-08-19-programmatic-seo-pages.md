@@ -41,3 +41,17 @@ at once so it stays below the five-connection Supabase pool.
 State pages, nationwide verticals, and the wider category matrix are deferred until Search Console
 shows which of the first intents earn impressions. This keeps the validation prototype focused and
 prevents a speculative crawl-space explosion.
+
+## 2026-08-30 — Linz weekend and trust refinement
+
+The permanent `/events/<city>/wochenende` URL remains the canonical current-weekend landing page.
+Its title, H1, description and visible evidence now carry the exact Vienna-local weekend range. For
+Linz, currently available picks from the existing frozen editorial digest appear above the complete
+inventory; expired or missing pick IDs are omitted rather than replaced with fabricated guidance.
+Multi-day picks use their current end date so an ongoing Sunday event is not presented as Friday-only.
+
+City results and nearby results are separate semantic sections. Each page states the bounded result
+count, date range, radius, family/free facets, named-source count and last update, and links to a
+static sourcing and verification methodology page. City and dated-weekend navigation points directly
+to the canonical live weekend URL. This adds evidence and internal-link clarity without a new URL
+matrix, database schema, copied publisher prose or additional production query path.

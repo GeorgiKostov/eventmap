@@ -67,7 +67,18 @@ export default async function CityMonthPage({ params }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
-      <SeoEventPage city={data.city} title={title} intro={description} events={data.events} path={path} month={data.monthSlug} />
+      <SeoEventPage
+        city={data.city}
+        title={title}
+        intro={description}
+        events={data.events}
+        path={path}
+        month={data.monthSlug}
+        range={data.range}
+        total={data.total}
+        facets={data.facets}
+        lastModified={data.lastModified}
+      />
     </>
   );
 }

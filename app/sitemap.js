@@ -91,6 +91,7 @@ export default async function sitemap() {
   return [
     { url: base, changeFrequency: 'hourly', priority: 1 },
     { url: `${base}/events`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${base}/events/methodology`, changeFrequency: 'monthly', priority: 0.5 },
     ...seoCities,
     ...seoWindows,
     ...cityIndexes,
