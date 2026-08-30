@@ -7,8 +7,10 @@ const showcase = readFileSync(new URL('../app/partners/partner-showcase.js', imp
 
 test('partner sales material is a shareable HTML showcase, not a slide download', () => {
   assert.match(page, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
-  assert.match(showcase, /<iframe src="\/partners\/demo"/);
+  assert.match(showcase, /src="\/partners\/festival-map-showcase\.webp"/);
+  assert.match(showcase, /src="\/partners\/festival-map-showcase-mobile\.webp"/);
+  assert.match(showcase, /href="\/partners\/demo"/);
+  assert.doesNotMatch(showcase, /<iframe/);
   assert.match(showcase, /partner_showcase_view/);
   assert.doesNotMatch(showcase, /\.pptx|powerpoint/i);
 });
-

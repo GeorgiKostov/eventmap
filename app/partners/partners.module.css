@@ -76,8 +76,6 @@
 .browserFrame {
   overflow: hidden;
   min-width: 0;
-  height: min(660px, calc(100vh - 132px));
-  min-height: 540px;
   border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
   border-radius: 22px;
   background: var(--panel);
@@ -92,7 +90,10 @@
 .browserDots { display: flex; gap: 5px; }
 .browserDots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
 .browserDots i:first-child { background: var(--accent); }
-.browserFrame iframe { width: 100%; height: calc(100% - 42px); border: 0; background: var(--bg); }
+.demoPreview { position: relative; display: block; overflow: hidden; background: var(--bg); }
+.demoPreview img { display: block; width: 100%; height: auto; transition: transform .35s ease; }
+.demoPreview:hover img { transform: scale(1.012); }
+.mobilePreview { display: none !important; }
 
 .useCase, .features, .package, .finalCta { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
 .useCase { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; padding: 120px 0; }
@@ -131,7 +132,7 @@
 @media (max-width: 980px) {
   .hero { grid-template-columns: 1fr; padding-top: 54px; }
   .heroCopy { max-width: 720px; }
-  .browserFrame { height: 640px; transform: none; }
+  .browserFrame { transform: none; }
 }
 
 @media (max-width: 720px) {
@@ -142,8 +143,10 @@
   .hero h1 { font-size: clamp(46px, 15vw, 66px); }
   .heroCopy > p { font-size: 16px; }
   .heroActions { align-items: flex-start; flex-direction: column; }
-  .browserFrame { height: 620px; min-height: 0; border-radius: 18px; }
+  .browserFrame { border-radius: 18px; }
   .browserBar { grid-template-columns: 54px minmax(0, 1fr) 26px; }
+  .desktopPreview { display: none !important; }
+  .mobilePreview { display: block !important; aspect-ratio: 390 / 720; object-fit: cover; object-position: top; }
   .useCase { grid-template-columns: 1fr; gap: 34px; padding: 84px 0; }
   .features, .package { padding: 84px 0; }
   .featureGrid, .packageGrid { grid-template-columns: 1fr; }
@@ -155,5 +158,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .browserFrame { transform: none; }
+  .demoPreview img { transition: none; }
 }
-

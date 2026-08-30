@@ -3,6 +3,9 @@
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
 ## Public festival-partner demonstration (2026-08-29)
+- [x] Replace the live map iframe in the `/partners` hero with optimized desktop/mobile screenshots.
+      Keep the screenshot and primary CTA linked to `/partners/demo`, so the pitch loads reliably
+      while the interactive map remains available on deliberate click.
 - [x] Repair the production embed regression caused by global anti-framing headers. Only
       `/partners` and `/partners/demo` now allow framing; the product, account surfaces and private
       `/aecfestival` path retain CSP `frame-ancestors 'none'` plus `X-Frame-Options: DENY`.

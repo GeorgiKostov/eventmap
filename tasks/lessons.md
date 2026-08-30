@@ -1,5 +1,13 @@
 # Lessons
 
+## 2026-08-30 — A sales-page preview should be stable before it is interactive
+
+The partner hero initially mounted the full map in an iframe. Even after repairing its framing
+policy, that made the first impression depend on two application renders, map tiles and embedding
+behavior. George suggested an image instead. **Lesson:** use an optimized product screenshot as the
+immediate proof on a sales page, then make it a clear link to the real interactive demo. Preserve
+interaction as the next deliberate action rather than as infrastructure the pitch must load.
+
 ## 2026-08-30 — Verify share surfaces with production framing headers
 
 The HTML showcase worked locally, but later global clickjacking hardening added CSP

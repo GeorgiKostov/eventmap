@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -80,7 +81,29 @@ export default function PartnerShowcase() {
             <span>okolo.events/yourfestival</span>
             <Link href="/partners/demo" aria-label={t.partnerShowcaseOpenDemo}><ArrowRight size={15} /></Link>
           </div>
-          <iframe src="/partners/demo" title={t.partnerShowcaseFrameTitle} />
+          <Link
+            className={styles.demoPreview}
+            href="/partners/demo"
+            aria-label={t.partnerShowcaseOpenDemo}
+            onClick={() => track('partner_showcase_demo_open', { placement: 'hero_preview' })}
+          >
+            <Image
+              className={styles.desktopPreview}
+              src="/partners/festival-map-showcase.webp"
+              alt={t.partnerShowcaseFrameTitle}
+              width={1280}
+              height={720}
+              priority
+            />
+            <Image
+              className={styles.mobilePreview}
+              src="/partners/festival-map-showcase-mobile.webp"
+              alt={t.partnerShowcaseFrameTitle}
+              width={390}
+              height={844}
+              priority
+            />
+          </Link>
         </div>
       </section>
 
@@ -143,4 +166,3 @@ export default function PartnerShowcase() {
     </main>
   );
 }
-

@@ -10,6 +10,9 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
 ## Where things stand (2026-08-30 — partner showcase embed repaired)
+- The `/partners` hero now uses responsive static screenshots rather than mounting the live map in
+  its first viewport. This makes the sales page fast and presentation-stable; both the screenshot
+  and primary action still open the full interactive `/partners/demo` experience.
 - Global clickjacking hardening had unintentionally blocked both the `/partners` showcase in the
   Codex browser panel and its same-origin `/partners/demo` iframe. The header policy is now scoped:
   only these fictional, read-only sales routes use CSP `frame-ancestors *`; every product, account
