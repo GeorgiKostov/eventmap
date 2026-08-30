@@ -30,6 +30,10 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   labelled sponsored visibility, and reports agreed usage and official-source referrals. Current
   event-map products informed the familiar B2B framing (no app, branded link, schedule/map and
   measurement); Okolo's managed hosting plus public-map distribution is stated as the distinction.
+- Commit `b94acf0` is pushed to `main`. Production deployment
+  `dpl_3qRKsLPw24EVJ1zAtWYDd8QmhVt1` is Ready and aliased to `www.okolo.events`; the live main-menu
+  link, desktop and 390 px layouts, revised offer copy, browser console and Vercel error-log scan
+  pass. The current sales screenshots were refreshed from production.
 - The `/partners/demo` day-filter strip is now a non-shrinking sidebar row. This prevents its
   horizontally scrollable container from collapsing the active `All days` pill at constrained
   desktop heights; the programme list continues to own vertical scrolling. The focused regression

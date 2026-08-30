@@ -8,7 +8,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Rewrite the partner showcase around the actual managed offer: Okolo builds, hosts and updates
       the custom map; structures programme, venues and timed highlights; lists approved events on
       the main Okolo map; offers optional clearly labelled sponsored highlighting; and measures
-      agreed usage and official-source referrals. Desktop, 390 px and DE/EN/BG QA pass.
+      agreed usage and official-source referrals. Desktop, 390 px and DE/EN/BG QA pass. Production
+      deployment `dpl_3qRKsLPw24EVJ1zAtWYDd8QmhVt1` is live; the map-menu journey, responsive page,
+      browser console and Vercel error-log scan pass.
 - [x] Keep the desktop day-filter row at its full content height so the active `All days` pill is
       not clipped when the programme list makes the sidebar vertically constrained. The 1280×720
       production build passes Friday → All days filtering, visual QA and browser error checks.
