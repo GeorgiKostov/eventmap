@@ -25,18 +25,6 @@
 
 .header { padding: 16px 18px 12px; }
 
-.demoNotice {
-  display: inline-flex;
-  padding: 4px 8px;
-  border-radius: 999px;
-  color: var(--demo-accent);
-  background: var(--demo-soft);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-
 .lockup { display: flex; align-items: center; gap: 13px; margin-top: 12px; }
 .lockup img { border-radius: 15px; box-shadow: 0 3px 12px rgba(23, 32, 28, .16); }
 .lockup div { min-width: 0; }
@@ -116,11 +104,14 @@
   .sidebar { display: none; }
   .benefitRail { top: auto; right: 10px; bottom: 18px; left: 10px; transform: none; justify-content: stretch; border-radius: 14px; }
   .benefitRail span { flex: 1; justify-content: center; padding: 8px 5px; font-size: 9px; }
-  .mobileBrand { position: absolute; z-index: 4; top: 10px; left: 10px; right: 10px; display: grid; grid-template-columns: 42px minmax(0, 1fr) 38px; align-items: center; gap: 9px; padding: 9px; border: 1px solid rgba(255,255,255,.8); border-radius: 15px; background: rgba(255,255,255,.96); box-shadow: 0 6px 24px rgba(23,32,28,.17); backdrop-filter: blur(10px); }
-  .mobileBrand img { border-radius: 11px; }
-  .mobileBrand div { min-width: 0; display: flex; flex-direction: column; }
-  .mobileBrand small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--demo-accent); font-size: 8.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
-  .mobileBrand strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-display); font-size: 14px; }
+  .mobileBrand { position: absolute; z-index: 4; top: 10px; left: 10px; right: 10px; display: grid; gap: 9px; padding: 9px; border: 1px solid rgba(255,255,255,.8); border-radius: 15px; background: rgba(255,255,255,.96); box-shadow: 0 6px 24px rgba(23,32,28,.17); backdrop-filter: blur(10px); }
+  .mobileBrandTop { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 9px; }
+  .mobileBrandTop > :global(.okolo-brand) { min-width: 0; }
+  .mobilePartnerLockup { min-width: 0; display: flex; align-items: center; gap: 9px; padding-top: 8px; border-top: 1px solid var(--demo-line); }
+  .mobilePartnerLockup img { flex: 0 0 auto; border-radius: 9px; }
+  .mobilePartnerLockup div { min-width: 0; display: flex; flex-direction: column; }
+  .mobilePartnerLockup small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--demo-muted); font-size: 8.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+  .mobilePartnerLockup strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-display); font-size: 13px; }
   .mobileBrand button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--demo-line); border-radius: 50%; background: #fff; }
   .mobileBrand .mobileFilterActive { color: var(--demo-accent); border-color: var(--demo-accent); background: var(--demo-soft); }
   .detail { left: 10px; bottom: 64px; width: calc(100% - 20px); padding: 14px; }

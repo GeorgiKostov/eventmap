@@ -15,7 +15,7 @@ import {
   upcomingMonthSlugs,
 } from '../../lib/seo-pages.js';
 import DiscoveryEventLink from './event-link.js';
-import EventsBrand from './events-brand.js';
+import OkoloBrand from '../okolo-brand.js';
 import WeekendHighlights from './weekend-highlights.js';
 import styles from './events.module.css';
 
@@ -194,7 +194,7 @@ export default function SeoEventPage({
   return (
     <main lang="de-AT" className={styles.page}>
       <div className={styles.shell}>
-        <EventsBrand />
+        <OkoloBrand channelHandle={channel?.handle} />
         <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
           <Link href="/events">Events</Link> / {month ? <><Link href={cityPath(city)}>{city.label}</Link> / {monthLabel(month)}</> : city.label}
         </nav>

@@ -2,6 +2,13 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Cross-page Okolo brand header (2026-08-30)
+- [x] Replace route-local or missing top-left treatments with one shared Okolo pin + lowercase
+      wordmark across the map, discovery, event, weekend, legal, partner-demo and admin shells.
+      Preserve city handles as the only wordmark variant and keep partner/admin context secondary.
+- [x] Record the binding design-system rule and decision, add route-family regression coverage, and
+      verify representative desktop and 390 px pages without horizontal overflow.
+
 ## Public festival-partner demonstration (2026-08-29)
 - [x] Link the main map's localized “Advertise & partner” menu entry directly to `/partners` and
       retire the superseded quote modal. Track the menu placement as `partner_showcase_open`.
@@ -40,6 +47,19 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       pass. The in-app QA browser emitted one URL-less MutationObserver error while instrumenting the
       same-origin iframe; the application and Vercel logs are clean.
 
+## Partner festival map preview (2026-08-29)
+- [x] Add a reusable partner-program configuration and an Ars Electronica showcase at
+      `/aecfestival`: co-branded map header, festival-date lens, exact source filter, branded event
+      rows/cards/details, official-programme link and partner-specific analytics events.
+- [x] Verify the partner-only toggle, desktop and 390 px mobile layouts, selected-event and detail
+      flows, source linkback, horizontal fit and browser logs; capture a five-image organizer
+      showcase under `output/screenshots/partner-showcase/`.
+- [ ] Replace the generic festival mark with Ars Electronica artwork only after receiving written
+      logo/brand permission. Keep category/status semantics on the map pins instead of turning the
+      logo into a new pin shape.
+- [ ] Commit, deploy and remove the route's `noindex` directive only when the partner preview is
+      approved for public release.
+
 ## Account-gated contributions and synced saves (2026-08-29)
 - [x] Add Supabase Auth with Google OAuth and email magic links. Google uses the dedicated
       `okolo-events-auth` project; Supabase has the production/local callback allow-list and Resend
@@ -76,6 +96,13 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       history rendered both contributions. Browser QA caught and fixed the stale `loadEvents()`
       completion call before final release. Disposable contribution rows, Supabase user, mailbox and
       local credentials were deleted, and Vercel/Auth logs contain no runtime errors.
+
+## Live mobile GPS tracking (2026-08-29)
+- [x] Replace the one-shot location snapshot with high-accuracy live tracking. The blue puck and
+      physical accuracy circle now follow every device reading; the camera follows until the user
+      moves the map, then one locate-button tap re-centres it.
+- [x] Keep location permission user-led unless already granted, preserve the existing floating-control
+      layout, localize the native control, and lock the live-watch configuration with regression tests.
 
 ## Adversarial crawler + Sofia check (2026-08-23)
 - [x] Run the official Visit Sofia JEvents adapter in strict structured mode with all external-model

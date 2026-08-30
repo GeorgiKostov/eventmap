@@ -41,7 +41,24 @@ The first partner package included a PowerPoint even though the product's value 
 interactive map. George corrected the format. **Lesson:** make a shareable HTML page the canonical
 sales showcase for Okolo so prospects can use the demo, open it on any screen and produce measurable
 actions. Create a PPTX or PDF only when George explicitly requests a static export.
+## 2026-08-30 — Brand identity is shared shell chrome, not page-local decoration
 
+Okolo's map, event, weekend, legal, partner and admin surfaces evolved separate top-left treatments:
+some redrew the pin, some substituted an arrow or partner logo, and the main map omitted the brand
+entirely. **Lesson:** one shared component must own the brand pin, lowercase wordmark, geometry and
+tokens across every visual page shell. Only a controlled city-handle suffix may vary the wordmark;
+partner, admin and action context stays secondary. Lock the route-family inventory in a regression
+test so a new page cannot silently invent another header.
+
+## 2026-08-29 — A location puck requires a live watch, not a fresh-looking snapshot
+
+The mobile map used `getCurrentPosition`, so pressing locate could centre on a valid fix while the
+blue puck remained permanently attached to that single coordinate as the phone moved. A short cache
+window made the frozen result even easier to reproduce. **Lesson:** a Maps-style puck is a tracking
+state machine: use high-accuracy `watchPosition`, render the reported accuracy, keep updating the puck
+after the user pans, and separate camera focus from sensor tracking so map exploration does not turn
+GPS off. Test for the live-watch contract explicitly; a successful one-shot reading proves only
+permission and initial centring.
 ## 2026-08-22 — Explicit page requirements come before general visual polish
 
 George asked for the city discovery page to lose its statistics text and gain a visible map button;

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { SEO_CITIES, cityPath } from '../../lib/seo-pages.js';
 import { publicUrl } from '../../lib/public-url.js';
-import EventsBrand from './events-brand.js';
+import OkoloBrand from '../okolo-brand.js';
 import styles from './events.module.css';
 
 export const metadata = {
@@ -23,7 +23,7 @@ export default function EventsIndex() {
     <main lang="de-AT" className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
       <div className={styles.shell}>
-        <EventsBrand />
+        <OkoloBrand />
 
         <section className={styles.indexHero}>
           <p className={styles.eyebrow}>Dein Eventkalender für Österreich</p>

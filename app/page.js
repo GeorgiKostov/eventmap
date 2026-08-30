@@ -16,7 +16,9 @@ import { seoCityForPoint } from '../lib/seo-pages.js';
 import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 import { eventSummary } from '../lib/event-summary.js';
+import { partnerEventMatches, partnerProgram } from '../lib/partner-programs.js';
 import AccountDialog from './account-dialog.js';
+import OkoloBrand from './okolo-brand.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
@@ -33,13 +35,13 @@ const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
 //
 // parseFloat, not Number: Number('') and Number(null) are both 0, which is a
 // perfectly finite coordinate in the Gulf of Guinea.
-function initialCenter() {
-  if (typeof window === 'undefined') return HOME;
+function initialCenter(fallback = HOME) {
+  if (typeof window === 'undefined') return fallback;
   const p = new URLSearchParams(window.location.search);
   const lat = parseFloat(p.get('lat'));
   const lng = parseFloat(p.get('lng'));
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return HOME;
-  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return HOME;
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return fallback;
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return fallback;
   return { lat, lng };
 }
 
@@ -91,6 +93,8 @@ function mapLibreLocale(t) {
     'NavigationControl.ZoomIn': t.zoomIn,
     'NavigationControl.ZoomOut': t.zoomOut,
     'AttributionControl.ToggleAttribution': t.toggleAttribution,
+    'GeolocateControl.FindMyLocation': t.locateMe,
+    'GeolocateControl.LocationNotAvailable': t.locateUnavailable,
   };
 }
 
@@ -656,9 +660,11 @@ function PinDropPicker({ center, t, onConfirm }) {
 }
 
 /* ==================================================================== */
-export default function Home() {
+export default function Home({ partnerSlug = null } = {}) {
+  const partner = partnerProgram(partnerSlug);
   const mapRef = useRef(null);
   const mapObj = useRef(null);
+  const geolocateMount = useRef(null);
   // Pin lookups for the GL layers: id → grouped item (click/flyTo) and member id
   // → representative id (a venue/series group is one pin; selecting any member
   // lights its representative). Rebuilt with the pin source data.
@@ -668,6 +674,9 @@ export default function Home() {
   const cameraInput = useRef(null);
 
   const { lang, t, chooseLanguage } = useLanguage();
+  useEffect(() => {
+    if (partner) track('partner_map_view', { partner: partner.slug });
+  }, [partner]);
   useEffect(() => {
     const root = mapRef.current;
     if (!root) return;
@@ -697,9 +706,7 @@ export default function Home() {
 
   const [events, setEvents] = useState(null);
   const [me, setMe] = useState(HOME);
-  const [located, setLocated] = useState(false); // true once we have a real (not fallback) position
-  const [locating, setLocating] = useState(false); // true while a locate-me geolocation fetch is in flight
-  const meMarker = useRef(null);
+  const hasLocation = useRef(false); // true once we have a real (not fallback) position
   const searchMarker = useRef(null);
 
   // "search anywhere" reference point — set when the user picks a location (town/
@@ -927,9 +934,12 @@ export default function Home() {
   }
 
   // filters
-  const [kindFilter, setKindFilter] = useState('all'); // all | event | place
-  const [whenMode, setWhenMode] = useState('today'); // all | today | tomorrow | weekend | next7 | range
-  const [range, setRange] = useState({ from: null, to: null });
+  const [kindFilter, setKindFilter] = useState(partner ? 'event' : 'all'); // all | event | place
+  const [whenMode, setWhenMode] = useState(partner ? 'range' : 'today'); // all | today | tomorrow | weekend | next7 | range
+  const [range, setRange] = useState(partner
+    ? { from: partner.dateFrom, to: partner.dateTo }
+    : { from: null, to: null });
+  const [partnerOnly, setPartnerOnly] = useState(!!partner);
   const [dpOpen, setDpOpen] = useState(false);
   const [dpDraft, setDpDraft] = useState({ from: null, to: null });
   // Search re-runs the whole grouping pipeline + rewrites both GeoJSON sources —
@@ -1277,44 +1287,6 @@ export default function Home() {
     }).catch(() => { /* fire-and-forget */ });
   }
 
-  useEffect(() => {
-    navigator.geolocation?.getCurrentPosition(
-      (p) => {
-        const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-        if (distKm(loc, HOME) < 80) { setMe(loc); setLocated(true); }
-      },
-      () => {},
-      { timeout: 4000 }
-    );
-  }, []);
-
-  function locateMe() {
-    if (!navigator.geolocation) { showToast(t.locateUnavailable); return; }
-    // respond instantly: fly to the last known position while the fresh fix loads
-    const hadFix = located;
-    if (hadFix) {
-      setSearchCenter(null); // restore own location as the reference point
-      flyAssured({ center: [me.lng, me.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 13), duration: 800 });
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        const loc = { lat: p.coords.latitude, lng: p.coords.longitude };
-        setMe(loc);
-        setLocated(true);
-        setSearchCenter(null);
-        setLocating(false);
-        flyAssured({ center: [loc.lng, loc.lat], zoom: Math.max(mapObj.current?.getZoom() ?? 0, 13), duration: 800 });
-      },
-      (err) => {
-        setLocating(false);
-        // already showing the last known position — a fresh-fix failure isn't worth a scary toast
-        if (!hadFix) showToast(err.code === 1 ? t.locateDenied : t.locateUnavailable);
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
-    );
-  }
-
   /* ---------------- map ---------------- */
   // Sprites register asynchronously after the style loads; the pin layers can't
   // be added until they're on the map, so this gates their install.
@@ -1342,7 +1314,7 @@ export default function Home() {
     // hydration mismatch to reason about. mapCenter is seeded from the same value
     // the camera gets, so the menu's "Wochenende in X" is right on first paint —
     // moveend never fires for a map that was CONSTRUCTED at its target.
-    const start = initialCenter();
+    const start = initialCenter(partner?.center || HOME);
     setMe(start);
     setMapCenter(start);
     const map = new maplibregl.Map({
@@ -1361,6 +1333,45 @@ export default function Home() {
       },
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    // MapLibre's tracking control uses watchPosition rather than a one-shot GPS
+    // read. It keeps the puck + real accuracy circle moving as the phone moves,
+    // follows while focused, and drops to background tracking when the user
+    // drags the map — the same interaction model people expect from Google Maps.
+    // Its DOM is mounted in Okolo's existing floating-control stack so this
+    // behavior doesn't introduce a second, differently positioned locate UI.
+    const geolocate = new maplibregl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+      fitBoundsOptions: { maxZoom: 15, duration: 800 },
+      trackUserLocation: true,
+      showUserLocation: true,
+      showAccuracyCircle: true,
+      showUserHeading: true,
+    });
+    const geolocateEl = geolocate.onAdd(map);
+    geolocateMount.current?.appendChild(geolocateEl);
+    geolocate.on('trackuserlocationstart', () => setSearchCenter(null));
+    geolocate.on('geolocate', (p) => {
+      const lat = p.coords?.latitude;
+      const lng = p.coords?.longitude;
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      setMe({ lat, lng });
+      hasLocation.current = true;
+    });
+    geolocate.on('error', (err) => {
+      if (!hasLocation.current) showToast(err.code === 1 ? t.locateDenied : t.locateUnavailable);
+    });
+    // If the visitor already granted access, restore live tracking without a
+    // new prompt. Otherwise location starts only from their button press.
+    let locateRetry = null;
+    let locateAttempts = 0;
+    const startGrantedTracking = () => {
+      if (geolocate.trigger()) return;
+      locateAttempts += 1;
+      if (locateAttempts < 20) locateRetry = setTimeout(startGrantedTracking, 100);
+    };
+    navigator.permissions?.query({ name: 'geolocation' })
+      .then((permission) => { if (permission.state === 'granted') startGrantedTracking(); })
+      .catch(() => { /* Safari has no consistently usable Permissions API */ });
     map.on('load', () => {
       setMapLoaded(true);
       // Rasterize + register the category pin sprites, then let the pin layers install.
@@ -1480,26 +1491,17 @@ export default function Home() {
       clearTimeout(moveendTimer.current);
       moveendTimer.current = setTimeout(() => fetchViewportRef.current(), 400);
     });
-    const meEl = document.createElement('div');
-    meEl.className = 'me-marker hidden';
-    meMarker.current = new maplibregl.Marker({ element: meEl }).setLngLat([HOME.lng, HOME.lat]).addTo(map);
     map.on('error', (e) => console.error('[maplibre]', e?.error?.message || e));
     mapObj.current = map;
     setMapInit(true);
     return () => {
+      clearTimeout(locateRetry);
       clearTimeout(moveendTimer.current);
+      geolocate.onRemove();
       map.remove();
       mapObj.current = null;
     };
   }, []);
-
-  useEffect(() => {
-    meMarker.current?.setLngLat([me.lng, me.lat]);
-  }, [me]);
-
-  useEffect(() => {
-    meMarker.current?.getElement().classList.toggle('hidden', !located);
-  }, [located]);
 
   // temporary marker at the search-anywhere reference point.
   useEffect(() => {
@@ -1594,7 +1596,7 @@ export default function Home() {
           })
           .catch(() => {});
       }
-      const detailProps = { id: String(ev.id), kind: ev.kind, cat: primaryCat(ev), town: ev.town, highlight: ev.highlight || null, surface: 'map' };
+      const detailProps = { id: String(ev.id), kind: ev.kind, cat: primaryCat(ev), town: ev.town, highlight: ev.highlight || null, partner: isPartnerEvent(ev) ? partner.slug : null, surface: 'map' };
       track('open_detail', detailProps);
       if (ev.highlight === 'gold') track('sponsored_open', { ...detailProps, tier: 'gold' });
       // Fly to the group's representative pin (selecting a list row that's a venue
@@ -1682,7 +1684,7 @@ export default function Home() {
   }
 
   // Mirrors app/api/events/route.js's parseFilters() 1:1 — kind/cats/inout/tod/
-  // free/kids/community/from/to. `from`/`to` are date-only 'YYYY-MM-DD' (the
+  // free/kids/community/source/from/to. `from`/`to` are date-only 'YYYY-MM-DD' (the
   // same dFrom/dTo the client's own filteredEvents memo uses).
   function buildFilterParams() {
     const p = new URLSearchParams();
@@ -1693,6 +1695,7 @@ export default function Home() {
     if (freeOnly) p.set('free', '1');
     if (kidsOnly) p.set('kids', '1');
     if (communityOnly) p.set('community', '1');
+    if (partner && partnerOnly) p.set('source', partner.sourceName);
     p.set('from', dFrom);
     p.set('to', dTo);
     return p;
@@ -1741,7 +1744,7 @@ export default function Home() {
     if (!mapInit) return;
     fetchViewport();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapInit, kindFilter, cats, freeOnly, kidsOnly, communityOnly, inOut, tod, dFrom, dTo]);
+  }, [mapInit, kindFilter, cats, freeOnly, kidsOnly, communityOnly, inOut, tod, dFrom, dTo, partnerOnly]);
 
   // Common filters (category, free, kids, indoor/outdoor, search) apply to both
   // kinds. Date chips and time-of-day only make sense for events — places are
@@ -2845,6 +2848,68 @@ export default function Home() {
     </div>
   );
 
+  function isPartnerEvent(ev) {
+    if (!partner || !ev) return false;
+    return partnerEventMatches(partner, ev) || (partnerOnly && !ev.source_name);
+  }
+
+  function togglePartnerFilter() {
+    const next = !partnerOnly;
+    setPartnerOnly(next);
+    setSelectedTown(null);
+    selectEvent(null, { fly: false });
+    if (next) {
+      setKindFilter('event');
+      setRange({ from: partner.dateFrom, to: partner.dateTo });
+      setWhenMode('range');
+    }
+    track('partner_filter_toggle', { partner: partner.slug, on: next });
+  }
+
+  function partnerBadge() {
+    return (
+      <span className="source-tag partner">
+        <CatIcon cat="festival" size={10} /> {partner.shortName}
+      </span>
+    );
+  }
+
+  function partnerHeader(compact = false) {
+    if (!partner) return null;
+    const count = mode === 'cells' ? viewTotal : filteredEvents.length;
+    return (
+      <section className={`partner-panel ${compact ? 'compact' : ''}`} aria-label={t.partnerPreview}>
+        <div className="partner-panel-top">
+          <div className="partner-lockup">
+            <span className="partner-logo-box"><CatIcon cat="festival" size={22} /></span>
+            <span className="partner-lockup-copy">
+              <small>{t.partnerMapBy}</small>
+              <strong>{partner.shortName}</strong>
+              <span>{partner.edition}</span>
+            </span>
+          </div>
+          <span className="partner-preview-tag">{t.partnerPreview}</span>
+        </div>
+        <span className="partner-logo-note">{t.partnerLogoPlaceholder}</span>
+        <p>{t.partnerIntro}</p>
+        <div className="partner-actions">
+          <button className={`chip ${partnerOnly ? 'on' : ''}`} onClick={togglePartnerFilter} aria-pressed={partnerOnly}>
+            <CatIcon cat="festival" size={13} /> {t.partnerOnly.replace('{partner}', partner.shortName)}
+          </button>
+          <a
+            href={partner.sourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => track('partner_program_open', { partner: partner.slug, surface: compact ? 'mobile' : 'desktop' })}
+          >
+            {t.partnerProgramme} <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        {partnerOnly && <span className="partner-count">{t.partnerCount.replace('{n}', count)}</span>}
+      </section>
+    );
+  }
+
   // Location/distance tail shared by event + place rows: online has neither (no
   // physical place to point to, see isOnlineVenue); town-level shows the honest
   // "in {town}" instead of a fabricated venue name, and an "≈" distance instead
@@ -2900,10 +2965,11 @@ export default function Home() {
           const cat = primaryCat(ev);
           const community = isCommunitySubmitted(ev);
           const online = isOnlineVenue(ev);
+          const partnerEvent = isPartnerEvent(ev);
           return (
             <div key={ev.id}>
               {head}
-              <button className={`row ${hlClass(ev)} ${whenMode === 'range' ? 'range-match' : ''} ${selected?.id === ev.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(ev)}>
+              <button className={`row ${hlClass(ev)} ${partnerEvent ? 'partner-row' : ''} ${whenMode === 'range' ? 'range-match' : ''} ${selected?.id === ev.id ? 'active' : ''}`} style={{ '--cc': CATS[cat].color }} onClick={() => onPick(ev)}>
                 <span className="thumb"><CatIcon cat={cat} size={17} /></span>
                 <span className="tx">
                   <span className="t">{ev.title}</span>
@@ -2911,7 +2977,8 @@ export default function Home() {
                     {ev.all_day ? t.allDay : hasTime(ev.starts_at) ? ev.starts_at.slice(11, 16) : t.timeTbd}{locDistMeta(ev)}
                   </span>
                 </span>
-                {(community || online || ev.is_free === 1 || ev.highlight === 'gold') && <span className="rowbadges">
+                {(partnerEvent || community || online || ev.is_free === 1 || ev.highlight === 'gold') && <span className="rowbadges">
+                  {partnerEvent && partnerBadge()}
                   {/* Legal disclosure — gold (paid) only, never editorial (design-system.md). */}
                   {ev.highlight === 'gold' && <span className="source-tag gold">{t.adTag}</span>}
                   {community && <span className="source-tag community">{t.communitySource}</span>}
@@ -2994,11 +3061,12 @@ export default function Home() {
     const place = ev.kind === 'place';
     const ongoing = !place && isOngoingAt(ev, dFrom);
     const community = isCommunitySubmitted(ev);
+    const partnerEvent = isPartnerEvent(ev);
     const related = relatedEvents.eventId === String(ev.id) ? relatedEvents : null;
     const seriesSiblings = place ? [] : (related?.series || []);
     const venueSiblings = related?.venue || [];
     const captureSourceOpen = () => {
-      const props = { id: String(ev.id), kind: ev.kind, town: ev.town || null, highlight: ev.highlight || null, surface: 'map' };
+      const props = { id: String(ev.id), kind: ev.kind, town: ev.town || null, highlight: ev.highlight || null, partner: partnerEvent ? partner.slug : null, surface: 'map' };
       track('event_source_open', props);
       if (ev.highlight === 'gold') track('sponsored_referral', { ...props, tier: 'gold', target: 'source' });
     };
@@ -3010,6 +3078,15 @@ export default function Home() {
           {onClose && <button className="closebtn" onClick={onClose} aria-label={t.close}><X size={18} weight="bold" /></button>}
         </div>
         <div className="dbody">
+          {partnerEvent && (
+            <div className="partner-detail-brand">
+              <span className="partner-logo-box"><CatIcon cat="festival" size={17} /></span>
+              <span>
+                <small>{t.partnerBadge}</small>
+                <strong>{partner.shortName} · {partner.edition}</strong>
+              </span>
+            </div>
+          )}
           <div className="dtitle-row">
             <h2>{ev.title}</h2>
             {/* Legal disclosure — gold (paid) only, never editorial (design-system.md). */}
@@ -3491,11 +3568,15 @@ export default function Home() {
     <div className="shell">
       {/* ===== desktop sidebar ===== */}
       <aside className="sidebar desktoponly">
+        <div className="map-brand-row">
+          <OkoloBrand channelHandle={weekendChannel?.handle} qualifier={partner ? t.partnerPreview : null} />
+        </div>
         {selected && isDesktop ? (
           <div className="detail-side">{eventDetail(selected, { onBack: () => selectEvent(null, { fly: false }) })}</div>
         ) : (
           <>
             <div className="sidehead">
+              {partnerHeader()}
               {locSearchBar(false)}
             </div>
             <div className="chiprow" style={{ padding: '0 18px 6px' }}>{kindToggle}</div>
@@ -3555,12 +3636,17 @@ export default function Home() {
 
         {/* mobile top bar — Google-Maps-style search pill + menu button (menu content lives in locSearchBar) */}
         <div className="m-topbar mobileonly">
+          <div className="map-brand-row">
+            <OkoloBrand channelHandle={weekendChannel?.handle} qualifier={partner ? t.partnerPreview : null} />
+          </div>
           {locSearchBar(true)}
+          {partnerHeader(true)}
           {/* quick preview — sits right under the search bar: full title, time, short description */}
           {selected && !isDesktop && !detailFull && (
             <div className="minicard" style={{ '--cc': CATS[primaryCat(selected)].color }} onClick={() => setDetailFull(true)}>
               <span className="thumb"><CatIcon cat={primaryCat(selected)} size={19} /></span>
               <span className="tx">
+                {isPartnerEvent(selected) && <span className="partner-mini-badge">{partner.shortName}</span>}
                 <span className="t">{selected.title}</span>
                 <span className="w">
                   {selected.kind === 'place' ? placeStatusLabel(selected, t) : fmtWhenShort(selected, lang, t)}
@@ -3664,19 +3750,7 @@ export default function Home() {
           <button className="fab" onClick={requestOpenCapture} aria-label={t.addToMap}>
             +
           </button>
-          <button
-            className={`locate-btn ${locating ? 'locating' : ''} ${locating || (located && !searchCenter) ? 'active' : ''}`}
-            onClick={locateMe}
-            aria-label={t.locateMe}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <line x1="2" y1="12" x2="5" y2="12" />
-              <line x1="19" y1="12" x2="22" y2="12" />
-              <line x1="12" y1="2" x2="12" y2="5" />
-              <line x1="12" y1="19" x2="12" y2="22" />
-              <circle cx="12" cy="12" r="7" />
-            </svg>
-          </button>
+          <div ref={geolocateMount} className="locate-native" />
         </div>
       </div>
 

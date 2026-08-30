@@ -9,6 +9,7 @@ import { CatIcon, CATS, catIconSvg } from '../../../lib/icons.js';
 import { track } from '../../../lib/analytics.js';
 import { useLanguage } from '../../language-provider.js';
 import styles from './partner-demo.module.css';
+import OkoloBrand from '../../okolo-brand.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
@@ -104,7 +105,7 @@ export default function PartnerDemo() {
     <main className={styles.shell}>
       <aside className={styles.sidebar}>
         <header className={styles.header}>
-          <div className={styles.demoNotice}>{t.partnerDemoNotice}</div>
+          <OkoloBrand qualifier={t.partnerDemoNotice} />
           <div className={styles.lockup}>
             <Image src="/partner-demo/sample-festival-mark.svg" alt="" width={58} height={58} priority />
             <div>
@@ -169,9 +170,14 @@ export default function PartnerDemo() {
         </div>
 
         <div className={styles.mobileBrand}>
-          <Image src="/partner-demo/sample-festival-mark.svg" alt="" width={42} height={42} />
-          <div><small>{t.partnerDemoNotice}</small><strong>{t.partnerDemoFestivalName}</strong></div>
-          <button className={partnerOnly ? styles.mobileFilterActive : ''} onClick={togglePartnerOnly} aria-label={t.partnerDemoOnly}><Funnel size={18} /></button>
+          <div className={styles.mobileBrandTop}>
+            <OkoloBrand qualifier={t.partnerDemoNotice} />
+            <button className={partnerOnly ? styles.mobileFilterActive : ''} onClick={togglePartnerOnly} aria-label={t.partnerDemoOnly}><Funnel size={18} /></button>
+          </div>
+          <div className={styles.mobilePartnerLockup}>
+            <Image src="/partner-demo/sample-festival-mark.svg" alt="" width={34} height={34} />
+            <div><small>{t.partnerDemoMapBy}</small><strong>{t.partnerDemoFestivalName}</strong></div>
+          </div>
         </div>
 
         {selected && visibleEvents.some((event) => event.id === selected.id) && (

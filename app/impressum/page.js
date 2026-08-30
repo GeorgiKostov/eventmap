@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import Link from 'next/link';
+import OkoloBrand from '../okolo-brand.js';
 
 const COPY = {
   de: {
@@ -48,7 +48,7 @@ export default async function ImpressumPage() {
   const t = await copy();
   return (
     <div className="legalpage">
-      <Link href="/" className="home">← Okolo</Link>
+      <OkoloBrand />
       <h1>{t.title}</h1>
       <p className="sub">{t.intro}</p>
       <h2>{t.owner}</h2>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getChannel, weekendWindow, weekendLabel } from '../../../lib/city-channels.js';
 import { loadDigestFor } from '../../../lib/digest.js';
 import { listDigestKeys } from '../../../lib/db.js';
+import OkoloBrand from '../../okolo-brand.js';
 
 // /weekend/<city> — the stable link. It always shows the CURRENT weekend, so this
 // is the URL to put in a bio, a poster QR, or a group message: it never goes
@@ -43,6 +44,7 @@ export default async function CityWeekendIndex({ params }) {
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: '48px 20px', fontFamily: 'system-ui, sans-serif', color: '#212B28' }}>
+      <OkoloBrand channelHandle={channel.handle} />
       <h1 style={{ fontSize: 26 }}>{channel.label}</h1>
       <p style={{ color: '#4A5652' }}>{c.none}</p>
       {past.length ? (

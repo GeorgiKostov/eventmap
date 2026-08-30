@@ -117,8 +117,11 @@ function parseFilters(sp) {
   if ((from && !DATE_RE.test(from)) || (to && !DATE_RE.test(to))) return null;
   if (!!from !== !!to) return null; // from/to travel as a pair or not at all
 
+  const source = sp.get('source')?.trim() || null;
+  if (source && (source.length > 160 || /[\u0000-\u001f\u007f]/.test(source))) return null;
+
   return {
-    kind, cats, inout, tod,
+    kind, cats, inout, tod, source,
     free: sp.get('free') === '1',
     kids: sp.get('kids') === '1',
     community: sp.get('community') === '1',

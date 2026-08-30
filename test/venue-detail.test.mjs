@@ -37,11 +37,11 @@ test('city discovery page leads to the map with compact factual freshness and so
 test('country and city discovery pages share the Okolo brand and polished navigation', () => {
   const index = read('app/events/page.js');
   const city = read('app/events/seo-page.js');
-  const brand = read('app/events/events-brand.js');
+  const brand = read('app/okolo-brand.js');
 
-  assert.match(index, /<EventsBrand \/>/);
-  assert.match(city, /<EventsBrand \/>/);
-  assert.match(brand, /brandName}>okolo/);
-  assert.match(index, /Zur Event-Karte/);
+  assert.match(index, /<OkoloBrand \/>/);
+  assert.match(city, /<OkoloBrand channelHandle=\{channel\?\.handle\} \/>/);
+  assert.match(brand, /okolo-brand-name">okolo/);
+  assert.match(brand, /ariaLabel = 'Okolo'/);
   assert.match(index, /className=\{styles\.cityCard\}/);
 });

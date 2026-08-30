@@ -10,6 +10,7 @@ import { STRINGS } from '../../../lib/i18n.js';
 import { cityIntentPath, cityMonthPath, cityPath, isSupportedMonth, monthLabel, seoCityForPoint } from '../../../lib/seo-pages.js';
 import NewsletterSignup from '../../newsletter-signup.js';
 import { EventLandingView, MapDiscoveryLink, TrackedEventLink } from '../../event-analytics.js';
+import OkoloBrand from '../../okolo-brand.js';
 
 export const dynamic = 'force-dynamic';
 
@@ -170,11 +171,7 @@ export default async function EventPage({ params, searchParams }) {
           aria-label={headerLabel}
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', textDecoration: 'none' }}
         >
-          <span aria-hidden="true" style={{ fontSize: 15, color: 'var(--muted)' }}>←</span>
-          <span>
-            okolo
-            <span style={{ color: 'var(--accent)' }}>{channel ? channel.handle.replace(/^okolo/, '') : '.'}</span>
-          </span>
+          <OkoloBrand href={null} channelHandle={channel?.handle} />
           <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600 }}>{headerLabel}</span>
         </Link>
       ) : (
@@ -188,11 +185,7 @@ export default async function EventPage({ params, searchParams }) {
           placement="header"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 18, color: 'var(--ink)', textDecoration: 'none' }}
         >
-          <span aria-hidden="true" style={{ fontSize: 15, color: 'var(--muted)' }}>⌖</span>
-          <span>
-            okolo
-            <span style={{ color: 'var(--accent)' }}>{channel ? channel.handle.replace(/^okolo/, '') : '.'}</span>
-          </span>
+          <OkoloBrand href={null} channelHandle={channel?.handle} />
           <span style={{ color: 'var(--muted)', fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600 }}>{headerLabel}</span>
         </MapDiscoveryLink>
       )}

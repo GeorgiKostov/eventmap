@@ -8,6 +8,7 @@ import { STRINGS } from '../../../../lib/i18n.js';
 import NewsletterSignup from '../../../newsletter-signup.js';
 import { SponsoredImpression, TrackedEventLink } from '../../../event-analytics.js';
 import { publicBaseUrl } from '../../../../lib/public-url.js';
+import OkoloBrand from '../../../okolo-brand.js';
 
 // Highlight ring colours — same two as the map pins (app/page.js
 // HIGHLIGHT_COLORS) and the newsletter (lib/digest.js HIGHLIGHT).
@@ -191,12 +192,7 @@ export default async function WeekendPage({ params }) {
     <main style={{ maxWidth: 720, margin: '0 auto', padding: '32px 20px 72px', fontFamily: 'system-ui, sans-serif', color: '#212B28' }}>
       {ld && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />}
 
-      <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: 20, color: '#212B28', textDecoration: 'none' }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="#C93A5B" fillRule="evenodd" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
-        </svg>
-        <span>okolo<span style={{ color: '#C93A5B' }}>{channel.handle.replace(/^okolo/, '')}</span></span>
-      </Link>
+      <OkoloBrand channelHandle={channel.handle} />
 
       <h1 style={{ fontSize: 30, lineHeight: 1.2, margin: '22px 0 10px', letterSpacing: -0.4 }}>{c.h1(channel.label, digest.label)}</h1>
       <p style={{ color: '#4A5652', fontSize: 17, lineHeight: 1.6, margin: '0 0 8px' }}>{digest.intro}</p>

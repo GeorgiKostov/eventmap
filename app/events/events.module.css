@@ -19,45 +19,6 @@
   padding: 38px 24px 80px;
 }
 
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--events-ink);
-  text-decoration: none;
-  border-radius: 12px;
-}
-
-.brandMark {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  color: var(--events-accent);
-  background: #fff;
-  border: 1px solid rgba(201, 58, 91, 0.16);
-  border-radius: 11px;
-  box-shadow: 0 3px 12px rgba(33, 43, 40, 0.08);
-}
-
-.brandMark svg {
-  width: 22px;
-  height: 22px;
-  fill: currentColor;
-}
-
-.brandName {
-  font-family: var(--font-display);
-  font-size: 25px;
-  font-weight: 800;
-  letter-spacing: -1.2px;
-}
-
-.brandDot {
-  color: var(--events-accent);
-}
-
-.brand:focus-visible,
 .primaryAction:focus-visible,
 .secondaryAction:focus-visible,
 .cityCard:focus-visible,

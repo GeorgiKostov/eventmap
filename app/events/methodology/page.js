@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { publicUrl } from '../../../lib/public-url.js';
-import EventsBrand from '../events-brand.js';
+import OkoloBrand from '../../okolo-brand.js';
 import styles from '../events.module.css';
 
 export const metadata = {
@@ -23,7 +23,7 @@ export default function MethodologyPage() {
     <main lang="de-AT" className={styles.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, '\\u003c') }} />
       <div className={`${styles.shell} ${styles.methodShell}`}>
-        <EventsBrand />
+        <OkoloBrand />
         <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
           <Link href="/events">Events</Link> / Arbeitsweise
         </nav>

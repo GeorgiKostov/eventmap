@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import Link from 'next/link';
+import OkoloBrand from '../okolo-brand.js';
 
 const COPY = {
   de: {
@@ -72,7 +72,7 @@ export default async function DatenschutzPage() {
   const t = await copy();
   return (
     <div className="legalpage">
-      <Link href="/" className="home">← Okolo</Link>
+      <OkoloBrand />
       <h1>{t.title}</h1><p className="sub">{t.intro}</p>
       <h2>{t.controller}</h2><p>Georgi Kostov, Breitwiesenstraße 22, Tür 7, 4481 Asten, {t.country}<br /><a href="mailto:hello@okolo.events">hello@okolo.events</a></p>
       <h2>{t.processing}</h2><ul>{t.processingItems.map((item, i) => <li key={i}>{item}</li>)}</ul>

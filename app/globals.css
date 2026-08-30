@@ -37,6 +37,32 @@ html { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
 a { color: inherit; }
 
+/* ================= brand header ================= */
+.okolo-brand {
+  display: inline-flex; align-items: center; gap: 10px; min-width: 0;
+  color: var(--ink); text-decoration: none; border-radius: 12px;
+}
+.okolo-brand-mark {
+  flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center;
+  color: var(--accent); background: var(--panel); border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  border-radius: 11px; box-shadow: var(--shadow-sm);
+}
+.okolo-brand-mark svg { width: 22px; height: 22px; fill: currentColor; }
+.okolo-brand-name {
+  font-family: var(--font-display); font-size: 25px; font-weight: 800;
+  letter-spacing: -1.2px; line-height: 1;
+}
+.okolo-brand-suffix { color: var(--accent); }
+.okolo-brand-qualifier {
+  min-width: 0; color: var(--muted); font-size: 11px; font-weight: 750;
+  letter-spacing: 0.07em; line-height: 1.2; text-transform: uppercase;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.okolo-brand:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 28%, transparent); outline-offset: 4px; }
+.admin-brand { margin-bottom: 18px; }
+.map-brand-row { flex: 0 0 auto; padding: 16px 18px 12px; }
+.m-topbar .map-brand-row { padding: 0 4px; }
+
 /* ================= layout shell ================= */
 .shell { position: fixed; inset: 0; display: flex; }
 .mapwrap { position: relative; flex: 1 1 auto; min-width: 0; }
@@ -67,8 +93,44 @@ a { color: inherit; }
 /* ================= sidebar ================= */
 .sidehead {
   flex: 0 0 auto;
-  padding: 16px 18px 0;
+  padding: 0 18px;
 }
+
+/* Partner festival view: co-branding stays in DOM UI, never in the map marker
+   grammar. The dark logo tile is an Okolo-owned placeholder until the organiser
+   supplies an approved asset. */
+.partner-panel {
+  margin: 0 0 14px; padding: 13px; border: 1px solid var(--line); border-radius: 16px;
+  background: linear-gradient(145deg, var(--panel), var(--accent-soft)); box-shadow: var(--shadow-sm);
+}
+.partner-panel-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.partner-lockup { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.partner-logo-box {
+  flex: 0 0 auto; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+  color: var(--panel); background: var(--ink); box-shadow: var(--shadow-sm);
+}
+.partner-lockup-copy { display: flex; flex-direction: column; min-width: 0; line-height: 1.15; }
+.partner-lockup-copy small { color: var(--muted); font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.partner-lockup-copy strong { margin-top: 3px; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.partner-lockup-copy > span { color: var(--muted); font-size: 11px; font-weight: 650; }
+.partner-preview-tag {
+  flex: 0 0 auto; padding: 3px 7px; border-radius: 999px; color: var(--accent);
+  background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+}
+.partner-logo-note { display: block; margin-top: 8px; color: var(--muted); font-size: 9.5px; }
+.partner-panel p { margin: 8px 0 10px; color: var(--ink); font-size: 12.5px; line-height: 1.4; font-weight: 650; }
+.partner-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.partner-actions .chip { min-width: 0; padding: 6px 9px; overflow: hidden; text-overflow: ellipsis; }
+.partner-actions > a { flex: 0 0 auto; color: var(--accent); font-size: 11px; font-weight: 750; text-decoration: none; }
+.partner-actions > a:hover { text-decoration: underline; }
+.partner-count { display: block; margin-top: 8px; color: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.partner-panel.compact { margin: 0; padding: 10px 11px; border-radius: 15px; box-shadow: var(--shadow-md); }
+.partner-panel.compact .partner-logo-box { width: 34px; height: 34px; border-radius: 10px; }
+.partner-panel.compact .partner-lockup-copy strong { font-size: 13px; }
+.partner-panel.compact .partner-logo-note, .partner-panel.compact p { display: none; }
+.partner-panel.compact .partner-actions { margin-top: 8px; }
+.partner-panel.compact .partner-count { margin-top: 6px; }
 
 .sidebody { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 0 10px 20px; }
 
@@ -159,7 +221,7 @@ a { color: inherit; }
 
 /* ================= legal pages (impressum / datenschutz) ================= */
 .legalpage { max-width: 720px; margin: 0 auto; padding: 40px 22px 80px; }
-.legalpage .home { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--accent); text-decoration: none; margin-bottom: 26px; }
+.legalpage > .okolo-brand { margin-bottom: 26px; }
 .legalpage h1 { font-size: 30px; font-weight: 780; margin: 0 0 4px; letter-spacing: -0.01em; }
 .legalpage .sub { color: var(--muted); font-size: 13px; margin: 0 0 30px; }
 .legalpage h2 { font-size: 15px; font-weight: 700; margin: 30px 0 8px; }
@@ -336,6 +398,7 @@ a { color: inherit; }
 }
 /* same --community trust token as the pin corner badge + legend dot */
 .source-tag.community { border-style: dashed; border-color: color-mix(in srgb, var(--community) 60%, var(--line)); color: var(--ink); }
+.source-tag.partner { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); display: inline-flex; align-items: center; gap: 3px; }
 /* Legal disclosure on gold (paid) listings only — same --gold token as the map
    pin ring + star badge. Solid border (not dashed) so it never reads as the
    community/approximate grammar above. */
@@ -359,7 +422,7 @@ a { color: inherit; }
    DOM `.pin2` anymore: DOM markers were repositioned per frame from JS and drifted
    relative to the tiles (lessons.md 2026-07-13). The marker grammar (teardrop vs
    circle, count badge, community dot, approx halo, selection halo/scale) now lives
-   in GL paint/layout expressions. Only the legend, me-marker and search-marker
+   in GL paint/layout expressions. Only the legend, live-location puck and search-marker
    below remain DOM (single, non-drift-prone elements). */
 
 /* Compact, collapsible marker grammar. Category color remains on the pin only;
@@ -404,8 +467,10 @@ a { color: inherit; }
   border-radius: 50%; background: var(--ink); color: #fff; border: 2px solid #fff;
   box-shadow: 0 1px 3px rgba(23, 32, 28, 0.28); font-size: 8px; font-weight: 800; font-style: normal;
 }
-.me-marker { width: 16px; height: 16px; border-radius: 50%; background: #3d7dc9; border: 3px solid #fff; box-shadow: 0 0 0 5px rgba(61, 125, 201, 0.22); }
-.me-marker.hidden { display: none; }
+/* Live GPS puck. MapLibre owns its position + physical accuracy diameter from
+   watchPosition; these overrides only align its colour with Okolo. */
+.maplibregl-user-location-dot::before { background-color: #3d7dc9; }
+.maplibregl-user-location-accuracy-circle { background-color: rgba(61, 125, 201, 0.18); }
 /* "search anywhere" temporary marker at the picked location */
 .search-marker { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); }
 
@@ -624,6 +689,15 @@ a.menuitem { text-decoration: none; }
 .dhero .closebtn { right: 12px; }
 .dbody { flex: 1 1 auto; padding: 18px 20px 24px; overflow-y: auto; }
 .dbody h2 { margin: 0 0 4px; font-family: var(--font-display); font-size: 22px; line-height: 1.2; letter-spacing: -0.01em; }
+.partner-detail-brand {
+  display: flex; align-items: center; gap: 10px; margin: -2px 0 15px; padding: 9px 10px;
+  border: 1px solid var(--line); border-radius: 13px; background: var(--accent-soft);
+}
+.partner-detail-brand .partner-logo-box { width: 34px; height: 34px; border-radius: 10px; }
+.partner-detail-brand > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.partner-detail-brand small { color: var(--accent); font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; }
+.partner-detail-brand strong { margin-top: 2px; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.partner-mini-badge { color: var(--accent); font-size: 9.5px; line-height: 1.2; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
 /* Wraps the title + the gold-only "Anzeige"/"Sponsored" disclosure tag (legal
    requirement — unmissable but not shouty, see .source-tag.gold above). */
 .dtitle-row { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
@@ -779,20 +853,23 @@ a.menuitem { text-decoration: none; }
 .fab:active { transform: scale(0.94); }
 .fab.hidden { display: none; }
 
-/* locate-me control (standard map control, not an action FAB). */
-.locate-btn {
+/* Native MapLibre live-tracking control, mounted inside the Okolo floatstack. */
+.locate-native { flex: 0 0 auto; }
+.locate-native .maplibregl-ctrl { margin: 0; background: transparent; box-shadow: none; }
+.locate-native .maplibregl-ctrl-group button.maplibregl-ctrl-geolocate {
   flex: 0 0 auto;
   width: 44px; height: 44px; border-radius: 50%;
-  background: var(--panel); border: 1px solid var(--line); color: #5f6b68;
+  background-color: var(--panel); border: 1px solid var(--line);
   display: grid; place-items: center;
   box-shadow: var(--shadow-md);
-  transition: transform 0.15s, opacity 0.2s, color 0.15s, border-color 0.15s;
+  transition: transform 0.15s, opacity 0.2s, border-color 0.15s;
 }
-.locate-btn:hover { border-color: #cfcfc6; }
-.locate-btn:active { transform: scale(0.94); }
-.locate-btn.active { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
-.locate-btn.locating svg { animation: locate-pulse 0.9s ease-in-out infinite; }
-@keyframes locate-pulse { 50% { opacity: 0.25; } }
+.locate-native .maplibregl-ctrl-geolocate:hover { border-color: #cfcfc6; }
+.locate-native .maplibregl-ctrl-geolocate:active { transform: scale(0.94); }
+.locate-native .maplibregl-ctrl-geolocate-active,
+.locate-native .maplibregl-ctrl-geolocate-background {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
 
 /* ================= capture / scan ================= */
 .capture {

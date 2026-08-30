@@ -40,13 +40,18 @@ preferred because it keeps one glyph color everywhere.
 
 ## Type
 
-- `--font-display` is used **only** for the detail `h2` and add-flow headings. `--font-body` (the
-  platform UI stack) is everything else.
-- The **wordmark is an inline SVG** (`.okolo-mark`, radar identity), so it is OS-independent by
-  construction — it renders identically on macOS/Windows/Android regardless of installed fonts.
+- `--font-display` is used for the shared lowercase brand title, detail `h2` and add-flow headings.
+  `--font-body` (the platform UI stack) is everything else.
+- The top-left brand header is one shared lockup: the raspberry Okolo pin icon followed by the
+  lowercase `okolo.` title. Every visual App Router page family renders `app/okolo-brand.js`; do not
+  redraw the pin or restyle the name locally. A city channel may replace the dot with its controlled
+  `channel.handle` suffix (for example `okolo.linz`). Partner and admin labels remain quiet,
+  secondary qualifiers; they never replace or outrank the Okolo lockup. On an event landing, the
+  lockup stays inside the existing return/discovery link so its adjacent action copy and tracking
+  contract remain intact. The full radar identity remains available as the loading-state SVG.
 - `--font-display` currently leads with `"Avenir Next"` and falls back through `"Segoe UI"`,
-  `system-ui`. This is *not* pixel-identical across OSes (Apple-only lead). It only affects a few
-  headings, not the wordmark. **Follow-up (backlog):** self-host one OFL display webfont
+  `system-ui`. This is *not* pixel-identical across OSes (Apple-only lead). It affects headings and
+  the lowercase brand title. **Follow-up (backlog):** self-host one OFL display webfont
   (woff2, `font-display:swap`) if heading consistency across platforms becomes important.
 - Min sizes: body 13px · meta 11px · uppercase eyebrows 10.5px/`.11em`. Numbers (time, distance,
   dates, counts) use `font-variant-numeric: tabular-nums`.
@@ -109,6 +114,18 @@ approx halo. **Selection is the only thing allowed to add a ring/scale.**
   it as a second general picker.
 - **Overlays stay inside their positioning container.** Audit the containing block whenever an
   overlay moves (lessons.md 2026-07-12).
+
+## Partner festival views
+
+- A dedicated partner URL may add a co-branded header, an exact-source filter and partner identity
+  on event rows/details. The event title remains primary; partner identity is secondary context.
+- Partner views do **not** add a pin shape, recolour category pins, reuse the community trust badge,
+  or add a permanent halo. Filtering the map to the partner programme is the map-level emphasis;
+  category, kind, precision and selection keep their established meanings.
+- A partner logo slot uses an Okolo-owned placeholder until the organiser supplies an approved asset
+  and written usage scope. Preview routes must say they are previews and remain `noindex`.
+- Partner-only is a binary choice and therefore uses the existing `.chip` / `.chip.on` grammar.
+  Co-branding introduces no second primary action; the official programme link stays secondary.
 
 ## Copy & content
 

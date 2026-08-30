@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-30 — one Okolo brand header across page families)
+- `app/okolo-brand.js` now owns the tokenized raspberry pin, lowercase `okolo.` title, optional
+  city-handle suffix and quiet qualifier. The persistent lockup is top-left on the map (desktop and
+  mobile), discovery, event, weekend, legal, partner-demo and admin shells; partner identity remains
+  secondary and event-header tracking/return behavior is unchanged.
+- The design system and `docs/decisions/2026-08-30-brand-header-consistency.md` make this a binding
+  rule that supersedes the old map-only decision to remove brand text. `test/brand-header.test.mjs`
+  covers every route family so future pages cannot hand-roll another variant.
+- This change is ready for the requested commit, push and production deployment. All 317 tests
+  (including the 32 focused overlapping checks) and the 111-page production build pass. Browser QA
+  at 1280 px and 390 px covers the map, city discovery, event detail, dated weekend, partner demo
+  and admin states with correct ordering and no horizontal overflow.
+
 ## Where things stand (2026-08-30 — Linz weekend SEO evidence live)
 - `/events/linz/wochenende` now names the exact Vienna-local weekend in metadata and H1, leads with
   still-current picks from the frozen Linz digest, and keeps the current inventory in separate Linz
@@ -77,6 +90,24 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   in-app QA browser alone emitted a URL-less MutationObserver instrumentation error around the
   same-origin iframe; no application source uses that API and the page remained fully functional.
 
+## Where things stand (2026-08-29 — reusable partner festival map preview)
+- `/aecfestival` demonstrates the partner offer on the real map: a co-branded header/logo slot, a
+  festival-date lens, exact-source filtering, a reversible “Only Ars Electronica” control, branded
+  event rows/mini-cards/details and a direct official-programme link. The partner definition is
+  configuration-driven so another approved festival does not require another one-off UI.
+- The existing pin grammar remains unchanged: color communicates category, shape communicates event
+  versus venue, and selection/trust keep their existing meanings. Partner identity is placed in the
+  map shell and event surfaces instead of adding an ambiguous logo-shaped pin.
+- Partner map views, partner-filter toggles, programme opens and partner-attributed event interactions
+  use the existing analytics path. The page is `noindex` while it is a sales preview.
+- Desktop and 390 px mobile browser QA cover map, selected card and detail states; the source filter
+  switches between 19 Ars Electronica entries and the broader 46-event festival-date view, with no
+  console errors or horizontal overflow. Five screenshots are in
+  `output/screenshots/partner-showcase/`.
+- The Ars Electronica artwork remains a generic logo placeholder pending written brand permission.
+  The route still fails closed with a production 404; the implementation is versioned only so the
+  local sales preview remains reproducible, and it is not publicly released.
+
 ## Where things stand (2026-08-30 — hardened account release live and production-verified)
 - George explicitly approved the first account slice despite the earlier validation-phase deferment.
   Supabase Auth now supports Google OAuth and passwordless email magic links; Google has a dedicated
@@ -130,6 +161,20 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   notices for the server-only account tables plus leaked-password protection being off; password
   authentication is not enabled, so that warning does not apply to the Google/magic-link slice.
 - Unrelated live-GPS and festival work is concurrently present in the worktree and must be preserved.
+
+## Where things stand (2026-08-29 — mobile location is a live GPS puck)
+- The map no longer treats `getCurrentPosition` as tracking. Its existing locate control now runs
+  MapLibre's high-accuracy live geolocation state machine: every device fix moves the blue puck,
+  the translucent circle reflects reported physical accuracy, and zero-age readings avoid a stale
+  cached coordinate.
+- Camera focus follows the phone until the visitor manually moves the map; GPS continues updating in
+  the background and the native locate button re-centres it. Previously granted permission resumes
+  tracking automatically; a new permission prompt remains user-led. The control stays in Okolo's
+  existing responsive floating stack and is localized in DE/EN/BG.
+- This change is included in the current verified release candidate but is not yet deployed. All 317
+  tests, including two dedicated live-location regressions, and the 111-page production build pass. Mobile
+  browser QA confirms the native watch control enters active state, fits the 390 px layout, and has
+  no console errors or framework overlay; the desktop browser host cannot emulate physical movement.
 
 ## Where things stand (2026-08-23 — adversarial crawler audit and bounded Sofia refresh)
 - A credentials-blank, `--mode structured` crawl of the canonical official Visit Sofia JEvents

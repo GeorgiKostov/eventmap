@@ -4,10 +4,11 @@ import fs from 'node:fs';
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('map deep-link coordinates seed both camera and distance reference', () => {
+test('map deep-link coordinates seed both camera and distance reference, with a partner fallback', () => {
   const page = read('app/page.js');
 
-  assert.match(page, /const start = initialCenter\(\);\s+setMe\(start\);\s+setMapCenter\(start\);/);
+  assert.match(page, /function initialCenter\(fallback = HOME\)/);
+  assert.match(page, /const start = initialCenter\(partner\?\.center \|\| HOME\);\s+setMe\(start\);\s+setMapCenter\(start\);/);
 });
 
 test('nearby recommendations are future-starting and render on current and archived event pages', () => {
