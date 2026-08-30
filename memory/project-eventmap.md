@@ -17,12 +17,13 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
 - The design system and `docs/decisions/2026-08-30-brand-header-consistency.md` make this a binding
   rule that supersedes the old map-only decision to remove brand text. `test/brand-header.test.mjs`
   covers every route family so future pages cannot hand-roll another variant.
-- Commit `012eee3` is live in production deployment `dpl_68eMUxG7XjHN3ACY9STFZdef4An8` and aliased
-  to `www.okolo.events`. All 317 tests and the 111-page local and Vercel production builds pass.
+- Base commit `012eee3` plus the `/partners` correction `af5b117` are live in production deployment
+  `dpl_J1BZ9BtQUfCGHoqqJZq53ZND4gFt`, aliased to `www.okolo.events`. All 318 tests and the 111-page
+  local and Vercel production builds pass.
   Browser QA at 1280 px and 390 px covers the map, city discovery, event detail, dated weekend,
-  partner demo and admin states with correct ordering and no horizontal overflow; the live root,
-  Linz discovery, partner demo and legal page return 200, the private `/aecfestival` route returns
-  404, and the post-traffic Vercel error-log scan is empty.
+  partner demo and admin states with correct ordering and no horizontal overflow. Live verification
+  of `/partners#package` confirms the shared pin, 34 px lockup, no legacy wordmark and no overflow;
+  the private `/aecfestival` route returns 404, and post-traffic Vercel error-log scans are empty.
 
 ## Where things stand (2026-08-30 — Linz weekend SEO evidence live)
 - `/events/linz/wochenende` now names the exact Vienna-local weekend in metadata and H1, leads with

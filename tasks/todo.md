@@ -11,7 +11,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Commit and push `012eee3`, deploy production as `dpl_68eMUxG7XjHN3ACY9STFZdef4An8`, and
       verify the canonical map/discovery/partner/legal surfaces plus an empty runtime error scan.
 - [x] Correct the missed `/partners` sales-showcase wordmark to use the shared pin-and-title lockup,
-      and cover the route in both the general brand inventory and partner-showcase regression tests.
+      cover every App Router page through an automatic shell-inventory regression, and ship commit
+      `af5b117` in production deployment `dpl_J1BZ9BtQUfCGHoqqJZq53ZND4gFt` with clean live QA/logs.
 
 ## Public festival-partner demonstration (2026-08-29)
 - [x] Link the main map's localized “Advertise & partner” menu entry directly to `/partners` and
