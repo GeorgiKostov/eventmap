@@ -17,6 +17,8 @@ import { track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 import { eventSummary } from '../lib/event-summary.js';
 import { partnerEventMatches, partnerProgram } from '../lib/partner-programs.js';
+import { canonicalMapViewport } from '../lib/map-request.js';
+import { newsletterCountrySupported } from '../lib/newsletter-market.js';
 import AccountDialog from './account-dialog.js';
 import OkoloBrand from './okolo-brand.js';
 
@@ -736,6 +738,7 @@ export default function Home({ partnerSlug = null } = {}) {
   const [mapCenter, setMapCenter] = useState(HOME);
   const weekendChannel = useMemo(() => channelForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
   const calendarCity = useMemo(() => seoCityForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
+  const newsletterAvailableHere = weekendChannel?.country === 'AT' || !!calendarCity;
   const [manualEntry, setManualEntry] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -795,12 +798,21 @@ export default function Home({ partnerSlug = null } = {}) {
       const distance = distKm(refPoint, center);
       return !best || distance < best.distance ? { label, center, distance } : best;
     }, null);
+    const knownPlace = nearest
+      ? searchPlaces(nearest.label, { limit: 1 }).find(
+          (place) => normalizePlace(place.label) === normalizePlace(nearest.label),
+        )
+      : null;
+    const areaCountry = knownPlace?.country
+      || (nearest ? channelForPoint(nearest.center.lat, nearest.center.lng)?.country : null)
+      || null;
     setNl({
       open: true,
       email: '',
       area: nearest?.label || 'Linz',
       areaLat: nearest?.center.lat ?? HOME.lat,
       areaLng: nearest?.center.lng ?? HOME.lng,
+      areaCountry: nearest ? areaCountry : 'AT',
       categories: [],
       busy: false,
       done: false,
@@ -810,11 +822,19 @@ export default function Home({ partnerSlug = null } = {}) {
 
   function changeNewsletterArea(value) {
     const exact = [...townCenters.entries()].find(([name]) => name.toLowerCase() === value.trim().toLowerCase());
+    const knownPlace = searchPlaces(value, { limit: 1 })[0];
+    const exactKnown = knownPlace && normalizePlace(knownPlace.label) === normalizePlace(value)
+      ? knownPlace
+      : null;
+    const center = exact?.[1] || exactKnown;
     setNl((s) => ({
       ...s,
       area: value,
-      areaLat: exact?.[1].lat ?? null,
-      areaLng: exact?.[1].lng ?? null,
+      areaLat: center?.lat ?? null,
+      areaLng: center?.lng ?? null,
+      areaCountry: exactKnown?.country
+        || (center ? channelForPoint(center.lat, center.lng)?.country : null)
+        || null,
       err: '',
     }));
   }
@@ -827,7 +847,8 @@ export default function Home({ partnerSlug = null } = {}) {
     const reqId = ++geoReqId.current;
     setGeoLoading(true);
     try {
-      const res = await fetch(`/api/geocode?suggest=1&q=${encodeURIComponent(q)}`);
+      const cacheKeyQuery = q.trim().replace(/\s+/g, ' ').toLowerCase();
+      const res = await fetch(`/api/geocode?suggest=1&q=${encodeURIComponent(cacheKeyQuery)}`);
       const data = await res.json();
       const rows = [];
       for (const r of Array.isArray(data.results) ? data.results : []) {
@@ -963,7 +984,7 @@ export default function Home({ partnerSlug = null } = {}) {
   const [detailFull, setDetailFull] = useState(false);
   const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
   const [nl, setNl] = useState({
-    open: false, email: '', area: '', areaLat: null, areaLng: null,
+    open: false, email: '', area: '', areaLat: null, areaLng: null, areaCountry: null,
     categories: [], busy: false, done: false, err: '',
   });
   const [limitNotice, setLimitNotice] = useState(null);
@@ -1015,7 +1036,8 @@ export default function Home({ partnerSlug = null } = {}) {
   async function fetchAddressSuggestions(q) {
     const reqId = ++addrReqId.current;
     try {
-      const res = await fetch(`/api/geocode?suggest=1&q=${encodeURIComponent(q)}`);
+      const cacheKeyQuery = q.trim().replace(/\s+/g, ' ').toLowerCase();
+      const res = await fetch(`/api/geocode?suggest=1&q=${encodeURIComponent(cacheKeyQuery)}`);
       if (!res.ok) { if (reqId === addrReqId.current) setAddrSuggestions([]); return; }
       const data = await res.json();
       if (reqId === addrReqId.current) setAddrSuggestions(Array.isArray(data.results) ? data.results : []);
@@ -1061,8 +1083,8 @@ export default function Home({ partnerSlug = null } = {}) {
     if (!email || !area) return;
     setNl((s) => ({ ...s, busy: true, err: '' }));
     try {
-      let location = nl.areaLat != null && nl.areaLng != null
-        ? { label: area, lat: nl.areaLat, lng: nl.areaLng }
+      let location = nl.areaLat != null && nl.areaLng != null && nl.areaCountry
+        ? { label: area, lat: nl.areaLat, lng: nl.areaLng, country: nl.areaCountry }
         : null;
       // Resolve from the local gazetteer first — it holds every city we cover,
       // with coordinates, so a typed "Linz"/"София" needs NO network call. Most
@@ -1070,11 +1092,13 @@ export default function Home({ partnerSlug = null } = {}) {
       if (!location) {
         const hit = searchPlaces(area, { limit: 1 })[0];
         if (hit && normalizePlace(hit.label) === normalizePlace(area)) {
-          location = { label: hit.label, lat: hit.lat, lng: hit.lng };
+          location = { label: hit.label, lat: hit.lat, lng: hit.lng, country: hit.country };
         }
       }
       if (!location) {
-        // Network fallback for the long tail. BOTH the AT and BG lookups are
+        // Network fallback for the long tail. The API searches every map country
+        // and returns the country it actually resolved, so the newsletter can
+        // reject non-Austrian locations with an honest message. The request is
         // bounded: /api/geocode hits Nominatim, which is globally rate-limited to
         // ~1 req/s and CAN hang — an unbounded fetch here is exactly why the
         // button spun forever. On timeout we treat the town as unresolved and
@@ -1092,10 +1116,10 @@ export default function Home({ partnerSlug = null } = {}) {
             clearTimeout(timer);
           }
         };
-        const primary = lang === 'bg' ? 'BG' : 'AT';
-        location = await tryGeo(primary) || await tryGeo(primary === 'AT' ? 'BG' : 'AT');
+        location = await tryGeo('AT');
       }
       if (!location) throw new Error(t.nlAreaInvalid);
+      if (!newsletterCountrySupported(location.country)) throw new Error(t.nlCountryUnsupported);
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang },
@@ -1105,6 +1129,7 @@ export default function Home({ partnerSlug = null } = {}) {
           areaLabel: area,
           areaLat: location.lat,
           areaLng: location.lng,
+          areaCountry: location.country,
           radiusKm: 20,
           categories: nl.categories,
           source: 'newsletter_popup',
@@ -1234,6 +1259,7 @@ export default function Home({ partnerSlug = null } = {}) {
   // they act on it or wave it away. Anything else is nagging.
   function maybePromptNewsletter() {
     if (typeof window === 'undefined') return;
+    if (!newsletterAvailableHere) return;
     if (localStorage.getItem('okolo_nl_prompt')) return; // dismissed, or already signed up
     setNlPrompt(true);
     track('nl_prompt_shown');
@@ -1497,6 +1523,7 @@ export default function Home({ partnerSlug = null } = {}) {
     return () => {
       clearTimeout(locateRetry);
       clearTimeout(moveendTimer.current);
+      viewportRequest.current.controller?.abort();
       geolocate.onRemove();
       map.remove();
       mapObj.current = null;
@@ -1672,7 +1699,7 @@ export default function Home({ partnerSlug = null } = {}) {
   const [viewTotal, setViewTotal] = useState(0);
   const [viewTruncated, setViewTruncated] = useState(false); // drives the "zoom in to see all" hint (truncatedNote below)
   const [relatedEvents, setRelatedEvents] = useState({ eventId: null, series: [], venue: [] });
-  const viewportAbort = useRef(null);
+  const viewportRequest = useRef({ key: null, completedAt: 0, controller: null });
 
   // Clamp to the server's bbox span cap (brief: >20° -> 400) around the current
   // center, so a user zoomed out to see the whole region never 400s the fetch.
@@ -1689,9 +1716,9 @@ export default function Home({ partnerSlug = null } = {}) {
   function buildFilterParams() {
     const p = new URLSearchParams();
     if (kindFilter !== 'all') p.set('kind', kindFilter);
-    if (cats.length) p.set('cats', cats.join(','));
+    if (cats.length) p.set('cats', [...cats].sort().join(','));
     if (inOut !== 'any') p.set('inout', inOut);
-    if (tod.length) p.set('tod', tod.join(','));
+    if (tod.length) p.set('tod', [...tod].sort().join(','));
     if (freeOnly) p.set('free', '1');
     if (kidsOnly) p.set('kids', '1');
     if (communityOnly) p.set('community', '1');
@@ -1705,18 +1732,25 @@ export default function Home({ partnerSlug = null } = {}) {
     const map = mapObj.current;
     if (!map) return;
     const b = map.getBounds();
-    const bbox = clampBbox([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
-    const zoom = map.getZoom();
+    const rawBbox = clampBbox([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+    const { bbox, zoom } = canonicalMapViewport(rawBbox, map.getZoom());
     const params = buildFilterParams();
     params.set('view', 'map');
     params.set('bbox', bbox.map((v) => v.toFixed(5)).join(','));
     params.set('zoom', String(zoom));
 
-    viewportAbort.current?.abort();
+    const key = `/api/events?${params.toString()}`;
+    const previous = viewportRequest.current;
+    // A filter effect and the map's moveend often ask for the same canonical
+    // viewport back-to-back. Do not abort/restart an identical in-flight read,
+    // and keep a short client-side hot window on top of the HTTP/CDN cache.
+    if (previous.key === key && (previous.controller || Date.now() - previous.completedAt < 30000)) return;
+    previous.controller?.abort();
     const ac = new AbortController();
-    viewportAbort.current = ac;
+    viewportRequest.current = { key, completedAt: 0, controller: ac };
+    let completed = false;
     try {
-      const res = await fetch(`/api/events?${params.toString()}`, { signal: ac.signal });
+      const res = await fetch(key, { signal: ac.signal });
       if (!res.ok) return;
       const data = await res.json();
       if (ac.signal.aborted) return;
@@ -1730,8 +1764,13 @@ export default function Home({ partnerSlug = null } = {}) {
       }
       setViewTotal(data.total ?? 0);
       setViewTruncated(!!data.truncated);
+      completed = true;
     } catch (e) {
       if (e?.name !== 'AbortError') console.error('[viewport] fetch failed', e);
+    } finally {
+      if (viewportRequest.current.controller === ac) {
+        viewportRequest.current = { key, completedAt: completed ? Date.now() : 0, controller: null };
+      }
     }
   }
   fetchViewportRef.current = fetchViewport;
@@ -2693,9 +2732,11 @@ export default function Home({ partnerSlug = null } = {}) {
                   </a>
                 )}
                 <div className="menu-divider" aria-hidden="true" />
-                <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
-                  <span className="ic">✉️</span>{t.newsletter}
-                </button>
+                {newsletterAvailableHere && (
+                  <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
+                    <span className="ic">✉️</span>{t.newsletter}
+                  </button>
+                )}
                 <a
                   className="menuitem"
                   href="/partners"
@@ -3814,6 +3855,9 @@ export default function Home({ partnerSlug = null } = {}) {
                         .map((town) => <option key={town} value={town} />)}
                     </datalist>
                     <small>{t.nlAreaHelp}</small>
+                    {nl.areaCountry && !newsletterCountrySupported(nl.areaCountry) && (
+                      <small className="nl-err">{t.nlCountryUnsupported}</small>
+                    )}
                   </label>
                   {/* The interests picker is GONE (George, 2026-07-14: "keep it
                       simple"). It asked people to choose categories and then the
@@ -3824,7 +3868,13 @@ export default function Home({ partnerSlug = null } = {}) {
                       Fewer fields also converts better, which matters more at 0
                       subscribers than personalisation does. The `categories`
                       column stays — nothing is lost if we bring this back. */}
-                  <button type="submit" className="nl-submit" disabled={nl.busy}>{nl.busy ? t.nlSending : t.nlSubmit}</button>
+                  <button
+                    type="submit"
+                    className="nl-submit"
+                    disabled={nl.busy || (nl.areaCountry && !newsletterCountrySupported(nl.areaCountry))}
+                  >
+                    {nl.busy ? t.nlSending : t.nlSubmit}
+                  </button>
                 </form>
                 {nl.err && <p className="nl-err">{nl.err}</p>}
                 <p className="nl-fine">{t.nlConsent} <a href="/datenschutz" target="_blank" rel="noreferrer">{t.privacyLink}</a></p>

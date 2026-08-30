@@ -1,29 +1,21 @@
-name: Weekly digest (prepare)
+name: Weekly digest (prepare + send)
 
-# Thursday's growth engine — the PREPARE half of it.
+# Thursday's growth engine: prepare a fresh issue, then send it five hours later.
 #
 # This job freezes each city's weekend picks and writes the AI copy (Sonnet) into
-# the digest snapshot, then emails George that the desk is ready. It deliberately
-# does NOT send the newsletter and does NOT post to social:
-#   · an auto-sent newsletter nobody looked at is how you mail parents a wrong
-#     event (hard rule 5 is about trust, and the newsletter is our highest-trust
-#     surface);
-#   · auto-posting bots get banned from the local FB/WhatsApp groups that are the
-#     whole point of the channel (docs/strategy/growth-and-social.md §3).
-# George reviews at /admin/thursday, downloads the carousel, posts by hand, and
-# hits Send. ~10 minutes.
+# the digest snapshot, then emails George that the desk is ready. At 14:00 UTC a
+# separate job asks the deployed app to send it to the confirmed Linz audience.
+# That call fails closed unless the snapshot was freshly regenerated, has at
+# least five picks, and every selected event is still eligible and unchanged.
+# Social posting remains manual.
 #
 # Runs BEFORE the Thursday-afternoon post slot so the copy is waiting for him.
 
 on:
   schedule:
     - cron: '0 9 * * 4' # Thursday 09:00 UTC (~11:00 Vienna)
+    - cron: '0 14 * * 4' # Thursday 14:00 UTC (16:00 CEST / 15:00 CET)
   workflow_dispatch:
-    inputs:
-      regenerate:
-        description: 'Rebuild picks + copy even if a snapshot exists'
-        type: boolean
-        default: false
 
 concurrency:
   group: weekly-digest
@@ -31,6 +23,7 @@ concurrency:
 
 jobs:
   prepare:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 9 * * 4'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -56,4 +49,20 @@ jobs:
         # write copy nobody reads and clutter the desk with nine tabs that never
         # get pressed. Not a cost decision (the whole run is ~1¢/city/week); a
         # focus one. Open a city by adding it here when its handle actually exists.
-        run: node scripts/weekly-digest.mjs --channel linz --notify ${{ inputs.regenerate && '--regenerate' || '' }}
+        # Scheduled runs always replace future/SEO snapshots with a fresh issue.
+        run: node scripts/weekly-digest.mjs --channel linz --notify --regenerate
+
+  send:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 14 * * 4'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Send the prepared Linz newsletter
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          NEXT_PUBLIC_BASE_URL: https://www.okolo.events
+        run: node scripts/trigger-weekly-newsletter.mjs

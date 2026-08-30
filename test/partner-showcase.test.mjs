@@ -8,7 +8,9 @@ const map = readFileSync(new URL('../app/page.js', import.meta.url), 'utf8');
 const translations = readFileSync(new URL('../lib/i18n.js', import.meta.url), 'utf8');
 
 test('partner sales material is a shareable HTML showcase, not a slide download', () => {
-  assert.match(page, /robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/);
+  assert.match(page, /dynamic = 'force-static'/);
+  assert.match(page, /robots:\s*\{\s*index:\s*true,\s*follow:\s*true\s*\}/);
+  assert.match(page, /'@type': 'Service'/);
   assert.match(showcase, /src="\/partners\/festival-map-showcase\.webp"/);
   assert.match(showcase, /src="\/partners\/festival-map-showcase-mobile\.webp"/);
   assert.match(showcase, /href="\/partners\/demo"/);
@@ -30,4 +32,9 @@ test('partner showcase states the managed service and Okolo distribution offer',
   assert.match(translations, /Approved events are also listed on Okolo’s main map/);
   assert.match(translations, /Optional paid highlighting adds visibility and is always labelled clearly as sponsored/);
   assert.match(translations, /You provide the programme\. We run the map\./);
+  assert.match(translations, /First public partner pilot/);
+  assert.match(translations, /permission is separate from delivery and is never assumed/);
+  assert.doesNotMatch(translations, /optional custom pins/);
+  assert.match(showcase, /partnerShowcaseMailBody/);
+  assert.match(showcase, /partner_showcase_live_proof_open/);
 });

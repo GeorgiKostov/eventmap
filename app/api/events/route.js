@@ -14,6 +14,7 @@ import { publicUrl } from '../../../lib/public-url.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 import { verifyIntakeProof } from '../../../lib/intake-proof.js';
 import { isSameOriginMutation } from '../../../lib/request-security.js';
+import { publicCacheHeaders } from '../../../lib/public-cache.js';
 
 export const dynamic = 'force-dynamic';
 const MESSAGES = {
@@ -78,6 +79,10 @@ function withCanonicalUrl(event) {
   return event ? { ...event, url: publicUrl(`event/${event.id}`) } : event;
 }
 
+function publicJson(body, cache = {}) {
+  return NextResponse.json(body, { headers: publicCacheHeaders(cache) });
+}
+
 // Returns [minLng,minLat,maxLng,maxLat] | undefined (missing) | null (invalid).
 function parseBbox(raw) {
   if (!raw) return undefined;
@@ -136,7 +141,7 @@ export async function GET(req) {
   if (id) {
     const event = await getEvent(id);
     const related = event ? await relatedUpcomingEvents(event) : { series: [], venue: [] };
-    return NextResponse.json({
+    return publicJson({
       event: withCanonicalUrl(event),
       related: {
         series: related.series.map(withCanonicalUrl),
@@ -154,15 +159,15 @@ export async function GET(req) {
     if (!ids.length || ids.length > 100 || ids.some((s) => !/^\d+$/.test(s))) {
       return bad('ids must be 1-100 comma-separated integers');
     }
-    return NextResponse.json({ events: (await eventsByIds(ids)).map(withCanonicalUrl) });
+    return publicJson({ events: (await eventsByIds(ids)).map(withCanonicalUrl) });
   }
 
   // Global text search — independent of the viewport.
   const q = sp.get('q');
   if (q !== null) {
     const trimmed = q.trim();
-    if (!trimmed) return NextResponse.json({ results: [] });
-    return NextResponse.json({ results: (await searchEvents(trimmed)).map(withCanonicalUrl) });
+    if (!trimmed) return publicJson({ results: [] });
+    return publicJson({ results: (await searchEvents(trimmed)).map(withCanonicalUrl) });
   }
 
   const view = sp.get('view');
@@ -179,16 +184,25 @@ export async function GET(req) {
 
     if (zoom >= ZOOM_TIER) {
       const { events, total, truncated } = await mapPins({ bbox, ...filters });
-      return NextResponse.json({ mode: 'pins', events, total, truncated });
+      return publicJson(
+        { mode: 'pins', events, total, truncated },
+        { browser: 15, edge: filters.source ? 300 : 60, stale: filters.source ? 900 : 300 },
+      );
     }
     // ~64px cells at the given zoom: 360deg / 2^zoom tiles, quartered.
     const cellDeg = 360 / Math.pow(2, Math.round(zoom)) / 4;
     const { cells, total } = await mapCells({ bbox, cellDeg, ...filters });
     if (total <= SPARSE_PINS_MAX) {
       const { events, truncated } = await mapPins({ bbox, ...filters });
-      return NextResponse.json({ mode: 'pins', events, total, truncated });
+      return publicJson(
+        { mode: 'pins', events, total, truncated },
+        { browser: 15, edge: filters.source ? 300 : 60, stale: filters.source ? 900 : 300 },
+      );
     }
-    return NextResponse.json({ mode: 'cells', cells, total });
+    return publicJson(
+      { mode: 'cells', cells, total },
+      { browser: 15, edge: filters.source ? 300 : 60, stale: filters.source ? 900 : 300 },
+    );
   }
   if (view) return bad('unknown view');
 
@@ -206,9 +220,9 @@ export async function GET(req) {
     afterId: cursor,
     limit: pageLimit,
   });
-  return NextResponse.json(
+  return publicJson(
     { events: events.map(withCanonicalUrl), next_cursor: nextCursor },
-    { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' } },
+    { browser: 60, edge: 3600, stale: 86400 },
   );
 }
 

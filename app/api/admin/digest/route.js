@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getChannel, CHANNELS, channelForPoint } from '../../../../lib/city-channels.js';
 import {
   loadOrBuildDigest,
+  loadDigest,
   saveDigest,
   applyDrop,
   applyReplace,
@@ -10,10 +11,13 @@ import {
   sectionsOf,
   renderNewsletter,
   renderCaption,
+  DIGEST_MIN,
 } from '../../../../lib/digest.js';
-import { confirmedSubscribers, metaGet, metaSet } from '../../../../lib/db.js';
+import { confirmedSubscribers, metaGet, metaSet, weekendEventsByIds } from '../../../../lib/db.js';
 import { sendNewsletter, mailConfigured } from '../../../../lib/mail.js';
-import { isAdmin } from '../../../../lib/admin-auth.js';
+import { isAdmin, bearerTokenValid } from '../../../../lib/admin-auth.js';
+import { automaticDigestProblem, automaticDigestRequestAllowed } from '../../../../lib/digest-auto-send.js';
+import { newsletterCountrySupported } from '../../../../lib/newsletter-market.js';
 
 // The Thursday flow's engine (docs/ops/weekly-automation.md). One route:
 //   GET                → the frozen weekly snapshot + caption + email preview + audience size
@@ -26,9 +30,9 @@ import { isAdmin } from '../../../../lib/admin-auth.js';
 // drop/replace/reorder are the editorial layer: each edits the frozen snapshot
 // in place and re-freezes it, with NO AI call — only `regenerate` rebuilds.
 //
-// Sending is DELIBERATELY a manual button, not a cron: an auto-sent newsletter
-// nobody looked at is how you mail 500 parents a wrong event. The cron only
-// prepares (see .github/workflows/weekly-digest.yml).
+// Operator sends remain available, while the Thursday service caller may use
+// only the guarded Linz path below. Unattended delivery fails closed on a stale
+// snapshot, thin inventory, or any changed/ineligible event.
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -49,7 +53,8 @@ function audienceFor(channel, subs) {
 async function snapshot(channel, { force = false } = {}) {
   const digest = await loadOrBuildDigest(channel, { force });
   const subs = await confirmedSubscribers();
-  const audience = audienceFor(channel, subs);
+  const newsletterSupported = newsletterCountrySupported(channel.country);
+  const audience = newsletterSupported ? audienceFor(channel, subs) : [];
   const sentAt = await metaGet(sentKey(channel.slug, digest.window.friday));
   const preview = renderNewsletter(digest, {
     unsubscribeUrl: `${BASE}/api/subscribe/unsubscribe?token=PREVIEW`,
@@ -71,6 +76,7 @@ async function snapshot(channel, { force = false } = {}) {
     html: preview.html,
     cards: Array.from({ length: digest.items.length + 1 }, (_, i) => `/api/social/card?channel=${channel.slug}&slide=${i}`),
     audience: audience.length,
+    newsletterSupported,
     sentAt,
   };
 }
@@ -88,9 +94,14 @@ export async function GET(req) {
 
 export async function POST(req) {
   const body = await req.json().catch(() => ({}));
-  if (!isAdmin(req)) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
-  const channel = getChannel(body.channel || 'linz');
+  const requestedChannel = body.channel || 'linz';
+  const automatic = automaticDigestRequestAllowed(body, requestedChannel, bearerTokenValid(req));
+  if (!isAdmin(req) && !automatic) return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  const channel = getChannel(requestedChannel);
   if (!channel) return NextResponse.json({ error: 'unknown channel' }, { status: 400 });
+  // The service token is intentionally narrower than an operator session: it
+  // may trigger only the scheduled Linz send, never edit picks, send another
+  // city, or force a duplicate mailing.
 
   if (body.action === 'regenerate') {
     return NextResponse.json(await snapshot(channel, { force: true }));
@@ -137,14 +148,46 @@ export async function POST(req) {
   }
 
   if (body.action === 'send') {
-    const digest = await loadOrBuildDigest(channel);
+    if (!newsletterCountrySupported(channel.country)) {
+      return NextResponse.json({ error: 'newsletter delivery is currently available only for Austria' }, { status: 400 });
+    }
+    const digest = automatic ? await loadDigest(channel) : await loadOrBuildDigest(channel);
+    if (automatic) {
+      const currentEvents = digest
+        ? await weekendEventsByIds({
+            ids: digest.items.map((item) => item.id),
+            lat: channel.lat,
+            lng: channel.lng,
+            radiusKm: channel.radiusKm,
+            from: digest.window.from,
+            to: digest.window.to,
+          })
+        : [];
+      const problem = automaticDigestProblem(digest, currentEvents, { minimumItems: DIGEST_MIN });
+      if (problem) return NextResponse.json({ error: `automatic send stopped: ${problem}` }, { status: 409 });
+    }
     if (!digest.items.length) return NextResponse.json({ error: 'nothing to send' }, { status: 400 });
 
     // Idempotence ledger: a double-click, a retry or a re-deploy must never
     // mail the list twice for the same weekend. `force` is the deliberate override.
     const key = sentKey(channel.slug, digest.window.friday);
-    if (!body.force && (await metaGet(key))) {
-      return NextResponse.json({ error: 'already sent for this weekend', sentAt: await metaGet(key) }, { status: 409 });
+    const existingSentAt = !body.force ? await metaGet(key) : null;
+    if (existingSentAt) {
+      // A manual send during the review window makes the scheduled job a clean
+      // no-op, not a failed workflow. The operator-facing button still gets a
+      // 409 so an accidental second click remains visible.
+      if (automatic) {
+        const audience = audienceFor(channel, await confirmedSubscribers());
+        return NextResponse.json({
+          sent: 0,
+          skipped: audience.length,
+          failed: 0,
+          audience: audience.length,
+          alreadySent: true,
+          sentAt: existingSentAt,
+        });
+      }
+      return NextResponse.json({ error: 'already sent for this weekend', sentAt: existingSentAt }, { status: 409 });
     }
 
     // sendNewsletter() returns false when no provider is configured. Reporting
@@ -182,7 +225,15 @@ export async function POST(req) {
       const url = unsubUrl(sub);
       const mail = renderNewsletter(digest, { unsubscribeUrl: url });
       try {
-        if (await sendNewsletter({ to: sub.email, ...mail, unsubscribeUrl: url })) {
+        if (await sendNewsletter({
+          to: sub.email,
+          ...mail,
+          unsubscribeUrl: url,
+          // Resend closes the narrow crash window between provider acceptance
+          // and our per-recipient ledger write. Deliberate forced re-sends omit
+          // the key so they are not suppressed by the provider.
+          idempotencyKey: body.force ? undefined : `digest-${channel.slug}-${digest.window.friday}-${sub.id}`,
+        })) {
           sent++;
           done.add(String(sub.id));
           await metaSet(doneKey, JSON.stringify([...done])); // durable before the next send

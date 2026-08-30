@@ -39,7 +39,7 @@ function SourceLine({ source, tier }) {
 // the shell confirms the session, and mounting is exactly what runs the loads.
 export default function ThursdayPage() {
   return (
-    <AdminShell title="Thursday desk" subtitle="Weekend picks → carousel + caption + newsletter. Post manually, send when it looks right.">
+    <AdminShell title="Thursday desk" subtitle="Review before the guarded Thursday send; social posting stays manual.">
       <ThursdayDesk />
     </AdminShell>
   );
@@ -299,18 +299,23 @@ function ThursdayDesk() {
                 <div style={S.card}>
                   <div style={{ fontWeight: 700, marginBottom: 4 }}>3 · Newsletter</div>
                   <div style={{ ...S.muted, marginBottom: 10 }}>Subject: <strong>{data.subject}</strong></div>
+                  {!data.newsletterSupported ? (
+                    <div style={{ color: '#C93A5B', fontWeight: 700, marginBottom: 10 }}>
+                      Newsletter delivery is currently available only for Austria.
+                    </div>
+                  ) : null}
                   <iframe
                     title="preview"
                     srcDoc={data.html}
                     style={{ width: '100%', height: 520, border: '1px solid #DCDCD6', borderRadius: 10, background: '#fff' }}
                   />
                   <div style={{ ...S.row, marginTop: 12 }}>
-                    <button style={S.ghost} disabled={!!busy} onClick={() => act('send', { test: true })}>
+                    <button style={S.ghost} disabled={!!busy || !data.newsletterSupported} onClick={() => act('send', { test: true })}>
                       Send test to me
                     </button>
                     <button
                       style={S.btn}
-                      disabled={!!busy || !data.audience}
+                      disabled={!!busy || !data.audience || !data.newsletterSupported}
                       onClick={() => {
                         if (confirm(`Send to ${data.audience} confirmed subscribers around ${channel}?`)) act('send', { force: !!data.sentAt });
                       }}

@@ -5,13 +5,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
+  ArrowSquareOut,
   ChartLineUp,
+  CheckCircle,
   ClockCountdown,
   DeviceMobile,
   LinkSimple,
   MapPin,
   Megaphone,
   PaintBrushBroad,
+  ShieldCheck,
 } from '@phosphor-icons/react';
 import { track } from '../../lib/analytics.js';
 import { useLanguage } from '../language-provider.js';
@@ -33,8 +36,15 @@ const PACKAGE = [
   ['03', 'partnerShowcaseLayerProof', 'partnerShowcaseLayerProofCopy'],
 ];
 
+const PILOT_STEPS = [
+  ['01', 'partnerShowcasePilotStepScope', 'partnerShowcasePilotStepScopeCopy'],
+  ['02', 'partnerShowcasePilotStepPreview', 'partnerShowcasePilotStepPreviewCopy'],
+  ['03', 'partnerShowcasePilotStepLaunch', 'partnerShowcasePilotStepLaunchCopy'],
+];
+
 export default function PartnerShowcase() {
   const { lang, t, chooseLanguage } = useLanguage();
+  const contactHref = `mailto:hello@okolo.events?subject=${encodeURIComponent(t.partnerShowcaseMailSubject)}&body=${encodeURIComponent(t.partnerShowcaseMailBody)}`;
 
   useEffect(() => {
     track('partner_showcase_view', { placement: 'html_showcase' });
@@ -52,7 +62,7 @@ export default function PartnerShowcase() {
               </button>
             ))}
           </div>
-          <a className={styles.navCta} href="mailto:hello@okolo.events?subject=Festival%20map%20partnership" onClick={() => track('partner_showcase_contact', { placement: 'nav' })}>
+          <a className={styles.navCta} href={contactHref} onClick={() => track('partner_showcase_contact', { placement: 'nav' })}>
             {t.partnerShowcaseTalk} <ArrowRight size={15} weight="bold" />
           </a>
         </div>
@@ -64,10 +74,12 @@ export default function PartnerShowcase() {
           <h1>{t.partnerShowcaseTitle}<span>{t.partnerShowcaseTitleAccent}</span></h1>
           <p>{t.partnerShowcaseIntro}</p>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryCta} href="/partners/demo" onClick={() => track('partner_showcase_demo_open', { placement: 'hero' })}>
-              {t.partnerShowcaseOpenDemo} <ArrowRight size={18} weight="bold" />
+            <a className={styles.primaryCta} href={contactHref} onClick={() => track('partner_showcase_contact', { placement: 'hero' })}>
+              {t.partnerShowcaseTalk} <ArrowRight size={18} weight="bold" />
+            </a>
+            <Link className={styles.secondaryCta} href="/partners/demo" onClick={() => track('partner_showcase_demo_open', { placement: 'hero' })}>
+              {t.partnerShowcaseOpenDemo}
             </Link>
-            <a className={styles.secondaryCta} href="#package">{t.partnerShowcaseSeePackage}</a>
           </div>
           <div className={styles.heroFacts}>
             <span><MapPin size={16} weight="fill" /> {t.partnerShowcaseFactCity}</span>
@@ -106,6 +118,13 @@ export default function PartnerShowcase() {
             />
           </Link>
         </div>
+      </section>
+
+      <section className={styles.proofBar} aria-label={t.partnerShowcaseProofLabel}>
+        <span><CheckCircle size={17} weight="fill" /> {t.partnerShowcaseProofNoApp}</span>
+        <span><CheckCircle size={17} weight="fill" /> {t.partnerShowcaseProofSource}</span>
+        <span><CheckCircle size={17} weight="fill" /> {t.partnerShowcaseProofDistribution}</span>
+        <span><CheckCircle size={17} weight="fill" /> {t.partnerShowcaseProofReport}</span>
       </section>
 
       <section className={styles.useCase}>
@@ -155,11 +174,63 @@ export default function PartnerShowcase() {
         </div>
       </section>
 
+      <section className={styles.platformProof}>
+        <div className={styles.sectionHeading}>
+          <span className={styles.eyebrow}>{t.partnerShowcasePlatformEyebrow}</span>
+          <h2>{t.partnerShowcasePlatformTitle}</h2>
+          <p>{t.partnerShowcasePlatformCopy}</p>
+        </div>
+        <div className={styles.platformGrid}>
+          <article>
+            <MapPin size={24} weight="duotone" />
+            <h3>{t.partnerShowcasePlatformMap}</h3>
+            <p>{t.partnerShowcasePlatformMapCopy}</p>
+            <Link href="/" onClick={() => track('partner_showcase_live_proof_open', { placement: 'map' })}>
+              {t.partnerShowcasePlatformMapLink} <ArrowSquareOut size={15} />
+            </Link>
+          </article>
+          <article>
+            <ChartLineUp size={24} weight="duotone" />
+            <h3>{t.partnerShowcasePlatformDistribution}</h3>
+            <p>{t.partnerShowcasePlatformDistributionCopy}</p>
+            <Link href="/events/linz/wochenende" onClick={() => track('partner_showcase_live_proof_open', { placement: 'discovery' })}>
+              {t.partnerShowcasePlatformDistributionLink} <ArrowSquareOut size={15} />
+            </Link>
+          </article>
+        </div>
+      </section>
+
+      <section className={styles.pilot} id="pilot">
+        <div className={styles.sectionHeading}>
+          <span className={styles.eyebrow}>{t.partnerShowcasePilotEyebrow}</span>
+          <h2>{t.partnerShowcasePilotTitle}</h2>
+          <p>{t.partnerShowcasePilotCopy}</p>
+        </div>
+        <div className={styles.pilotGrid}>
+          {PILOT_STEPS.map(([number, title, copy]) => (
+            <article key={number}>
+              <span>{number}</span>
+              <div><h3>{t[title]}</h3><p>{t[copy]}</p></div>
+            </article>
+          ))}
+        </div>
+        <div className={styles.caseStudy}>
+          <ShieldCheck size={30} weight="duotone" />
+          <div>
+            <h3>{t.partnerShowcaseCaseTitle}</h3>
+            <p>{t.partnerShowcaseCaseCopy}</p>
+          </div>
+          <a href={contactHref} onClick={() => track('partner_showcase_contact', { placement: 'pilot' })}>
+            {t.partnerShowcasePilotCta} <ArrowRight size={17} weight="bold" />
+          </a>
+        </div>
+      </section>
+
       <section className={styles.finalCta}>
         <span className={styles.eyebrow}>{t.partnerShowcaseFinalEyebrow}</span>
         <h2>{t.partnerShowcaseFinalTitle}</h2>
         <p>{t.partnerShowcaseFinalCopy}</p>
-        <a href="mailto:hello@okolo.events?subject=Festival%20map%20partnership" onClick={() => track('partner_showcase_contact', { placement: 'final' })}>
+        <a href={contactHref} onClick={() => track('partner_showcase_contact', { placement: 'final' })}>
           {t.partnerShowcaseTalk} <ArrowRight size={18} weight="bold" />
         </a>
         <small>{t.partnerShowcaseDisclaimer}</small>

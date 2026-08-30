@@ -5,16 +5,13 @@ import { limit, hashIp } from '../../../lib/ratelimit.js';
 import { notifyNewSubscriber, sendSubscriberConfirm } from '../../../lib/mail.js';
 import { EVENT_CATS } from '../../../lib/icons.js';
 import { NL_CONSENT_VERSION } from '../../../lib/i18n.js';
-import { channelForPoint } from '../../../lib/city-channels.js';
+import { newsletterCountrySupported } from '../../../lib/newsletter-market.js';
+import { newsletterAreaSupported } from '../../../lib/newsletter-area.js';
 
 export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Single source of truth for the category whitelist (shared with the map).
 const EVENT_CATEGORIES = new Set(EVENT_CATS);
-// The events map covers Austria + Bulgaria; a subscriber's locality centre must
-// fall in that region, not just be a syntactically valid world coordinate — so
-// a crafted (0,0) can't pollute targeting exports.
-const AREA_BOUNDS = { latMin: 40, latMax: 50, lngMin: 8, lngMax: 30 };
 // Where the signup happened. A CLOSED enum, not a free string: `source` is an
 // anonymous write that lands in a column we read when judging the four-weekend
 // test ("did the SEO pages actually convert?"), so an open field would be both
@@ -27,6 +24,7 @@ const MESSAGES = {
     limited: 'Zu viele Anfragen — bitte später wieder.',
     invalid: 'Bitte eine gültige E-Mail-Adresse eingeben.',
     invalidArea: 'Bitte einen gültigen Ort oder eine Postleitzahl auswählen.',
+    unsupportedCountry: 'Der Newsletter ist derzeit nur in Österreich verfügbar.',
     invalidPreferences: 'Bitte wähle nur gültige Interessen aus.',
     mailDown: 'Anmeldung momentan nicht möglich — bitte später erneut versuchen.',
   },
@@ -34,6 +32,7 @@ const MESSAGES = {
     limited: 'Too many requests — please try again later.',
     invalid: 'Please enter a valid email address.',
     invalidArea: 'Please choose a valid town or postcode.',
+    unsupportedCountry: 'The newsletter is currently available only in Austria.',
     invalidPreferences: 'Please choose valid interests.',
     mailDown: 'Sign-up isn’t available right now — please try again later.',
   },
@@ -41,6 +40,7 @@ const MESSAGES = {
     limited: 'Твърде много заявки — опитай отново по-късно.',
     invalid: 'Въведи валиден имейл адрес.',
     invalidArea: 'Избери валиден град или пощенски код.',
+    unsupportedCountry: 'Бюлетинът в момента е достъпен само за Австрия.',
     invalidPreferences: 'Избери валидни интереси.',
     mailDown: 'Записването не е възможно в момента — опитай отново по-късно.',
   },
@@ -59,10 +59,13 @@ export async function POST(req) {
   const areaLabel = String(body.areaLabel || '').trim();
   const areaLat = body.areaLat;
   const areaLng = body.areaLng;
+  const areaCountry = String(body.areaCountry || '').toUpperCase();
+  if (!newsletterCountrySupported(areaCountry)) {
+    return NextResponse.json({ error: msg.unsupportedCountry, code: 'unsupported_country' }, { status: 400 });
+  }
   if (
     areaLabel.length < 2 || areaLabel.length > 120 ||
-    !Number.isFinite(areaLat) || areaLat < AREA_BOUNDS.latMin || areaLat > AREA_BOUNDS.latMax ||
-    !Number.isFinite(areaLng) || areaLng < AREA_BOUNDS.lngMin || areaLng > AREA_BOUNDS.lngMax
+    !newsletterAreaSupported({ country: areaCountry, lat: areaLat, lng: areaLng })
   ) {
     return NextResponse.json({ error: msg.invalidArea }, { status: 400 });
   }
@@ -77,14 +80,11 @@ export async function POST(req) {
   }
   // The subscriber's language decides every mail we ever send them (confirm +
   // newsletter fallbacks). The UI language they signed up in is their choice and
-  // wins; if the client didn't send one, fall back to the language OF THE PLACE
-  // they chose — a Sofia signup gets Bulgarian, a Linz or Stuttgart one German —
-  // never English just because a field was omitted. (BG is entirely east of
-  // lng 20, AT/DE entirely west — the registry covers the cities, the meridian
-  // covers the villages.)
+  // wins; an omitted language falls back to German because Austria is the only
+  // supported newsletter market.
   const lang = ['de', 'en', 'bg'].includes(body.lang)
     ? body.lang
-    : channelForPoint(areaLat, areaLng)?.lang || (areaLng > 20 ? 'bg' : 'de');
+    : 'de';
 
   const source = SIGNUP_SOURCES.has(body.source) ? body.source : 'newsletter_popup';
   const { pending, token } = await addSubscriber(email, {

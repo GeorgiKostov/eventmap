@@ -308,7 +308,7 @@ export default async function WeekendPage({ params }) {
           page shipped — this is the section it was written for.) */}
       <NewsletterSignup
         lang={channel.lang}
-        area={{ label: channel.label, lat: channel.lat, lng: channel.lng }}
+        area={{ label: channel.label, lat: channel.lat, lng: channel.lng, country: channel.country }}
         source="weekend_page"
         title={c.nlCta}
       />

@@ -9,6 +9,51 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-30 — Austria-only newsletter market implemented locally)
+- George set the newsletter market to Austria only while Bulgarian event coverage is not ready.
+  Bulgarian and German public pages now replace signup with a localized warning; the map suppresses
+  contextual prompts outside Austria and warns on a selected foreign locality.
+- Signup requires a resolved `AT` country and offline `Europe/Vienna` coordinate verification, while
+  the admin route, scheduled sender and CLI all reject non-Austrian channels. The existing Plovdiv
+  consent row remains stored but is excluded from delivery.
+- The change is local and not committed, pushed or deployed. No subscriber record was changed and no
+  email was sent during verification. All 338 tests and the 111-page production build pass; browser
+  QA confirms one email field and no warning for Linz, versus the warning and no email field for a
+  Plovdiv event, with no browser errors.
+
+## Where things stand (2026-08-30 — managed partner-pilot hardening implemented locally)
+- Public map reads now use canonical shared viewport keys, explicit browser/edge caching and no
+  Supabase Auth refresh for anonymous GETs. Map SQL returns counts in the main query and aggregates
+  reactions only after the 800-row bound; published spatial, source and accent-folded trigram search
+  indexes are applied in production Supabase.
+- Public location search is safer under serverless concurrency: Nominatim uses a durable global
+  request slot, Photon suggestions are configurable, coalesced, rate-limited and edge-cacheable, and
+  upstream failures cannot become long-lived empty results. Published partner venues should still be
+  geocoded and reviewed before launch so no public geocoder is guest-critical.
+- `/partners` is a static, indexable B2B page with a direct pre-filled contact handoff, concrete proof
+  from the live platform, an honest first-pilot sequence and separate case-study permission. The
+  fictional interactive demo remains `noindex` and makes no customer or reach claim.
+- `docs/ops/partner-pilot-scaling.md` is the delivery/capacity playbook from signed scope through a
+  later regional PMTiles or managed/self-hosted geocoder decision. The first deal stays a managed
+  pilot; explicit partner tenancy begins with a second independent customer, not speculatively now.
+- The 111-page production build, all 291 repository tests, responsive partner/map QA and bounded
+  local API rehearsals pass. A warmed sequential 20-request local run had zero errors, 175 ms p95 and a
+  66.9 KB average response; local runs do not exercise Vercel's CDN. Application changes are not
+  committed, pushed or deployed. Concurrent newsletter work in the worktree remains untouched.
+
+## Where things stand (2026-08-30 — guarded automatic Linz newsletter implemented locally)
+- George changed the operating call from manual email approval to automatic Thursday delivery. The
+  workflow now freshly regenerates Linz at 09:00 UTC and triggers the deployed sender at 14:00 UTC;
+  subscriber routing is evaluated then, so only confirmed active Linz addresses receive it. Plovdiv
+  and every other paused channel remain excluded.
+- Unattended sending fails closed unless the snapshot is at most eight hours old, has at least five
+  picks, and every event remains eligible and unchanged. The existing per-recipient ledger is backed
+  by a deterministic Resend idempotency key, and the scheduled token cannot force a resend or target
+  another city. Social posting stays manual.
+- This change is local and not committed, pushed or deployed. The schedule is not live until the
+  repository workflow is published and the matching production route is manually deployed.
+  All 326 tests and the 111-page production build pass; no subscriber email was sent during QA.
+
 ## Where things stand (2026-08-30 — one Okolo brand header live across page families)
 - `app/okolo-brand.js` now owns the tokenized raspberry pin, lowercase `okolo.` title, optional
   city-handle suffix and quiet qualifier. The persistent lockup is top-left on the map (desktop and

@@ -357,7 +357,7 @@ export default async function EventPage({ params, searchParams }) {
           // mail). The digest itself stays in the channel's local language by
           // design — per-subscriber digest language is deliberately not built.
           lang={lang}
-          area={{ label: channel.label, lat: channel.lat, lng: channel.lng }}
+          area={{ label: channel.label, lat: channel.lat, lng: channel.lng, country: channel.country }}
           source="event_page"
         />
       )}

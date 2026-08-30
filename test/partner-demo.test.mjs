@@ -16,6 +16,7 @@ test('public partner demo keeps fictional programme outside production event pat
   assert.doesNotMatch(client, /fetch\s*\(/);
   assert.doesNotMatch(client, /\/api\/events|\/event\/\$\{/);
   assert.match(page, /robots: \{ index: false, follow: false \}/);
+  assert.match(page, /dynamic = 'force-static'/);
 });
 
 test('programme day tabs keep their full height inside the scrolling sidebar', async () => {

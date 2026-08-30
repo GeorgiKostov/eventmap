@@ -62,7 +62,7 @@ frozen snapshot for the weekend            ← one pick set; cards, caption and 
 George reviews at /admin/thursday (10 min)
    ├── downloads 6 cards → posts to okolo.<city> IG + FB          [manual, on purpose]
    ├── copies caption → parent FB/WhatsApp groups                 [manual, on purpose]
-   └── presses Send → newsletter to that city's confirmed list
+   └── may edit/test; Thursday job sends → confirmed Linz list    [automatic, fail-closed]
    ↓
 every asset links back to the map with ?utm_campaign=weekend-<friday>
    ↓
@@ -72,26 +72,31 @@ new visitors → map → newsletter signup → next Thursday they get it by emai
 The loop closes at the newsletter: social reach is rented, the email list is owned. **Social's job is
 to feed the list**, not to be the audience.
 
-### Why posting and sending stay manual
-
-Both are deliberate, and both are cheap to defend:
+### Why social stays manual and email is guarded automation
 
 - **Auto-posting gets you banned.** The local FB/WhatsApp parent groups are the single highest-value
   channel we have, and every one of them bans bot promo. A human dropping a genuinely useful weekly
   list is welcome; a bot posting the same thing is removed and the channel is burned permanently.
-- **Auto-sending mails mistakes.** The newsletter is our highest-trust surface, going to parents,
-  about where they will physically take their children. An unreviewed digest that ships a cancelled
-  event is a trust loss you don't get to undo (hard rule 5 exists for exactly this).
+- **Email automation fails closed.** The newsletter is our highest-trust surface, so the scheduled
+  send accepts only a digest rebuilt that Thursday with at least five picks. Immediately before
+  delivery it verifies every event is still eligible and unchanged; any mismatch stops the whole
+  send for operator review. Confirmed audience routing, one-click unsubscribe, per-recipient retry
+  ledgers and provider idempotency remain mandatory.
 
-The cron therefore *prepares* and emails George that the desk is ready. It never posts and never sends.
-Revisit auto-posting via the Graph API only after ~4 weeks of manual posting proves the motion —
-never before.
+The cron prepares at 09:00 UTC, leaves a five-hour edit/test window, and sends Linz at 14:00 UTC.
+It never posts socially. Revisit auto-posting via the Graph API only after ~4 weeks of manual posting
+proves the motion — never before.
 
 ## 4. Channels
 
 `lib/city-channels.js` is the registry — adding a city is adding a row (name, centre, radius, language,
 hashtags). Ten are defined; **only Linz is live.** The rest exist so the second city costs an afternoon,
 not a rebuild.
+
+Newsletter signup and delivery are **Austria-only** during validation, even though the map and paused
+channel registry also cover Bulgaria and Germany. A non-Austrian locality shows a localized warning;
+existing non-Austrian consent rows remain stored but are excluded from every send. See
+`docs/decisions/2026-08-30-austria-only-newsletter.md`.
 
 | Tier | Cities | Language |
 |---|---|---|
@@ -157,7 +162,8 @@ in `docs/ops/advertiser-proof.md`.
 | Daily 04:00 UTC | Deterministic Austria source refresh | cron (`crawl.yml`) |
 | Sunday 04:30 UTC | Bounded Gemini-only Austria LLM source refresh | cron (`crawl.yml`) |
 | **Thu 09:00 UTC** | Picks frozen + AI copy written + "desk is ready" mail | cron (`weekly-digest.yml`) |
-| **Thu ~16:00 Vienna** | Review → download carousel → post IG/FB → drop in groups → Send | **George, ~10 min** |
+| **Thu 14:00 UTC** | Guarded send to the confirmed Linz audience | cron (`weekly-digest.yml`) |
+| **Thu ~16:00 Vienna** | Review/download carousel → post IG/FB → drop in groups | **George, ~10 min** |
 | Fri–Sun | Optional Story: "heute in Linz" (1–3 time-sensitive picks) | George, optional |
 | Mon | Read the numbers from §6. One change per week, not five. | George |
 
@@ -177,9 +183,12 @@ contract scope and any required ranking disclosure remain pre-sale operating gat
    time, price, age or venue that isn't in the DB row must not appear on a card. Verified: every teaser
    traced back to its DB description.
 3. **No newsletter without double opt-in**, and every send carries RFC-8058 one-click unsubscribe.
+   Signup and delivery remain limited to Austrian localities until another country has an explicit
+   coverage and launch decision.
 4. **The newsletter must render with zero AI.** If the model call fails, the template writes the copy
    and the digest still ships. A growth loop that breaks when a provider 429s is not a loop.
-5. **Never auto-post, never auto-send.** §3.
+5. **Never auto-post. Automatic email must pass the fresh-snapshot, minimum-inventory, unchanged-event,
+   audience, unsubscribe and idempotency gates in §3.**
 
 ## 10. Open decisions for George
 

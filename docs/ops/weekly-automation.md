@@ -1,7 +1,8 @@
 # Weekly Automation Pipeline (The Thursday Flow)
 
 > Status: **SHIPPED 2026-07-14** · Owner: Architect agent
-> This spec defines the automation pipeline for the weekly Okolo growth engine. We automate the *creation* of assets, but keep *distribution* (social posting) manual until proven.
+> This spec defines the automation pipeline for the weekly Okolo growth engine. We automate the
+> Linz email after fail-closed checks; social distribution stays manual.
 >
 > **What exists now** (the strategy around it: `docs/strategy/growth-system.md`):
 > | Piece | Where |
@@ -13,7 +14,7 @@
 > | Carousel cards, 1080×1350, Latin + Cyrillic | `GET /api/social/card?channel=&slide=` |
 > | The desk (review, drop a pick, download cards, copy caption, send) | `/admin/thursday?token=<ADMIN_TOKEN>` |
 > | CLI (`npm run digest -- --all --cards ./out --send`) | `scripts/weekly-digest.mjs` |
-> | Thursday cron — **prepares only, never posts, never sends** | `.github/workflows/weekly-digest.yml` |
+> | Thursday cron — fresh prepare at 09:00 UTC, guarded Linz send at 14:00 UTC | `.github/workflows/weekly-digest.yml` |
 >
 > Deviations from the plan below, and why: the "Top 5" is a **frozen snapshot** per city per weekend
 > (so the cards, the caption and the email can never disagree, and a card request can't re-trigger a
@@ -24,7 +25,11 @@
 ## 1. Goal & Philosophy
 The growth strategy relies on a weekly rhythm: every Thursday afternoon, we tell parents what the best 5 family events are in Linz for the upcoming weekend. 
 
-**The Rule:** We automate asset generation (images, text, email drafting) to save time, but we **do not automate social posting**. Auto-posting bots get banned from local Facebook/WhatsApp groups. You must post the generated assets organically to build trust.
+**The Rule:** We automate asset generation and the confirmed Linz email list, but we **do not
+automate social posting**. Auto-posting bots get banned from local Facebook/WhatsApp groups. The
+email job sends only a fresh issue with at least five still-eligible, unchanged events. Newsletter
+signup and delivery are Austria-only; paused Bulgarian and German channels cannot be sent through
+the desk, API, or CLI.
 
 ## 2. Core Components to Build
 
@@ -47,13 +52,16 @@ We will reuse Next.js's built-in ImageResponse (`next/og`) to generate beautiful
 ### C. Newsletter Generator
 A script that takes the same "Top 5" array and injects it into a clean, branded HTML email template.
 - **Integration:** Connects to an email provider (Resend, Mailgun, or Nodemailer).
-- **Drafting:** The system drafts the email but **does not send it automatically**. It waits for manual approval.
+- **Delivery:** The system rebuilds the issue Thursday morning and automatically sends it five hours
+  later if every unattended-send guard passes. The desk still supports preview, edits, test mail and
+  a manual retry.
 
 ### D. The Admin Dashboard (`/admin/thursday`)
 A hidden, password-protected route in the Next.js app where you manage this workflow.
 - **View:** Shows the 5 selected events (with options to swap one out if the algorithm picked a bad one).
 - **Action 1 (Social):** A "Download Social Assets" button that gives you a ZIP file of the 6 PNG cards and copies the caption to your clipboard.
-- **Action 2 (Newsletter):** A preview of the HTML email and a giant "Approve & Send Newsletter" button.
+- **Action 2 (Newsletter):** Preview and test the HTML email; optionally send immediately instead of
+  waiting for the guarded scheduled delivery.
 
 ## 3. The Thursday Workflow (George's Job)
 
@@ -64,7 +72,8 @@ Once built, your Thursday afternoon will look like this:
 3. **15:02:** Click "Download Social Assets". The 6 PNGs and caption are on your phone/laptop.
 4. **15:03:** Open Instagram, select the 6 images, paste the caption, and post to `okolo.linz`. Share to the Facebook Page.
 5. **15:05:** Open WhatsApp/Facebook Groups, write a human message ("Hey everyone, here are the 5 best things for the kids this weekend..."), and drop the link.
-6. **15:10:** Click "Approve & Send Newsletter" on the admin dashboard.
+6. **16:00 Vienna (summer):** The confirmed Linz list is sent automatically. If you already sent it
+   manually, the delivery ledger makes the scheduled run a no-op.
 
 **Total time:** 10 minutes.
 **Impact:** Reaches the newsletter list, Instagram followers, and local community groups simultaneously with zero manual design work.

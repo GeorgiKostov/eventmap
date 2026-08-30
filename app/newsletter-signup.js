@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { STRINGS } from '../lib/i18n.js';
 import { track } from '../lib/analytics.js';
+import { newsletterCountrySupported } from '../lib/newsletter-market.js';
 
 // Newsletter signup for the PUBLIC server-rendered pages — the weekend digest
 // pages and the event pages (George: "add newsletter subscription at the bottom
@@ -29,6 +30,7 @@ export default function NewsletterSignup({ lang = 'en', area, source, title }) {
   const t = STRINGS[lang] || STRINGS.en;
   const [email, setEmail] = useState('');
   const [state, setState] = useState({ busy: false, done: false, err: null });
+  const supported = newsletterCountrySupported(area?.country);
 
   async function submit(e) {
     e.preventDefault();
@@ -44,6 +46,7 @@ export default function NewsletterSignup({ lang = 'en', area, source, title }) {
           areaLabel: area.label,
           areaLat: area.lat,
           areaLng: area.lng,
+          areaCountry: area.country,
           radiusKm: 20,
           categories: [],
           source,
@@ -68,6 +71,15 @@ export default function NewsletterSignup({ lang = 'en', area, source, title }) {
     return (
       <section className="pagenl">
         <p className="pagenl-done">{t.nlConfirmSent}</p>
+      </section>
+    );
+  }
+
+  if (!supported) {
+    return (
+      <section className="pagenl">
+        <h2 className="pagenl-title">{title || t.nlTitle}</h2>
+        <p className="pagenl-err">{t.nlCountryUnsupported}</p>
       </section>
     );
   }

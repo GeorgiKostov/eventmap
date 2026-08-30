@@ -97,9 +97,29 @@ create extension if not exists postgis with schema extensions;
 -- Diacritic-folding for global search (scripts/migrate-unaccent.mjs) so
 -- "munchen" finds "München"; searchEvents wraps title/venue/town in unaccent().
 create extension if not exists unaccent with schema extensions;
+-- Trigram search keeps global title/venue/town lookup indexed once the public
+-- catalog grows beyond a single-region prototype. The wrapper is immutable so
+-- Postgres may use it in an expression index while preserving accent folding.
+create extension if not exists pg_trgm with schema extensions;
+create or replace function search_normalize(input text)
+returns text
+language sql
+immutable
+parallel safe
+set search_path = pg_catalog, extensions
+as $function$
+  select lower(extensions.unaccent(coalesce(input, '')))
+$function$;
 alter table events add column if not exists geom extensions.geometry(Point,4326)
   generated always as (extensions.st_setsrid(extensions.st_makepoint(lng,lat),4326)) stored;
 create index if not exists events_geom_idx on events using gist (geom);
+create index if not exists events_published_geom_idx on events using gist (geom)
+  where status='published';
+create index if not exists events_published_source_idx on events(source_name)
+  where status='published';
+create index if not exists events_published_search_trgm_idx on events using gin
+  ((search_normalize(coalesce(title, '') || ' ' || coalesce(venue, '') || ' ' || coalesce(town, ''))) extensions.gin_trgm_ops)
+  where status='published';
 
 -- Small key/value store; today just a throttle for the read-path
 -- expire-finished-events sweep (expireIfStale in lib/db.js) so reads don't

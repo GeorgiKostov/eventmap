@@ -21,6 +21,7 @@ import { loadOrBuildDigest, renderCaption, renderNewsletter } from '../lib/diges
 import { confirmedSubscribers, metaGet, metaSet } from '../lib/db.js';
 import { sendNewsletter, notifyOperator } from '../lib/mail.js';
 import { channelForPoint } from '../lib/city-channels.js';
+import { newsletterCountrySupported } from '../lib/newsletter-market.js';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -104,17 +105,22 @@ if (!channels.length) {
   console.error(`unknown channel. Known: ${CHANNELS.map((c) => c.slug).join(', ')}`);
   process.exit(1);
 }
+if ((flag('send') || flag('test')) && channels.some((channel) => !newsletterCountrySupported(channel.country))) {
+  console.error('newsletter delivery is currently available only for Austrian channels');
+  process.exit(1);
+}
 
 const results = [];
 for (const c of channels) results.push(await run(c));
 
-// The cron's whole job: prepare, then tell George it's ready. It never posts
-// and never sends.
+// The morning cron prepares and tells George the review window is open. A
+// separate afternoon job triggers guarded delivery through the deployed app;
+// this script still never posts socially or sends as a side effect of notify.
 if (flag('notify')) {
   const lines = results.map((r) => `${r.channel.label}: ${r.digest.items.length} picks — ${r.digest.label}`);
   await notifyOperator(
     `Okolo Thursday: ${results.reduce((n, r) => n + r.digest.items.length, 0)} picks ready`,
-    `${lines.join('\n')}\n\nDesk: ${BASE}/admin/thursday (log in with your admin password)\n\nThe picks and the AI copy are prepared. Review, download the carousel, post, then hit Send.`,
+    `${lines.join('\n')}\n\nDesk: ${BASE}/admin/thursday (log in with your admin password)\n\nThe picks and the AI copy are prepared. Review or edit them before the automatic 14:00 UTC send, then post the social assets manually.`,
   );
   console.log('\nnotified operator.');
 }

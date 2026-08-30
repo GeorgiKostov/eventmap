@@ -2,6 +2,47 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Austria-only newsletter market (2026-08-30)
+- [x] Replace newsletter forms with a localized Austria-only warning on Bulgarian and German public
+      pages, suppress contextual prompts outside Austria, and warn when a foreign area is selected.
+- [x] Require an Austrian country result and verified `Europe/Vienna` coordinates at signup; block
+      every admin, scheduled and CLI delivery path for non-Austrian channels.
+- [x] Keep the existing Plovdiv consent row but exclude it from delivery. Record the market decision
+      and cover country resolution, UI wiring and send guards with regression tests.
+- [x] Verify all 338 tests, the 111-page production build, and the rendered Linz-form versus
+      Plovdiv-warning states with no browser errors or email side effects.
+- [ ] Publish and manually deploy when George wants the restriction live; until then production can
+      still expose the previous signup behavior.
+
+## Managed partner-pilot readiness (2026-08-30)
+- [x] Make public map reads cacheable and shareable across nearby viewports, bypass remote auth work
+      on anonymous GETs, coalesce duplicate browser requests and remove avoidable map-query round trips.
+- [x] Add published spatial/source/search indexes, bound reaction aggregation to returned pins and
+      apply the idempotent read-scaling migration to production Supabase.
+- [x] Guard public geocoding with durable cross-instance Nominatim pacing, configurable/cached Photon
+      suggestions, failure-safe cache behavior and bounded allowances.
+- [x] Reframe `/partners` around one honest managed pilot, a direct pre-filled contact handoff, the
+      live platform beneath the demo and a separately approved first case study. Keep the fictional
+      demo `noindex` and the map-pin grammar stable.
+- [x] Add the first-customer delivery/scaling runbook and a bounded load-rehearsal script. Verify the
+      111-page build, all 291 tests, responsive partner/map surfaces and local API behavior.
+- [ ] Commit/push and manually deploy the application changes when George wants them published; only
+      the new Supabase indexes are live. Then verify Vercel cache hits and run an authorized regional
+      rehearsal before promising a customer capacity or uptime figure.
+
+## Automatic Thursday Linz newsletter (2026-08-30)
+- [x] Rebuild a fresh Linz issue at 09:00 UTC and schedule delivery at 14:00 UTC to the confirmed,
+      active Linz audience read at send time. Keep paused cities, including Plovdiv, excluded.
+- [x] Fail closed on an absent/stale snapshot, fewer than five picks, a removed/reported/out-of-window
+      event, or any event updated after preparation. Preserve per-recipient retry ledgers and add a
+      deterministic Resend idempotency key for the initial send.
+- [x] Restrict the scheduled bearer token to a non-forced Linz send and cover the freshness gates,
+      workflow contract and provider idempotency with regression tests.
+- [x] Verify all 326 tests and the 111-page production build; QA sends no subscriber email.
+- [ ] Publish the repository change and manually deploy the matching application route; auto-send is
+      not live until both sides run the same contract. Then verify the first Thursday workflow result
+      and Resend delivery for the actual confirmed Linz audience.
+
 ## Cross-page Okolo brand header (2026-08-30)
 - [x] Replace route-local or missing top-left treatments with one shared Okolo pin + lowercase
       wordmark across the map, discovery, event, weekend, legal, partner-demo and admin shells.
