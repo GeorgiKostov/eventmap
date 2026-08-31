@@ -76,7 +76,6 @@ export default async function CityMonthPage({ params }) {
         month={data.monthSlug}
         range={data.range}
         total={data.total}
-        facets={data.facets}
         lastModified={data.lastModified}
       />
     </>

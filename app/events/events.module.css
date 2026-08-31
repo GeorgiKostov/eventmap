@@ -26,7 +26,7 @@
 .eventLink:focus-visible,
 .otherCity:focus-visible,
 .breadcrumb a:focus-visible,
-.methodLink:focus-visible,
+.evidenceLink:focus-visible,
 .footerMethodLink:focus-visible,
 .indexMethod a:focus-visible,
 .methodContact a:focus-visible {
@@ -199,48 +199,49 @@
 
 .evidence {
   display: grid;
-  gap: 9px;
-  padding: 16px 18px;
-  margin-top: 24px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid var(--events-line);
-  border-radius: 14px;
+  gap: 6px;
+  padding: 13px 0;
+  margin-top: 22px;
+  border-top: 1px solid var(--events-line);
+  border-bottom: 1px solid var(--events-line);
 }
 
-.evidencePrimary,
-.evidenceSecondary {
+.evidenceScope,
+.evidenceMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px 16px;
+  align-items: baseline;
+  gap: 5px 14px;
 }
 
-.evidencePrimary {
+.evidenceScope {
   font-size: 13px;
 }
 
-.evidencePrimary strong {
+.evidenceScope strong {
   color: var(--events-ink);
 }
 
-.evidencePrimary span,
-.evidenceSecondary span {
+.evidenceScope span,
+.evidenceMeta span {
   position: relative;
   color: var(--events-muted);
 }
 
-.evidencePrimary span::before,
-.evidenceSecondary span::before {
+.evidenceScope span::before,
+.evidenceMeta > * + *::before {
   content: '·';
-  margin-right: 16px;
+  margin-right: 14px;
   color: #a3aaa6;
 }
 
-.evidenceSecondary {
+.evidenceMeta {
+  justify-content: flex-start;
   font-size: 12px;
   line-height: 1.45;
 }
 
-.methodLink,
+.evidenceLink,
 .footerMethodLink,
 .indexMethod a {
   width: fit-content;
@@ -605,19 +606,16 @@
     font-size: 16px;
   }
 
-  .evidence,
   .highlights {
     padding: 16px;
   }
 
-  .evidencePrimary,
-  .evidenceSecondary {
-    display: grid;
-    gap: 5px;
+  .evidence {
+    gap: 8px;
   }
 
-  .evidencePrimary span::before,
-  .evidenceSecondary span::before {
+  .evidenceScope span::before,
+  .evidenceMeta > * + *::before {
     display: none;
   }
 

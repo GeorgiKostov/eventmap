@@ -110,7 +110,6 @@ export default async function CityIntentPage({ params }) {
         digest={data.digest}
         range={data.range}
         total={data.total}
-        facets={data.facets}
         lastModified={data.lastModified}
       />
     </>

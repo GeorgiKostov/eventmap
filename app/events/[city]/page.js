@@ -62,7 +62,6 @@ export default async function CityEventsPage({ params }) {
         path={path}
         range={data.range}
         total={data.total}
-        facets={data.facets}
         lastModified={data.lastModified}
       />
     </>

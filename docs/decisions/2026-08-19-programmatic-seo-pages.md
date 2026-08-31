@@ -55,3 +55,16 @@ count, date range, radius, family/free facets, named-source count and last updat
 static sourcing and verification methodology page. City and dated-weekend navigation points directly
 to the canonical live weekend URL. This adds evidence and internal-link clarity without a new URL
 matrix, database schema, copied publisher prose or additional production query path.
+
+## 2026-08-31 — Evidence hierarchy refinement
+
+The trust evidence remains visible but no longer presents as a dashboard above the event filters.
+Every city page keeps its result count, exact date range, radius, date-only freshness and methodology
+link in a compact two-line strip. Main city pages also link directly to the family view without
+printing a facet count that can legitimately differ after the family query applies its own series
+deduplication.
+
+Free counts are omitted from the strip because they are not currently actionable. Named-source
+counts now sit beside each displayed city or nearby group, where their denominator is unambiguous,
+instead of appearing beside the larger inventory total. This preserves sourcing evidence while
+keeping the event list and filters visually primary.

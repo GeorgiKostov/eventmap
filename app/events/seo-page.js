@@ -93,14 +93,22 @@ function EventList({ events, returnPath, city, excludedIds = new Set() }) {
   const groups = [
     { key: 'city', title: `Veranstaltungen in ${city.label}`, events: cityEvents },
     { key: 'nearby', title: `Weitere Termine rund um ${city.label}`, events: nearbyEvents },
-  ].filter((group) => group.events.length);
+  ]
+    .filter((group) => group.events.length)
+    .map((group) => ({
+      ...group,
+      sourceCount: new Set(group.events.map((event) => event.source_name).filter(Boolean)).size,
+    }));
   return (
     <div className={styles.eventGroups}>
       {groups.map((group) => (
         <section key={group.key} aria-labelledby={`event-group-${group.key}`} className={styles.eventGroup}>
           <div className={styles.eventGroupHeading}>
             <h2 id={`event-group-${group.key}`}>{group.title}</h2>
-            <span>{group.events.length} angezeigt</span>
+            <span>
+              {group.events.length} angezeigt
+              {group.sourceCount > 0 && ` · aus ${group.sourceCount} ${group.sourceCount === 1 ? 'benannten Quelle' : 'benannten Quellen'}`}
+            </span>
           </div>
           <EventCards events={group.events} returnPath={returnPath} />
         </section>
@@ -155,36 +163,37 @@ function formatFreshness(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
   return new Intl.DateTimeFormat('de-AT', {
-    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    day: 'numeric', month: 'short', year: 'numeric',
     timeZone: 'Europe/Vienna',
   }).format(date);
 }
 
-function PageEvidence({ city, events, range, total, facets, lastModified }) {
+function PageEvidence({ city, range, total, lastModified, showFamilyLink }) {
   if (!range || total == null) return null;
   const dates = seoDateRangeLabel(range.from, range.to);
-  const sources = new Set(events.map((event) => event.source_name).filter(Boolean)).size;
   const freshness = formatFreshness(lastModified);
   return (
     <aside className={styles.evidence} aria-label="Aktualität und Quellen">
-      <div className={styles.evidencePrimary}>
-        <strong>{total} aktuelle Veranstaltungen</strong>
+      <div className={styles.evidenceScope}>
+        <strong>{total.toLocaleString('de-AT')} {total === 1 ? 'Veranstaltung' : 'Veranstaltungen'}</strong>
         {dates && <span>{dates}</span>}
         <span>bis {city.radiusKm} km rund um {city.label}</span>
       </div>
-      <div className={styles.evidenceSecondary}>
-        {facets?.kids > 0 && <span>{facets.kids} für Kinder oder Familien</span>}
-        {facets?.free > 0 && <span>{facets.free} als gratis gekennzeichnet</span>}
-        {sources > 0 && <span>{sources} benannte Quellen in der angezeigten Auswahl</span>}
-        {freshness && <span>zuletzt aktualisiert: {freshness} Uhr</span>}
+      <div className={styles.evidenceMeta}>
+        {showFamilyLink && (
+          <Link href={cityIntentPath(city, 'kinder')} className={styles.evidenceLink}>
+            Für Familien →
+          </Link>
+        )}
+        {freshness && <span>Stand {freshness}</span>}
+        <Link href="/events/methodology" className={styles.evidenceLink}>Quellen &amp; Prüfprozess →</Link>
       </div>
-      <Link href="/events/methodology" className={styles.methodLink}>So findet und prüft Okolo Veranstaltungen →</Link>
     </aside>
   );
 }
 
 export default function SeoEventPage({
-  city, title, intro, events, path, month, intent, digest, range, total, facets, lastModified,
+  city, title, intro, events, path, month, intent, digest, range, total, lastModified,
 }) {
   const months = upcomingMonthSlugs();
   const channel = getChannel(city.slug);
@@ -214,11 +223,10 @@ export default function SeoEventPage({
           </div>
           <PageEvidence
             city={city}
-            events={events}
             range={range}
             total={total}
-            facets={facets}
             lastModified={lastModified}
+            showFamilyLink={!month && !intent}
           />
         </section>
 

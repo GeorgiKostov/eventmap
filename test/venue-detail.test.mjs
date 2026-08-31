@@ -20,15 +20,18 @@ test('event detail gets bounded related dates and distinct venue events from the
   assert.doesNotMatch(page, /const venueSiblings = place\s*\? \(events \|\| \[\]\)/);
 });
 
-test('city discovery page leads to the map with compact factual freshness and source evidence', () => {
+test('city discovery page leads to the map with compact actionable scope and source evidence', () => {
   const page = read('app/events/seo-page.js');
 
   assert.doesNotMatch(page, /Kurzantwort|Veranstaltungen<\/strong> im Umkreis|Angezeigt werden/);
   assert.match(page, /Auf der Karte ansehen/);
   assert.match(page, /\?when=all&lat=/);
-  assert.match(page, /aktuelle Veranstaltungen/);
-  assert.match(page, /benannte Quellen in der angezeigten Auswahl/);
-  assert.match(page, /So findet und prüft Okolo Veranstaltungen/);
+  assert.match(page, /total\.toLocaleString\('de-AT'\)/);
+  assert.match(page, /Stand \{freshness\}/);
+  assert.match(page, /Quellen &amp; Prüfprozess/);
+  assert.match(page, /cityIntentPath\(city, 'kinder'\)/);
+  assert.match(page, /group\.sourceCount === 1 \? 'benannten Quelle' : 'benannten Quellen'/);
+  assert.doesNotMatch(page, /als gratis gekennzeichnet|benannte Quellen in der angezeigten Auswahl|zuletzt aktualisiert/);
   assert.match(page, /href=\{`\/events\/\$\{city\.slug\}\/wochenende`\}/);
   assert.doesNotMatch(page, /href=\{`\/weekend\/\$\{channel\.slug\}`\}/);
   assert.ok(page.indexOf('Auf der Karte ansehen') < page.indexOf('aria-label="Themen"'));
