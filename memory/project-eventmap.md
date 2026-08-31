@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-08-31 — compact city-page trust evidence live)
+- City and intent pages keep their event count, exact range, radius, date-only freshness and
+  methodology link in a compact two-line strip instead of a dashboard-style card. Main city pages
+  link directly to the family view; non-actionable free counts are no longer promoted above the
+  filters.
+- Named-source counts now sit beside the exact displayed city or nearby group they describe, so an
+  80-row sample cannot be mistaken for the source denominator of the full regional inventory.
+- Commit `896eda3` is pushed to `main`. Production deployment
+  `dpl_7uZ7UfgDCxBNoRPfnfrewXUzsGx9` is Ready and aliased to `okolo.events` / `www.okolo.events`.
+  All 298 tests and the 111-page local/Vercel builds pass; live desktop and 390 px Linz/Vienna QA
+  confirms the compact evidence, family navigation, source context and zero horizontal overflow.
+  The post-traffic deployment error scan is clean.
+
 ## Where things stand (2026-08-30 — partner delivery formats live)
 - `/partners` now states the three concrete delivery formats prominently in EN/DE/BG: a dedicated
   Okolo-hosted partner page, a ready-to-print QR code pointing to it, and an optional responsive
