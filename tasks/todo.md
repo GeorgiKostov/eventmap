@@ -195,6 +195,19 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       official adapters now return 158 Posthof occurrences (up from 8) and 99 Rockhouse events
       (up from 23), with exact detail links, Vienna times, venue rooms and conservative categories.
 
+## Side Quest Linz source audit (2026-09-03)
+- [x] Keep Side Quest Linz as discovery evidence only. Its Notion/Instagram calendar is a
+      third-party curated database with no identified reuse licence; do not mine it directly.
+- [x] Authorize, register and target-crawl the official Last Space, CulturCafé Smaragd and
+      Fräulein Florentine calendars through deterministic facts-only routes. The production path
+      accepted 35, 8 and 15 occurrences respectively; 54 remained current after Vienna-time expiry,
+      all with official linkbacks, null descriptions and address/venue-level coordinates.
+- [x] Refresh the already-approved Posthof, KAPU and Stadtwerkstatt sources through `crawl.mjs`.
+      Their current published inventories verified at 164, 22 and 44 events respectively.
+- [ ] Seek written permission before automating Le Jardin or Side Quest itself. Do not crawl Linz
+      Tourismus or KUPFticket under their current terms/licensing posture; use them only to discover
+      primary organizer pages.
+
 ## Programmatic SEO + AIO landing pages (2026-08-16)
 - [x] Ship the Linz-first SSR landing-page slice at `/events/linz`, `/events/linz/heute`,
       `/events/linz/wochenende`, and `/events/linz/kinder`. Return the actual matching event

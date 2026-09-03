@@ -43,3 +43,10 @@ test('twoHopConfig resolves the German visitberlin listing, trailing slash toler
   assert.equal(twoHopConfig('https://www.visitberlin.de/en/category/family'), null); // English retired
   assert.equal(twoHopConfig('https://example.com/events'), null); // unconfigured → no guess
 });
+
+test('twoHopConfig resolves the official CulturCafé Smaragd calendar', () => {
+  const config = twoHopConfig('https://www.ccsmaragd.at/veranstaltungen-linz/');
+  assert.equal(config.town, 'Linz');
+  assert.equal(config.defaultVenue, 'CulturCafé Smaragd');
+  assert.equal(config.defaultAddress, 'Altstadt 2');
+});

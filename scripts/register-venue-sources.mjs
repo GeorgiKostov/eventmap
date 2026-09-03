@@ -55,6 +55,30 @@ const SOURCES = [
     notes: 'Official Alter Schlachthof Wels cultural programme. Server-rendered TYPO3 event rows '
       + 'with dated detail links.',
   },
+  {
+    name: 'last by Schachermayer — Events',
+    url: 'https://last-space.at/page/event',
+    cms: 'last-space',
+    town: 'Linz', region: 'Oberösterreich',
+    notes: 'Official first-party calendar discovered via Side Quest Linz. Facts-only crawl with '
+      + 'exact detail-page linkback; no source prose or images. robots.txt has no exclusion.',
+  },
+  {
+    name: 'CulturCafé Smaragd — Veranstaltungen',
+    url: 'https://www.ccsmaragd.at/veranstaltungen-linz/',
+    cms: 'twohop',
+    town: 'Linz', region: 'Oberösterreich',
+    notes: 'Official first-party calendar discovered via Side Quest Linz. Facts-only crawl follows '
+      + 'named detail pages with Event JSON-LD; no source prose or images. Public event paths are robots-allowed.',
+  },
+  {
+    name: 'Fräulein Florentine — Eventkalender',
+    url: 'https://frl-florentine.at/eventkalender-schiff/',
+    cms: 'florentine',
+    town: 'Linz', region: 'Oberösterreich',
+    notes: 'Official first-party calendar discovered via Side Quest Linz. Facts-only crawl parses '
+      + 'visible date/title blocks; source prose and images are ignored. Public calendar is robots-allowed.',
+  },
 
   {
     name: 'Wiener Stadthalle — Alle Events',

@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-09-03 — Side Quest leads graduated to official sources)
+- Side Quest Linz remains discovery evidence only: its Notion/Instagram calendar is a third-party
+  curated database with no identified reuse licence. Linz Tourismus and KUPFticket are also excluded
+  from automation under their current terms/licensing posture; Le Jardin requires written permission.
+- Three official first-party calendars are now registered and active through deterministic,
+  facts-only crawl routes: last by Schachermayer (35 extracted / 31 current), CulturCafé Smaragd
+  (8 current), and Fräulein Florentine (15 current). All 54 current rows have official linkbacks,
+  null descriptions, valid time ordering and address/venue-level coordinates.
+- The already-approved Posthof, KAPU and Stadtwerkstatt sources were refreshed through the real
+  crawl path and verified at 164, 22 and 44 current published events. The source-authorization
+  record is `docs/decisions/2026-09-03-side-quest-source-authorization.md`.
+
 ## Where things stand (2026-08-31 — compact city-page trust evidence live)
 - City and intent pages keep their event count, exact range, radius, date-only freshness and
   methodology link in a compact two-line strip instead of a dashboard-style card. Main city pages

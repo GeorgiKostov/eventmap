@@ -44,6 +44,8 @@ import { fetchRockhouseEvents } from '../lib/rockhouse-events.js';
 import { fetchBrucknerhausEvents } from '../lib/brucknerhaus-events.js';
 import { fetchKapuEvents } from '../lib/kapu-events.js';
 import { fetchTabakfabrikEvents } from '../lib/tabakfabrik-events.js';
+import { fetchLastSpaceEvents } from '../lib/last-space-events.js';
+import { parseFlorentineEvents } from '../lib/florentine-events.js';
 import { parseSchlachthofWelsPage } from '../lib/schlachthof-wels-events.js';
 import {
   isPflasterFixedSourceUrl, parsePflasterEvents, PFLASTER_HOME_URL,
@@ -87,6 +89,7 @@ const DYNAMIC_CALENDAR_CMS = new Set([
   'jevents', 'familienportal', 'twohop', 'salzburgarena', 'grazer-spielstaetten',
   'bregenzer-festspiele', 'posthof', 'rockhouse', 'brucknerhaus', 'kapu',
   'tabakfabrik', 'schlachthof-wels',
+  'last-space', 'florentine',
 ]);
 
 // Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
@@ -728,6 +731,15 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'tabakfabrik') {
     const events = await fetchTabakfabrikEvents(src, { shellHtml: html });
     if (events.length) return { route: 'tabakfabrik', events };
+  }
+
+  if (src.cms === 'last-space') {
+    const events = await fetchLastSpaceEvents(src, { shellHtml: html });
+    if (events.length) return { route: 'last-space', events };
+  }
+
+  if (src.cms === 'florentine') {
+    return { route: 'florentine', events: parseFlorentineEvents(html, src), exclusive: true };
   }
 
   if (src.cms === 'schlachthof-wels') {
