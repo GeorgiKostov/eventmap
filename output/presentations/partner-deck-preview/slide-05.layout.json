@@ -1,0 +1,949 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/3nxmhu",
+    "id": "3nxmhu",
+    "slide": 5,
+    "layoutId": "17f08945-42ca-47f8-ac63-c49272b14448",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "Helvetica Neue"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "17f08945-42ca-47f8-ac63-c49272b14448",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/pcbu18jy",
+      "id": "1",
+      "name": "eyebrow-5",
+      "bbox": [
+        54,
+        36,
+        500,
+        24
+      ],
+      "geometry": "rect",
+      "text": "OKOLO FOR FESTIVAL PARTNERS",
+      "textPreview": "OKOLO FOR FESTIVAL PARTNERS",
+      "resolvedFontSize": 14,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 14,
+        "typeface": "Helvetica Neue",
+        "color": "#C93A5B",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OKOLO FOR FESTIVAL PARTNERS"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OKOLO FOR FESTIVAL PARTNERS",
+          "resolvedTextStyle": {
+            "fontSize": 14,
+            "typeface": "Helvetica Neue",
+            "color": "#C93A5B",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "OKOLO FOR FESTIVAL PARTNERS",
+              "fontSize": 14,
+              "typeface": "Helvetica Neue",
+              "color": "#C93A5B",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/290vqdk7",
+      "id": "2",
+      "name": "title-5",
+      "bbox": [
+        54,
+        70,
+        1168,
+        92
+      ],
+      "geometry": "rect",
+      "text": "The partner layer adds value without taking over the map",
+      "textPreview": "The partner layer adds value without taking over the map",
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 42,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "The partner layer adds value without taking over the map"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "The partner layer adds value without taking over the map",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "The partner layer adds value without taking over the map",
+              "fontSize": 42,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3a9czy1s",
+      "id": "3",
+      "name": "package-rule-0",
+      "bbox": [
+        54,
+        206,
+        540,
+        0
+      ],
+      "geometry": "line",
+      "lineColor": "#C93A5B",
+      "lineWidth": 4
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/cf2dwn29",
+      "id": "4",
+      "name": "package-title-0",
+      "bbox": [
+        54,
+        230,
+        500,
+        44
+      ],
+      "geometry": "rect",
+      "text": "Dedicated URL",
+      "textPreview": "Dedicated URL",
+      "resolvedFontSize": 29,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 29,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Dedicated URL"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Dedicated URL",
+          "resolvedTextStyle": {
+            "fontSize": 29,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Dedicated URL",
+              "fontSize": 29,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/x0bu5sju",
+      "id": "5",
+      "name": "package-body-0",
+      "bbox": [
+        54,
+        288,
+        500,
+        80
+      ],
+      "geometry": "rect",
+      "text": "A shareable festival destination on Okolo.",
+      "textPreview": "A shareable festival destination on Okolo.",
+      "resolvedFontSize": 21,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 21,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A shareable festival destination on Okolo."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A shareable festival destination on Okolo.",
+          "resolvedTextStyle": {
+            "fontSize": 21,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A shareable festival destination on Okolo.",
+              "fontSize": 21,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/adkvudk3",
+      "id": "6",
+      "name": "package-rule-1",
+      "bbox": [
+        650,
+        206,
+        540,
+        0
+      ],
+      "geometry": "line",
+      "lineColor": "#DADCD5",
+      "lineWidth": 1
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/betc3i1o",
+      "id": "7",
+      "name": "package-title-1",
+      "bbox": [
+        650,
+        230,
+        500,
+        44
+      ],
+      "geometry": "rect",
+      "text": "Approved identity",
+      "textPreview": "Approved identity",
+      "resolvedFontSize": 29,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 29,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Approved identity"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Approved identity",
+          "resolvedTextStyle": {
+            "fontSize": 29,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Approved identity",
+              "fontSize": 29,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/sjydkj25",
+      "id": "8",
+      "name": "package-body-1",
+      "bbox": [
+        650,
+        288,
+        500,
+        80
+      ],
+      "geometry": "rect",
+      "text": "Logo slot, name and edition across map and event surfaces.",
+      "textPreview": "Logo slot, name and edition across map and event surfaces.",
+      "resolvedFontSize": 21,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 21,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Logo slot, name and edition across map and event"
+          },
+          {
+            "index": 2,
+            "text": "surfaces."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Logo slot, name and edition across map and event surfaces.",
+          "resolvedTextStyle": {
+            "fontSize": 21,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Logo slot, name and edition across map and event surfaces.",
+              "fontSize": 21,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/t4rutojq",
+      "id": "9",
+      "name": "package-rule-2",
+      "bbox": [
+        54,
+        418,
+        540,
+        0
+      ],
+      "geometry": "line",
+      "lineColor": "#DADCD5",
+      "lineWidth": 1
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/psba5cvy",
+      "id": "10",
+      "name": "package-title-2",
+      "bbox": [
+        54,
+        442,
+        500,
+        44
+      ],
+      "geometry": "rect",
+      "text": "Programme lens",
+      "textPreview": "Programme lens",
+      "resolvedFontSize": 29,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 29,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Programme lens"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Programme lens",
+          "resolvedTextStyle": {
+            "fontSize": 29,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Programme lens",
+              "fontSize": 29,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/or29c7ud",
+      "id": "11",
+      "name": "package-body-2",
+      "bbox": [
+        54,
+        500,
+        500,
+        80
+      ],
+      "geometry": "rect",
+      "text": "Partner-only and day filters make a large programme manageable.",
+      "textPreview": "Partner-only and day filters make a large programme manageable.",
+      "resolvedFontSize": 21,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 21,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Partner-only and day filters make a large"
+          },
+          {
+            "index": 2,
+            "text": "programme manageable."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Partner-only and day filters make a large programme manageable.",
+          "resolvedTextStyle": {
+            "fontSize": 21,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Partner-only and day filters make a large programme manageable.",
+              "fontSize": 21,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/nq9s32ds",
+      "id": "12",
+      "name": "package-rule-3",
+      "bbox": [
+        650,
+        418,
+        540,
+        0
+      ],
+      "geometry": "line",
+      "lineColor": "#DADCD5",
+      "lineWidth": 1
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/2p0raxcn",
+      "id": "13",
+      "name": "package-title-3",
+      "bbox": [
+        650,
+        442,
+        500,
+        44
+      ],
+      "geometry": "rect",
+      "text": "Source continuity",
+      "textPreview": "Source continuity",
+      "resolvedFontSize": 29,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 29,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Source continuity"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Source continuity",
+          "resolvedTextStyle": {
+            "fontSize": 29,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Source continuity",
+              "fontSize": 29,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/xgba9cva",
+      "id": "14",
+      "name": "package-body-3",
+      "bbox": [
+        650,
+        500,
+        500,
+        80
+      ],
+      "geometry": "rect",
+      "text": "Facts stay concise; every event links back to the approved source.",
+      "textPreview": "Facts stay concise; every event links back to the approved source.",
+      "resolvedFontSize": 21,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 21,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Facts stay concise; every event links back to the"
+          },
+          {
+            "index": 2,
+            "text": "approved source."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Facts stay concise; every event links back to the approved source.",
+          "resolvedTextStyle": {
+            "fontSize": 21,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Facts stay concise; every event links back to the approved source.",
+              "fontSize": 21,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/cf29grup",
+      "id": "15",
+      "name": "footer-label-5",
+      "bbox": [
+        54,
+        676,
+        430,
+        20
+      ],
+      "geometry": "rect",
+      "text": "OKOLO · FESTIVAL PARTNERS",
+      "textPreview": "OKOLO · FESTIVAL PARTNERS",
+      "resolvedFontSize": 11,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 11,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OKOLO · FESTIVAL PARTNERS"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OKOLO · FESTIVAL PARTNERS",
+          "resolvedTextStyle": {
+            "fontSize": 11,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "OKOLO · FESTIVAL PARTNERS",
+              "fontSize": 11,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/bets7md4",
+      "id": "16",
+      "name": "footer-page-5",
+      "bbox": [
+        1180,
+        676,
+        45,
+        20
+      ],
+      "geometry": "rect",
+      "text": "5",
+      "textPreview": "5",
+      "resolvedFontSize": 11,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 11,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "bold": true,
+        "alignment": "right",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "5"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "5",
+          "resolvedTextStyle": {
+            "fontSize": 11,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "bold": true,
+            "alignment": "right"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "5",
+              "fontSize": 11,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "bold": true,
+              "alignment": "right"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

@@ -1,0 +1,554 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/46wv6e",
+    "id": "46wv6e",
+    "slide": 1,
+    "layoutId": "17f08945-42ca-47f8-ac63-c49272b14448",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "Helvetica Neue"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "17f08945-42ca-47f8-ac63-c49272b14448",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/4ryl8zit",
+      "id": "1",
+      "name": "cover-eyebrow",
+      "bbox": [
+        54,
+        44,
+        470,
+        28
+      ],
+      "geometry": "rect",
+      "text": "OKOLO FOR FESTIVAL PARTNERS",
+      "textPreview": "OKOLO FOR FESTIVAL PARTNERS",
+      "resolvedFontSize": 15,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 15,
+        "typeface": "Helvetica Neue",
+        "color": "#C93A5B",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OKOLO FOR FESTIVAL PARTNERS"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OKOLO FOR FESTIVAL PARTNERS",
+          "resolvedTextStyle": {
+            "fontSize": 15,
+            "typeface": "Helvetica Neue",
+            "color": "#C93A5B",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "OKOLO FOR FESTIVAL PARTNERS",
+              "fontSize": 15,
+              "typeface": "Helvetica Neue",
+              "color": "#C93A5B",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/jqpkfuho",
+      "id": "2",
+      "name": "cover-title",
+      "bbox": [
+        54,
+        126,
+        500,
+        248
+      ],
+      "geometry": "rect",
+      "text": "Put your whole festival\non one map",
+      "textPreview": "Put your whole festival | on one map",
+      "resolvedFontSize": 56,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 56,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Put your whole"
+          },
+          {
+            "index": 2,
+            "text": "festival"
+          },
+          {
+            "index": 3,
+            "text": "on one map"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Put your whole festival",
+          "resolvedTextStyle": {
+            "fontSize": 56,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Put your whole festival",
+              "fontSize": 56,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "on one map",
+          "resolvedTextStyle": {
+            "fontSize": 56,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "on one map",
+              "fontSize": 56,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ipg36p03",
+      "id": "3",
+      "name": "cover-subtitle",
+      "bbox": [
+        54,
+        414,
+        500,
+        104
+      ],
+      "geometry": "rect",
+      "text": "A dedicated Okolo map connects every venue, time and approved programme link.",
+      "textPreview": "A dedicated Okolo map connects every venue, time and approved programme link.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 24,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A dedicated Okolo map connects every"
+          },
+          {
+            "index": 2,
+            "text": "venue, time and approved programme link."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A dedicated Okolo map connects every venue, time and approved programme link.",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A dedicated Okolo map connects every venue, time and approved programme link.",
+              "fontSize": 24,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/hon2dkzi",
+      "id": "4",
+      "name": "cover-url",
+      "bbox": [
+        54,
+        570,
+        450,
+        34
+      ],
+      "geometry": "rect",
+      "text": "okolo.events/partners/demo",
+      "textPreview": "okolo.events/partners/demo",
+      "resolvedFontSize": 19,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 19,
+        "typeface": "Helvetica Neue",
+        "color": "#C93A5B",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "okolo.events/partners/demo"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "okolo.events/partners/demo",
+          "resolvedTextStyle": {
+            "fontSize": 19,
+            "typeface": "Helvetica Neue",
+            "color": "#C93A5B",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "okolo.events/partners/demo",
+              "fontSize": 19,
+              "typeface": "Helvetica Neue",
+              "color": "#C93A5B",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/wnel4fix",
+      "id": "5",
+      "name": "cover-product-backing",
+      "bbox": [
+        606,
+        42,
+        620,
+        610
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#F2F2EE",
+      "lineColor": "#DADCD5",
+      "lineWidth": 1
+    },
+    {
+      "order": 6,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/i54zi1gz",
+      "id": "6",
+      "bbox": [
+        606,
+        42,
+        620,
+        610
+      ],
+      "geometry": "roundRect",
+      "alt": "Fictional public Okolo festival partner-map overview on desktop",
+      "contentType": "image/jpeg",
+      "imageFit": "cover",
+      "imageMask": {
+        "geometry": "roundRect",
+        "adjustmentList": [
+          {
+            "name": "adj",
+            "formula": "val 2951"
+          }
+        ]
+      },
+      "asset": {
+        "assetId": "3959649c-81c5-4eee-8a49-0a16f5480d04",
+        "contentType": "image/jpeg",
+        "byteLength": 149787
+      }
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/u1w32p0r",
+      "id": "7",
+      "name": "footer-label-1",
+      "bbox": [
+        54,
+        676,
+        430,
+        20
+      ],
+      "geometry": "rect",
+      "text": "OKOLO · FESTIVAL PARTNERS",
+      "textPreview": "OKOLO · FESTIVAL PARTNERS",
+      "resolvedFontSize": 11,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 11,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OKOLO · FESTIVAL PARTNERS"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OKOLO · FESTIVAL PARTNERS",
+          "resolvedTextStyle": {
+            "fontSize": 11,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "OKOLO · FESTIVAL PARTNERS",
+              "fontSize": 11,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/90n29kz6",
+      "id": "8",
+      "name": "footer-page-1",
+      "bbox": [
+        1180,
+        676,
+        45,
+        20
+      ],
+      "geometry": "rect",
+      "text": "1",
+      "textPreview": "1",
+      "resolvedFontSize": 11,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 11,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "bold": true,
+        "alignment": "right",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "1"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "1",
+          "resolvedTextStyle": {
+            "fontSize": 11,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "bold": true,
+            "alignment": "right"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "1",
+              "fontSize": 11,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "bold": true,
+              "alignment": "right"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

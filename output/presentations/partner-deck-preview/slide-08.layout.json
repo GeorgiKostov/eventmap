@@ -1,0 +1,909 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/8cjf97",
+    "id": "8cjf97",
+    "slide": 8,
+    "layoutId": "17f08945-42ca-47f8-ac63-c49272b14448",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "Helvetica Neue"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "17f08945-42ca-47f8-ac63-c49272b14448",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "6b82d764-c0a8-403e-b89f-6115d5105a52",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/t8ryxc3q",
+      "id": "1",
+      "name": "eyebrow-8",
+      "bbox": [
+        54,
+        36,
+        500,
+        24
+      ],
+      "geometry": "rect",
+      "text": "OKOLO FOR FESTIVAL PARTNERS",
+      "textPreview": "OKOLO FOR FESTIVAL PARTNERS",
+      "resolvedFontSize": 14,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 14,
+        "typeface": "Helvetica Neue",
+        "color": "#C93A5B",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OKOLO FOR FESTIVAL PARTNERS"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OKOLO FOR FESTIVAL PARTNERS",
+          "resolvedTextStyle": {
+            "fontSize": 14,
+            "typeface": "Helvetica Neue",
+            "color": "#C93A5B",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "OKOLO FOR FESTIVAL PARTNERS",
+              "fontSize": 14,
+              "typeface": "Helvetica Neue",
+              "color": "#C93A5B",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/650f2xkz",
+      "id": "2",
+      "name": "title-8",
+      "bbox": [
+        54,
+        70,
+        1168,
+        92
+      ],
+      "geometry": "rect",
+      "text": "Start with one festival and one measurable visitor journey",
+      "textPreview": "Start with one festival and one measurable visitor journey",
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 42,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Start with one festival and one measurable visitor"
+          },
+          {
+            "index": 2,
+            "text": "journey"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Start with one festival and one measurable visitor journey",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Start with one festival and one measurable visitor journey",
+              "fontSize": 42,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/769gv2lk",
+      "id": "3",
+      "name": "pilot-line",
+      "bbox": [
+        110,
+        316,
+        1060,
+        0
+      ],
+      "geometry": "line",
+      "lineColor": "#212B28",
+      "lineWidth": 2
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/k3ix0n2t",
+      "id": "4",
+      "name": "pilot-dot-0",
+      "bbox": [
+        110,
+        305,
+        22,
+        22
+      ],
+      "geometry": "ellipse",
+      "fillColor": "#212B28",
+      "lineColor": "#FFFFFF",
+      "lineWidth": 3
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/54ryts3e",
+      "id": "5",
+      "name": "pilot-title-0",
+      "bbox": [
+        110,
+        358,
+        310,
+        48
+      ],
+      "geometry": "rect",
+      "text": "1 · Approve",
+      "textPreview": "1 · Approve",
+      "resolvedFontSize": 27,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 27,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "1 · Approve"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "1 · Approve",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "1 · Approve",
+              "fontSize": 27,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/i10fydk3",
+      "id": "6",
+      "name": "pilot-body-0",
+      "bbox": [
+        110,
+        418,
+        300,
+        86
+      ],
+      "geometry": "rect",
+      "text": "Programme source, logo rights and launch dates.",
+      "textPreview": "Programme source, logo rights and launch dates.",
+      "resolvedFontSize": 20,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 20,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Programme source, logo rights"
+          },
+          {
+            "index": 2,
+            "text": "and launch dates."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Programme source, logo rights and launch dates.",
+          "resolvedTextStyle": {
+            "fontSize": 20,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Programme source, logo rights and launch dates.",
+              "fontSize": 20,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/j29gril8",
+      "id": "7",
+      "name": "pilot-dot-1",
+      "bbox": [
+        480,
+        305,
+        22,
+        22
+      ],
+      "geometry": "ellipse",
+      "fillColor": "#212B28",
+      "lineColor": "#FFFFFF",
+      "lineWidth": 3
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/wzyxwnmx",
+      "id": "8",
+      "name": "pilot-title-1",
+      "bbox": [
+        480,
+        358,
+        310,
+        48
+      ],
+      "geometry": "rect",
+      "text": "2 · Configure",
+      "textPreview": "2 · Configure",
+      "resolvedFontSize": 27,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 27,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "2 · Configure"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "2 · Configure",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "2 · Configure",
+              "fontSize": 27,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/x07yps3i",
+      "id": "9",
+      "name": "pilot-body-1",
+      "bbox": [
+        480,
+        418,
+        300,
+        86
+      ],
+      "geometry": "rect",
+      "text": "Partner URL, filters, identity and event linkbacks.",
+      "textPreview": "Partner URL, filters, identity and event linkbacks.",
+      "resolvedFontSize": 20,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 20,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Partner URL, filters, identity"
+          },
+          {
+            "index": 2,
+            "text": "and event linkbacks."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Partner URL, filters, identity and event linkbacks.",
+          "resolvedTextStyle": {
+            "fontSize": 20,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Partner URL, filters, identity and event linkbacks.",
+              "fontSize": 20,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/t4jmx4ru",
+      "id": "10",
+      "name": "pilot-dot-2",
+      "bbox": [
+        850,
+        305,
+        22,
+        22
+      ],
+      "geometry": "ellipse",
+      "fillColor": "#C93A5B",
+      "lineColor": "#FFFFFF",
+      "lineWidth": 3
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/s3q54za9",
+      "id": "11",
+      "name": "pilot-title-2",
+      "bbox": [
+        850,
+        358,
+        310,
+        48
+      ],
+      "geometry": "rect",
+      "text": "3 · Share & learn",
+      "textPreview": "3 · Share & learn",
+      "resolvedFontSize": 27,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 27,
+        "typeface": "Helvetica Neue",
+        "color": "#212B28",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "3 · Share & learn"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "3 · Share & learn",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "typeface": "Helvetica Neue",
+            "color": "#212B28",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "3 · Share & learn",
+              "fontSize": 27,
+              "typeface": "Helvetica Neue",
+              "color": "#212B28",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/r2h4vu9o",
+      "id": "12",
+      "name": "pilot-body-2",
+      "bbox": [
+        850,
+        418,
+        300,
+        86
+      ],
+      "geometry": "rect",
+      "text": "Promote one map and review opens and referrals.",
+      "textPreview": "Promote one map and review opens and referrals.",
+      "resolvedFontSize": 20,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 20,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Promote one map and review"
+          },
+          {
+            "index": 2,
+            "text": "opens and referrals."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Promote one map and review opens and referrals.",
+          "resolvedTextStyle": {
+            "fontSize": 20,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Promote one map and review opens and referrals.",
+              "fontSize": 20,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/618n2ps3",
+      "id": "13",
+      "name": "pilot-cta-box",
+      "bbox": [
+        54,
+        570,
+        1156,
+        68
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#C93A5B",
+      "lineColor": "#C93A5B",
+      "lineWidth": 1
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/50zmt4bi",
+      "id": "14",
+      "name": "pilot-cta",
+      "bbox": [
+        80,
+        588,
+        1104,
+        34
+      ],
+      "geometry": "rect",
+      "text": "hello@okolo.events  ·  Request a festival map pilot",
+      "textPreview": "hello@okolo.events  ·  Request a festival map pilot",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "anchor": 2,
+        "fontSize": 24,
+        "typeface": "Helvetica Neue",
+        "color": "#FFFFFF",
+        "bold": true,
+        "alignment": "center",
+        "verticalAlignment": "middle",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "hello@okolo.events  ·  Request a festival map pilot"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "hello@okolo.events  ·  Request a festival map pilot",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "typeface": "Helvetica Neue",
+            "color": "#FFFFFF",
+            "bold": true,
+            "alignment": "center"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "hello@okolo.events  ·  Request a festival map pilot",
+              "fontSize": 24,
+              "typeface": "Helvetica Neue",
+              "color": "#FFFFFF",
+              "bold": true,
+              "alignment": "center"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/4zq50zad",
+      "id": "15",
+      "name": "footer-label-8",
+      "bbox": [
+        54,
+        676,
+        430,
+        20
+      ],
+      "geometry": "rect",
+      "text": "OKOLO · FESTIVAL PARTNERS",
+      "textPreview": "OKOLO · FESTIVAL PARTNERS",
+      "resolvedFontSize": 11,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 11,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OKOLO · FESTIVAL PARTNERS"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OKOLO · FESTIVAL PARTNERS",
+          "resolvedTextStyle": {
+            "fontSize": 11,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "OKOLO · FESTIVAL PARTNERS",
+              "fontSize": 11,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/jyh4ruts",
+      "id": "16",
+      "name": "footer-page-8",
+      "bbox": [
+        1180,
+        676,
+        45,
+        20
+      ],
+      "geometry": "rect",
+      "text": "8",
+      "textPreview": "8",
+      "resolvedFontSize": 11,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 11,
+        "typeface": "Helvetica Neue",
+        "color": "#6D7876",
+        "bold": true,
+        "alignment": "right",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "8"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "8",
+          "resolvedTextStyle": {
+            "fontSize": 11,
+            "typeface": "Helvetica Neue",
+            "color": "#6D7876",
+            "bold": true,
+            "alignment": "right"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "8",
+              "fontSize": 11,
+              "typeface": "Helvetica Neue",
+              "color": "#6D7876",
+              "bold": true,
+              "alignment": "right"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

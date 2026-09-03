@@ -1,0 +1,15 @@
+Communication job: By the end, festival organizers should want an Okolo partner-map pilot because one branded map makes a distributed programme easier to navigate and measure without replacing the organizer's official programme.
+
+Internal product sources
+- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-demo/01-public-partner-demo-desktop.png
+- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-demo/02-public-partner-demo-mobile.png
+- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-demo/03-public-partner-demo-desktop-overview.png
+- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-showcase/01-aec-partner-map-desktop.jpg
+- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-showcase/02-aec-partner-event-detail-desktop.jpg
+- /Users/georgikostov/Repositories/eventmap/docs/ops/advertiser-proof.md
+
+External context used only for the private concept disclaimer
+- https://ars.electronica.art/negotiatinghumanity/en/download/
+- https://ars.electronica.art/about/en/impress/
+
+No outcome, conversion, audience, or revenue figures are claimed. All public-demo programme content is explicitly fictional and isolated from the production events database.

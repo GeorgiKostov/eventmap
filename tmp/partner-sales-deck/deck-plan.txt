@@ -1,0 +1,8 @@
+1. Promise: put the whole festival on one map.
+2. Tension: a timetable lists events; a map helps visitors decide.
+3. Product: the dedicated public demo URL becomes a festival front door.
+4. Mobile continuity: brand and event context stay visible from map to detail.
+5. Partner package: URL, identity, programme lens, official linkbacks.
+6. Private concept: named organizer-specific prototype, explicitly uncommissioned.
+7. Measurement: map view, filter, event open, official-source referral.
+8. Action: approve inputs, configure and verify, share and learn.

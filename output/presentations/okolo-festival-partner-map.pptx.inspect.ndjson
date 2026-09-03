@@ -1,0 +1,130 @@
+{"kind":"deck","id":"pr/5h34fv","name":"Deck"}
+{"kind":"layout","layoutId":"6b82d764-c0a8-403e-b89f-6115d5105a52","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"17f08945-42ca-47f8-ac63-c49272b14448","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/46wv6e","slide":1,"title":"OKOLO FOR FESTIVAL PARTNERS","textShapes":6}
+{"kind":"textbox","id":"sh/4ryl8zit","slide":1,"name":"cover-eyebrow","text":"OKOLO FOR FESTIVAL PARTNERS","textPreview":"OKOLO FOR FESTIVAL PARTNERS","textChars":27,"textLines":1,"bbox":[54,44,470,28]}
+{"kind":"textbox","id":"sh/jqpkfuho","slide":1,"name":"cover-title","text":"Put your whole festival\non one map","textPreview":"Put your whole festival | on one map","textChars":34,"textLines":2,"bbox":[54,126,500,248]}
+{"kind":"textbox","id":"sh/ipg36p03","slide":1,"name":"cover-subtitle","text":"A dedicated Okolo map connects every venue, time and approved programme link.","textPreview":"A dedicated Okolo map connects every venue, time and approved programme link.","textChars":77,"textLines":1,"bbox":[54,414,500,104]}
+{"kind":"textbox","id":"sh/hon2dkzi","slide":1,"name":"cover-url","text":"okolo.events/partners/demo","textPreview":"okolo.events/partners/demo","textChars":26,"textLines":1,"bbox":[54,570,450,34]}
+{"kind":"shape","id":"sh/wnel4fix","slide":1,"name":"cover-product-backing","bbox":[606,42,620,610]}
+{"kind":"textbox","id":"sh/u1w32p0r","slide":1,"name":"footer-label-1","text":"OKOLO · FESTIVAL PARTNERS","textPreview":"OKOLO · FESTIVAL PARTNERS","textChars":25,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/90n29kz6","slide":1,"name":"footer-page-1","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"image","id":"im/i54zi1gz","slide":1,"name":"","geometry":"roundRect","alt":"Fictional public Okolo festival partner-map overview on desktop","bbox":[606,42,620,610]}
+{"kind":"notes","id":"nt/46wv6e","slide":1,"text":"[Sources]\n- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-demo/03-public-partner-demo-desktop-overview.png"}
+{"kind":"slide","id":"sl/gersc6","slide":2,"title":"OKOLO FOR FESTIVAL PARTNERS","textShapes":13}
+{"kind":"textbox","id":"sh/kjq1sf69","slide":2,"name":"eyebrow-2","text":"OKOLO FOR FESTIVAL PARTNERS","textPreview":"OKOLO FOR FESTIVAL PARTNERS","textChars":27,"textLines":1,"bbox":[54,36,500,24]}
+{"kind":"textbox","id":"sh/jixkjapo","slide":2,"name":"title-2","text":"A timetable lists events. A map helps visitors decide.","textPreview":"A timetable lists events. A map helps visitors decide.","textChars":54,"textLines":1,"bbox":[54,70,1168,92]}
+{"kind":"textbox","id":"sh/ihojq5o3","slide":2,"name":"problem-number-0","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[54,220,80,45]}
+{"kind":"textbox","id":"sh/toz2pknq","slide":2,"name":"problem-title-0","text":"Where is it?","textPreview":"Where is it?","textChars":12,"textLines":1,"bbox":[158,220,300,44]}
+{"kind":"textbox","id":"sh/snq1wf65","slide":2,"name":"problem-body-0","text":"Every venue becomes visible in relation to the rest of the festival.","textPreview":"Every venue becomes visible in relation to the rest of the festival.","textChars":68,"textLines":1,"bbox":[486,222,690,66]}
+{"kind":"shape","id":"sh/7mhknu5k","slide":2,"name":"problem-rule-0","bbox":[54,308,1122,0]}
+{"kind":"textbox","id":"sh/6l8jupof","slide":2,"name":"problem-number-1","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[54,346,80,45]}
+{"kind":"textbox","id":"sh/hcj2t4n2","slide":2,"name":"problem-title-1","text":"When should I go?","textPreview":"When should I go?","textChars":17,"textLines":1,"bbox":[158,346,300,44]}
+{"kind":"textbox","id":"sh/gba10z6h","slide":2,"name":"problem-body-1","text":"Day and programme filters reduce a long timetable to the next useful choice.","textPreview":"Day and programme filters reduce a long timetable to the next useful choice.","textChars":76,"textLines":1,"bbox":[486,348,690,66]}
+{"kind":"shape","id":"sh/e9ofmh0z","slide":2,"name":"problem-rule-1","bbox":[54,434,1122,0]}
+{"kind":"textbox","id":"sh/fuxgfmhk","slide":2,"name":"problem-number-2","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[54,472,80,45]}
+{"kind":"textbox","id":"sh/0v6xo7ip","slide":2,"name":"problem-title-2","text":"What happens next?","textPreview":"What happens next?","textChars":18,"textLines":1,"bbox":[158,472,300,44]}
+{"kind":"textbox","id":"sh/1wfyhcza","slide":2,"name":"problem-body-2","text":"Each event carries the visitor to the organizer-approved source.","textPreview":"Each event carries the visitor to the organizer-approved source.","textChars":64,"textLines":1,"bbox":[486,474,690,66]}
+{"kind":"textbox","id":"sh/2x8fqh0v","slide":2,"name":"footer-label-2","text":"OKOLO · FESTIVAL PARTNERS","textPreview":"OKOLO · FESTIVAL PARTNERS","textChars":25,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/nyhgjmhg","slide":2,"name":"footer-page-2","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"notes","id":"nt/gersc6","slide":2,"text":"[Sources]\n- /Users/georgikostov/Repositories/eventmap/docs/design/design-doc.md"}
+{"kind":"slide","id":"sl/w0qo7m","slide":3,"title":"OKOLO FOR FESTIVAL PARTNERS","textShapes":8}
+{"kind":"textbox","id":"sh/3a1w3yx4","slide":3,"name":"eyebrow-3","text":"OKOLO FOR FESTIVAL PARTNERS","textPreview":"OKOLO FOR FESTIVAL PARTNERS","textChars":27,"textLines":1,"bbox":[54,36,500,24]}
+{"kind":"textbox","id":"sh/obadw3ep","slide":3,"name":"title-3","text":"A dedicated URL becomes the festival’s front door","textPreview":"A dedicated URL becomes the festival’s front door","textChars":49,"textLines":1,"bbox":[54,70,1168,92]}
+{"kind":"shape","id":"sh/pcje58fa","slide":3,"name":"desktop-demo-backing","bbox":[54,170,900,506]}
+{"kind":"textbox","id":"sh/be1w7ix0","slide":3,"name":"demo-label","text":"PUBLIC DEMO","textPreview":"PUBLIC DEMO","textChars":11,"textLines":1,"bbox":[994,196,220,28]}
+{"kind":"textbox","id":"sh/cfux0nel","slide":3,"name":"demo-url","text":"okolo.events/\npartners/demo","textPreview":"okolo.events/ | partners/demo","textChars":27,"textLines":2,"bbox":[994,238,220,80]}
+{"kind":"textbox","id":"sh/dg3e9sf6","slide":3,"name":"demo-copy","text":"Fictional programme\nOriginal sample identity\nNo production event records","textPreview":"Fictional programme | Original sample identity | No production event records","textChars":72,"textLines":3,"bbox":[994,364,230,128]}
+{"kind":"textbox","id":"sh/yhcf2xwr","slide":3,"name":"demo-invite","text":"Open it. Filter it. Tap any pin.","textPreview":"Open it. Filter it. Tap any pin.","textChars":32,"textLines":1,"bbox":[994,560,220,62]}
+{"kind":"textbox","id":"sh/zilwbixc","slide":3,"name":"footer-label-3","text":"OKOLO · FESTIVAL PARTNERS","textPreview":"OKOLO · FESTIVAL PARTNERS","textChars":25,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/vmhwvqtw","slide":3,"name":"footer-page-3","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"image","id":"im/fep0byts","slide":3,"name":"","geometry":"roundRect","alt":"Desktop public partner demo with branded festival map, filters and event detail","bbox":[54,170,900,506]}
+{"kind":"notes","id":"nt/w0qo7m","slide":3,"text":"[Sources]\n- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-demo/01-public-partner-demo-desktop.png\n- /Users/georgikostov/Repositories/eventmap/app/partners/demo/page.js"}
+{"kind":"slide","id":"sl/pckvt8","slide":4,"title":"OKOLO FOR FESTIVAL PARTNERS","textShapes":10}
+{"kind":"textbox","id":"sh/ah4nyd07","slide":4,"name":"eyebrow-4","text":"OKOLO FOR FESTIVAL PARTNERS","textPreview":"OKOLO FOR FESTIVAL PARTNERS","textChars":27,"textLines":1,"bbox":[54,36,500,24]}
+{"kind":"textbox","id":"sh/xkvm9szy","slide":4,"name":"title-4","text":"The festival identity stays visible from map to detail","textPreview":"The festival identity stays visible from map to detail","textChars":54,"textLines":1,"bbox":[54,70,1168,92]}
+{"kind":"shape","id":"sh/wjm50nid","slide":4,"name":"mobile-demo-backing","bbox":[90,168,330,500]}
+{"kind":"textbox","id":"sh/mdknud0b","slide":4,"name":"mobile-heading-0","text":"Brand first","textPreview":"Brand first","textChars":11,"textLines":1,"bbox":[520,216,610,42]}
+{"kind":"textbox","id":"sh/9gbm58zm","slide":4,"name":"mobile-body-0","text":"The organizer lockup remains above the map.","textPreview":"The organizer lockup remains above the map.","textChars":43,"textLines":1,"bbox":[520,264,620,60]}
+{"kind":"textbox","id":"sh/of25w3i1","slide":4,"name":"mobile-heading-1","text":"Context preserved","textPreview":"Context preserved","textChars":17,"textLines":1,"bbox":[520,348,610,42]}
+{"kind":"textbox","id":"sh/zat4zyhk","slide":4,"name":"mobile-body-1","text":"Day, time, venue and programme label travel into event detail.","textPreview":"Day, time, venue and programme label travel into event detail.","textChars":62,"textLines":1,"bbox":[520,396,620,60]}
+{"kind":"textbox","id":"sh/epk3qt0z","slide":4,"name":"mobile-heading-2","text":"One next action","textPreview":"One next action","textChars":15,"textLines":1,"bbox":[520,480,610,42]}
+{"kind":"textbox","id":"sh/ozydw7mx","slide":4,"name":"mobile-body-2","text":"Visitors continue to the approved programme or ticket source.","textPreview":"Visitors continue to the approved programme or ticket source.","textChars":61,"textLines":1,"bbox":[520,528,620,60]}
+{"kind":"textbox","id":"sh/907epc3i","slide":4,"name":"footer-label-4","text":"OKOLO · FESTIVAL PARTNERS","textPreview":"OKOLO · FESTIVAL PARTNERS","textChars":25,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/mxgvux4r","slide":4,"name":"footer-page-4","text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"image","id":"im/ql8v61or","slide":4,"name":"","geometry":"roundRect","alt":"Mobile partner demo with branded festival header and selected event detail","bbox":[90,168,330,500]}
+{"kind":"notes","id":"nt/pckvt8","slide":4,"text":"[Sources]\n- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-demo/02-public-partner-demo-mobile.png"}
+{"kind":"slide","id":"sl/3nxmhu","slide":5,"title":"OKOLO FOR FESTIVAL PARTNERS","textShapes":12}
+{"kind":"textbox","id":"sh/pcbu18jy","slide":5,"name":"eyebrow-5","text":"OKOLO FOR FESTIVAL PARTNERS","textPreview":"OKOLO FOR FESTIVAL PARTNERS","textChars":27,"textLines":1,"bbox":[54,36,500,24]}
+{"kind":"textbox","id":"sh/290vqdk7","slide":5,"name":"title-5","text":"The partner layer adds value without taking over the map","textPreview":"The partner layer adds value without taking over the map","textChars":56,"textLines":1,"bbox":[54,70,1168,92]}
+{"kind":"shape","id":"sh/3a9czy1s","slide":5,"name":"package-rule-0","bbox":[54,206,540,0]}
+{"kind":"textbox","id":"sh/cf2dwn29","slide":5,"name":"package-title-0","text":"Dedicated URL","textPreview":"Dedicated URL","textChars":13,"textLines":1,"bbox":[54,230,500,44]}
+{"kind":"textbox","id":"sh/x0bu5sju","slide":5,"name":"package-body-0","text":"A shareable festival destination on Okolo.","textPreview":"A shareable festival destination on Okolo.","textChars":42,"textLines":1,"bbox":[54,288,500,80]}
+{"kind":"shape","id":"sh/adkvudk3","slide":5,"name":"package-rule-1","bbox":[650,206,540,0]}
+{"kind":"textbox","id":"sh/betc3i1o","slide":5,"name":"package-title-1","text":"Approved identity","textPreview":"Approved identity","textChars":17,"textLines":1,"bbox":[650,230,500,44]}
+{"kind":"textbox","id":"sh/sjydkj25","slide":5,"name":"package-body-1","text":"Logo slot, name and edition across map and event surfaces.","textPreview":"Logo slot, name and edition across map and event surfaces.","textChars":58,"textLines":1,"bbox":[650,288,500,80]}
+{"kind":"shape","id":"sh/t4rutojq","slide":5,"name":"package-rule-2","bbox":[54,418,540,0]}
+{"kind":"textbox","id":"sh/psba5cvy","slide":5,"name":"package-title-2","text":"Programme lens","textPreview":"Programme lens","textChars":14,"textLines":1,"bbox":[54,442,500,44]}
+{"kind":"textbox","id":"sh/or29c7ud","slide":5,"name":"package-body-2","text":"Partner-only and day filters make a large programme manageable.","textPreview":"Partner-only and day filters make a large programme manageable.","textChars":63,"textLines":1,"bbox":[54,500,500,80]}
+{"kind":"shape","id":"sh/nq9s32ds","slide":5,"name":"package-rule-3","bbox":[650,418,540,0]}
+{"kind":"textbox","id":"sh/2p0raxcn","slide":5,"name":"package-title-3","text":"Source continuity","textPreview":"Source continuity","textChars":17,"textLines":1,"bbox":[650,442,500,44]}
+{"kind":"textbox","id":"sh/xgba9cva","slide":5,"name":"package-body-3","text":"Facts stay concise; every event links back to the approved source.","textPreview":"Facts stay concise; every event links back to the approved source.","textChars":66,"textLines":1,"bbox":[650,500,500,80]}
+{"kind":"textbox","id":"sh/cf29grup","slide":5,"name":"footer-label-5","text":"OKOLO · FESTIVAL PARTNERS","textPreview":"OKOLO · FESTIVAL PARTNERS","textChars":25,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/bets7md4","slide":5,"name":"footer-page-5","text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"notes","id":"nt/3nxmhu","slide":5,"text":"[Sources]\n- /Users/georgikostov/Repositories/eventmap/docs/decisions/2026-08-29-partner-festival-maps.md"}
+{"kind":"slide","id":"sl/to4qcj","slide":6,"title":"PRIVATE CONCEPT EXAMPLE","textShapes":5}
+{"kind":"textbox","id":"sh/nqd0rehw","slide":6,"name":"eyebrow-6","text":"PRIVATE CONCEPT EXAMPLE","textPreview":"PRIVATE CONCEPT EXAMPLE","textChars":23,"textLines":1,"bbox":[54,36,500,24]}
+{"kind":"textbox","id":"sh/8rm10jyh","slide":6,"name":"title-6","text":"We can prototype an organizer-specific map before launch","textPreview":"We can prototype an organizer-specific map before launch","textChars":56,"textLines":1,"bbox":[54,70,1168,92]}
+{"kind":"shape","id":"sh/9svitoz2","slide":6,"name":"aec-map-backing","bbox":[54,174,560,315]}
+{"kind":"shape","id":"sh/zmt0nuhk","slide":6,"name":"aec-detail-backing","bbox":[650,174,560,315]}
+{"kind":"shape","id":"sh/1obip4zq","slide":6,"name":"aec-disclaimer-box","bbox":[54,526,1156,94]}
+{"kind":"textbox","id":"sh/qx0zqpg3","slide":6,"name":"aec-disclaimer","text":"Uncommissioned concept · no affiliation or endorsement · real artwork and partner language require written approval.","textPreview":"Uncommissioned concept · no affiliation or endorsement · real artwork and partner language require written approval.","textChars":116,"textLines":1,"bbox":[76,548,1112,48]}
+{"kind":"textbox","id":"sh/ry90juho","slide":6,"name":"footer-label-6","text":"PRIVATE SALES MATERIAL · DO NOT PUBLISH AS A PARTNERSHIP","textPreview":"PRIVATE SALES MATERIAL · DO NOT PUBLISH AS A PARTNERSHIP","textChars":56,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/jm9kf6h4","slide":6,"name":"footer-page-6","text":"6","textPreview":"6","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"image","id":"im/zmdwru5c","slide":6,"name":"","geometry":"roundRect","alt":"Private uncommissioned Ars Electronica map concept","bbox":[54,174,560,315]}
+{"kind":"image","id":"im/l8fyt4ni","slide":6,"name":"","geometry":"roundRect","alt":"Private uncommissioned Ars Electronica event-detail concept","bbox":[650,174,560,315]}
+{"kind":"notes","id":"nt/to4qcj","slide":6,"text":"[Sources]\n- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-showcase/01-aec-partner-map-desktop.jpg\n- /Users/georgikostov/Repositories/eventmap/output/screenshots/partner-showcase/02-aec-partner-event-detail-desktop.jpg\n- https://ars.electronica.art/negotiatinghumanity/en/download/\n- https://ars.electronica.art/about/en/impress/"}
+{"kind":"slide","id":"sl/bj27pt","slide":7,"title":"OKOLO FOR FESTIVAL PARTNERS","textShapes":17}
+{"kind":"textbox","id":"sh/7ypgna1s","slide":7,"name":"eyebrow-7","text":"OKOLO FOR FESTIVAL PARTNERS","textPreview":"OKOLO FOR FESTIVAL PARTNERS","textChars":27,"textLines":1,"bbox":[54,36,500,24]}
+{"kind":"textbox","id":"sh/8zyxwfid","slide":7,"name":"title-7","text":"Partners can see what visitors use—and where they continue","textPreview":"Partners can see what visitors use—and where they continue","textChars":58,"textLines":1,"bbox":[54,70,1168,92]}
+{"kind":"shape","id":"sh/t07ypkjy","slide":7,"name":"flow-line-0","bbox":[276,342,76,0]}
+{"kind":"shape","id":"sh/y9wfq50b","slide":7,"name":"flow-line-1","bbox":[574,342,76,0]}
+{"kind":"shape","id":"sh/ju5gjq1w","slide":7,"name":"flow-line-2","bbox":[872,342,76,0]}
+{"kind":"shape","id":"sh/kvyxsvih","slide":7,"name":"flow-node-0","bbox":[54,236,222,214]}
+{"kind":"textbox","id":"sh/lw7yl0j2","slide":7,"name":"flow-index-0","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[74,256,64,34]}
+{"kind":"textbox","id":"sh/i50z2p0f","slide":7,"name":"flow-title-0","text":"Map view","textPreview":"Map view","textChars":8,"textLines":1,"bbox":[74,306,182,52]}
+{"kind":"textbox","id":"sh/3q9gvu10","slide":7,"name":"flow-body-0","text":"The dedicated festival map is opened.","textPreview":"The dedicated festival map is opened.","textChars":37,"textLines":1,"bbox":[74,366,182,66]}
+{"kind":"shape","id":"sh/jitc7it8","slide":7,"name":"flow-node-1","bbox":[352,236,222,214]}
+{"kind":"textbox","id":"sh/yhkvedcn","slide":7,"name":"flow-index-1","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[372,256,64,34]}
+{"kind":"textbox","id":"sh/lkbu9sby","slide":7,"name":"flow-title-1","text":"Filter","textPreview":"Filter","textChars":6,"textLines":1,"bbox":[372,306,182,52]}
+{"kind":"textbox","id":"sh/kj2dgnut","slide":7,"name":"flow-body-1","text":"Visitors choose the festival or a programme day.","textPreview":"Visitors choose the festival or a programme day.","textChars":48,"textLines":1,"bbox":[372,366,182,66]}
+{"kind":"shape","id":"sh/7mtcbit4","slide":7,"name":"flow-node-2","bbox":[650,236,222,214]}
+{"kind":"textbox","id":"sh/6lkvixcj","slide":7,"name":"flow-index-2","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[670,256,64,34]}
+{"kind":"textbox","id":"sh/t8vudsba","slide":7,"name":"flow-title-2","text":"Event open","textPreview":"Event open","textChars":10,"textLines":1,"bbox":[670,306,182,52]}
+{"kind":"textbox","id":"sh/8n2dknup","slide":7,"name":"flow-body-2","text":"A pin or list item becomes an event detail.","textPreview":"A pin or list item becomes an event detail.","textChars":43,"textLines":1,"bbox":[670,366,182,66]}
+{"kind":"shape","id":"sh/vadcf2tg","slide":7,"name":"flow-node-3","bbox":[948,236,222,214]}
+{"kind":"textbox","id":"sh/u94vmxcv","slide":7,"name":"flow-index-3","text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[968,256,64,34]}
+{"kind":"textbox","id":"sh/qh87ul0z","slide":7,"name":"flow-title-3","text":"Source referral","textPreview":"Source referral","textChars":15,"textLines":1,"bbox":[968,306,182,52]}
+{"kind":"textbox","id":"sh/biho3qhk","slide":7,"name":"flow-body-3","text":"The visitor continues to the official source.","textPreview":"The visitor continues to the official source.","textChars":45,"textLines":1,"bbox":[968,366,182,66]}
+{"kind":"textbox","id":"sh/cjqpwvi5","slide":7,"name":"measurement-note","text":"Measurement supports a partner report; it does not alter event facts or ranking rules.","textPreview":"Measurement supports a partner report; it does not alter event facts or ranking rules.","textChars":86,"textLines":1,"bbox":[54,516,1156,52]}
+{"kind":"textbox","id":"sh/dkz650zq","slide":7,"name":"footer-label-7","text":"OKOLO · FESTIVAL PARTNERS","textPreview":"OKOLO · FESTIVAL PARTNERS","textChars":25,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/2t87ql03","slide":7,"name":"footer-page-7","text":"7","textPreview":"7","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"notes","id":"nt/bj27pt","slide":7,"text":"[Sources]\n- /Users/georgikostov/Repositories/eventmap/docs/ops/advertiser-proof.md\n- /Users/georgikostov/Repositories/eventmap/lib/analytics.js"}
+{"kind":"slide","id":"sl/8cjf97","slide":8,"title":"OKOLO FOR FESTIVAL PARTNERS","textShapes":11}
+{"kind":"textbox","id":"sh/t8ryxc3q","slide":8,"name":"eyebrow-8","text":"OKOLO FOR FESTIVAL PARTNERS","textPreview":"OKOLO FOR FESTIVAL PARTNERS","textChars":27,"textLines":1,"bbox":[54,36,500,24]}
+{"kind":"textbox","id":"sh/650f2xkz","slide":8,"name":"title-8","text":"Start with one festival and one measurable visitor journey","textPreview":"Start with one festival and one measurable visitor journey","textChars":58,"textLines":1,"bbox":[54,70,1168,92]}
+{"kind":"shape","id":"sh/769gv2lk","slide":8,"name":"pilot-line","bbox":[110,316,1060,0]}
+{"kind":"shape","id":"sh/k3ix0n2t","slide":8,"name":"pilot-dot-0","bbox":[110,305,22,22]}
+{"kind":"textbox","id":"sh/54ryts3e","slide":8,"name":"pilot-title-0","text":"1 · Approve","textPreview":"1 · Approve","textChars":11,"textLines":1,"bbox":[110,358,310,48]}
+{"kind":"textbox","id":"sh/i10fydk3","slide":8,"name":"pilot-body-0","text":"Programme source, logo rights and launch dates.","textPreview":"Programme source, logo rights and launch dates.","textChars":47,"textLines":1,"bbox":[110,418,300,86]}
+{"kind":"shape","id":"sh/j29gril8","slide":8,"name":"pilot-dot-1","bbox":[480,305,22,22]}
+{"kind":"textbox","id":"sh/wzyxwnmx","slide":8,"name":"pilot-title-1","text":"2 · Configure","textPreview":"2 · Configure","textChars":13,"textLines":1,"bbox":[480,358,310,48]}
+{"kind":"textbox","id":"sh/x07yps3i","slide":8,"name":"pilot-body-1","text":"Partner URL, filters, identity and event linkbacks.","textPreview":"Partner URL, filters, identity and event linkbacks.","textChars":51,"textLines":1,"bbox":[480,418,300,86]}
+{"kind":"shape","id":"sh/t4jmx4ru","slide":8,"name":"pilot-dot-2","bbox":[850,305,22,22]}
+{"kind":"textbox","id":"sh/s3q54za9","slide":8,"name":"pilot-title-2","text":"3 · Share & learn","textPreview":"3 · Share & learn","textChars":17,"textLines":1,"bbox":[850,358,310,48]}
+{"kind":"textbox","id":"sh/r2h4vu9o","slide":8,"name":"pilot-body-2","text":"Promote one map and review opens and referrals.","textPreview":"Promote one map and review opens and referrals.","textChars":47,"textLines":1,"bbox":[850,418,300,86]}
+{"kind":"shape","id":"sh/618n2ps3","slide":8,"name":"pilot-cta-box","bbox":[54,570,1156,68]}
+{"kind":"textbox","id":"sh/50zmt4bi","slide":8,"name":"pilot-cta","text":"hello@okolo.events  ·  Request a festival map pilot","textPreview":"hello@okolo.events  ·  Request a festival map pilot","textChars":51,"textLines":1,"bbox":[80,588,1104,34]}
+{"kind":"textbox","id":"sh/4zq50zad","slide":8,"name":"footer-label-8","text":"OKOLO · FESTIVAL PARTNERS","textPreview":"OKOLO · FESTIVAL PARTNERS","textChars":25,"textLines":1,"bbox":[54,676,430,20]}
+{"kind":"textbox","id":"sh/jyh4ruts","slide":8,"name":"footer-page-8","text":"8","textPreview":"8","textChars":1,"textLines":1,"bbox":[1180,676,45,20]}
+{"kind":"notes","id":"nt/8cjf97","slide":8,"text":"[Sources]\n- mailto:hello@okolo.events?subject=Festival%20map%20partnership"}
