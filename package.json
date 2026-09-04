@@ -14,6 +14,7 @@
     "subscribers": "node --env-file=.env.local scripts/export-subscribers.mjs",
     "digest": "node --env-file=.env.local scripts/weekly-digest.mjs",
     "newsletter:preferences": "node --env-file=.env.local scripts/trigger-newsletter-preferences.mjs",
+    "newsletter:launch": "node --env-file=.env.local scripts/trigger-newsletter-launch.mjs",
     "social": "node --env-file=.env.local scripts/publish-social.mjs",
     "eclipse": "node --env-file=.env.local scripts/publish-eclipse-2026.mjs",
     "mcp": "node --env-file=.env.local scripts/mcp-server.mjs"

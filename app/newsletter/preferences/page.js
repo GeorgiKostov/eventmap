@@ -7,9 +7,9 @@ import NewsletterPreferencesForm from './preferences-form.js';
 export const dynamic = 'force-dynamic';
 
 const COPY = {
-  de: { title: 'Newsletter-Ausgabe wählen', intro: 'Wähle Linz & Umgebung oder lass dich einmalig benachrichtigen, wenn Okolo in deiner Stadt startet.', invalid: 'Dieser persönliche Link ist ungültig oder nicht mehr aktiv.' },
-  en: { title: 'Choose your newsletter edition', intro: 'Choose Linz & surroundings, or ask us to notify you once when Okolo launches in your city.', invalid: 'This personal link is invalid or no longer active.' },
-  bg: { title: 'Избери издание на бюлетина', intro: 'Избери Линц и околността или поискай еднократно известие, когато Okolo стартира в твоя град.', invalid: 'Този личен линк е невалиден или вече не е активен.' },
+  de: { title: 'Newsletter-Ausgabe wählen', intro: 'Wähle deine verfügbare Region oder lass dich einmalig benachrichtigen, wenn Okolo in deiner Stadt startet.', invalid: 'Dieser persönliche Link ist ungültig oder nicht mehr aktiv.' },
+  en: { title: 'Choose your newsletter edition', intro: 'Choose your available region, or ask us to notify you once when Okolo launches in your city.', invalid: 'This personal link is invalid or no longer active.' },
+  bg: { title: 'Избери издание на бюлетина', intro: 'Избери наличния си район или поискай еднократно известие, когато Okolo стартира в твоя град.', invalid: 'Този личен линк е невалиден или вече не е активен.' },
 };
 
 export async function generateMetadata() {

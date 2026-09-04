@@ -1,6 +1,6 @@
 # Explicit newsletter editions and city launch waitlist
 
-> Status: approved by George; live in production · Date: 2026-09-04
+> Status: superseded in part by `2026-09-04-five-austrian-newsletter-editions.md` · Date: 2026-09-04
 > Supersedes: `2026-08-30-austria-only-newsletter.md`
 
 ## Context

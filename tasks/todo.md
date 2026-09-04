@@ -2,6 +2,18 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Five Austrian newsletter editions (2026-09-04)
+- [x] Approve Linz, Wien, Graz, Salzburg and Innsbruck as live recurring editions after confirming
+      that every catchment currently returns ten eligible weekend picks.
+- [x] Drive the map popup, shared event/weekend signup and tokenized preferences page from the same
+      five-edition registry; keep the missing-city launch waitlist available everywhere.
+- [x] Extend guarded Thursday preparation and delivery across all live editions, treating a city
+      with no audience as a clean no-op while preserving every content, freshness and retry guard.
+- [x] Add an idempotent launch notice that asks existing waitlist subscribers to explicitly select
+      the newly available edition instead of silently converting their consent.
+- [ ] Run the full test/build/browser loop, deploy production, notify eligible newly launched-city
+      waitlist subscribers, and verify all delivery ledgers and production errors.
+
 ## Explicit newsletter editions + city launch waitlist (2026-09-04)
 - [x] Replace inferred geography with an explicit live-edition choice; Linz and surroundings is the
       only recurring edition and every delivery path requires that stored channel assignment.

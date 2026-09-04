@@ -1,8 +1,8 @@
 # Weekly Automation Pipeline (The Thursday Flow)
 
 > Status: **SHIPPED 2026-07-14** · Owner: Architect agent
-> This spec defines the automation pipeline for the weekly Okolo growth engine. We automate the
-> Linz email after fail-closed checks; social distribution stays manual.
+> This spec defines the automation pipeline for the weekly Okolo growth engine. We automate each
+> live Austrian edition after fail-closed checks; social distribution stays manual.
 >
 > **What exists now** (the strategy around it: `docs/strategy/growth-system.md`):
 > | Piece | Where |
@@ -14,7 +14,7 @@
 > | Carousel cards, 1080×1350, Latin + Cyrillic | `GET /api/social/card?channel=&slide=` |
 > | The desk (review, drop a pick, download cards, copy caption, send) | `/admin/thursday?token=<ADMIN_TOKEN>` |
 > | CLI (`npm run digest -- --all --cards ./out --send`) | `scripts/weekly-digest.mjs` |
-> | Thursday cron — fresh prepare at 09:00 UTC, guarded Linz send at 14:00 UTC | `.github/workflows/weekly-digest.yml` |
+> | Thursday cron — fresh live-edition prepare at 09:00 UTC, guarded sends at 14:00 UTC | `.github/workflows/weekly-digest.yml` |
 >
 > Deviations from the plan below, and why: the "Top 5" is a **frozen snapshot** per city per weekend
 > (so the cards, the caption and the email can never disagree, and a card request can't re-trigger a
@@ -23,12 +23,13 @@
 > SMTP) rather than reporting a success that never left the building.
 
 ## 1. Goal & Philosophy
-The growth strategy relies on a weekly rhythm: every Thursday afternoon, we tell parents what the best 5 family events are in Linz for the upcoming weekend. 
+The growth strategy relies on a weekly rhythm: every Thursday afternoon, each live city receives its
+best local family and general event picks for the upcoming weekend.
 
-**The Rule:** We automate asset generation and the confirmed Linz email list, but we **do not
+**The Rule:** We automate asset generation and the confirmed live-edition email lists, but we **do not
 automate social posting**. Auto-posting bots get banned from local Facebook/WhatsApp groups. The
 email job sends only a fresh issue with at least five still-eligible, unchanged events. Recurring
-delivery is edition-based: only subscribers who explicitly selected the live Linz edition can be
+delivery is edition-based: only subscribers who explicitly selected a live city edition can be
 sent through the desk, API, or CLI. Other visitors may join a city launch waitlist, which is never a
 digest audience.
 
@@ -37,7 +38,7 @@ digest audience.
 ### A. The "Top 5" Selection Query
 A backend utility that queries Supabase for the best events this weekend.
 - **Filters:** `kind = 'event'`, `starts_at` between Friday 12:00 and Sunday 23:59 (Vienna time).
-- **Location:** Within the Linz radius.
+- **Location:** Within the selected channel's radius.
 - **Tags:** Must be family-friendly.
 - **Ranking:** Prioritize `is_free=true`, high-quality venues, and community-submitted events.
 - **Output:** An array of 5 event objects.
@@ -73,8 +74,8 @@ Once built, your Thursday afternoon will look like this:
 3. **15:02:** Click "Download Social Assets". The 6 PNGs and caption are on your phone/laptop.
 4. **15:03:** Open Instagram, select the 6 images, paste the caption, and post to `okolo.linz`. Share to the Facebook Page.
 5. **15:05:** Open WhatsApp/Facebook Groups, write a human message ("Hey everyone, here are the 5 best things for the kids this weekend..."), and drop the link.
-6. **16:00 Vienna (summer):** The confirmed Linz list is sent automatically. If you already sent it
-   manually, the delivery ledger makes the scheduled run a no-op.
+6. **16:00 Vienna (summer):** Each confirmed live-edition list is sent automatically. A city with no
+   audience is a clean no-op; if you already sent one manually, its delivery ledger skips that city.
 
 **Total time:** 10 minutes.
 **Impact:** Reaches the newsletter list, Instagram followers, and local community groups simultaneously with zero manual design work.

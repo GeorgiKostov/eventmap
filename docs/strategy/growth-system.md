@@ -62,7 +62,7 @@ frozen snapshot for the weekend            ← one pick set; cards, caption and 
 George reviews at /admin/thursday (10 min)
    ├── downloads 6 cards → posts to okolo.<city> IG + FB          [manual, on purpose]
    ├── copies caption → parent FB/WhatsApp groups                 [manual, on purpose]
-   └── may edit/test; Thursday job sends → confirmed Linz list    [automatic, fail-closed]
+   └── may edit/test; Thursday job sends → each live city list    [automatic, fail-closed]
    ↓
 every asset links back to the map with ?utm_campaign=weekend-<friday>
    ↓
@@ -83,33 +83,31 @@ to feed the list**, not to be the audience.
   send for operator review. Confirmed audience routing, one-click unsubscribe, per-recipient retry
   ledgers and provider idempotency remain mandatory.
 
-The cron prepares at 09:00 UTC, leaves a five-hour edit/test window, and sends Linz at 14:00 UTC.
+The cron prepares at 09:00 UTC, leaves a five-hour edit/test window, and sends every live edition at 14:00 UTC.
 It never posts socially. Revisit auto-posting via the Graph API only after ~4 weeks of manual posting
 proves the motion — never before.
 
 ## 4. Channels
 
-`lib/city-channels.js` is the registry — adding a city is adding a row (name, centre, radius, language,
-hashtags). Ten are defined; **only Linz is live.** The rest exist so the second city costs an afternoon,
-not a rebuild.
+`lib/city-channels.js` is the prepared channel registry (name, centre, radius, language, hashtags).
+Ten are defined. The separate `NEWSLETTER_EDITION_SLUGS` launch registry keeps a configured social/
+digest channel from becoming a newsletter promise accidentally.
 
-Recurring newsletter delivery is **edition-based**, and only Linz is live during validation. Signup
-makes that promise explicit. Visitors in the map's served countries (Austria, Bulgaria and Germany)
+Recurring newsletter delivery is **edition-based**. Linz, Wien, Graz, Salzburg and Innsbruck are
+live; signup makes that promise explicit on every surface. Visitors in the map's served countries
 whose city is not live can instead consent to one launch notification for their selected city; they
 are never silently promoted into a recurring edition. See
-`docs/decisions/2026-09-04-newsletter-editions-waitlist.md`.
+`docs/decisions/2026-09-04-five-austrian-newsletter-editions.md`.
 
 | Tier | Cities | Language |
 |---|---|---|
-| **Now** | Linz | DE |
-| Next (after Linz retains) | Wien, Graz | DE |
-| Later | Salzburg, Innsbruck, Stuttgart | DE |
+| **Now** | Linz, Wien, Graz, Salzburg, Innsbruck | DE |
+| Later | Stuttgart | DE |
 | Bulgaria track | София, Пловдив, Варна, Бургас | BG |
 
-**The gate to open a new city:** Linz must hit the retention bar in the four-weekend test *first*.
-Two cities at 20% retention is not twice as good as one — it is the same failure, twice, with double
-the weekly work. Resist this specifically; a city-named handle is cheap to create and expensive to
-abandon.
+**The gate after the five-city Austrian launch:** do not open another country or add more recurring
+editions without adequate repeatable coverage and retention evidence. Compare retention per city;
+five weak lists are not a stronger validation result than one weak list.
 
 **Bulgaria is a different game, not a translated one.** BG families discover events on Facebook
 itself (~69% of the population on FB), so the BG channels lead with an FB *Page* and group seeding,
@@ -163,7 +161,7 @@ in `docs/ops/advertiser-proof.md`.
 | Daily 04:00 UTC | Deterministic Austria source refresh | cron (`crawl.yml`) |
 | Sunday 04:30 UTC | Bounded Gemini-only Austria LLM source refresh | cron (`crawl.yml`) |
 | **Thu 09:00 UTC** | Picks frozen + AI copy written + "desk is ready" mail | cron (`weekly-digest.yml`) |
-| **Thu 14:00 UTC** | Guarded send to the confirmed Linz audience | cron (`weekly-digest.yml`) |
+| **Thu 14:00 UTC** | Guarded send to each confirmed live-edition audience | cron (`weekly-digest.yml`) |
 | **Thu ~16:00 Vienna** | Review/download carousel → post IG/FB → drop in groups | **George, ~10 min** |
 | Fri–Sun | Optional Story: "heute in Linz" (1–3 time-sensitive picks) | George, optional |
 | Mon | Read the numbers from §6. One change per week, not five. | George |

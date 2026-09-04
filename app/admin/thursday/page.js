@@ -301,7 +301,7 @@ function ThursdayDesk() {
                   <div style={{ ...S.muted, marginBottom: 10 }}>Subject: <strong>{data.subject}</strong></div>
                   {!data.newsletterSupported ? (
                     <div style={{ color: '#C93A5B', fontWeight: 700, marginBottom: 10 }}>
-                      Newsletter delivery is currently available only for Austria.
+                      Newsletter delivery is not live for this city.
                     </div>
                   ) : null}
                   <iframe

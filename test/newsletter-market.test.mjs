@@ -14,13 +14,15 @@ import { STRINGS } from '../lib/i18n.js';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('only Linz is a live newsletter edition', () => {
-  assert.deepEqual(NEWSLETTER_EDITIONS.map((channel) => channel.slug), ['linz']);
+test('all five prepared Austrian city newsletters are live editions', () => {
+  assert.deepEqual(NEWSLETTER_EDITIONS.map((channel) => channel.slug), ['linz', 'wien', 'graz', 'salzburg', 'innsbruck']);
   assert.equal(newsletterEdition('linz')?.label, 'Linz');
-  assert.equal(newsletterEdition('graz'), null);
+  assert.equal(newsletterEdition('wien')?.label, 'Wien');
+  assert.equal(newsletterEdition('graz')?.label, 'Graz');
   assert.equal(newsletterEditionForPoint(48.3069, 14.2858)?.slug, 'linz');
   assert.equal(newsletterEditionForPoint(48.1575, 14.0289)?.slug, 'linz');
-  assert.equal(newsletterEditionForPoint(47.0707, 15.4395), null);
+  assert.equal(newsletterEditionForPoint(47.0707, 15.4395)?.slug, 'graz');
+  assert.equal(newsletterEdition('plovdiv'), null);
 });
 
 test('weekly delivery remains Austrian while the launch waitlist accepts every served map country', () => {
@@ -51,7 +53,11 @@ test('signup choices canonicalize live editions and keep waitlists separate', ()
   });
   assert.equal(waitlist.kind, 'waitlist');
   assert.equal(waitlist.edition, null);
-  assert.equal(resolveNewsletterPreference({ edition: 'graz' }).error, 'unsupported_edition');
+  assert.equal(resolveNewsletterPreference({ edition: 'graz' }).kind, 'edition');
+  assert.equal(resolveNewsletterPreference({
+    edition: 'waitlist', areaLabel: 'Graz', areaLat: 47.0707, areaLng: 15.4395, areaCountry: 'AT',
+  }).error, 'edition_available');
+  assert.equal(resolveNewsletterPreference({ edition: 'plovdiv' }).error, 'unsupported_edition');
 });
 
 test('the place gazetteer identifies Austrian, Bulgarian and German newsletter countries', () => {

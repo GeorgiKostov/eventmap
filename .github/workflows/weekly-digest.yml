@@ -4,7 +4,8 @@ name: Weekly digest (prepare + send)
 #
 # This job freezes each city's weekend picks and writes the AI copy (Sonnet) into
 # the digest snapshot, then emails George that the desk is ready. At 14:00 UTC a
-# separate job asks the deployed app to send it to the confirmed Linz audience.
+# separate job asks the deployed app to send each live Austrian edition to its
+# explicitly assigned confirmed audience.
 # That call fails closed unless the snapshot was freshly regenerated, has at
 # least five picks, and every selected event is still eligible and unchanged.
 # Social posting remains manual.
@@ -43,14 +44,10 @@ jobs:
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
           NEXT_PUBLIC_BASE_URL: https://okolo.events
-        # LINZ ONLY (George, 2026-07-14). The other nine channels in
-        # lib/city-channels.js are defined and ready, but none has a handle, a
-        # follower or a subscriber — preparing their digests every Thursday would
-        # write copy nobody reads and clutter the desk with nine tabs that never
-        # get pressed. Not a cost decision (the whole run is ~1¢/city/week); a
-        # focus one. Open a city by adding it here when its handle actually exists.
+        # NEWSLETTER_EDITIONS is the single launch registry. `--live` prepares
+        # exactly those cities, not every paused BG/DE channel.
         # Scheduled runs always replace future/SEO snapshots with a fresh issue.
-        run: node scripts/weekly-digest.mjs --channel linz --notify --regenerate
+        run: node scripts/weekly-digest.mjs --live --notify --regenerate
 
   send:
     if: github.event_name == 'schedule' && github.event.schedule == '0 14 * * 4'
@@ -61,7 +58,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Send the prepared Linz newsletter
+      - name: Send the prepared live newsletters
         env:
           ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
           NEXT_PUBLIC_BASE_URL: https://www.okolo.events

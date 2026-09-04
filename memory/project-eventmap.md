@@ -9,6 +9,15 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-09-04 — five Austrian newsletter editions approved)
+- George approved Linz, Wien, Graz, Salzburg and Innsbruck as live recurring newsletters. A current
+  production check returned ten eligible weekend picks in every catchment before launch.
+- One live-edition registry now drives every signup/preferences surface and every admin, CLI and
+  scheduled delivery guard. Thursday prepares all five and sends each explicit confirmed audience;
+  a city with no audience is a clean no-op, while active audiences retain the full fail-closed gates.
+- Existing waitlist rows are not converted. A ledgered launch notice asks eligible subscribers to
+  explicitly select the now-live edition. Final verification, deployment and launch sends remain.
+
 ## Where things stand (2026-09-04 — explicit newsletter editions and city launch waitlist)
 - Newsletter consent now names the actual promise: Linz and surroundings is the sole live recurring
   edition; visitors elsewhere in the served AT/BG/DE map can request one notification when their

@@ -38,3 +38,15 @@ test('the current-subscriber campaign is authenticated and idempotent per recipi
   assert.match(route, /await metaSet\(doneKey/);
   assert.match(trigger, /authorization: `Bearer \$\{token\}`/);
 });
+
+test('city launch notices target confirmed waitlist rows without silently subscribing them', () => {
+  const route = read('app/api/admin/newsletter-launch/route.js');
+  const trigger = read('scripts/trigger-newsletter-launch.mjs');
+  assert.match(route, /bearerTokenValid/);
+  assert.match(route, /subscriber\.subscription_kind === 'waitlist'/);
+  assert.match(route, /newsletterEditionForPoint/);
+  assert.match(route, /newsletter-launch-\$\{edition\.slug\}-v1/);
+  assert.match(route, /await metaSet\(doneKey/);
+  assert.doesNotMatch(route, /updateSubscriberPreferences/);
+  assert.match(trigger, /--channel is required/);
+});

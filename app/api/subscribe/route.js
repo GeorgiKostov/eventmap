@@ -24,6 +24,7 @@ const MESSAGES = {
     invalid: 'Bitte eine gültige E-Mail-Adresse eingeben.',
     invalidEdition: 'Bitte wähle eine verfügbare Newsletter-Ausgabe.',
     invalidWaitlist: 'Bitte wähle einen Ort aus, damit wir dich zum Start benachrichtigen können.',
+    editionAvailable: 'Für diesen Ort gibt es bereits einen Newsletter — bitte wähle die passende Ausgabe.',
     invalidPreferences: 'Bitte wähle nur gültige Interessen aus.',
     mailDown: 'Anmeldung momentan nicht möglich — bitte später erneut versuchen.',
   },
@@ -32,6 +33,7 @@ const MESSAGES = {
     invalid: 'Please enter a valid email address.',
     invalidEdition: 'Please choose an available newsletter edition.',
     invalidWaitlist: 'Please choose a town so we can notify you when it launches.',
+    editionAvailable: 'A newsletter is already available for this town — please choose that edition.',
     invalidPreferences: 'Please choose valid interests.',
     mailDown: 'Sign-up isn’t available right now — please try again later.',
   },
@@ -40,6 +42,7 @@ const MESSAGES = {
     invalid: 'Въведи валиден имейл адрес.',
     invalidEdition: 'Избери налично издание на бюлетина.',
     invalidWaitlist: 'Избери град, за да те уведомим, когато стартира.',
+    editionAvailable: 'За този град вече има бюлетин — избери съответното издание.',
     invalidPreferences: 'Избери валидни интереси.',
     mailDown: 'Записването не е възможно в момента — опитай отново по-късно.',
   },
@@ -59,6 +62,9 @@ export async function POST(req) {
   if (preference.error === 'unsupported_edition') {
     return NextResponse.json({ error: msg.invalidEdition, code: 'unsupported_edition' }, { status: 400 });
   }
+  if (preference.error === 'edition_available') {
+    return NextResponse.json({ error: msg.editionAvailable, code: 'edition_available' }, { status: 400 });
+  }
   if (preference.error) {
     return NextResponse.json({ error: msg.invalidWaitlist, code: 'invalid_waitlist_area' }, { status: 400 });
   }
@@ -76,7 +82,7 @@ export async function POST(req) {
   // The subscriber's language decides every mail we ever send them (confirm +
   // newsletter fallbacks). The UI language they signed up in is their choice and
   // wins; an omitted language falls back to German because the current live
-  // edition is Linz.
+  // editions are Austrian.
   const lang = ['de', 'en', 'bg'].includes(body.lang)
     ? body.lang
     : 'de';

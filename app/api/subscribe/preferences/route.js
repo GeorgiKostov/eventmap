@@ -9,9 +9,9 @@ import { captureServer } from '../../../../lib/analytics-server.js';
 export const dynamic = 'force-dynamic';
 
 const MESSAGES = {
-  de: { invalid: 'Bitte wähle eine gültige Ausgabe oder Stadt.', expired: 'Dieser Link ist ungültig oder nicht mehr aktiv.', limited: 'Zu viele Anfragen — bitte später wieder.' },
-  en: { invalid: 'Please choose a valid edition or city.', expired: 'This link is invalid or no longer active.', limited: 'Too many requests — please try again later.' },
-  bg: { invalid: 'Избери валидно издание или град.', expired: 'Този линк е невалиден или вече не е активен.', limited: 'Твърде много заявки — опитай отново по-късно.' },
+  de: { invalid: 'Bitte wähle eine gültige Ausgabe oder Stadt.', editionAvailable: 'Für diesen Ort gibt es bereits einen Newsletter — bitte wähle die passende Ausgabe.', expired: 'Dieser Link ist ungültig oder nicht mehr aktiv.', limited: 'Zu viele Anfragen — bitte später wieder.' },
+  en: { invalid: 'Please choose a valid edition or city.', editionAvailable: 'A newsletter is already available for this town — please choose that edition.', expired: 'This link is invalid or no longer active.', limited: 'Too many requests — please try again later.' },
+  bg: { invalid: 'Избери валидно издание или град.', editionAvailable: 'За този град вече има бюлетин — избери съответното издание.', expired: 'Този линк е невалиден или вече не е активен.', limited: 'Твърде много заявки — опитай отново по-късно.' },
 };
 
 export async function POST(req) {
@@ -25,6 +25,9 @@ export async function POST(req) {
   const body = await req.json().catch(() => ({}));
   const token = String(body.token || '');
   const preference = resolveNewsletterPreference(body);
+  if (preference.error === 'edition_available') {
+    return NextResponse.json({ error: msg.editionAvailable, code: 'edition_available' }, { status: 400 });
+  }
   if (!token || preference.error) {
     return NextResponse.json({ error: msg.invalid }, { status: 400 });
   }

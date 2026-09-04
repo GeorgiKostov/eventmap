@@ -31,8 +31,8 @@ import { newsletterEdition } from '../../../../lib/newsletter-market.js';
 // in place and re-freezes it, with NO AI call — only `regenerate` rebuilds.
 //
 // Operator sends remain available, while the Thursday service caller may use
-// only the guarded Linz path below. Unattended delivery fails closed on a stale
-// snapshot, thin inventory, or any changed/ineligible event.
+// only the guarded live-edition paths below. Unattended delivery fails closed
+// on a stale snapshot, thin inventory, or any changed/ineligible event.
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
@@ -41,9 +41,9 @@ const unsubUrl = (sub) => `${BASE}/api/subscribe/unsubscribe?token=${sub.token}&
 const preferencesUrl = (sub) => `${BASE}/newsletter/preferences?token=${sub.token}&lang=${sub.lang || 'de'}`;
 const sentKey = (slug, friday) => `sent:digest:${slug}:${friday}`;
 
-// A subscriber belongs to the city whose catchment contains the locality they
-// chose at signup. No area on the row (legacy signups) → no city → not mailed:
-// a digest for the wrong city is worse than no digest.
+// Delivery follows the subscriber's explicit edition choice, never a later
+// inference from their coordinates. A digest for the wrong city is worse than
+// no digest.
 function audienceFor(channel, subs) {
   return subs.filter((subscriber) =>
     subscriber.subscription_kind === 'edition' && subscriber.channel_slug === channel.slug,
@@ -101,8 +101,8 @@ export async function POST(req) {
   const channel = getChannel(requestedChannel);
   if (!channel) return NextResponse.json({ error: 'unknown channel' }, { status: 400 });
   // The service token is intentionally narrower than an operator session: it
-  // may trigger only the scheduled Linz send, never edit picks, send another
-  // city, or force a duplicate mailing.
+  // may trigger only a scheduled live-edition send, never edit picks, target a
+  // paused city, or force a duplicate mailing.
 
   if (body.action === 'regenerate') {
     return NextResponse.json(await snapshot(channel, { force: true }));
@@ -152,6 +152,13 @@ export async function POST(req) {
     if (!newsletterEdition(channel.slug)) {
       return NextResponse.json({ error: 'newsletter delivery is not live for this edition' }, { status: 400 });
     }
+    const audience = audienceFor(channel, await confirmedSubscribers());
+    // A live edition may not have a subscriber yet. That is a clean scheduled
+    // no-op; once an audience exists, every freshness/content guard below is
+    // mandatory before the first message can leave.
+    if (automatic && audience.length === 0) {
+      return NextResponse.json({ sent: 0, skipped: 0, failed: 0, audience: 0, noAudience: true });
+    }
     const digest = automatic ? await loadDigest(channel) : await loadOrBuildDigest(channel);
     if (automatic) {
       const currentEvents = digest
@@ -178,7 +185,6 @@ export async function POST(req) {
       // no-op, not a failed workflow. The operator-facing button still gets a
       // 409 so an accidental second click remains visible.
       if (automatic) {
-        const audience = audienceFor(channel, await confirmedSubscribers());
         return NextResponse.json({
           sent: 0,
           skipped: audience.length,
@@ -198,7 +204,6 @@ export async function POST(req) {
       return NextResponse.json({ error: 'No mail provider — nothing was sent. Set RESEND_API_KEY or SMTP_USER/SMTP_PASS.' }, { status: 503 });
     }
 
-    const audience = audienceFor(channel, await confirmedSubscribers());
     if (body.test) {
       const to = process.env.NOTIFY_TO || process.env.SMTP_USER || process.env.MAIL_FROM;
       const url = `${BASE}/api/subscribe/unsubscribe?token=TEST`;

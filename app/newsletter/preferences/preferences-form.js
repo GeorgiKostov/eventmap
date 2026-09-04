@@ -2,14 +2,17 @@
 
 import { useState } from 'react';
 import { STRINGS } from '../../../lib/i18n.js';
-import { NEWSLETTER_EDITIONS } from '../../../lib/newsletter-market.js';
+import { NEWSLETTER_EDITIONS, newsletterEditionForPoint } from '../../../lib/newsletter-market.js';
 import { PLACES, normalizePlace, searchPlaces } from '../../../lib/places.js';
 
 export default function NewsletterPreferencesForm({ token, lang, current }) {
   const t = STRINGS[lang] || STRINGS.en;
+  const newlyAvailable = current.subscriptionKind === 'waitlist'
+    ? newsletterEditionForPoint(current.areaLat, current.areaLng)
+    : null;
   const initialEdition = current.subscriptionKind === 'edition' && current.channelSlug
     ? current.channelSlug
-    : 'waitlist';
+    : newlyAvailable?.slug || 'waitlist';
   const initialKnown = searchPlaces(current.areaLabel || '', { limit: 1 })[0] || null;
   const [edition, setEdition] = useState(initialEdition);
   const [area, setArea] = useState(current.areaLabel || '');
@@ -29,7 +32,7 @@ export default function NewsletterPreferencesForm({ token, lang, current }) {
 
   function changeEdition(value) {
     setEdition(value);
-    if (value === 'waitlist' && current.subscriptionKind === 'edition') {
+    if (value === 'waitlist' && newsletterEditionForPoint(location?.lat, location?.lng)) {
       setArea('');
       setLocation(null);
     }

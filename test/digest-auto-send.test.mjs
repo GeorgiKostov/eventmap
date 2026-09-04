@@ -48,9 +48,11 @@ test('automatic send stops when any event changed after the frozen snapshot', ()
   assert.match(automaticDigestProblem(digest, events, { now: NOW }), /changed after/);
 });
 
-test('scheduled bearer is restricted to a non-forced Linz send', () => {
+test('scheduled bearer is restricted to non-forced live-edition sends', () => {
   const valid = { action: 'send', channel: 'linz', automatic: true };
   assert.equal(automaticDigestRequestAllowed(valid, 'linz', true), true);
+  assert.equal(automaticDigestRequestAllowed({ ...valid, channel: 'wien' }, 'wien', true), true);
+  assert.equal(automaticDigestRequestAllowed({ ...valid, channel: 'innsbruck' }, 'innsbruck', true), true);
   assert.equal(automaticDigestRequestAllowed({ ...valid, force: true }, 'linz', true), false);
   assert.equal(automaticDigestRequestAllowed({ ...valid, action: 'regenerate' }, 'linz', true), false);
   assert.equal(automaticDigestRequestAllowed({ ...valid, channel: 'plovdiv' }, 'plovdiv', true), false);

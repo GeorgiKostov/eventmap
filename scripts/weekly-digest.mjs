@@ -4,6 +4,7 @@
 //
 //   npm run digest                      # Linz: print picks + caption, no writes
 //   npm run digest -- --channel wien    # another city
+//   npm run digest -- --live            # every live newsletter edition
 //   npm run digest -- --all             # every channel, one summary line each
 //   npm run digest -- --cards ./out     # also save the carousel PNGs (needs the app running)
 //   npm run digest -- --regenerate      # rebuild picks + AI copy, overwrite the snapshot
@@ -20,7 +21,7 @@ import { CHANNELS, getChannel } from '../lib/city-channels.js';
 import { loadOrBuildDigest, renderCaption, renderNewsletter } from '../lib/digest.js';
 import { confirmedSubscribers, metaGet, metaSet } from '../lib/db.js';
 import { sendNewsletter, notifyOperator } from '../lib/mail.js';
-import { newsletterEdition } from '../lib/newsletter-market.js';
+import { NEWSLETTER_EDITIONS, newsletterEdition } from '../lib/newsletter-market.js';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -97,7 +98,11 @@ async function run(channel) {
   return { channel, digest, sent };
 }
 
-const channels = flag('all') ? CHANNELS : [getChannel(val('channel', 'linz'))].filter(Boolean);
+const channels = flag('live')
+  ? NEWSLETTER_EDITIONS
+  : flag('all')
+    ? CHANNELS
+    : [getChannel(val('channel', 'linz'))].filter(Boolean);
 if (!channels.length) {
   console.error(`unknown channel. Known: ${CHANNELS.map((c) => c.slug).join(', ')}`);
   process.exit(1);
