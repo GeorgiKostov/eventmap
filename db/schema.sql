@@ -163,6 +163,10 @@ create table if not exists subscribers (
   area_label     text,               -- chosen town/postcode, shown back to the subscriber
   area_lat       double precision,   -- locality/postcode centre, not a precise user position
   area_lng       double precision,
+  area_country   text,               -- closed ISO country from the gazetteer/geocoder
+  subscription_kind text not null default 'waitlist'
+    check (subscription_kind in ('edition', 'waitlist')),
+  channel_slug   text,               -- live edition explicitly chosen; null for city waitlist
   radius_km      integer not null default 20 check (radius_km between 3 and 40),
   categories     text[] not null default '{}',
   created_at     timestamptz default now(),
@@ -180,7 +184,11 @@ create table if not exists subscribers (
   -- same hashed-IP value the rate limiter uses — never the raw IP.
   consent_version text,
   consent_ip_hash text,
-  consent_at      timestamptz
+  consent_at      timestamptz,
+  check (
+    (subscription_kind = 'edition' and channel_slug is not null)
+    or (subscription_kind = 'waitlist' and channel_slug is null)
+  )
 );
 
 -- durable, IP-hash-keyed rate limiting for anonymous writes (scan + submit).

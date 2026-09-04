@@ -20,8 +20,7 @@ import { CHANNELS, getChannel } from '../lib/city-channels.js';
 import { loadOrBuildDigest, renderCaption, renderNewsletter } from '../lib/digest.js';
 import { confirmedSubscribers, metaGet, metaSet } from '../lib/db.js';
 import { sendNewsletter, notifyOperator } from '../lib/mail.js';
-import { channelForPoint } from '../lib/city-channels.js';
-import { newsletterCountrySupported } from '../lib/newsletter-market.js';
+import { newsletterEdition } from '../lib/newsletter-market.js';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(`--${name}`);
@@ -74,15 +73,13 @@ async function run(channel) {
     }
     const subs = flag('test')
       ? [{ email: process.env.NOTIFY_TO || process.env.SMTP_USER, lang: channel.lang, token: 'TEST' }]
-      : (await confirmedSubscribers()).filter(
-          (s) =>
-            s.area_lat != null &&
-            s.area_lng != null &&
-            channelForPoint(Number(s.area_lat), Number(s.area_lng))?.slug === channel.slug,
+      : (await confirmedSubscribers()).filter((subscriber) =>
+          subscriber.subscription_kind === 'edition' && subscriber.channel_slug === channel.slug,
         );
     for (const sub of subs) {
       const url = `${BASE}/api/subscribe/unsubscribe?token=${sub.token}&lang=${sub.lang || channel.lang}`;
-      const mail = renderNewsletter(digest, { unsubscribeUrl: url });
+      const preferencesUrl = `${BASE}/newsletter/preferences?token=${sub.token}&lang=${sub.lang || channel.lang}`;
+      const mail = renderNewsletter(digest, { unsubscribeUrl: url, preferencesUrl });
       try {
         const ok = await sendNewsletter({ to: sub.email, ...mail, unsubscribeUrl: url });
         if (ok) sent++;
@@ -105,8 +102,8 @@ if (!channels.length) {
   console.error(`unknown channel. Known: ${CHANNELS.map((c) => c.slug).join(', ')}`);
   process.exit(1);
 }
-if ((flag('send') || flag('test')) && channels.some((channel) => !newsletterCountrySupported(channel.country))) {
-  console.error('newsletter delivery is currently available only for Austrian channels');
+if ((flag('send') || flag('test')) && channels.some((channel) => !newsletterEdition(channel.slug))) {
+  console.error('newsletter delivery is not live for one or more requested editions');
   process.exit(1);
 }
 

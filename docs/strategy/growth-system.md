@@ -93,10 +93,11 @@ proves the motion — never before.
 hashtags). Ten are defined; **only Linz is live.** The rest exist so the second city costs an afternoon,
 not a rebuild.
 
-Newsletter signup and delivery are **Austria-only** during validation, even though the map and paused
-channel registry also cover Bulgaria and Germany. A non-Austrian locality shows a localized warning;
-existing non-Austrian consent rows remain stored but are excluded from every send. See
-`docs/decisions/2026-08-30-austria-only-newsletter.md`.
+Recurring newsletter delivery is **edition-based**, and only Linz is live during validation. Signup
+makes that promise explicit. Visitors in the map's served countries (Austria, Bulgaria and Germany)
+whose city is not live can instead consent to one launch notification for their selected city; they
+are never silently promoted into a recurring edition. See
+`docs/decisions/2026-09-04-newsletter-editions-waitlist.md`.
 
 | Tier | Cities | Language |
 |---|---|---|

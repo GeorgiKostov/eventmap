@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getChannel, CHANNELS, channelForPoint } from '../../../../lib/city-channels.js';
+import { getChannel, CHANNELS } from '../../../../lib/city-channels.js';
 import {
   loadOrBuildDigest,
   loadDigest,
@@ -17,7 +17,7 @@ import { confirmedSubscribers, metaGet, metaSet, weekendEventsByIds } from '../.
 import { sendNewsletter, mailConfigured } from '../../../../lib/mail.js';
 import { isAdmin, bearerTokenValid } from '../../../../lib/admin-auth.js';
 import { automaticDigestProblem, automaticDigestRequestAllowed } from '../../../../lib/digest-auto-send.js';
-import { newsletterCountrySupported } from '../../../../lib/newsletter-market.js';
+import { newsletterEdition } from '../../../../lib/newsletter-market.js';
 
 // The Thursday flow's engine (docs/ops/weekly-automation.md). One route:
 //   GET                → the frozen weekly snapshot + caption + email preview + audience size
@@ -38,26 +38,27 @@ export const maxDuration = 60;
 
 const BASE = (process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events').replace(/\/$/, '');
 const unsubUrl = (sub) => `${BASE}/api/subscribe/unsubscribe?token=${sub.token}&lang=${sub.lang || 'de'}`;
+const preferencesUrl = (sub) => `${BASE}/newsletter/preferences?token=${sub.token}&lang=${sub.lang || 'de'}`;
 const sentKey = (slug, friday) => `sent:digest:${slug}:${friday}`;
 
 // A subscriber belongs to the city whose catchment contains the locality they
 // chose at signup. No area on the row (legacy signups) → no city → not mailed:
 // a digest for the wrong city is worse than no digest.
 function audienceFor(channel, subs) {
-  return subs.filter((s) => {
-    if (s.area_lat == null || s.area_lng == null) return false;
-    return channelForPoint(Number(s.area_lat), Number(s.area_lng))?.slug === channel.slug;
-  });
+  return subs.filter((subscriber) =>
+    subscriber.subscription_kind === 'edition' && subscriber.channel_slug === channel.slug,
+  );
 }
 
 async function snapshot(channel, { force = false } = {}) {
   const digest = await loadOrBuildDigest(channel, { force });
   const subs = await confirmedSubscribers();
-  const newsletterSupported = newsletterCountrySupported(channel.country);
+  const newsletterSupported = Boolean(newsletterEdition(channel.slug));
   const audience = newsletterSupported ? audienceFor(channel, subs) : [];
   const sentAt = await metaGet(sentKey(channel.slug, digest.window.friday));
   const preview = renderNewsletter(digest, {
     unsubscribeUrl: `${BASE}/api/subscribe/unsubscribe?token=PREVIEW`,
+    preferencesUrl: `${BASE}/newsletter/preferences?token=PREVIEW`,
   });
   return {
     digest,
@@ -148,8 +149,8 @@ export async function POST(req) {
   }
 
   if (body.action === 'send') {
-    if (!newsletterCountrySupported(channel.country)) {
-      return NextResponse.json({ error: 'newsletter delivery is currently available only for Austria' }, { status: 400 });
+    if (!newsletterEdition(channel.slug)) {
+      return NextResponse.json({ error: 'newsletter delivery is not live for this edition' }, { status: 400 });
     }
     const digest = automatic ? await loadDigest(channel) : await loadOrBuildDigest(channel);
     if (automatic) {
@@ -201,7 +202,7 @@ export async function POST(req) {
     if (body.test) {
       const to = process.env.NOTIFY_TO || process.env.SMTP_USER || process.env.MAIL_FROM;
       const url = `${BASE}/api/subscribe/unsubscribe?token=TEST`;
-      const mail = renderNewsletter(digest, { unsubscribeUrl: url });
+      const mail = renderNewsletter(digest, { unsubscribeUrl: url, preferencesUrl: `${BASE}/newsletter/preferences?token=TEST` });
       const ok = await sendNewsletter({ to, ...mail, unsubscribeUrl: url });
       return NextResponse.json({ test: true, to, sent: ok ? 1 : 0, audience: audience.length });
     }
@@ -223,7 +224,7 @@ export async function POST(req) {
     for (const sub of audience) {
       if (done.has(String(sub.id))) { skipped++; continue; }
       const url = unsubUrl(sub);
-      const mail = renderNewsletter(digest, { unsubscribeUrl: url });
+      const mail = renderNewsletter(digest, { unsubscribeUrl: url, preferencesUrl: preferencesUrl(sub) });
       try {
         if (await sendNewsletter({
           to: sub.email,

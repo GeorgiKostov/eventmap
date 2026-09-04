@@ -30,7 +30,9 @@ test('event landing conversions cover views, map, source, recommendations, and n
   assert.match(page, /MapDiscoveryLink/);
   assert.match(page, /event_source_open/);
   assert.match(page, /event_recommendation_open/);
-  assert.match(newsletter, /newsletter_signup_started.*area: area\.label/);
+  assert.match(newsletter, /newsletter_signup_started/);
+  assert.match(newsletter, /area: waitlist \? resolvedArea\.label/);
+  assert.match(newsletter, /signup_kind: data\.kind/);
 });
 
 test('direct event landings invite map discovery before recommendations and preserve genuine returns', () => {

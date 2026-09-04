@@ -1235,3 +1235,10 @@ token can remain usable until its short expiry. For account writes, bind the JWT
 current `auth.sessions` row and fail closed when it is gone. The same review exposed a quieter denial
 path: a honeypot checked after global rate limiting lets simple bots consume the real-user quota.
 Reject cross-origin mutations first and return honeypot fake-success before consuming scarce slots.
+
+## 2026-09-04 — Geography is not newsletter consent
+
+Inferring a future newsletter edition from coordinates made the current UI promise and actual send
+audience diverge, and would have silently promoted a launch-alert subscriber when a city went live.
+**Lesson:** store the user's explicit product choice separately from location. A waitlist consent is
+for one launch notice; joining a recurring edition requires a deliberate confirmed choice.

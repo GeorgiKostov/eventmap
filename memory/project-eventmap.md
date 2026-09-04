@@ -9,6 +9,18 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-09-04 — explicit newsletter editions and city launch waitlist)
+- Newsletter consent now names the actual promise: Linz and surroundings is the sole live recurring
+  edition; visitors elsewhere in the served AT/BG/DE map can request one notification when their
+  selected city launches. A waitlist row is never automatically promoted into a newsletter.
+- Subscriber records carry an explicit edition/waitlist kind, optional channel and country. The
+  production migration is applied idempotently: existing Linz-area rows map to the Linz edition and
+  all others to the waitlist. Delivery requires an explicit live-edition assignment.
+- A tokenized noindex preferences page lets confirmed subscribers change the choice. A ledgered,
+  idempotent one-time campaign is ready to ask the confirmed active audience to review it; pending
+  and unsubscribed rows remain excluded. Application deployment and campaign send are still pending
+  final verification.
+
 ## Where things stand (2026-09-03 — Side Quest leads graduated to official sources)
 - Side Quest Linz remains discovery evidence only: its Notion/Instagram calendar is a third-party
   curated database with no identified reuse licence. Linz Tourismus and KUPFticket are also excluded

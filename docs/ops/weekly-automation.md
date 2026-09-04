@@ -27,9 +27,10 @@ The growth strategy relies on a weekly rhythm: every Thursday afternoon, we tell
 
 **The Rule:** We automate asset generation and the confirmed Linz email list, but we **do not
 automate social posting**. Auto-posting bots get banned from local Facebook/WhatsApp groups. The
-email job sends only a fresh issue with at least five still-eligible, unchanged events. Newsletter
-signup and delivery are Austria-only; paused Bulgarian and German channels cannot be sent through
-the desk, API, or CLI.
+email job sends only a fresh issue with at least five still-eligible, unchanged events. Recurring
+delivery is edition-based: only subscribers who explicitly selected the live Linz edition can be
+sent through the desk, API, or CLI. Other visitors may join a city launch waitlist, which is never a
+digest audience.
 
 ## 2. Core Components to Build
 

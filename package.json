@@ -13,6 +13,7 @@
     "refresh:seo": "node --env-file=.env.local scripts/refresh-seo.mjs",
     "subscribers": "node --env-file=.env.local scripts/export-subscribers.mjs",
     "digest": "node --env-file=.env.local scripts/weekly-digest.mjs",
+    "newsletter:preferences": "node --env-file=.env.local scripts/trigger-newsletter-preferences.mjs",
     "social": "node --env-file=.env.local scripts/publish-social.mjs",
     "eclipse": "node --env-file=.env.local scripts/publish-eclipse-2026.mjs",
     "mcp": "node --env-file=.env.local scripts/mcp-server.mjs"

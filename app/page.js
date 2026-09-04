@@ -18,7 +18,7 @@ import { useLanguage } from './language-provider.js';
 import { eventSummary } from '../lib/event-summary.js';
 import { partnerEventMatches, partnerProgram } from '../lib/partner-programs.js';
 import { canonicalMapViewport } from '../lib/map-request.js';
-import { newsletterCountrySupported } from '../lib/newsletter-market.js';
+import { NEWSLETTER_EDITIONS, newsletterEditionForPoint } from '../lib/newsletter-market.js';
 import AccountDialog from './account-dialog.js';
 import OkoloBrand from './okolo-brand.js';
 
@@ -738,7 +738,6 @@ export default function Home({ partnerSlug = null } = {}) {
   const [mapCenter, setMapCenter] = useState(HOME);
   const weekendChannel = useMemo(() => channelForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
   const calendarCity = useMemo(() => seoCityForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
-  const newsletterAvailableHere = weekendChannel?.country === 'AT' || !!calendarCity;
   const [manualEntry, setManualEntry] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -806,9 +805,11 @@ export default function Home({ partnerSlug = null } = {}) {
     const areaCountry = knownPlace?.country
       || (nearest ? channelForPoint(nearest.center.lat, nearest.center.lng)?.country : null)
       || null;
+    const edition = newsletterEditionForPoint(nearest?.center.lat ?? HOME.lat, nearest?.center.lng ?? HOME.lng);
     setNl({
       open: true,
       email: '',
+      edition: edition?.slug || 'waitlist',
       area: nearest?.label || 'Linz',
       areaLat: nearest?.center.lat ?? HOME.lat,
       areaLng: nearest?.center.lng ?? HOME.lng,
@@ -816,6 +817,7 @@ export default function Home({ partnerSlug = null } = {}) {
       categories: [],
       busy: false,
       done: false,
+      kind: null,
       err: '',
     });
   }
@@ -837,6 +839,19 @@ export default function Home({ partnerSlug = null } = {}) {
         || null,
       err: '',
     }));
+  }
+
+  function changeNewsletterEdition(value) {
+    setNl((current) => {
+      const clearArea = value === 'waitlist'
+        && Boolean(newsletterEditionForPoint(current.areaLat, current.areaLng));
+      return {
+        ...current,
+        edition: value,
+        ...(clearArea ? { area: '', areaLat: null, areaLng: null, areaCountry: null } : {}),
+        err: '',
+      };
+    });
   }
 
   // Long tail of the location search: everything the gazetteer doesn't carry
@@ -984,8 +999,8 @@ export default function Home({ partnerSlug = null } = {}) {
   const [detailFull, setDetailFull] = useState(false);
   const [calMenu, setCalMenu] = useState(false); // event id whose "add to calendar" menu is open
   const [nl, setNl] = useState({
-    open: false, email: '', area: '', areaLat: null, areaLng: null, areaCountry: null,
-    categories: [], busy: false, done: false, err: '',
+    open: false, email: '', edition: 'linz', area: '', areaLat: null, areaLng: null, areaCountry: null,
+    categories: [], busy: false, done: false, kind: null, err: '',
   });
   const [limitNotice, setLimitNotice] = useState(null);
   const [toast, setToast] = useState('');
@@ -1080,22 +1095,23 @@ export default function Home({ partnerSlug = null } = {}) {
     e.preventDefault();
     const email = nl.email.trim();
     const area = nl.area.trim();
-    if (!email || !area) return;
+    const waitlist = nl.edition === 'waitlist';
+    if (!email || (waitlist && !area)) return;
     setNl((s) => ({ ...s, busy: true, err: '' }));
     try {
-      let location = nl.areaLat != null && nl.areaLng != null && nl.areaCountry
+      let location = !waitlist ? null : nl.areaLat != null && nl.areaLng != null && nl.areaCountry
         ? { label: area, lat: nl.areaLat, lng: nl.areaLng, country: nl.areaCountry }
         : null;
       // Resolve from the local gazetteer first — it holds every city we cover,
       // with coordinates, so a typed "Linz"/"София" needs NO network call. Most
       // signups land here instantly; only an off-list village falls through.
-      if (!location) {
+      if (waitlist && !location) {
         const hit = searchPlaces(area, { limit: 1 })[0];
         if (hit && normalizePlace(hit.label) === normalizePlace(area)) {
           location = { label: hit.label, lat: hit.lat, lng: hit.lng, country: hit.country };
         }
       }
-      if (!location) {
+      if (waitlist && !location) {
         // Network fallback for the long tail. The API searches every map country
         // and returns the country it actually resolved, so the newsletter can
         // reject non-Austrian locations with an honest message. The request is
@@ -1118,18 +1134,20 @@ export default function Home({ partnerSlug = null } = {}) {
         };
         location = await tryGeo('AT');
       }
-      if (!location) throw new Error(t.nlAreaInvalid);
-      if (!newsletterCountrySupported(location.country)) throw new Error(t.nlCountryUnsupported);
+      if (waitlist && !location) throw new Error(t.nlAreaInvalid);
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang },
         body: JSON.stringify({
           email,
           lang,
-          areaLabel: area,
-          areaLat: location.lat,
-          areaLng: location.lng,
-          areaCountry: location.country,
+          edition: nl.edition,
+          ...(waitlist ? {
+            areaLabel: area,
+            areaLat: location.lat,
+            areaLng: location.lng,
+            areaCountry: location.country,
+          } : {}),
           radiusKm: 20,
           categories: nl.categories,
           source: 'newsletter_popup',
@@ -1137,9 +1155,9 @@ export default function Home({ partnerSlug = null } = {}) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || t.requestFailed);
-      track('newsletter_signup_started', { source: 'newsletter_popup', area });
+      track('newsletter_signup_started', { source: 'newsletter_popup', area, signup_kind: data.kind });
       try { localStorage.setItem('okolo_nl_prompt', 'signed'); } catch { /* private mode */ }
-      setNl((s) => ({ ...s, busy: false, done: true, pending: data.pending !== false }));
+      setNl((s) => ({ ...s, busy: false, done: true, pending: data.pending !== false, kind: data.kind }));
     } catch (err) {
       setNl((s) => ({ ...s, busy: false, err: String(err.message || err) }));
     }
@@ -1259,7 +1277,6 @@ export default function Home({ partnerSlug = null } = {}) {
   // they act on it or wave it away. Anything else is nagging.
   function maybePromptNewsletter() {
     if (typeof window === 'undefined') return;
-    if (!newsletterAvailableHere) return;
     if (localStorage.getItem('okolo_nl_prompt')) return; // dismissed, or already signed up
     setNlPrompt(true);
     track('nl_prompt_shown');
@@ -2732,11 +2749,9 @@ export default function Home({ partnerSlug = null } = {}) {
                   </a>
                 )}
                 <div className="menu-divider" aria-hidden="true" />
-                {newsletterAvailableHere && (
-                  <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
-                    <span className="ic">✉️</span>{t.newsletter}
-                  </button>
-                )}
+                <button className="menuitem" onClick={() => { setMenuOpen(false); openNewsletter(); }}>
+                  <span className="ic">✉️</span>{t.newsletter}
+                </button>
                 <a
                   className="menuitem"
                   href="/partners"
@@ -3820,11 +3835,27 @@ export default function Home({ partnerSlug = null } = {}) {
             <div className="nl-icon">✉️</div>
             <h3 id="newsletter-title">{t.nlTitle}</h3>
             {nl.done ? (
-              <p className="nl-done">{nl.pending ? t.nlConfirmSent : t.nlThanks}</p>
+              <p className="nl-done">{nl.kind === 'waitlist'
+                ? (nl.pending ? t.nlWaitlistConfirmSent : t.nlWaitlistThanks)
+                : (nl.pending ? t.nlConfirmSent : t.nlThanks)}</p>
             ) : (
               <>
                 <p className="nl-blurb">{t.nlBlurb}</p>
                 <form onSubmit={submitNewsletter}>
+                  <label className="nl-field">
+                    <span>{t.nlEdition}</span>
+                    <select
+                      className="nl-input"
+                      value={nl.edition}
+                      onChange={(e) => changeNewsletterEdition(e.target.value)}
+                    >
+                      {NEWSLETTER_EDITIONS.map((channel) => (
+                        <option key={channel.slug} value={channel.slug}>{t.nlLiveEdition.replace('{city}', channel.label)}</option>
+                      ))}
+                      <option value="waitlist">{t.nlWaitlistOption}</option>
+                    </select>
+                    <small>{nl.edition === 'waitlist' ? t.nlWaitlistHelp : t.nlEditionHelp}</small>
+                  </label>
                   <label className="nl-field">
                     <span>{t.nlEmail}</span>
                     <input
@@ -3837,8 +3868,8 @@ export default function Home({ partnerSlug = null } = {}) {
                       required
                     />
                   </label>
-                  <label className="nl-field">
-                    <span>{t.nlArea}</span>
+                  {nl.edition === 'waitlist' && <label className="nl-field">
+                    <span>{t.nlWaitlistArea}</span>
                     <input
                       type="text"
                       className="nl-input"
@@ -3855,10 +3886,7 @@ export default function Home({ partnerSlug = null } = {}) {
                         .map((town) => <option key={town} value={town} />)}
                     </datalist>
                     <small>{t.nlAreaHelp}</small>
-                    {nl.areaCountry && !newsletterCountrySupported(nl.areaCountry) && (
-                      <small className="nl-err">{t.nlCountryUnsupported}</small>
-                    )}
-                  </label>
+                  </label>}
                   {/* The interests picker is GONE (George, 2026-07-14: "keep it
                       simple"). It asked people to choose categories and then the
                       send ignored them — a promise we weren't keeping. The digest
@@ -3871,7 +3899,7 @@ export default function Home({ partnerSlug = null } = {}) {
                   <button
                     type="submit"
                     className="nl-submit"
-                    disabled={nl.busy || (nl.areaCountry && !newsletterCountrySupported(nl.areaCountry))}
+                    disabled={nl.busy}
                   >
                     {nl.busy ? t.nlSending : t.nlSubmit}
                   </button>

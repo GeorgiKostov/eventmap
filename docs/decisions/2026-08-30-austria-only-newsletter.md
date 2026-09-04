@@ -1,6 +1,6 @@
 # Austria-only newsletter market
 
-> Status: approved by George; live in production · Date: 2026-08-30
+> Status: superseded by `2026-09-04-newsletter-editions-waitlist.md` · Date: 2026-08-30
 
 ## Context
 

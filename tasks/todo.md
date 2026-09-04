@@ -2,6 +2,16 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Explicit newsletter editions + city launch waitlist (2026-09-04)
+- [x] Replace inferred geography with an explicit live-edition choice; Linz and surroundings is the
+      only recurring edition and every delivery path requires that stored channel assignment.
+- [x] Add a structured “notify me when my city is available” waitlist for Austria, Bulgaria and
+      Germany. Its consent covers one launch notice and never silently becomes a recurring signup.
+- [x] Add a tokenized preferences page/API, migrate existing rows idempotently, update consent and
+      privacy copy, and prepare a durable one-time selection campaign for confirmed active rows.
+- [ ] Verify the final test/build/browser loop, deploy production, then send and verify the one-time
+      preference email to the confirmed active audience. Pending and unsubscribed rows stay excluded.
+
 ## Austria-only newsletter market (2026-08-30)
 - [x] Replace newsletter forms with a localized Austria-only warning on Bulgarian and German public
       pages, suppress contextual prompts outside Austria, and warn when a foreign area is selected.
@@ -42,8 +52,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       email.
 - [x] Publish the workflow and matching application route in `2594e5c` / deployment
       `dpl_GQaLmghiEApe9uahz7e2HHri6Uqe` with the required Vercel mail and admin configuration present.
-- [ ] Verify the first Thursday workflow result and Resend delivery for the actual confirmed Linz
-      audience.
+- [x] Verify the first Thursday workflow result: the 2026-09-03 Linz issue reached the one eligible
+      recipient in the send ledger and the GitHub Actions workflow completed successfully. Provider
+      inbox delivery could not be independently checked with the local Resend credential.
 
 ## Cross-page Okolo brand header (2026-08-30)
 - [x] Replace route-local or missing top-left treatments with one shared Okolo pin + lowercase

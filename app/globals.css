@@ -1194,6 +1194,7 @@ a.menuitem { text-decoration: none; }
   background: var(--panel2); padding: 11px 12px; font-size: 15px; color: var(--ink); outline: none;
 }
 .pagenl-input:focus-visible { border-color: var(--accent); }
+.pagenl-select { display: block; width: 100%; margin-bottom: 6px; }
 .pagenl-btn {
   flex: 0 0 auto; background: var(--accent); color: #fff; font-weight: 700; font-size: 14px;
   border-radius: 11px; padding: 11px 20px; cursor: pointer;
@@ -1204,6 +1205,26 @@ a.menuitem { text-decoration: none; }
 .pagenl-consent { font-size: 11.5px; line-height: 1.5; color: var(--muted); margin: 10px 0 0; }
 .pagenl-consent a { color: var(--muted); text-decoration: underline; }
 .pagenl-done { font-size: 15px; line-height: 1.6; color: var(--ink); font-weight: 650; margin: 0; }
+
+/* Tokenized newsletter edition / city-waitlist settings. */
+.newsletter-preferences-page {
+  min-height: 100dvh; max-width: 680px; margin: 0 auto; padding: 34px 20px 70px;
+}
+.newsletter-preferences-page > .okolo-brand { margin-bottom: 26px; }
+.newsletter-preferences-card {
+  max-width: 500px; margin: 6vh auto 0; padding: 28px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
+}
+.newsletter-preferences-icon { font-size: 30px; line-height: 1; margin-bottom: 12px; }
+.newsletter-preferences-card h1 { margin: 0 0 8px; font-size: 26px; line-height: 1.2; }
+.newsletter-preferences-card > p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+.newsletter-preferences-form { display: grid; gap: 14px; margin-top: 22px; }
+.newsletter-preferences-success { color: var(--good) !important; font-weight: 700; }
+@media (max-width: 520px) {
+  .newsletter-preferences-page { padding: 22px 16px 56px; }
+  .newsletter-preferences-card { margin-top: 3vh; padding: 22px 18px; }
+  .newsletter-preferences-card h1 { font-size: 23px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }

@@ -192,7 +192,8 @@ There is **no dominant open event-exchange protocol in the DACH region** — tha
 
 **The organic proof loop:** a specific-event Google landing must lead into Okolo rather than end at
 one fact. The page shows only source-backed facts, opens the exact event on the map, recommends other
-future-starting events nearby, and offers the newsletter where that city is served. Anonymous
+future-starting events nearby, and offers the live newsletter where that city is served or a
+one-time city-launch notification elsewhere in the served map countries. Anonymous
 first-party events measure the landing, map/source/recommendation clicks, newsletter conversion, and
 repeat visits by area/category. Those aggregate results—not personal data—become evidence for later
 publisher partnerships and clearly disclosed paid placement. An ended event becomes an honest archive

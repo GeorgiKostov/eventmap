@@ -6,19 +6,22 @@ export const dynamic = 'force-dynamic';
 const COPY = {
   de: {
     ok: 'Anmeldung bestätigt', okBody: 'Danke! Du bekommst ab jetzt den Okolo-Newsletter für deine Region.',
-    manage: 'Ort oder Interessen ändern? Melde dich einfach erneut mit derselben E-Mail-Adresse an — wir aktualisieren deine Angaben.',
+    waitlistBody: 'Danke! Wir benachrichtigen dich einmalig, sobald eine Okolo-Ausgabe für deine Stadt startet.',
+    manage: 'Ausgabe oder Stadt ändern',
     unsub: 'Newsletter abbestellen',
     bad: 'Link ungültig', badBody: 'Dieser Bestätigungslink ist ungültig oder abgelaufen. Melde dich einfach erneut an — du bekommst dann einen neuen Link.',
   },
   en: {
     ok: 'Subscription confirmed', okBody: 'Thanks! You’ll now receive the Okolo newsletter for your area.',
-    manage: 'Want to change your area or interests? Just sign up again with the same email address — we’ll update your preferences.',
+    waitlistBody: 'Thanks! We’ll notify you once when an Okolo edition launches for your city.',
+    manage: 'Change edition or city',
     unsub: 'Unsubscribe from the newsletter',
     bad: 'Invalid link', badBody: 'This confirmation link is invalid or has expired. Just sign up again to get a fresh link.',
   },
   bg: {
     ok: 'Абонаментът е потвърден', okBody: 'Благодарим! Вече ще получаваш бюлетина на Okolo за твоя район.',
-    manage: 'Искаш да промениш района или интересите си? Просто се абонирай отново със същия имейл — ще обновим настройките ти.',
+    waitlistBody: 'Благодарим! Ще те уведомим еднократно, когато стартира издание на Okolo за твоя град.',
+    manage: 'Промени изданието или града',
     unsub: 'Отписване от бюлетина',
     bad: 'Невалиден линк', badBody: 'Този линк за потвърждение е невалиден или изтекъл. Просто се абонирай отново, за да получиш нов линк.',
   },
@@ -38,6 +41,7 @@ export async function GET(req) {
   const c = COPY[lang] || COPY.en;
   const subscriber = token ? await confirmSubscriber(token) : null;
   if (!subscriber) return page(c.bad, c.badBody);
+  const edition = subscriber.subscriptionKind === 'edition';
   if (subscriber.newlyConfirmed) {
     await captureServer('newsletter_confirmed', {
       distinctId: `subscriber:${subscriber.id}`,
@@ -45,16 +49,16 @@ export async function GET(req) {
         source: subscriber.source || 'unknown',
         area: subscriber.areaLabel || null,
         lang: subscriber.lang || lang || 'en',
+        signup_kind: subscriber.subscriptionKind,
       },
     });
   }
-  // The confirmed subscriber gets their exit and their settings in the same
-  // breath as the welcome: the unsubscribe link reuses the token they just
-  // proved control of, and preferences are managed by simply re-signing up
-  // (addSubscriber updates a confirmed row in place, no re-confirm mail).
+  // The confirmed subscriber gets both exits immediately: preferences and
+  // unsubscribe reuse the token they just proved control of.
   const unsubUrl = `/api/subscribe/unsubscribe?token=${encodeURIComponent(token)}&lang=${encodeURIComponent(lang || 'en')}`;
+  const preferencesUrl = `/newsletter/preferences?token=${encodeURIComponent(token)}&lang=${encodeURIComponent(lang || 'en')}`;
   const footer =
-    `<p style="color:#8a938f;font-size:.85rem;line-height:1.5;margin-top:1.5rem">${c.manage}</p>` +
+    `<p style="margin-top:1.5rem"><a href="${preferencesUrl}" style="color:#C93A5B;font-size:.9rem;font-weight:600;text-decoration:none">${c.manage}</a></p>` +
     `<p style="margin-top:.75rem"><a href="${unsubUrl}" style="color:#8a938f;font-size:.85rem;text-decoration:underline">${c.unsub}</a></p>`;
-  return page(c.ok, c.okBody, footer);
+  return page(c.ok, edition ? c.okBody : c.waitlistBody, footer);
 }

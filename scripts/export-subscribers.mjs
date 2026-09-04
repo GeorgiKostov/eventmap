@@ -11,7 +11,8 @@ const sql = postgres(process.env.DATABASE_URL || '', {
 
 // Active = confirmed the double opt-in AND not unsubscribed.
 const rows = await sql`
-  SELECT email, source, lang, area_label, area_lat, area_lng, radius_km, categories, created_at
+  SELECT email, source, lang, subscription_kind, channel_slug, area_label, area_country,
+         area_lat, area_lng, radius_km, categories, created_at
   FROM subscribers
   WHERE confirmed_at IS NOT NULL AND unsubscribed_at IS NULL
   ORDER BY created_at DESC
@@ -25,14 +26,17 @@ const csv = (value) => {
   if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
   return `"${s.replaceAll('"', '""')}"`;
 };
-console.log('email,source,lang,area_label,area_lat,area_lng,radius_km,categories,created_at');
+console.log('email,source,lang,subscription_kind,channel_slug,area_label,area_country,area_lat,area_lng,radius_km,categories,created_at');
 for (const r of rows) {
   const created = r.created_at instanceof Date ? r.created_at.toISOString() : r.created_at;
   console.log([
     r.email,
     r.source,
     r.lang,
+    r.subscription_kind,
+    r.channel_slug,
     r.area_label,
+    r.area_country,
     r.area_lat,
     r.area_lng,
     r.radius_km,

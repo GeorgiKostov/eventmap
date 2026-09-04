@@ -5,8 +5,7 @@ import { limit, hashIp } from '../../../lib/ratelimit.js';
 import { notifyNewSubscriber, sendSubscriberConfirm } from '../../../lib/mail.js';
 import { EVENT_CATS } from '../../../lib/icons.js';
 import { NL_CONSENT_VERSION } from '../../../lib/i18n.js';
-import { newsletterCountrySupported } from '../../../lib/newsletter-market.js';
-import { newsletterAreaSupported } from '../../../lib/newsletter-area.js';
+import { resolveNewsletterPreference } from '../../../lib/newsletter-preference.js';
 
 export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,24 +22,24 @@ const MESSAGES = {
   de: {
     limited: 'Zu viele Anfragen — bitte später wieder.',
     invalid: 'Bitte eine gültige E-Mail-Adresse eingeben.',
-    invalidArea: 'Bitte einen gültigen Ort oder eine Postleitzahl auswählen.',
-    unsupportedCountry: 'Der Newsletter ist derzeit nur in Österreich verfügbar.',
+    invalidEdition: 'Bitte wähle eine verfügbare Newsletter-Ausgabe.',
+    invalidWaitlist: 'Bitte wähle einen Ort aus, damit wir dich zum Start benachrichtigen können.',
     invalidPreferences: 'Bitte wähle nur gültige Interessen aus.',
     mailDown: 'Anmeldung momentan nicht möglich — bitte später erneut versuchen.',
   },
   en: {
     limited: 'Too many requests — please try again later.',
     invalid: 'Please enter a valid email address.',
-    invalidArea: 'Please choose a valid town or postcode.',
-    unsupportedCountry: 'The newsletter is currently available only in Austria.',
+    invalidEdition: 'Please choose an available newsletter edition.',
+    invalidWaitlist: 'Please choose a town so we can notify you when it launches.',
     invalidPreferences: 'Please choose valid interests.',
     mailDown: 'Sign-up isn’t available right now — please try again later.',
   },
   bg: {
     limited: 'Твърде много заявки — опитай отново по-късно.',
     invalid: 'Въведи валиден имейл адрес.',
-    invalidArea: 'Избери валиден град или пощенски код.',
-    unsupportedCountry: 'Бюлетинът в момента е достъпен само за Австрия.',
+    invalidEdition: 'Избери налично издание на бюлетина.',
+    invalidWaitlist: 'Избери град, за да те уведомим, когато стартира.',
     invalidPreferences: 'Избери валидни интереси.',
     mailDown: 'Записването не е възможно в момента — опитай отново по-късно.',
   },
@@ -56,19 +55,15 @@ export async function POST(req) {
   if (!EMAIL_RE.test(email) || email.length > 200) {
     return NextResponse.json({ error: msg.invalid }, { status: 400 });
   }
-  const areaLabel = String(body.areaLabel || '').trim();
-  const areaLat = body.areaLat;
-  const areaLng = body.areaLng;
-  const areaCountry = String(body.areaCountry || '').toUpperCase();
-  if (!newsletterCountrySupported(areaCountry)) {
-    return NextResponse.json({ error: msg.unsupportedCountry, code: 'unsupported_country' }, { status: 400 });
+  const preference = resolveNewsletterPreference(body);
+  if (preference.error === 'unsupported_edition') {
+    return NextResponse.json({ error: msg.invalidEdition, code: 'unsupported_edition' }, { status: 400 });
   }
-  if (
-    areaLabel.length < 2 || areaLabel.length > 120 ||
-    !newsletterAreaSupported({ country: areaCountry, lat: areaLat, lng: areaLng })
-  ) {
-    return NextResponse.json({ error: msg.invalidArea }, { status: 400 });
+  if (preference.error) {
+    return NextResponse.json({ error: msg.invalidWaitlist, code: 'invalid_waitlist_area' }, { status: 400 });
   }
+  const { kind, areaLabel, areaLat, areaLng, areaCountry } = preference;
+  const waitlist = kind === 'waitlist';
   // radius is no longer a UI field — default it, but still validate if a client sends one.
   const radiusKm = body.radiusKm == null ? 20 : body.radiusKm;
   const categories = Array.isArray(body.categories) ? [...new Set(body.categories)] : [];
@@ -80,8 +75,8 @@ export async function POST(req) {
   }
   // The subscriber's language decides every mail we ever send them (confirm +
   // newsletter fallbacks). The UI language they signed up in is their choice and
-  // wins; an omitted language falls back to German because Austria is the only
-  // supported newsletter market.
+  // wins; an omitted language falls back to German because the current live
+  // edition is Linz.
   const lang = ['de', 'en', 'bg'].includes(body.lang)
     ? body.lang
     : 'de';
@@ -93,6 +88,9 @@ export async function POST(req) {
     areaLabel,
     areaLat,
     areaLng,
+    areaCountry,
+    subscriptionKind: kind,
+    channelSlug: preference.edition?.slug || null,
     radiusKm,
     categories,
     token: randomUUID(),
@@ -108,7 +106,11 @@ export async function POST(req) {
   if (pending && token) {
     const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://okolo.events';
     const confirmUrl = `${base}/api/subscribe/confirm?token=${encodeURIComponent(token)}&lang=${lang || 'en'}`;
-    const delivered = await sendSubscriberConfirm(email, { lang, confirmUrl });
+    const delivered = await sendSubscriberConfirm(email, {
+      lang,
+      confirmUrl,
+      waitlist,
+    });
 
     // If the mail did NOT go out, do not tell them to check their inbox. The UI
     // reads `pending` and says "we've sent you an email — click the link", so a
@@ -120,7 +122,7 @@ export async function POST(req) {
       console.error('[subscribe] no mail provider accepted the confirmation — set RESEND_API_KEY or SMTP_USER/SMTP_PASS');
       return NextResponse.json({ error: msg.mailDown }, { status: 503 });
     }
-    await notifyNewSubscriber(email, { lang, source });
+    await notifyNewSubscriber(email, { lang, source, areaLabel, kind });
   }
-  return NextResponse.json({ ok: true, pending });
+  return NextResponse.json({ ok: true, pending, kind });
 }
