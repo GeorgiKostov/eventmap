@@ -9,8 +9,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       Germany. Its consent covers one launch notice and never silently becomes a recurring signup.
 - [x] Add a tokenized preferences page/API, migrate existing rows idempotently, update consent and
       privacy copy, and prepare a durable one-time selection campaign for confirmed active rows.
-- [ ] Verify the final test/build/browser loop, deploy production, then send and verify the one-time
-      preference email to the confirmed active audience. Pending and unsubscribed rows stay excluded.
+- [x] Verify all 308 tests, the 111-page build and responsive local/live browser flow; deploy commit
+      `d9b88c0` as `dpl_Dm2b5PUDBmbKsuTu3Khad6EsHJXJ`; send the one-time preference email to all
+      three confirmed active subscribers. The rerun skipped all three from the durable ledger;
+      pending and unsubscribed rows stayed excluded.
 
 ## Austria-only newsletter market (2026-08-30)
 - [x] Replace newsletter forms with a localized Austria-only warning on Bulgarian and German public

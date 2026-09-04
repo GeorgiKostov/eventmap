@@ -1,6 +1,6 @@
 # Explicit newsletter editions and city launch waitlist
 
-> Status: approved by George; implementation ready to ship · Date: 2026-09-04
+> Status: approved by George; live in production · Date: 2026-09-04
 > Supersedes: `2026-08-30-austria-only-newsletter.md`
 
 ## Context
@@ -33,3 +33,7 @@ Signup now makes the actual product promise visible before consent. Graz and Plo
 remain on a city launch waitlist without receiving a Linz issue; only explicit Linz-edition rows are
 eligible for the Thursday send. Adding another recurring city remains a separate product launch
 decision gated by coverage and Linz retention.
+
+The change is live from commit `d9b88c0`, production deployment
+`dpl_Dm2b5PUDBmbKsuTu3Khad6EsHJXJ`. The one-time campaign was accepted for all three confirmed
+active subscribers; its completion and recipient ledgers prevent duplicate sends.
