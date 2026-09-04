@@ -1,6 +1,6 @@
 # Five Austrian newsletter editions live
 
-> Status: approved by George; implementation ready to ship · Date: 2026-09-04
+> Status: live in production · Date: 2026-09-04
 > Supersedes: `2026-09-04-newsletter-editions-waitlist.md` where it names Linz as the sole live edition
 
 ## Context
@@ -30,3 +30,15 @@ Every newsletter email submission now presents the same five Austrian choices pl
 waitlist. The weekly preparation cost rises from one to five existing digest-copy generations; the
 documented estimate is about one cent per city per week. Social publishing remains manual and only
 uses city accounts that actually exist.
+
+## Launch record
+
+- Application commit `f17bd84` is pushed to `main` and live as Vercel production deployment
+  `dpl_5xRw6DAFyG5dqBy9upXUXXrFpDhb`, aliased to `okolo.events` and `www.okolo.events`.
+- All 310 tests and the 111-page local/Vercel production builds pass. Local and live browser checks
+  cover the mobile map signup and a Vienna event-page signup; both render the five editions plus the
+  missing-city waitlist, and the event page preselects Wien.
+- The one eligible Graz waitlist subscriber's launch notice was accepted by the mail provider. Wien,
+  Salzburg and Innsbruck had no eligible waitlist audience. An immediate Graz rerun sent zero and
+  skipped the ledgered recipient; the subscriber remains a waitlist row until explicitly opting in.
+- The post-launch Vercel production error scan was empty.

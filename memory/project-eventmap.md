@@ -9,14 +9,21 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
-## Where things stand (2026-09-04 — five Austrian newsletter editions approved)
+## Where things stand (2026-09-04 — five Austrian newsletter editions live)
 - George approved Linz, Wien, Graz, Salzburg and Innsbruck as live recurring newsletters. A current
   production check returned ten eligible weekend picks in every catchment before launch.
 - One live-edition registry now drives every signup/preferences surface and every admin, CLI and
   scheduled delivery guard. Thursday prepares all five and sends each explicit confirmed audience;
   a city with no audience is a clean no-op, while active audiences retain the full fail-closed gates.
-- Existing waitlist rows are not converted. A ledgered launch notice asks eligible subscribers to
-  explicitly select the now-live edition. Final verification, deployment and launch sends remain.
+- Existing waitlist rows are not converted. The one eligible Graz subscriber's launch notice was
+  accepted by the provider; Wien, Salzburg and Innsbruck had no eligible waitlist audience. A rerun
+  skipped the ledgered Graz recipient and the subscriber remains on the waitlist pending an explicit
+  choice.
+- Commit `f17bd84` is pushed to `main`; production deployment
+  `dpl_5xRw6DAFyG5dqBy9upXUXXrFpDhb` is Ready and aliased to `okolo.events` / `www.okolo.events`.
+  All 310 tests and the 111-page local/Vercel builds pass. Local/live mobile map and Vienna event-page
+  browser QA confirms the five choices, missing-city waitlist and contextual Wien default with no
+  error overlay; the live API fail-closed checks and Vercel production error scan are clean.
 
 ## Where things stand (2026-09-04 — explicit newsletter editions and city launch waitlist)
 - Newsletter consent now names the actual promise: Linz and surroundings is the sole live recurring

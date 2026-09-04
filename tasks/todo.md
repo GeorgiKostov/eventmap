@@ -11,8 +11,9 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       with no audience as a clean no-op while preserving every content, freshness and retry guard.
 - [x] Add an idempotent launch notice that asks existing waitlist subscribers to explicitly select
       the newly available edition instead of silently converting their consent.
-- [ ] Run the full test/build/browser loop, deploy production, notify eligible newly launched-city
-      waitlist subscribers, and verify all delivery ledgers and production errors.
+- [x] Run all 310 tests, the 111-page local/Vercel builds and local/live browser checks; publish
+      `f17bd84` as production deployment `dpl_5xRw6DAFyG5dqBy9upXUXXrFpDhb`; notify the one eligible
+      Graz waitlist subscriber and verify the idempotency ledger, unchanged consent and clean errors.
 
 ## Explicit newsletter editions + city launch waitlist (2026-09-04)
 - [x] Replace inferred geography with an explicit live-edition choice; Linz and surroundings is the
