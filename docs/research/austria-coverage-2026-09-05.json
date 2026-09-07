@@ -1,0 +1,211 @@
+{
+  "verified_at": "2026-09-05T19:28",
+  "new_places": 513,
+  "new_events": [
+    {
+      "id": "100561",
+      "title": "Flohmarkt zum Tag der Sprachen",
+      "town": "Linz",
+      "starts_at": "2026-09-21",
+      "ends_at": "2026-09-26",
+      "geo_precision": "venue",
+      "source_name": "Wissensturm Linz — Stadtbibliothek Veranstaltungen",
+      "source_url": "https://vhskurs.linz.at/index.php?kathaupt=11&knr=26.6M051"
+    },
+    {
+      "id": "100568",
+      "title": "Lesung: \"Die Parabel vom Sämann\" - Banned Books Week",
+      "town": "Linz",
+      "starts_at": "2026-10-05T19:00",
+      "ends_at": null,
+      "geo_precision": "venue",
+      "source_name": "Wissensturm Linz — Stadtbibliothek Veranstaltungen",
+      "source_url": "https://vhskurs.linz.at/index.php?kathaupt=11&knr=26.6M602"
+    },
+    {
+      "id": "100572",
+      "title": "Filmabend \"The Librarians\" - Banned Books Week",
+      "town": "Linz",
+      "starts_at": "2026-10-08T19:30",
+      "ends_at": null,
+      "geo_precision": "venue",
+      "source_name": "Wissensturm Linz — Stadtbibliothek Veranstaltungen",
+      "source_url": "https://vhskurs.linz.at/index.php?kathaupt=11&knr=26.6M601"
+    },
+    {
+      "id": "100942",
+      "title": "Letzte Hilfe Kids & Teens",
+      "town": "Dornbirn",
+      "starts_at": "2026-10-03T09:00",
+      "ends_at": "2026-10-03T12:00",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/letzte-hilfe-kids-teens/"
+    },
+    {
+      "id": "100943",
+      "title": "Unfallprävention und Risikoeinschätzung im Kindes- und Jugendalter",
+      "town": "Hohenems",
+      "starts_at": "2026-10-03T10:00",
+      "ends_at": "2026-10-03T17:00",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/unfallpraevention-und-risikoeinschaetzung-im-kindes-und-jugendalter/"
+    },
+    {
+      "id": "100945",
+      "title": "Action im Bikepark Brandnertal",
+      "town": "Bürserberg",
+      "starts_at": "2026-09-13T08:30",
+      "ends_at": "2026-09-13T17:00",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/action-im-bikepark-brandnertal/"
+    },
+    {
+      "id": "100946",
+      "title": "Abenteuer im Escape Room (ausverkauft)",
+      "town": "Hohenems",
+      "starts_at": "2026-10-10T14:00",
+      "ends_at": "2026-10-10T16:00",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/abenteuer-im-escape-room/"
+    },
+    {
+      "id": "100947",
+      "title": "Bowling Spaß für Väter und Kinder",
+      "town": "Lauterach",
+      "starts_at": "2026-10-24T14:00",
+      "ends_at": "2026-10-24T17:00",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/bowling-spass-fuer-vaeter-und-kinder/"
+    },
+    {
+      "id": "100948",
+      "title": "Blasterspaß 1 (ausverkauft)",
+      "town": "Hohenems",
+      "starts_at": "2026-11-07T14:00",
+      "ends_at": "2026-11-07T16:30",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/blasterspass/"
+    },
+    {
+      "id": "100949",
+      "title": "Blasterspaß 2",
+      "town": "Hohenems",
+      "starts_at": "2026-11-07T16:30",
+      "ends_at": "2026-11-07T19:00",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/blasterspass-2/"
+    },
+    {
+      "id": "100950",
+      "title": "Pfänderwanderung mit Christbaum fällen",
+      "town": "Lochau",
+      "starts_at": "2026-12-13T13:00",
+      "ends_at": "2026-12-13T16:00",
+      "geo_precision": "venue",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/christbaumfaellen-mit-pfaenderwanderung/"
+    },
+    {
+      "id": "100951",
+      "title": "Vortrag: Sunburn statt Burnout",
+      "town": "Lustenau",
+      "starts_at": "2026-11-26T19:00",
+      "ends_at": "2026-11-26T20:30",
+      "geo_precision": "town",
+      "source_name": "Vorarlberger Familienverband (Familienbund) — Veranstaltungen für Familien",
+      "source_url": "https://familie.or.at/Veranstaltungen/vortrag-sunburn-statt-burnout/"
+    }
+  ],
+  "familienverband": {
+    "cms": "familienverband",
+    "feed_kind": "familienverband",
+    "events_last": 10,
+    "current": [
+      {
+        "id": "100942",
+        "title": "Letzte Hilfe Kids & Teens",
+        "starts_at": "2026-10-03T09:00",
+        "ends_at": "2026-10-03T12:00",
+        "town": "Dornbirn",
+        "geo_precision": "town"
+      },
+      {
+        "id": "100943",
+        "title": "Unfallprävention und Risikoeinschätzung im Kindes- und Jugendalter",
+        "starts_at": "2026-10-03T10:00",
+        "ends_at": "2026-10-03T17:00",
+        "town": "Hohenems",
+        "geo_precision": "town"
+      },
+      {
+        "id": "100945",
+        "title": "Action im Bikepark Brandnertal",
+        "starts_at": "2026-09-13T08:30",
+        "ends_at": "2026-09-13T17:00",
+        "town": "Bürserberg",
+        "geo_precision": "town"
+      },
+      {
+        "id": "100946",
+        "title": "Abenteuer im Escape Room (ausverkauft)",
+        "starts_at": "2026-10-10T14:00",
+        "ends_at": "2026-10-10T16:00",
+        "town": "Hohenems",
+        "geo_precision": "town"
+      },
+      {
+        "id": "100947",
+        "title": "Bowling Spaß für Väter und Kinder",
+        "starts_at": "2026-10-24T14:00",
+        "ends_at": "2026-10-24T17:00",
+        "town": "Lauterach",
+        "geo_precision": "town"
+      },
+      {
+        "id": "100948",
+        "title": "Blasterspaß 1 (ausverkauft)",
+        "starts_at": "2026-11-07T14:00",
+        "ends_at": "2026-11-07T16:30",
+        "town": "Hohenems",
+        "geo_precision": "town"
+      },
+      {
+        "id": "100949",
+        "title": "Blasterspaß 2",
+        "starts_at": "2026-11-07T16:30",
+        "ends_at": "2026-11-07T19:00",
+        "town": "Hohenems",
+        "geo_precision": "town"
+      },
+      {
+        "id": "100950",
+        "title": "Pfänderwanderung mit Christbaum fällen",
+        "starts_at": "2026-12-13T13:00",
+        "ends_at": "2026-12-13T16:00",
+        "town": "Lochau",
+        "geo_precision": "venue"
+      },
+      {
+        "id": "100951",
+        "title": "Vortrag: Sunburn statt Burnout",
+        "starts_at": "2026-11-26T19:00",
+        "ends_at": "2026-11-26T20:30",
+        "town": "Lustenau",
+        "geo_precision": "town"
+      }
+    ]
+  },
+  "preserved_osm": "OpenStreetMap contributors",
+  "new_event_count": 12,
+  "invalid_new_event_ranges": 0,
+  "tests_passed": 374,
+  "build": "passed (111 pages)",
+  "browser": "Live playground credit/coordinates and Wissensturm venue/time verified; no console errors."
+}

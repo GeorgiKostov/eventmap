@@ -15,7 +15,7 @@
 //        npm run crawl -- --country AT --mode llm        (known/unknown LLM lane)
 import { createHash } from 'node:crypto';
 import {
-  upsertEvent, expireFinished, getSourceByUrl, getSourcesForCrawl, getZeroYieldSources,
+  upsertEvent, upsertCrawledPlace, expireFinished, getSourceByUrl, getSourcesForCrawl, getZeroYieldSources,
   markSourceCrawled, updateSourceMeta, updateSourceStats, setSourceBlockedReason,
   dedupCandidates, updateEventFields, deleteEventsByIds, closeDb,
 } from '../lib/db.js';
@@ -46,6 +46,12 @@ import { fetchKapuEvents } from '../lib/kapu-events.js';
 import { fetchTabakfabrikEvents } from '../lib/tabakfabrik-events.js';
 import { fetchLastSpaceEvents } from '../lib/last-space-events.js';
 import { parseFlorentineEvents } from '../lib/florentine-events.js';
+import { parseWissensturmEvents } from '../lib/wissensturm-events.js';
+import { parseViennaPlaygrounds } from '../lib/vienna-playgrounds.js';
+import { fetchNiedermairEvents } from '../lib/niedermair-events.js';
+import { fetchTreibhausEvents } from '../lib/treibhaus-events.js';
+import { fetchTheaterDesKindesEvents } from '../lib/linz-theatre-events.js';
+import { fetchFamilienverbandEvents } from '../lib/familienverband-events.js';
 import { parseSchlachthofWelsPage } from '../lib/schlachthof-wels-events.js';
 import {
   isPflasterFixedSourceUrl, parsePflasterEvents, PFLASTER_HOME_URL,
@@ -90,6 +96,7 @@ const DYNAMIC_CALENDAR_CMS = new Set([
   'bregenzer-festspiele', 'posthof', 'rockhouse', 'brucknerhaus', 'kapu',
   'tabakfabrik', 'schlachthof-wels',
   'last-space', 'florentine',
+  'niedermair', 'theater-des-kindes', 'familienverband',
 ]);
 
 // Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
@@ -616,6 +623,26 @@ async function parseKalkalpenSource(sitemapXml, src) {
 // special-cased at the top of crawlSource() instead, see
 // crawlNaturfreundeSource() below.)
 async function tryStructuredExtraction(html, src) {
+  if (src.cms === 'familienverband') {
+    return { route: 'familienverband', events: await fetchFamilienverbandEvents(src, { shellHtml: html }), exclusive: true };
+  }
+  // These programmes need visible dates/venues: generic feed metadata can
+  // contain artificial ends, homepage linkbacks or an incorrect offsite venue.
+  if (src.cms === 'niedermair') {
+    return { route: 'niedermair', events: await fetchNiedermairEvents(src, { shellHtml: html }), exclusive: true };
+  }
+  if (src.cms === 'treibhaus') {
+    return { route: 'treibhaus', events: await fetchTreibhausEvents(src, { shellHtml: html }), exclusive: true };
+  }
+  if (src.cms === 'theater-des-kindes') {
+    return { route: 'theater-des-kindes', events: await fetchTheaterDesKindesEvents(src, { initialHtml: html }), exclusive: true };
+  }
+  if (src.cms === 'vienna-playgrounds') {
+    return { route: 'vienna-playgrounds', events: parseViennaPlaygrounds(JSON.parse(html)), exclusive: true };
+  }
+  if (src.cms === 'wissensturm') {
+    return { route: 'wissensturm', events: parseWissensturmEvents(html, src), exclusive: true };
+  }
   // Direct feed: when the registered `url` IS an iCal/RSS endpoint (rather than
   // an HTML page that LINKS to one), the fetched body is the feed itself, so no
   // href/`<link rel=alternate>` discovery can find it and htmlToText would just
@@ -1191,16 +1218,19 @@ async function crawlSource(src, {
     }
   }
 
-  let ok = 0, outsideScope = 0, fuzzyMerged = 0;
+  let ok = 0, outsideScope = 0, fuzzyMerged = 0, preservedPlaces = 0;
   for (const raw of events) {
     try {
-      if (!raw.title || !raw.date_start) continue;
+      const isPlace = src.cms === 'vienna-playgrounds' && raw.kind === 'place';
+      if (!raw.title || (!isPlace && !raw.date_start)) continue;
       const time = /^\d{2}:\d{2}$/.test(raw.time_start || '') ? raw.time_start : null;
-      const starts_at = makeStartsAt(raw.date_start, time);
+      const starts_at = isPlace ? null : makeStartsAt(raw.date_start, time);
       // Keep a known end DATE even when the end time is unknown (date-only
       // ends_at) — dropping it expired multi-day ranges after their first day.
-      const ends_at = endsAtOf(raw, starts_at);
+      const ends_at = isPlace ? null : endsAtOf(raw, starts_at);
+      const categoryEmoji = isPlace ? { playground: '🛝' } : CAT_EMOJI;
       const ev = {
+        kind: isPlace ? 'place' : 'event',
         title: raw.title,
         description: raw.description || null,
         starts_at,
@@ -1222,9 +1252,9 @@ async function crawlSource(src, {
         categories: [...new Set([
           ...(raw.categories || []),
           ...(src.default_categories || []),
-        ])].filter((c) => CAT_EMOJI[c]),
+        ])].filter((c) => categoryEmoji[c]),
         is_free: raw.is_free, age_min: raw.age_min, age_max: raw.age_max, indoor: raw.indoor,
-        emoji: CAT_EMOJI[(raw.categories || [])[0]] || CAT_EMOJI[(src.default_categories || [])[0]] || '📌',
+        emoji: categoryEmoji[(raw.categories || [])[0]] || categoryEmoji[(src.default_categories || [])[0]] || '📌',
         src_kind: 'crawl',
         source_name: src.name,
         source_url: eventSourceUrl(raw.source_url, src.url),
@@ -1235,7 +1265,11 @@ async function crawlSource(src, {
       };
       // Town-pin jitter is useful on the map but not while enforcing an exact
       // crawl boundary: use the real geocoder/centroid point for the decision.
-      let geo = await geocodeEvent(ev, { jitterTown: !scope });
+      // Only the validated municipal point adapter supplies place coordinates;
+      // do not geocode a park name back to its centroid or mint an event date.
+      let geo = isPlace
+        ? { lat: raw.lat, lng: raw.lng, geo_precision: 'venue' }
+        : await geocodeEvent(ev, { jitterTown: !scope });
       // Single-venue publishers (a theatre, a museum) name the ROOM, not the
       // house: Dschungel Wien's kids-theatre listings say "Bühne 1"/"Bühne 2",
       // which no geocoder can place — 175 events sat on the Vienna centroid.
@@ -1256,7 +1290,11 @@ async function crawlSource(src, {
         continue;
       }
       const upserted = { ...ev, lat: geo.lat, lng: geo.lng, geo_precision: geo.geo_precision };
-      const upsertRes = await upsertEvent(upserted);
+      const upsertRes = isPlace ? await upsertCrawledPlace(upserted) : await upsertEvent(upserted);
+      if (upsertRes.protected) {
+        preservedPlaces++;
+        continue;
+      }
       ok++;
       // Fuzzy cross-source dedup is a FALLBACK for when the exact content_hash/
       // legacy match above already missed (upsertRes.updated === false means a
@@ -1271,9 +1309,10 @@ async function crawlSource(src, {
     }
   }
   console.log(`  ${ok}/${events.length} events upserted (route: ${route})`
+    + (preservedPlaces ? `, ${preservedPlaces} existing places preserved` : '')
     + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : '')
     + (fuzzyMerged ? `, ${fuzzyMerged} fuzzy-merged` : ''));
-  if (events.length > 0 && ok === 0) {
+  if (events.length > 0 && ok === 0 && preservedPlaces === 0) {
     console.log('  pipeline failure: candidates existed but none reached storage; freshness/stats untouched');
     return { ok: 0, fail: events.length, pipelineError: true };
   }
@@ -1285,13 +1324,13 @@ async function crawlSource(src, {
   // the next due crawl re-extracts instead of trusting a possibly-bogus empty.
   // Structured routes ($0, deterministic) and any round with candidates stamp
   // as before. Costs one flash-lite call per genuinely-empty source per crawl.
-  if (!((route === 'llm' && events.length === 0) || (events.length > 0 && ok === 0))) {
+  if (!((route === 'llm' && events.length === 0) || (events.length > 0 && ok + preservedPlaces === 0))) {
     await updateSourceMeta(src.id, {
       page_hash: hash, feed_kind: route,
       etag: res.headers.get('etag'), last_modified: res.headers.get('last-modified'),
     });
   }
-  const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
+  const tier = await recordStats(src, { type: 'extracted', eventsFound: ok + preservedPlaces });
   return { ok, fail: 0, tier, outsideScope, attempted: true, fuzzyMerged };
 }
 

@@ -464,6 +464,19 @@ only `dedupCandidates()` from the same day and town/precise 300m location — ne
 
 ## 7. Places
 
+**Recurring licensed municipal places (2026-09-05):** `cms='vienna-playgrounds'` routes the City of
+Vienna's public WFS through `lib/vienna-playgrounds.js` and the actual `scripts/crawl.mjs` storage
+loop. The adapter retains validated WGS84 points for unambiguously named playgrounds, excludes
+sports-only features/shared-name ambiguity, and creates `kind='place'` with null dates/hours/fees.
+`upsertCrawledPlace()` preserves pre-existing other-source identities instead of mixing licence
+credits. The full City of Vienna credit, CC BY 4.0 URI and modification notice are in the visible
+source name because map place details do not display descriptions. Source registration and five
+official Wissensturm venue aliases are repeatable via
+`scripts/register-austria-coverage-sources.mjs [--write]`. The initial feed returned 773 features;
+514 passed curation, 513 new places were imported, and one existing OSM place was preserved.
+Feed deletions/renames are not automatically reconciled; review them before removing published
+places. Authorization: [September crawl decision](../decisions/2026-09-05-austria-crawl-authorization.md).
+
 **Source**: Overpass API (`overpass-api.de`) queries against OpenStreetMap, ~25km radius around Linz
 center — a one-off agent mining run, not a recurring crawl (no committed Overpass-query script; the
 57-place `data/mined/places-family-linz.json` file's `_meta.generator` documents the method:
