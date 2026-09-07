@@ -45,14 +45,6 @@ export default async function sitemap() {
       priority: friday === currentFriday ? 0.9 : friday > currentFriday ? 0.6 : 0.5,
     }));
 
-  // The stable per-city link (/weekend/linz always shows the current weekend) —
-  // this is the URL that goes in a bio, a QR poster, or a group message.
-  const cityIndexes = CHANNELS.filter((c) => c.country !== 'AT').map((c) => ({
-    url: `${base}/weekend/${c.slug}`,
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }));
-
   // Pre-compute the moving SEO matrix in one bounded spatial query. Thin
   // city/date combinations stay reachable by internal links but out of the
   // sitemap until enough real inventory exists to make them useful.
@@ -94,7 +86,6 @@ export default async function sitemap() {
     { url: `${base}/events/methodology`, changeFrequency: 'monthly', priority: 0.5 },
     ...seoCities,
     ...seoWindows,
-    ...cityIndexes,
     ...digests,
     ...events,
   ];

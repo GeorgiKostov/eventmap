@@ -25,6 +25,7 @@ export async function generateMetadata({ params }) {
   // homepage's metadata from the root layout, canonical '/' included.
   return {
     title: channel.label,
+    robots: { index: false, follow: true },
     alternates: { canonical: channel.country === 'AT' ? `/events/${channel.slug}/wochenende` : `/weekend/${channel.slug}` },
   };
 }
