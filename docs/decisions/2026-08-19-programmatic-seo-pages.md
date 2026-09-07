@@ -68,3 +68,14 @@ Free counts are omitted from the strip because they are not currently actionable
 counts now sit beside each displayed city or nearby group, where their denominator is unambiguous,
 instead of appearing beside the larger inventory total. This preserves sourcing evidence while
 keeping the event list and filters visually primary.
+
+## 2026-09-07 — Exclude stable weekend fallbacks from indexing
+
+Search Console's September 6 soft-404 alert identifies `/weekend/graz`, `/weekend/innsbruck`
+and `/weekend/stuttgart`. Live checks confirmed HTTP 200 preparation/archive fallbacks without
+`noindex`; Stuttgart was also still submitted in the sitemap. Stable `/weekend/<city>` links
+remain usable for sharing and redirect to the dated issue when one exists. Their fallback pages
+now use `noindex,follow`, and stable weekend URLs are omitted from the sitemap. Dated editorial
+issues and inventory-backed `/events/<city>/wochenende` pages retain their existing indexing rules.
+Repair commit `f46626a` is included in George's September 7 push-all request; Google validation must
+follow application deployment.

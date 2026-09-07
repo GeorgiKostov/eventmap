@@ -2,6 +2,42 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Search Console weekend soft-404 repair (2026-09-07)
+- [x] Inspect the September 6 alert: Google lists `/weekend/graz`, `/weekend/innsbruck`, and
+      `/weekend/stuttgart`; all serve HTTP 200 preparation/archive fallbacks without noindex.
+- [x] Add `noindex,follow` to stable weekend fallback metadata and remove stable weekend URLs
+      from the sitemap, preserving current-issue redirects, dated issues and city discovery pages.
+- [x] Verify 337 tests (including four HTTP regressions), the 111-page production build, actual
+      fallback metadata and Graz archive navigation in the browser with no console errors.
+- [x] Commit the indexing repair as `f46626a` for George's September 7 push-all request.
+- [ ] Deploy, then resubmit the sitemap and validate the soft-404 fix in Search Console.
+      No application deployment or Google validation was requested with the push.
+
+## Austrian venue and location gap crawl (2026-09-05)
+- [x] Audit missing official calendars across the five newsletter catchments and record robots,
+      terms/licensing, date-quality blockers and source-specific permission decisions.
+- [x] Register Vienna's CC BY 4.0 playground WFS and import 513 new precise places through the
+      real deterministic crawl path; preserve the existing OSM duplicate and visible licence credit.
+      Repeat the crawl without creating duplicate rows.
+- [x] Replace Wissensturm's model extraction with a deterministic calendar adapter, accept ten
+      events (three newly published), and register five official room aliases to repair six pins.
+- [x] Refresh the approved OÖ Familienbund and Kinderfreunde sources in structured-only mode:
+      10 and 86 accepted records respectively, with three Kinderfreunde duplicates merged.
+- [x] Recover the empty Vorarlberger Familienverband archive via same-host dated calendars:
+      ten accepted, one already over, nine newly published upcoming events. All 374 tests and the
+      111-page build pass; live playground/library details and licence credit verified.
+- [ ] Resolve eight new Vorarlberg event addresses beyond town precision without guessing points.
+- [x] Add newly covered Bürserberg and its ASCII spelling to search; verify actual map selection.
+- [x] Prepare tested adapters for Theater des Kindes, Niedermair and Treibhaus, then register
+      and crawl their four calendar URLs after George’s explicit approval to include source links.
+      231 new events; 21 children’s rows matched existing dates. All 24 theatre pins corrected.
+      Explicit-restriction sources remain deferred.
+- [ ] Resolve Niedermair/Treibhaus venue points; 207 new events retain town-level pins.
+- [x] Commit the crawl changes as `37d0e09` for George's September 7 push-all request so the remote
+      scheduled crawler can use the new routes. Data is live; application deployment remains separate.
+- [ ] Review municipal-place removal/rename reconciliation and the Linz-Termine monthly-article
+      registry URL. Details: `docs/research/austria-coverage-2026-09-05.md`.
+
 ## Five Austrian newsletter editions (2026-09-04)
 - [x] Approve Linz, Wien, Graz, Salzburg and Innsbruck as live recurring editions after confirming
       that every catchment currently returns ten eligible weekend picks.

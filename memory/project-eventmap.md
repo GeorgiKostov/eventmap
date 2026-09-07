@@ -9,6 +9,41 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-09-07 — Search Console weekend repair)
+- September 6 email and authenticated Search Console report identify three soft-404 URLs:
+  `/weekend/graz` (crawled Sep 4), `/weekend/stuttgart` (Sep 3), `/weekend/innsbruck` (Aug 20).
+  All live responses were 200 preparation/archive fallbacks without noindex; Stuttgart remained
+  in the 5,191-URL sitemap. Google's latest sitemap read was Sep 6, Success; Event markup had
+  1,026 valid items and zero invalid items.
+- Stable weekend fallbacks now emit `noindex,follow`, and all stable weekend entries are omitted
+  from the sitemap. Dated issues, current-issue redirects and Austrian city discovery remain intact.
+- Verified 337 tests including four built-server HTTP regressions, the 111-page production build,
+  browser metadata and Graz archive navigation without console errors. Existing crawl and draft
+  changes were preserved. George subsequently requested push-all: indexing repair `f46626a` and
+  Austrian crawl `37d0e09` are committed to main. Google validation awaits application deployment.
+
+## Where things stand (2026-09-05 — Austrian coverage crawl, local code)
+- Added 513 licensed Vienna playground places and 12 upcoming events (three Linz library,
+  nine Vorarlberg family events) to production. One new WFS source and two repaired municipal/family
+  calendars are registered `works=true` with deterministic routes. Playground re-crawl is idempotent;
+  the existing OSM Donauinsel row and its attribution are preserved.
+- Five official Wissensturm room aliases repair six city-centre pins; all ten current library
+  entries now have venue precision. Eight new Vorarlberg events remain explicitly town-precision.
+- Added newly covered Bürserberg to search, including `Buerserberg`; verified selection in the
+  rebuilt local map. Source coordinates and population evidence are linked in the session report.
+- George subsequently approved Theater des Kindes, Niedermair and Treibhaus with source links.
+  Their four calendar URLs added 231 more published events (24/116/91); 21 children’s dates
+  updated existing Niedermair rows. All 24 theatre pins use its official coordinate. The other
+  207 dates retain town-level pins. Session totals: 513 places and 243 upcoming events.
+  Explicitly restricted museum/cultural
+  calendars remain deferred. See the September 5 authorization decision.
+- All 374 tests and the 111-page build passed in that session. Live map checks confirmed playground
+  licence credit, directions and library venue/time with no browser errors. The code is now committed
+  as `37d0e09` for George's September 7 push-all request. No application deployment requested.
+- Counts, exact new-event IDs, blockers and rerun commands:
+  `docs/research/austria-coverage-2026-09-05.md` and companion JSON. The user’s unrelated two draft
+  business/partner documents were preserved.
+
 ## Where things stand (2026-09-04 — five Austrian newsletter editions live)
 - George approved Linz, Wien, Graz, Salzburg and Innsbruck as live recurring newsletters. A current
   production check returned ten eligible weekend picks in every catchment before launch.
