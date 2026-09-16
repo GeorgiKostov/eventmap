@@ -90,8 +90,11 @@ test('maps event coordinates upward to the nearest supported SEO city', () => {
 
 test('keeps the public event catalog crawlable while private API routes stay blocked', () => {
   const policy = robots();
-  assert.ok(policy.rules.allow.includes('/api/events'));
-  assert.ok(policy.rules.disallow.includes('/api/'));
+  for (const rule of policy.rules) {
+    assert.ok(rule.allow.includes('/api/events'));
+    assert.ok(rule.disallow.includes('/api/'));
+    assert.ok(rule.disallow.includes('/admin/'));
+  }
 });
 
 test('normalizes only the Vienna ingress path family', () => {

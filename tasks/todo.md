@@ -2,6 +2,14 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Ahrefs invocation spike (2026-09-15)
+- [x] Investigate the 14:15 UTC alert: Vercel attributes about 96% of peak event-page requests
+      to AhrefsBot; sampled responses succeed and no runtime errors were found.
+- [x] Add an AhrefsBot-only 10-second crawl delay with the existing public/private path rules.
+      Verify the 111-page production build, 14 SEO tests and served `/robots.txt` over local HTTP.
+- [ ] Deploy the change, then check crawl volume after Ahrefs refreshes robots.txt. Local only;
+      this is a cooperative HTML crawl limit, not an immediate firewall block.
+
 ## Search Console weekend soft-404 repair (2026-09-07)
 - [x] Inspect the September 6 alert: Google lists `/weekend/graz`, `/weekend/innsbruck`, and
       `/weekend/stuttgart`; all serve HTTP 200 preparation/archive fallbacks without noindex.

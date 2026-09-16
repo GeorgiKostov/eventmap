@@ -9,6 +9,15 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-09-15 — Ahrefs crawl pacing, local only)
+- The 7.1× invocation alert is concentrated on dynamic event details; Vercel attributes roughly
+  96% of peak requests to AhrefsBot. No runtime errors were found during the investigation.
+- George approved slowing the crawl. `app/robots.js` now adds an AhrefsBot-specific
+  `Crawl-delay: 10`, retaining the same API/admin exclusions in both crawler groups.
+  [Ahrefs documents support](https://ahrefs.com/robot/) for HTML crawl delays after robots refresh.
+- Production build (111 pages), 14 SEO tests and the served local robots.txt pass. Uncommitted
+  and undeployed; production traffic reduction remains to be verified after deployment.
+
 ## Where things stand (2026-09-07 — Search Console weekend repair)
 - September 6 email and authenticated Search Console report identify three soft-404 URLs:
   `/weekend/graz` (crawled Sep 4), `/weekend/stuttgart` (Sep 3), `/weekend/innsbruck` (Aug 20).
