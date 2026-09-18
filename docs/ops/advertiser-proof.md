@@ -1,5 +1,12 @@
 # Advertiser and publisher proof
 
+> **Current collection contract (2026-09-12):** the
+> [consent-first analytics decision](../decisions/2026-09-12-consent-analytics.md)
+> supersedes the original collection assumptions below. Only consenting page sessions and
+> allowlisted actions are measured; referrers, geography, UTMs, cross-visit retention and
+> server-side newsletter conversions are unavailable. Treat the older dashboard definitions
+> below as historical, not as evidence the current implementation can provide.
+
 > **Live since 2026-08-16.** App instrumentation shipped in `d62396e` and was verified on
 > production deployment `dpl_BQuJTXPn1aUytb8RpExyeFfgS5gd`. Clean evidence accumulates from that
 > point forward; the new conversion taxonomy is not retroactive.

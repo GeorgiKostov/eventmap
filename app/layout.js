@@ -74,7 +74,7 @@ export default async function RootLayout({ children }) {
     <html lang={lang}>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_LD) }} />
-        <LanguageProvider initialLang={lang}>{children}</LanguageProvider><SWRegister /><Analytics />
+        <LanguageProvider initialLang={lang}>{children}<Analytics /></LanguageProvider><SWRegister />
       </body>
     </html>
   );

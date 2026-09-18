@@ -1,0 +1,14 @@
+.root { position: fixed; bottom: 10px; right: 10px; z-index: 10000; max-width: min(420px, calc(100vw - 20px)); font: 14px/1.5 system-ui, sans-serif; color: #243b35; }
+.panel { padding: 18px; background: #fff; border: 1px solid #b8c7c0; border-radius: 16px; box-shadow: 0 4px 24px #243b3526; max-height: 70vh; overflow: auto; }
+.panel p { margin: 8px 0 12px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.actions button, .settings { border: 1px solid #7a9488; border-radius: 8px; background: #fff; color: #243b35; padding: 8px 12px; cursor: pointer; font: inherit; }
+.actions button { flex: 1; }
+.panel a { color: inherit; text-decoration: underline; }
+.settings { font-size: 11px; padding: 5px 8px; }
+.mapPanel { top: 50%; bottom: auto; transform: translateY(-50%); }
+.mapPanel .panel { max-height: calc(100dvh - 32px); }
+@media (max-width: 899px) {
+  .mapPanel { top: auto; bottom: calc(148px + env(safe-area-inset-bottom)); transform: none; }
+  .mapPanel .panel { max-height: calc(100dvh - 172px - env(safe-area-inset-bottom)); }
+}

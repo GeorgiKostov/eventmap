@@ -5,8 +5,8 @@ import { serverAnalyticsEnabled } from '../lib/analytics-server.js';
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('server conversion capture is production-only', () => {
-  assert.equal(serverAnalyticsEnabled({ VERCEL_ENV: 'production' }), true);
+test('server capture stays disabled without separate durable analytics consent', () => {
+  assert.equal(serverAnalyticsEnabled({ VERCEL_ENV: 'production' }), false);
   assert.equal(serverAnalyticsEnabled({ VERCEL_ENV: 'preview' }), false);
   assert.equal(serverAnalyticsEnabled({ NODE_ENV: 'production' }), false);
 });
@@ -30,8 +30,8 @@ test('client proof excludes non-canonical, automated, and marked-internal traffi
   assert.match(analytics, /navigator\.webdriver/);
   assert.match(analytics, /okolo_internal/);
   assert.match(analytics, /localStorage\.getItem\(INTERNAL_KEY\)/);
-  assert.match(analytics, /autocapture: false/);
-  assert.match(analytics, /disable_session_recording: true/);
+  assert.doesNotMatch(analytics, /import posthog/);
+  assert.match(analytics, /analyticsConsent\(\) === 'accepted'/);
 });
 
 test('paid proof covers impressions, opens, and source referrals on all current surfaces', () => {

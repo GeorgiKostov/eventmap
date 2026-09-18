@@ -9,6 +9,19 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-09-18 — mobile privacy layout, ready to deploy)
+- Recovered live consent widget, analytics guards, privacy notice and tests from deployment
+  `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`. That September 12 deployment used dirty source at `f89e21f`;
+  those changes were missing from local/remote `main` at `4d91d9e`.
+- The map now exposes privacy settings in its actions menu instead of over the bottom filters.
+  The mobile consent panel clears the filter rows, and the menu scrolls above other controls on
+  small screens. Non-map pages retain their existing floating settings control.
+- Browser verification passes at 320×568, 390×844 and 1280×720, including consent reopening and
+  rejection, quick/advanced filters and the separate privacy page. The 111-page production build
+  and 378 tests pass, four existing
+  server-dependent tests skip. Included in George's September 18 commit/push request;
+  deployment remains separate and has not been requested.
+
 ## Where things stand (2026-09-15 — Ahrefs crawl pacing, local only)
 - The 7.1× invocation alert is concentrated on dynamic event details; Vercel attributes roughly
   96% of peak requests to AhrefsBot. No runtime errors were found during the investigation.

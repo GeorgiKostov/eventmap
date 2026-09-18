@@ -1,5 +1,12 @@
 # Lessons
 
+## 2026-09-18 — A clean main branch can still be behind deployed source
+
+The live privacy widget was absent from both local and remote `main`: production had been uploaded
+from a dirty checkout. Recover the exact deployed files and their tests before fixing a missing
+live component; otherwise a layout repair can accidentally replace newer consent behavior. Check
+mobile menu scrollability and stacking as well as the widget itself when relocating its trigger.
+
 ## 2026-08-30 — MapLibre owns marker positioning or it must own the whole marker
 
 The partner demo passed coordinates to `new maplibregl.Marker`, but its custom marker class set

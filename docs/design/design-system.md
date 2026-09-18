@@ -96,6 +96,9 @@ approx halo. **Selection is the only thing allowed to add a ring/scale.**
 - **Actions menu** → account identity is always the first isolated card. Signed out, it is the
   single solid-accent CTA; signed in, it becomes accent-soft and shows the account email beneath
   the label. Divider groups keep personal discovery, engagement and preferences/legal scannable.
+- **Privacy settings** live in the map actions menu, never over the bottom filters or floating
+  controls. The menu scrolls within short viewports; the open consent panel sits above the mobile
+  filters and is vertically centred on desktop.
 - **Floating controls** (locate + Add) live in **one reflowing bottom-right stack** (`.floatstack`,
   `flex-direction:column-reverse` so the primary Add FAB sits closest to the filter bar, locate above
   it). Anchored once above the filter bar; the whole stack hides where it would overlap a sheet or

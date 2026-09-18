@@ -2,6 +2,18 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Mobile privacy/filter overlap (2026-09-18)
+- [x] Reproduce the live overlap and recover the missing deployed consent implementation from
+      `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`; production had uncommitted changes absent from `main`.
+- [x] Move map privacy settings into the actions menu, keep the mobile consent panel above the
+      filters, and make short-screen menus scroll above other map controls. Preserve consent rules.
+- [x] Verify 320×568, 390×844 and 1280×720 browser flows, menu reopening/rejection, quick and
+      advanced filters, and the privacy-page shortcut; no browser errors. The 111-page production
+      build and all 378 runnable tests pass
+      (four existing HTTP tests require a separately configured server).
+- [x] Include the fix and recovered production source in George's September 18 commit/push request.
+- [ ] Deploy the fix; pushing `main` does not deploy the application.
+
 ## Ahrefs invocation spike (2026-09-15)
 - [x] Investigate the 14:15 UTC alert: Vercel attributes about 96% of peak event-page requests
       to AhrefsBot; sampled responses succeed and no runtime errors were found.

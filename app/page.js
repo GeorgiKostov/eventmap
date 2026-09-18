@@ -21,6 +21,7 @@ import { canonicalMapViewport } from '../lib/map-request.js';
 import { NEWSLETTER_EDITIONS, newsletterEditionForPoint } from '../lib/newsletter-market.js';
 import AccountDialog from './account-dialog.js';
 import OkoloBrand from './okolo-brand.js';
+import { PrivacySettingsButton } from './analytics.js';
 
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 const HOME = { lat: 48.3, lng: 14.29 }; // Linz fallback
@@ -2776,6 +2777,9 @@ export default function Home({ partnerSlug = null } = {}) {
                     ))}
                   </div>
                 </div>
+                <PrivacySettingsButton className="menuitem" onClick={() => setMenuOpen(false)}>
+                  <span className="ic" aria-hidden="true">🔒</span>
+                </PrivacySettingsButton>
                 <div className="menu-legal">
                   <a href="/impressum" target="_blank" rel="noreferrer">{t.imprint}</a>
                   <span>·</span>

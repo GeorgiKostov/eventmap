@@ -481,6 +481,7 @@ a { color: inherit; }
   padding: 12px 12px 0; pointer-events: none;
 }
 .m-topbar > * { pointer-events: auto; }
+.m-topbar:has(.menudrop) { z-index: 30; }
 
 /* ================= google-maps-style search pill + menu ================= */
 .locsearch { position: relative; }
@@ -511,6 +512,8 @@ a { color: inherit; }
   position: absolute; top: calc(100% + 8px); right: 0; z-index: 17;
   background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
   box-shadow: var(--shadow-lg); padding: 6px; width: min(272px, calc(100vw - 28px));
+  max-height: calc(100dvh - 132px - env(safe-area-inset-bottom));
+  overflow-y: auto; overscroll-behavior: contain;
 }
 .menuitem {
   display: flex; align-items: center; gap: 10px; width: 100%;
