@@ -9,6 +9,17 @@ from official municipal sources + AI poster scanning, Google-Maps-style UI. Vali
 ## Who
 George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz validation test.
 
+## Where things stand (2026-09-22 — crawler pacing ready to deploy)
+- A Vercel 48-hour traffic review found 32,536 requests, with about 78% attributed to known bots.
+  The sharp September 21 evening spike was verified ClaudeBot traffic: 6,519 requests, 6,471
+  function invocations and almost all cache misses. OAI-SearchBot was the largest crawler across the
+  full window, with 7,964 requests spread over several smaller bursts.
+- `robots.txt` now publishes `Crawl-delay: 10` for the wildcard group as well as the named AhrefsBot
+  group, retaining the existing public catalog allowance and API/admin exclusions. This is a
+  cooperative directive and only affects crawlers that honor it.
+- Commit `58d7ef7` passes the 14 SEO tests and 111-page production build. Deployment remains separate;
+  production volume should be checked after crawlers refresh the policy.
+
 ## Where things stand (2026-09-18 — mobile privacy layout, ready to deploy)
 - Recovered live consent widget, analytics guards, privacy notice and tests from deployment
   `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`. That September 12 deployment used dirty source at `f89e21f`;
@@ -21,15 +32,6 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   and 378 tests pass, four existing
   server-dependent tests skip. Included in George's September 18 commit/push request;
   deployment remains separate and has not been requested.
-
-## Where things stand (2026-09-15 — Ahrefs crawl pacing, local only)
-- The 7.1× invocation alert is concentrated on dynamic event details; Vercel attributes roughly
-  96% of peak requests to AhrefsBot. No runtime errors were found during the investigation.
-- George approved slowing the crawl. `app/robots.js` now adds an AhrefsBot-specific
-  `Crawl-delay: 10`, retaining the same API/admin exclusions in both crawler groups.
-  [Ahrefs documents support](https://ahrefs.com/robot/) for HTML crawl delays after robots refresh.
-- Production build (111 pages), 14 SEO tests and the served local robots.txt pass. Uncommitted
-  and undeployed; production traffic reduction remains to be verified after deployment.
 
 ## Where things stand (2026-09-07 — Search Console weekend repair)
 - September 6 email and authenticated Search Console report identify three soft-404 URLs:

@@ -14,13 +14,16 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Include the fix and recovered production source in George's September 18 commit/push request.
 - [ ] Deploy the fix; pushing `main` does not deploy the application.
 
-## Ahrefs invocation spike (2026-09-15)
+## Crawler invocation spikes (2026-09-22)
 - [x] Investigate the 14:15 UTC alert: Vercel attributes about 96% of peak event-page requests
       to AhrefsBot; sampled responses succeed and no runtime errors were found.
 - [x] Add an AhrefsBot-only 10-second crawl delay with the existing public/private path rules.
       Verify the 111-page production build, 14 SEO tests and served `/robots.txt` over local HTTP.
-- [ ] Deploy the change, then check crawl volume after Ahrefs refreshes robots.txt. Local only;
-      this is a cooperative HTML crawl limit, not an immediate firewall block.
+- [x] Recheck the latest 48-hour traffic: the sharp September 21 evening spike was verified
+      ClaudeBot traffic, while OAI-SearchBot generated the most crawler requests across the full
+      window. Extend the same 10-second delay to every crawler group and verify the generated file.
+- [ ] Deploy the change, then check crawl volume after bots refresh robots.txt. This is a
+      cooperative HTML crawl limit, not an immediate firewall block.
 
 ## Search Console weekend soft-404 repair (2026-09-07)
 - [x] Inspect the September 6 alert: Google lists `/weekend/graz`, `/weekend/innsbruck`, and
