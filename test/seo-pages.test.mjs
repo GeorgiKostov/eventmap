@@ -94,6 +94,7 @@ test('keeps the public event catalog crawlable while private API routes stay blo
     assert.ok(rule.allow.includes('/api/events'));
     assert.ok(rule.disallow.includes('/api/'));
     assert.ok(rule.disallow.includes('/admin/'));
+    assert.equal(rule.crawlDelay, 10);
   }
 });
 
