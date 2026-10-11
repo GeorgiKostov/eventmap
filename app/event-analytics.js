@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { track } from '../lib/analytics.js';
+import { analyticsAllowed, track } from '../lib/analytics.js';
 
 // The SEO event page is server-rendered, but its few meaningful actions still
 // need first-party conversion signals. Keep the client boundary around only
@@ -21,6 +21,7 @@ function acquisition() {
 }
 
 function captureOncePerSession(key, event, properties) {
+  if (!analyticsAllowed()) return;
   try {
     if (sessionStorage.getItem(key)) return;
     sessionStorage.setItem(key, '1');

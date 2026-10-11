@@ -13,7 +13,7 @@ import { groupEventSeries } from '../lib/map-groups.js';
 import { isForKids } from '../lib/kid-cats.js';
 import { channelForPoint } from '../lib/city-channels.js';
 import { seoCityForPoint } from '../lib/seo-pages.js';
-import { track } from '../lib/analytics.js';
+import { analyticsAllowed, track } from '../lib/analytics.js';
 import { useLanguage } from './language-provider.js';
 import { eventSummary } from '../lib/event-summary.js';
 import { partnerEventMatches, partnerProgram } from '../lib/partner-programs.js';
@@ -1856,6 +1856,7 @@ export default function Home({ partnerSlug = null } = {}) {
   // rules and was rendered as a pin/list result. Count once per browser session
   // and surface/event, even if the user pans away and back repeatedly.
   useEffect(() => {
+    if (!analyticsAllowed()) return;
     for (const ev of filtered) {
       if (ev.highlight !== 'gold') continue;
       const key = `okolo:sponsored:map:${ev.id}`;

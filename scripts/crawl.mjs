@@ -1091,8 +1091,12 @@ async function crawlNaturfreundeSource(src, { force } = {}) {
       console.log(`  ! skip event "${raw.title || '(untitled)'}" (${src.name}): ${e.code || e.message}`);
     }
   }
-  console.log(`  ${ok}/${events.length} events upserted (route: naturfreunde)`
+  console.log(`  ${src.name}: ${ok}/${events.length} events upserted (route: naturfreunde)`
     + (fuzzyMerged ? `, ${fuzzyMerged} fuzzy-merged` : ''));
+  if (events.length > 0 && ok === 0) {
+    console.log('  pipeline failure: candidates existed but none reached storage; freshness/stats untouched');
+    return { ok: 0, fail: events.length, pipelineError: true, attempted: true };
+  }
   await updateSourceMeta(src.id, { page_hash: hash, feed_kind: 'naturfreunde' });
   const tier = await recordStats(src, { type: 'extracted', eventsFound: ok });
   return { ok, fail: 0, tier, attempted: true, fuzzyMerged };
@@ -1219,10 +1223,14 @@ async function crawlSource(src, {
   }
 
   let ok = 0, outsideScope = 0, fuzzyMerged = 0, preservedPlaces = 0;
+  let missingFacts = 0, missingGeo = 0;
   for (const raw of events) {
     try {
       const isPlace = src.cms === 'vienna-playgrounds' && raw.kind === 'place';
-      if (!raw.title || (!isPlace && !raw.date_start)) continue;
+      if (!raw.title || (!isPlace && !raw.date_start)) {
+        missingFacts++;
+        continue;
+      }
       const time = /^\d{2}:\d{2}$/.test(raw.time_start || '') ? raw.time_start : null;
       const starts_at = isPlace ? null : makeStartsAt(raw.date_start, time);
       // Keep a known end DATE even when the end time is unknown (date-only
@@ -1284,7 +1292,10 @@ async function crawlSource(src, {
         );
         if (houseGeo && houseGeo.geo_precision !== 'town') geo = houseGeo;
       }
-      if (!geo) continue;
+      if (!geo) {
+        missingGeo++;
+        continue;
+      }
       if (scope && !isWithinCrawlScope(geo, scope)) {
         outsideScope++;
         continue;
@@ -1308,13 +1319,16 @@ async function crawlSource(src, {
       console.log(`  ! skip event "${raw.title || '(untitled)'}" (${src.name}): ${e.code || e.message}`);
     }
   }
-  console.log(`  ${ok}/${events.length} events upserted (route: ${route})`
+  console.log(`  ${src.name}: ${ok}/${events.length} events upserted (route: ${route})`
+    + (missingFacts ? `, ${missingFacts} missing title/date` : '')
+    + (missingGeo ? `, ${missingGeo} missing geocode` : '')
     + (preservedPlaces ? `, ${preservedPlaces} existing places preserved` : '')
     + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : '')
     + (fuzzyMerged ? `, ${fuzzyMerged} fuzzy-merged` : ''));
   if (events.length > 0 && ok === 0 && preservedPlaces === 0) {
     console.log('  pipeline failure: candidates existed but none reached storage; freshness/stats untouched');
-    return { ok: 0, fail: events.length, pipelineError: true };
+    // Intentional scope exclusions must neither trigger nor dilute the alarm.
+    return { ok: 0, fail: events.length, pipelineError: true, attempted: outsideScope < events.length };
   }
   // An LLM round with ZERO candidates is ambiguous: an empty calendar, or a
   // model that silently returned nothing (an overloaded Gemini answers 200
@@ -1433,6 +1447,7 @@ async function main() {
   // ONE systemic failure, not N unrelated ones — and mixing in the sources
   // that were SUPPOSED to yield 0 (unchanged) would drown that signal.
   let attempted = 0, attemptedZero = 0, fetchErrors = 0, pipelineErrors = 0, sourceCrashes = 0;
+  let recoveryAttempted = 0, recoveryZero = 0, quarantinedFetchErrors = 0;
   const tierCounts = { active: 0, slow: 0, dormant: 0, dead: 0 };
   await runHostPool(groups, async (src) => {
     if (mode === 'llm' && llmCircuit.halted) {
@@ -1457,11 +1472,24 @@ async function main() {
       totalFuzzyMerged += fuzzyMerged;
       if (tier) tierCounts[tier] = (tierCounts[tier] || 0) + 1;
       if (wasAttempted) {
-        attempted += 1;
-        if (ok === 0) attemptedZero += 1;
+        // Known-dead sources are probes, not evidence of a new outage. Keep
+        // real provider/storage failures in the alarm even during recovery.
+        if (src.tier === 'dead' && !extractError && !pipelineError) {
+          recoveryAttempted += 1;
+          if (ok === 0) recoveryZero += 1;
+        } else {
+          attempted += 1;
+          if (ok === 0) attemptedZero += 1;
+        }
       }
       if (fetchError) {
         fetchErrors += 1;
+        // A failed dead-source probe must restart its quarantine; otherwise
+        // it remains due and retries every day instead of every 28 days.
+        if (tier === 'dead') {
+          await markSourceCrawled(src.id);
+          quarantinedFetchErrors += 1;
+        }
       } else if (pipelineError) {
         pipelineErrors += 1;
       } else if (extractError) {
@@ -1483,12 +1511,13 @@ async function main() {
   const expired = await expireFinished();
   console.log(`\nCrawl done: ${total} events upserted, ${expired} expired.`);
   if (extractErrors) console.log(`Provider errors: ${extractErrors} source(s) skipped without stats change — they stay due and retry next run.`);
-  if (fetchErrors) console.log(`Fetch errors: ${fetchErrors} source(s) skipped without stats change — they stay due and retry next run.`);
+  if (fetchErrors) console.log(`Fetch errors: ${fetchErrors} source(s) — ${quarantinedFetchErrors} returned to dead-source quarantine, ${fetchErrors - quarantinedFetchErrors} stay due for retry.`);
   if (pipelineErrors) console.log(`Pipeline errors: ${pipelineErrors} source(s) had candidates but stored none — they stay due and retry next run.`);
   if (sourceCrashes) console.log(`Source crashes: ${sourceCrashes} source(s) failed outside the per-event guard.`);
   if (deferred) console.log(`Policy deferrals: ${deferred} source(s) left due without extraction.`);
   if (llmCircuit.halted) console.log(`LLM circuit open: ${llmCircuit.reason}.`);
   if (totalOutsideScope) console.log(`Scope guard: ${totalOutsideScope} out-of-radius event(s) skipped.`);
+  if (recoveryAttempted) console.log(`Dead-source recovery: ${recoveryZero}/${recoveryAttempted} probe(s) yielded 0 events; excluded from the systemic alarm.`);
   console.log(`fuzzy-merged: ${totalFuzzyMerged}`);
   console.log(`Tiers — active: ${tierCounts.active}, slow: ${tierCounts.slow}, dormant: ${tierCounts.dormant}, `
     + `dead: ${tierCounts.dead}, skipped (not due): ${skippedCadence}`);

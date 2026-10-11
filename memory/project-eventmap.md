@@ -2,6 +2,37 @@
 
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 
+## Where things stand (2026-10-11 — repository reconciliation)
+- Resolved four pull-autostash conflicts against main, preserving the mobile privacy
+  layout and saved analytics consent guards, crawler alarm fix, trial wrapper and docs.
+- Added regression coverage so intentionally out-of-scope candidates neither trigger
+  nor dilute systemic crawl alarms. All 394 tests pass with the built HTTP server;
+  production build generates 111 pages. Desktop and 390 px mobile consent/menu checks
+  pass with no browser errors. TypeSafe dry-run resolves all 40 fixtures.
+- George chose separate review for the old mobile branch's remaining safe-area changes.
+  All branches and four stashes remain intact, including distinct outreach drafts.
+  No application deployment, live crawl or paid trial was run.
+
+## Where things stand (2026-10-03 — scheduled crawl alarm; integrated October 11)
+- Run #91 saved 3,514 events but failed its zero-yield alarm during a batch with 24
+  dead-source recovery probes. The local fix separates those probes from the alarm,
+  restarts quarantine after dead-source fetch failures, and counts genuine zero-storage
+  errors in both generic and Naturfreunde paths. Upsert logs include source names and
+  skip reasons. All 59 targeted tests pass (ten exercise the real CLI with mocked
+  external I/O); integrated during the October 11 reconciliation.
+- Three suspected GEM2GO geocoding misses remain a data-repair follow-up in `tasks/todo.md`.
+  No production data changed or live crawl rerun during this fix.
+
+## TypeSafe local evaluator (2026-09-17)
+- User authorized a shared $0.50 Spomen/Okolo synthetic trial and supplied a private key.
+  `node scripts/typesafe-trial.mjs --live --resume` uses Project Brain's local runner/ledger;
+  omit `--live` for dry-run. Setup: `docs/ops/typesafe-trial.md`.
+- Jev 1.13 caught 30/30 planted defects but first raised 42 false alarms. Explicit per-field
+  question isolation plus one clarified indoor fixture yielded 40/40 exact cases on rerun,
+  median 287 ms. This is tuning-set performance, not independent production validation.
+- Nine runner tests pass; reports retain both runs. Existing `lib/extract.js`, crawls,
+  production records, source registration and publishing are unchanged. No commit/deploy.
+
 ## One-liner
 Location-based event discovery map for the Linz region, Austria — families-first; real events mined
 from official municipal sources + AI poster scanning, Google-Maps-style UI. Validation prototype.
@@ -32,6 +63,28 @@ George Kostov (Austria, EU). Solo founder building toward a four-weekend Linz va
   and 378 tests pass, four existing
   server-dependent tests skip. Included in George's September 18 commit/push request;
   deployment remains separate and has not been requested.
+
+## Where things stand (2026-09-12 — consent-first analytics)
+- User approved consolidation into Studio Kostov; existing EU PostHog project 222118
+  and public ingestion token are retained. Analytics now requires optional consent with
+  EN/DE/BG reject/accept/withdraw controls and strict event/property allowlists.
+- SDK enrichment is removed; memory-only anonymous IDs cannot measure cross-visit retention.
+  Tokenized private routes and server newsletter events are excluded. Newsletter consent
+  does not authorize analytics. Existing subscriber operations remain unchanged.
+- Full suite: 378 passed, 4 existing HTTP skips; 111-page build passes. Browser consent
+  controls pass in all three languages. Production deployment `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`
+  is live at www.okolo.events with a verified consent panel and an empty Vercel error scan.
+  Final PostHog event receipt/dashboard review is coordinated in Project Brain.
+  See `docs/decisions/2026-09-12-consent-analytics.md`.
+
+## Where things stand (2026-09-10 — crawler usage protection)
+- The resolved invocation alert was attributed to PerplexityBot bursts over steady SE Ranking
+  backlink traffic. George authorized reducing/blocking that traffic. Vercel custom rule
+  `rule_limit_identified_bulk_crawlers_cbypHn` now denies the actual PerplexityBot and
+  SERankingBacklinksBot tokens before application execution; other crawler families remain allowed.
+- Live probes confirm crawler 403s and browser/Googlebot/Bingbot/Perplexity-User 200s; an actual
+  event page renders with no console errors. This blocks automatic Perplexity indexing as a
+  tradeoff. No paid feature or app deployment. See `docs/ops/crawler-protection.md` for rollback.
 
 ## Where things stand (2026-09-07 — Search Console weekend repair)
 - September 6 email and authenticated Search Console report identify three soft-404 URLs:

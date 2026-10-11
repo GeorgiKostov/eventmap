@@ -136,6 +136,13 @@ phase cost boundary.
 
 ## Troubleshooting
 
+- **Systemic zero-yield alarm:** more than half of at least five attempted sources
+  yielding zero events fails the run. Known-dead recovery probes are reported separately
+  so their expected misses neither trigger nor dilute the alarm. Provider errors and
+  candidates that never reach storage still count, including during recovery.
+  Fetch failures that leave a source dead restart its 28-day quarantine; other fetch,
+  provider, and pipeline errors remain due. Source-labelled upsert summaries report
+  missing title/date, missing geocode, and scope skips.
 - **Run fails immediately** → a secret is missing or wrong. Check
   Settings → Secrets; re-copy `DATABASE_URL` exactly from `.env.local` (it must be
   the pooler host `aws-0-…pooler.supabase.com:6543`, password percent-encoded).

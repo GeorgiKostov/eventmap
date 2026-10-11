@@ -1,3 +1,5 @@
+> **2026-09-12 collection change:** explicit consent is now required; memory-only IDs cannot measure cross-visit retention. Free-text attribution and geography are omitted; server newsletter events are disabled pending separate durable analytics consent. Historical definitions below are superseded where they conflict with [the consent contract](../decisions/2026-09-12-consent-analytics.md).
+
 # Advertiser and publisher proof
 
 > **Current collection contract (2026-09-12):** the

@@ -30,6 +30,16 @@ HTTP tests skipped without their configured server; production build generated 1
 Browser checked German rejection, English acceptance/reload/withdrawal and Bulgarian copy.
 Live deployment and final ingestion result are recorded below when verified.
 
+
+Production release: `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`, aliased to
+https://www.okolo.events on 2026-09-12. Deployment URL:
+https://eventmap-o3skfgq7i-georgikostovs-projects.vercel.app . Both local and
+remote builds passed. Live consent panel verified; Vercel error scan returned
+no logs. At 390 px the panel occupies 370 px with equal 162 px buttons.
+Map weekend filter changes the result count correctly (34 to 40 events during QA).
+The final PostHog event-receipt/dashboard check is coordinated in Project Brain.
+The source was uncommitted at deployment; it was recovered into main on September 18.
+
 Recovery note (2026-09-18): production deployment `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`
 contains this implementation, uploaded from a dirty checkout of `f89e21f`. Its source files
 were absent from `main` at `4d91d9e` and were recovered from that deployment before fixing

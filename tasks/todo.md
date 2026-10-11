@@ -2,6 +2,36 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Repository reconciliation (2026-10-11)
+- [x] Resolve the pull-autostash conflicts while retaining the newer mobile privacy layout,
+      saved consent guards, crawler fixes, TypeSafe trial wrapper and operational evidence.
+- [x] Review the merged crawler behavior; exclude intentionally out-of-scope candidates
+      from the systemic alarm. All 394 tests pass, including 12 real-CLI crawl tests and
+      four built-server HTTP checks; the production build generates 111 pages. Desktop and
+      390 px mobile consent/menu checks pass with no browser errors.
+- [ ] Review the remaining safe-area changes on
+      `origin/claude/mobile-location-button-overlap-iuqfgz` separately, as George requested.
+      Its locate positioning and marker update fixes are superseded; the preview branch
+      and local pre-main-sync backup are patch-equivalent to main. Preserve all branches
+      and four stashes, including distinct outreach drafts, for recoverability.
+
+## Scheduled crawl false alarm (2026-10-03)
+- [x] Separate dead-source recovery probes from the systemic alarm, restart dead-source
+      quarantine after fetch failures, and count zero-storage pipeline errors. Add
+      source-labelled skip reasons; 59 targeted tests pass, including ten CLI regressions.
+      Integrated during the October 11 repository reconciliation; no live crawl rerun.
+- [ ] Verify and repair town geocoding for Obdach (Gemeinde), Magdalensberg (Gemeinde),
+      and Wagrain (Pongau). Read-only cache checks found negative town fallbacks; these
+      likely explain run #91's three GEM2GO zero-storage cases, but its interleaved logs
+      do not identify the sources conclusively. Preserve geographic disambiguation.
+
+## TypeSafe advisory development trial (2026-09-17)
+- [x] Add local `node scripts/typesafe-trial.mjs` (dry-run; `--live --resume` for calls)
+      with the shared Project Brain $0.50 cap. German synthetic records: initial 11/40 exact,
+      revised field-isolated rubric 40/40. Preserve both runs; no production accuracy claim.
+      Nine runner tests pass. No crawl/database/runtime extractor change.
+      [Setup and evidence](../docs/ops/typesafe-trial.md); independent held-out validation remains recommended.
+
 ## Mobile privacy/filter overlap (2026-09-18)
 - [x] Reproduce the live overlap and recover the missing deployed consent implementation from
       `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`; production had uncommitted changes absent from `main`.
@@ -24,6 +54,23 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       window. Extend the same 10-second delay to every crawler group and verify the generated file.
 - [ ] Deploy the change, then check crawl volume after bots refresh robots.txt. This is a
       cooperative HTML crawl limit, not an immediate firewall block.
+
+## Consent-first analytics consolidation (2026-09-12)
+- [x] Preserve EU project 222118 under Studio Kostov; add explicit EN/DE/BG consent,
+      rejection and withdrawal, privacy-signal/production guards and strict payload allowlists.
+- [x] Disable server newsletter analytics until separate durable analytics permission exists.
+      Update the three-language privacy notice; verify 378 tests + 4 configured-server skips,
+      the 111-page build, and the actual consent controls in the browser.
+- [x] Deploy `dpl_4LCvyr8JXBhgBsrh5aze77MpcyUH`; verify the live consent panel and clean error scan.
+- [ ] Verify final PostHog event receipt; adapt historical PostHog
+      dashboards to the memory-only session metrics. Contract: `docs/decisions/2026-09-12-consent-analytics.md`.
+
+## Targeted crawler usage protection (2026-09-10)
+- [x] Investigate the invocation anomaly and publish a Vercel firewall deny rule for the actual
+      PerplexityBot and SERankingBacklinksBot user-agent tokens after George's authorization.
+- [x] Verify live crawler 403s, normal/search-fetcher 200s and real event-page rendering without
+      browser errors. No application deployment or paid feature enabled. Rollback and limitations:
+      `docs/ops/crawler-protection.md`.
 
 ## Search Console weekend soft-404 repair (2026-09-07)
 - [x] Inspect the September 6 alert: Google lists `/weekend/graz`, `/weekend/innsbruck`, and
