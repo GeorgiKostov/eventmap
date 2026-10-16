@@ -2,6 +2,25 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Austrian holiday discovery (2026-10-16)
+- [x] Fetch and inspect latest main; checkout already contains origin/main plus the existing local
+      reconciliation commit. Preserve the three pre-existing contact/docs edits.
+- [x] Add Christmas-market, Advent/Christmas, Halloween and New Year filters with festive icons,
+      EN/DE/BG labels, Austria-wide date presets, shared server/client matching and mobile parity.
+      Production build (111 pages), all 406 tests including HTTP checks, desktop/mobile browser
+      flows and real map-query parity pass. Correct the cluster empty-state message and exclude
+      “Adventure” from Advent matching.
+- [x] Refresh approved Austrian calendars; add 184 seasonal occurrences, refresh 81 existing
+      seasonal rows, and soft-remove 26 verified stale/duplicate Enns rows. Register repeatable
+      Linz-Termine seasonal searches and repair Enns occurrence extraction without model calls.
+      Volksgarten and Hauptplatz now have daily November 21–December 24 dates. Coverage and gaps:
+      `docs/research/austria-holidays-2026-10-16.md`.
+- [ ] Fill remaining major-market gaps, especially Vienna, subject to source authorization.
+      Österreich Werbung's public CC BY 4.0 event download has a conflicting host-wide robots
+      exclusion; George's narrow-exception question is pending and the dump was not fetched.
+- [ ] Commit/push and deploy the seasonal interface (George requested “Push live”); data changes
+      are already in the shared database. Verify the public production filters after release.
+
 ## Repository reconciliation (2026-10-11)
 - [x] Resolve the pull-autostash conflicts while retaining the newer mobile privacy layout,
       saved consent guards, crawler fixes, TypeSafe trial wrapper and operational evidence.
@@ -2001,3 +2020,5 @@ are OK before the Linz gate. Country registration (item 8) is explicitly post-Li
       the family_suitable attribute. (4fe7de0)
 - [x] **docs/partnerships/README.md** — cross-country tracker + drafts for feratel Deskline,
       RiS/GEM2GO, Land NÖ Veranstaltungsdatenbank. Stuttgart closed (was our own bug). (4fe7de0)
+- [x] Publish and verify the 2026-10-12 public contact update: `/impressum` uses +43 693 3049720 / `tel:+436933049720` in EN/DE/BG. Contact-only release `dpl_4iV7ymKq64zN5Gtm1bQi9TFBp4CT` is the prior live Git revision `d2cd158` plus one phone line; Vercel production build passed, then promoted and verified on both `okolo.events` and `www.okolo.events` (HTTP 200, localized headings, exact phone/tel link; live browser check passed).
+

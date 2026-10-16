@@ -194,7 +194,15 @@ municipal calendars change slowly, so most recrawls cost a fetch and a compare.
 **Structured-first waterfall** (`tryStructuredExtraction`), first route to yield ≥1 event wins and
 the LLM is skipped. One exception: a route may return `exclusive: true` to declare that it OWNS the
 source, so an empty result means "nothing published right now" and the LLM is skipped anyway. Use it
-only where a page reliably contains prose an LLM would mistake for event data (so far: `pflaster`).
+only for a source with a verified deterministic route, including `pflaster`, Enns and Linz-Termine.
+
+**Holiday date repairs (2026-10-16):** Enns' registered event sitemap now follows official detail
+pages and their explicit local `openingHours` dates through `lib/enns-events.js`; sitemap entries
+themselves supply no event date. Registered Linz-Termine seasonal searches use
+`lib/linztermine-events.js` before generic JSON-LD, reading visible occurrences and the site's
+“Mehr Termine anzeigen” pagination. The market JSON-LD can span several years and is not a usable
+schedule. Both adapters skip shell-only change detection and emit separate dated occurrences,
+including daily exceptions, through the normal crawl/upsert path without model calls.
 
 1. **JSON-LD** (`parseJsonLdEvents`) — `schema.org/Event` blocks; category inferred from `@type`,
    `is_free` from `offers`. `description` is always `null` here — facts only, never source prose.

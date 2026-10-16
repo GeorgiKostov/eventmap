@@ -7,6 +7,8 @@ import { channelForPoint } from '../../../lib/city-channels.js';
 import { eventDescription, eventJsonLd } from '../../../lib/event-jsonld.js';
 import { safeDiscoveryReturn } from '../../../lib/return-path.js';
 import { STRINGS } from '../../../lib/i18n.js';
+import { seasonalTheme } from '../../../lib/seasonal-events.js';
+import { CATS, CatIcon } from '../../../lib/icons.js';
 import { cityIntentPath, cityMonthPath, cityPath, isSupportedMonth, monthLabel, seoCityForPoint } from '../../../lib/seo-pages.js';
 import NewsletterSignup from '../../newsletter-signup.js';
 import { EventLandingView, MapDiscoveryLink, TrackedEventLink } from '../../event-analytics.js';
@@ -132,6 +134,7 @@ export default async function EventPage({ params, searchParams }) {
       })
     : null;
   const ui = STRINGS[lang] || STRINGS.en;
+  const holiday = seasonalTheme(ev);
   const age = ev.age_min != null && ev.age_max != null
     ? ui.ageRec.replace('{min}', ev.age_min).replace('{max}', ev.age_max)
     : ev.age_min != null
@@ -218,6 +221,7 @@ export default async function EventPage({ params, searchParams }) {
             </span>
           )}
         </div>
+        {holiday && <p style={{ display: 'flex', alignItems: 'center', gap: 6, color: CATS[holiday].color, fontWeight: 700, fontSize: 13, margin: '4px 0 12px' }}><CatIcon cat={holiday} size={16} />{ui.holidays[holiday]}</p>}
         {when && (
           <p style={{ color: 'var(--accent)', fontWeight: 700, margin: '0 0 16px' }}>
             {when}

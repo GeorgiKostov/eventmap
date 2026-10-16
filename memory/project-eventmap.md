@@ -2,6 +2,25 @@
 
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 
+## Where things stand (2026-10-16 — Austrian holiday discovery)
+- Latest remote main is already included; the existing local reconciliation commit and live
+  contact update were preserved. George requested the seasonal release; production verification
+  is pending.
+- Four seasonal filters (Christmas markets, Advent/Christmas, Halloween, New Year) share factual
+  title rules between SQL and UI, with festive icons and EN/DE/BG copy. Selection opens Austria
+  and today–January 31; other constraints remain additive. National clusters now show a zoom-in
+  prompt and generic branding instead of a false empty state or arbitrary city identity.
+- Shared database gained 184 seasonal occurrences and refreshed 81 existing ones; 26 verified
+  stale/duplicate Enns rows are recoverably removed. Repeatable Enns details and Linz-Termine
+  visible-date pagination replace misleading sitemap/JSON-LD dates. Both central Linz markets
+  now have daily November 21–December 24 schedules. UI totals: 514 market, 1,726 other Christmas,
+  220 Halloween, 200 New Year occurrences; counts are not unique markets or exhaustive coverage.
+- Production build (111 pages), all 406 tests with HTTP server, real query parity, desktop/mobile
+  flows, German labels and corrected market detail pages pass. No browser console errors seen.
+- National licensed feed remains unfetched: public CC BY 4.0 invitation conflicts with its
+  download host's robots exclusion; George's specific exception question remains pending.
+  Remaining gaps and source evidence: `docs/research/austria-holidays-2026-10-16.md`.
+
 ## Where things stand (2026-10-11 — repository reconciliation)
 - Resolved four pull-autostash conflicts against main, preserving the mobile privacy
   layout and saved analytics consent guards, crawler alarm fix, trial wrapper and docs.
@@ -1815,3 +1834,7 @@ docs/partnerships/README.md (George sends; feratel Deskline is the highest-lever
 ## Pointers
 - Bible: `docs/design/design-doc.md`. Queue: `tasks/todo.md`. Lessons: `tasks/lessons.md`.
   Source quirks: `briefs/mining-brief.md`. Decisions: `docs/decisions/`.
+# Public website contact — 2026-10-12
+
+Georgi selected +43 693 3049720 for public website contacts instead of his private number. `/impressum` now includes `tel:+436933049720` through the shared EN/DE/BG markup. Live on 2026-10-12: contact-only deployment `dpl_4iV7ymKq64zN5Gtm1bQi9TFBp4CT` (`eventmap-7ik50af62-georgikostovs-projects.vercel.app`) was built from prior production Git revision `d2cd1580d2464b6164eab74ae1e67c679581bbd4` plus exactly the phone-link line, verified before promotion, and promoted to the public domains. Vercel production build passed; EN/DE/BG HTTP checks on `okolo.events` and `www.okolo.events` returned 200 with the correct localized heading and exact phone/tel link; the live browser rendered the phone link. Unrelated newer local/main source was not deployed.
+

@@ -1249,3 +1249,12 @@ Inferring a future newsletter edition from coordinates made the current UI promi
 audience diverge, and would have silently promoted a launch-alert subscriber when a city went live.
 **Lesson:** store the user's explicit product choice separately from location. A waitlist consent is
 for one launch notice; joining a recurring edition requires a deliberate confirmed choice.
+
+## 2026-10-16 — Holiday discovery needs occurrence-level source checks
+
+The Enns sitemap supplied no dates, yet earlier extraction produced invented seasonal dates.
+Linz-Termine's market JSON-LD spanned 2022–2026 while its visible schedule listed individual 2026
+days and holiday closing exceptions. **Lesson:** use the actual dated occurrences, including
+pagination, and repair the repeatable source route before replacing incorrect records. Keep
+superseded rows recoverable and distinguish occurrence counts from unique markets. Title rules
+also need negative examples: “Adventure-Golf” must not match “Advent”.

@@ -9,6 +9,6 @@
 .mapPanel { top: 50%; bottom: auto; transform: translateY(-50%); }
 .mapPanel .panel { max-height: calc(100dvh - 32px); }
 @media (max-width: 899px) {
-  .mapPanel { top: auto; bottom: calc(148px + env(safe-area-inset-bottom)); transform: none; }
-  .mapPanel .panel { max-height: calc(100dvh - 172px - env(safe-area-inset-bottom)); }
+  .mapPanel { top: auto; bottom: calc(184px + env(safe-area-inset-bottom)); transform: none; }
+  .mapPanel .panel { max-height: calc(100dvh - 208px - env(safe-area-inset-bottom)); }
 }

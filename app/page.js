@@ -5,6 +5,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, ImageSquare, LinkSimple, PencilSimple, CaretRight, BookmarkSimple, Flag, Warning } from '@phosphor-icons/react';
 import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
+import { SEASONAL_THEMES, seasonalTheme, matchesSeasonalTheme, holidayWindow } from '../lib/seasonal-events.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
 import { hasTime, makeStartsAt, inTimeOfDay, isOngoingAt } from '../lib/event-time.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
@@ -204,7 +205,7 @@ function abbreviateCount(n) {
   return n < 1000 ? String(n) : `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
 }
 function primaryCat(ev) {
-  return (ev.categories || []).find((c) => CATS[c]) || 'family';
+  return seasonalTheme(ev) || (ev.categories || []).find((c) => CATS[c]) || 'family';
 }
 // Community = genuinely submitted by a member of the public (poster scan or the
 // add-a-place/event form). Editorial/curated entries (crawl, osm_mined, and the
@@ -983,6 +984,7 @@ export default function Home({ partnerSlug = null } = {}) {
   // deferred so per-keystroke work can't jank the map at scale.
   const deferredSearch = useDeferredValue(searchQuery);
   const [cats, setCats] = useState([]);
+  const [theme, setTheme] = useState(null);
   const [freeOnly, setFreeOnly] = useState(false);
   const [kidsOnly, setKidsOnly] = useState(false);
   const [communityOnly, setCommunityOnly] = useState(false); // only events added by users (src_kind user_*)
@@ -1713,6 +1715,7 @@ export default function Home({ partnerSlug = null } = {}) {
   // every visitor. `mode` tracks the LAST server response's shape — >= ZOOM_TIER
   // the server returns per-event rows ("pins"), below it pre-aggregated cells.
   const [mode, setMode] = useState('pins');
+  const holidayOverview = theme && (mapObj.current?.getZoom() ?? 0) < 8;
   const [cells, setCells] = useState([]); // cells mode only: [{lat,lng,n}]
   const [viewTotal, setViewTotal] = useState(0);
   const [viewTruncated, setViewTruncated] = useState(false); // drives the "zoom in to see all" hint (truncatedNote below)
@@ -1735,6 +1738,7 @@ export default function Home({ partnerSlug = null } = {}) {
     const p = new URLSearchParams();
     if (kindFilter !== 'all') p.set('kind', kindFilter);
     if (cats.length) p.set('cats', [...cats].sort().join(','));
+    if (theme) p.set('theme', theme);
     if (inOut !== 'any') p.set('inout', inOut);
     if (tod.length) p.set('tod', [...tod].sort().join(','));
     if (freeOnly) p.set('free', '1');
@@ -1801,7 +1805,7 @@ export default function Home({ partnerSlug = null } = {}) {
     if (!mapInit) return;
     fetchViewport();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapInit, kindFilter, cats, freeOnly, kidsOnly, communityOnly, inOut, tod, dFrom, dTo, partnerOnly]);
+  }, [mapInit, kindFilter, cats, theme, freeOnly, kidsOnly, communityOnly, inOut, tod, dFrom, dTo, partnerOnly]);
 
   // Common filters (category, free, kids, indoor/outdoor, search) apply to both
   // kinds. Date chips and time-of-day only make sense for events — places are
@@ -1811,6 +1815,7 @@ export default function Home({ partnerSlug = null } = {}) {
   const commonFiltered = useMemo(() => {
     if (!events) return [];
     return events.filter((ev) => {
+      if (theme && (ev.country !== 'AT' || !matchesSeasonalTheme(ev, theme))) return false;
       if (cats.length && !ev.categories.some((c) => cats.includes(c))) return false;
       if (freeOnly && ev.is_free !== 1) return false;
       if (kidsOnly && !isForKids(ev)) return false;
@@ -1825,7 +1830,7 @@ export default function Home({ partnerSlug = null } = {}) {
       }
       return true;
     });
-  }, [events, cats, freeOnly, kidsOnly, communityOnly, inOut, deferredSearch, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [events, cats, theme, freeOnly, kidsOnly, communityOnly, inOut, deferredSearch, lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredEvents = useMemo(() => {
     if (kindFilter === 'place') return [];
@@ -2328,8 +2333,9 @@ export default function Home({ partnerSlug = null } = {}) {
   // advancedFilterCount = filters that live INSIDE the panel (drives the ⚙ badge).
   // inOut is now a quick chip (Indoor/Outdoor), so it counts as active, not advanced.
   const advancedFilterCount = cats.length + tod.length + (communityOnly ? 1 : 0);
-  const activeFilterCount = advancedFilterCount + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (inOut !== 'any' ? 1 : 0);
+  const activeFilterCount = advancedFilterCount + (theme ? 1 : 0) + (freeOnly ? 1 : 0) + (kidsOnly ? 1 : 0) + (inOut !== 'any' ? 1 : 0);
   function resetFilters() {
+    setTheme(null);
     setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setInOut('any'); setTod([]);
   }
 
@@ -2724,7 +2730,7 @@ export default function Home({ partnerSlug = null } = {}) {
                   <span className="ic">🔖</span>{t.savedMenu}
                   {saved.length > 0 && <span className="menucount">{saved.length}</span>}
                 </button>
-                {calendarCity && (
+                {!holidayOverview && calendarCity && (
                   <a
                     className="menuitem calendar-menuitem"
                     href={`/events/${calendarCity.slug}`}
@@ -2739,7 +2745,7 @@ export default function Home({ partnerSlug = null } = {}) {
                     <a href>, not a router push: it's a server-rendered SEO page
                     outside the map app, and opening it in a new tab keeps the
                     map (and the viewport you were exploring) alive behind it. */}
-                {weekendChannel && (
+                {!holidayOverview && weekendChannel && (
                   <a
                     className="menuitem"
                     href={`/weekend/${weekendChannel.slug}`}
@@ -2832,7 +2838,7 @@ export default function Home({ partnerSlug = null } = {}) {
   const kindToggle = (
     <div className="seg" style={{ width: '100%' }}>
       {[['all', t.kindAll], ['event', t.kindEvents], ['place', t.kindPlaces]].map(([k, label]) => (
-        <button key={k} className={kindFilter === k ? 'on' : ''} onClick={() => setKindFilter(k)}>
+        <button key={k} className={kindFilter === k ? 'on' : ''} onClick={() => { setKindFilter(k); if (k === 'place') setTheme(null); }}>
           {label}
         </button>
       ))}
@@ -2852,6 +2858,42 @@ export default function Home({ partnerSlug = null } = {}) {
       >
         📅 {whenMode === 'range' && range.from ? fmtRangeChip(range.from, range.to, lang) : t.pickDate}
       </button>
+    </>
+  );
+
+  function toggleSeasonalTheme(key) {
+    if (theme === key) { setTheme(null); return; }
+    setTheme(key);
+    setKindFilter('event');
+    setRange(holidayWindow(todayStr()));
+    setWhenMode('range');
+    setPartnerOnly(false);
+    setSelectedTown(null);
+    setSearchQuery('');
+    setSearchCenter(null);
+    selectEvent(null, { fly: false });
+    const map = mapObj.current;
+    const camera = map?.cameraForBounds([[9.53, 46.37], [17.17, 49.02]], {
+      padding: isDesktop ? 35 : { top: 75, bottom: 170, left: 20, right: 20 },
+    });
+    if (camera) flyAssured({ center: camera.center, zoom: camera.zoom, duration: 800 });
+  }
+
+  const seasonalFilters = (
+    <>
+      <span className="seasonal-scope">{t.holidayScope}</span>
+      {Object.keys(SEASONAL_THEMES).map((key) => (
+        <button
+          key={key}
+          className={`chip seasonal-chip ${theme === key ? 'on' : ''}`}
+          style={{ '--cc': CATS[key].color }}
+          aria-pressed={theme === key}
+          title={t.holidayPreset}
+          onClick={() => toggleSeasonalTheme(key)}
+        >
+          <CatIcon cat={key} size={15} /> {t.holidays[key]}
+        </button>
+      ))}
     </>
   );
 
@@ -3001,6 +3043,9 @@ export default function Home({ partnerSlug = null } = {}) {
         <button className="m-close" onClick={() => setSelectedTown(null)} aria-label={t.close}><X size={14} weight="bold" /></button>
       </div>
     );
+    if (mode === 'cells' && viewTotal > 0) {
+      return <div className="list"><div className="empty">{t.clusterPrompt}</div></div>;
+    }
     if (evs.length === 0 && pls.length === 0) {
       return (
         <div className="list">
@@ -3164,6 +3209,7 @@ export default function Home({ partnerSlug = null } = {}) {
           )}
           {place ? placeHoursBlock(ev) : <div className="dwhen">{fmtWhen(ev, lang, t)}</div>}
           <div className="dtags">
+            {seasonalTheme(ev) && <span className="dtag" style={{ '--cc': CATS[cat].color }}><CatIcon cat={cat} size={11} /> {t.holidays[seasonalTheme(ev)]}</span>}
             {ongoing && <span className="dtag" style={{ '--cc': 'var(--accent)' }}>{t.ongoing}</span>}
             {(ev.categories || []).filter((c) => CATS[c]).map((c) => (
               <span key={c} className="dtag" style={{ '--cc': CATS[c].color }}>
@@ -3630,7 +3676,7 @@ export default function Home({ partnerSlug = null } = {}) {
       {/* ===== desktop sidebar ===== */}
       <aside className="sidebar desktoponly">
         <div className="map-brand-row">
-          <OkoloBrand channelHandle={weekendChannel?.handle} qualifier={partner ? t.partnerPreview : null} />
+          <OkoloBrand channelHandle={holidayOverview ? null : weekendChannel?.handle} qualifier={partner ? t.partnerPreview : null} />
         </div>
         {selected && isDesktop ? (
           <div className="detail-side">{eventDetail(selected, { onBack: () => selectEvent(null, { fly: false }) })}</div>
@@ -3641,6 +3687,7 @@ export default function Home({ partnerSlug = null } = {}) {
               {locSearchBar(false)}
             </div>
             <div className="chiprow" style={{ padding: '0 18px 6px' }}>{kindToggle}</div>
+            <div className="chiprow seasonal-row">{seasonalFilters}</div>
             <div className="chiprow" style={{ padding: '0 18px 10px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>{dateChips}</div>
             <div className="chiprow" style={{ padding: '0 18px 12px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>
               <button className={`chip ${showFilters || advancedFilterCount > 0 ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
@@ -3657,7 +3704,7 @@ export default function Home({ partnerSlug = null } = {}) {
                     <><strong>{filteredEvents.length}</strong> {t.events} · <strong>{filteredPlaces.length}</strong> {t.places}</>
                   )}
                 </span>
-                {calendarCity && (
+                {!holidayOverview && calendarCity && (
                   <a
                     className="calendar-link"
                     href={`/events/${calendarCity.slug}`}
@@ -3698,7 +3745,7 @@ export default function Home({ partnerSlug = null } = {}) {
         {/* mobile top bar — Google-Maps-style search pill + menu button (menu content lives in locSearchBar) */}
         <div className="m-topbar mobileonly">
           <div className="map-brand-row">
-            <OkoloBrand channelHandle={weekendChannel?.handle} qualifier={partner ? t.partnerPreview : null} />
+            <OkoloBrand channelHandle={holidayOverview ? null : weekendChannel?.handle} qualifier={partner ? t.partnerPreview : null} />
           </div>
           {locSearchBar(true)}
           {partnerHeader(true)}
@@ -3739,6 +3786,7 @@ export default function Home({ partnerSlug = null } = {}) {
         {sheet === 'closed' && !detailFull && (
           <div className="m-bottombar mobileonly">
             <div className="chiprow" style={{ paddingBottom: 4 }}>{kindToggle}</div>
+            <div className="chiprow seasonal-row">{seasonalFilters}</div>
             <div className="chiprow" style={{ paddingBottom: 4 }}>{dateChips}</div>
             <div className="chiprow">
               {quickFilters}
@@ -3758,7 +3806,7 @@ export default function Home({ partnerSlug = null } = {}) {
           <div className="m-sheethead">
             <b>{sheetContent === 'filters' ? t.filters : resultsCountLine}</b>
             <div className="m-sheetactions">
-              {sheetContent === 'list' && calendarCity && (
+              {sheetContent === 'list' && !holidayOverview && calendarCity && (
                 <a
                   className="calendar-link"
                   href={`/events/${calendarCity.slug}`}
@@ -3779,6 +3827,7 @@ export default function Home({ partnerSlug = null } = {}) {
             {sheetContent === 'filters' ? (
               <>
                 <div className="chiprow">{kindToggle}</div>
+                <div className="chiprow seasonal-row">{seasonalFilters}</div>
                 <div className="chiprow">{dateChips}</div>
                 <div className="chiprow">{quickFilters}</div>
                 {filterPanel}

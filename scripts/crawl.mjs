@@ -59,6 +59,8 @@ import {
 import { parseSiteswiftEvents } from '../lib/siteswift-events.js';
 import { kalkalpenDetailUrls, parseKalkalpenDetail } from '../lib/kalkalpen-events.js';
 import { fetchJeventsEvents } from '../lib/jevents-events.js';
+import { ENNS_SOURCE_URL, fetchEnnsEvents } from '../lib/enns-events.js';
+import { fetchLinztermineEvents } from '../lib/linztermine-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
@@ -97,6 +99,8 @@ const DYNAMIC_CALENDAR_CMS = new Set([
   'tabakfabrik', 'schlachthof-wels',
   'last-space', 'florentine',
   'niedermair', 'theater-des-kindes', 'familienverband',
+  'enns',
+  'linztermine',
 ]);
 
 // Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
@@ -642,6 +646,12 @@ async function tryStructuredExtraction(html, src) {
   }
   if (src.cms === 'wissensturm') {
     return { route: 'wissensturm', events: parseWissensturmEvents(html, src), exclusive: true };
+  }
+  if (src.url === ENNS_SOURCE_URL) {
+    return { route: 'enns', events: await fetchEnnsEvents(html), exclusive: true };
+  }
+  if (src.cms === 'linztermine') {
+    return { route: 'linztermine', events: await fetchLinztermineEvents(html, src), exclusive: true };
   }
   // Direct feed: when the registered `url` IS an iCal/RSS endpoint (rather than
   // an HTML page that LINKS to one), the fetched body is the feed itself, so no
@@ -1273,9 +1283,12 @@ async function crawlSource(src, {
       };
       // Town-pin jitter is useful on the map but not while enforcing an exact
       // crawl boundary: use the real geocoder/centroid point for the decision.
-      // Only the validated municipal point adapter supplies place coordinates;
-      // do not geocode a park name back to its centroid or mint an event date.
-      let geo = isPlace
+      // Keep source-published Enns venue points and licensed municipal place points;
+      // other routes continue through the established geocoder.
+      const hasEnnsPoint = src.url === ENNS_SOURCE_URL
+        && Number.isFinite(raw.lat) && Number.isFinite(raw.lng)
+        && raw.lat >= 46 && raw.lat <= 49.1 && raw.lng >= 9 && raw.lng <= 17.2;
+      let geo = isPlace || hasEnnsPoint
         ? { lat: raw.lat, lng: raw.lng, geo_precision: 'venue' }
         : await geocodeEvent(ev, { jitterTown: !scope });
       // Single-venue publishers (a theatre, a museum) name the ROOM, not the
