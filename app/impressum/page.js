@@ -55,6 +55,7 @@ export default async function ImpressumPage() {
       <p>Georgi Kostov<br />Breitwiesenstraße 22, Tür 7<br />4481 Asten<br />{t.country}</p>
       <h2>{t.contact}</h2>
       <p>{t.email}: <a href="mailto:hello@okolo.events">hello@okolo.events</a></p>
+      <p><a href="tel:+436933049720">+43 693 3049720</a></p>
       <h2>{t.company}</h2>
       <p>{t.companyLines}</p>
       <h2>{t.purposeTitle}</h2><p>{t.purpose}</p>
