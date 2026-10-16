@@ -18,8 +18,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [ ] Fill remaining major-market gaps, especially Vienna, subject to source authorization.
       Österreich Werbung's public CC BY 4.0 event download has a conflicting host-wide robots
       exclusion; George's narrow-exception question is pending and the dump was not fetched.
-- [ ] Commit/push and deploy the seasonal interface (George requested “Push live”); data changes
-      are already in the shared database. Verify the public production filters after release.
+- [x] Push seasonal release `8879e14` and deploy at George's request. Vercel deployment
+      `dpl_XjeYdUNK1foFBVsMW7xYcViZaWLG` is live on `www.okolo.events`; production build,
+      all four public filters, matching API rows, cluster/pin parity and corrected market pages
+      pass. No browser console errors; public contact update remains intact on both domains.
 
 ## Repository reconciliation (2026-10-11)
 - [x] Resolve the pull-autostash conflicts while retaining the newer mobile privacy layout,

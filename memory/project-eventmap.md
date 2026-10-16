@@ -3,9 +3,9 @@
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 
 ## Where things stand (2026-10-16 — Austrian holiday discovery)
-- Latest remote main is already included; the existing local reconciliation commit and live
-  contact update were preserved. George requested the seasonal release; production verification
-  is pending.
+- Latest remote main is included; the existing local reconciliation commit and live contact
+  update were preserved and pushed. Seasonal release `8879e14` is live on `www.okolo.events`
+  (Vercel `dpl_XjeYdUNK1foFBVsMW7xYcViZaWLG`, 2026-10-16), at George's request.
 - Four seasonal filters (Christmas markets, Advent/Christmas, Halloween, New Year) share factual
   title rules between SQL and UI, with festive icons and EN/DE/BG copy. Selection opens Austria
   and today–January 31; other constraints remain additive. National clusters now show a zoom-in
@@ -17,6 +17,9 @@ Session continuity. Update "Where things stand" surgically after meaningful chan
   220 Halloween, 200 New Year occurrences; counts are not unique markets or exhaustive coverage.
 - Production build (111 pages), all 406 tests with HTTP server, real query parity, desktop/mobile
   flows, German labels and corrected market detail pages pass. No browser console errors seen.
+- Vercel production build also passed. Public API and browser checks confirmed all four theme
+  totals, matching Austrian rows, cluster/pin count parity and corrected market dates. The old
+  Enns page returns 404; both public hostnames retain the public contact phone.
 - National licensed feed remains unfetched: public CC BY 4.0 invitation conflicts with its
   download host's robots exclusion; George's specific exception question remains pending.
   Remaining gaps and source evidence: `docs/research/austria-holidays-2026-10-16.md`.
