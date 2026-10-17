@@ -13,7 +13,10 @@ Session continuity. Update "Where things stand" surgically after meaningful chan
   editorial checklist. All 419 tests pass including HTTP, the build generates 111 pages, and browser
   checks confirm desktop/mobile multi-select preserves the map and dates. Real SQL/API theme unions
   match constituent results and cluster totals. Newsletter HTML/text and its rendered preview pass;
-  no subscriber email was sent. Corrective release verification is pending.
+  no subscriber email was sent. Release `1d99c66` is pushed and live as deployment
+  `dpl_8gwVLiE5qp353Agtnxn2Mi6h1z6J` (2026-10-17). Live API unions/cluster totals and browser
+  multi-select/date preservation pass. Deployment used a clean committed snapshot; the separate
+  uncommitted desktop-detail layout edit and its notes remain local.
 
 ## Where things stand (2026-10-16 — Austrian holiday discovery)
 - Latest remote main is included; the existing local reconciliation commit and live contact

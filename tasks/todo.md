@@ -13,7 +13,10 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       unions match constituent results and cluster totals; desktop/mobile toggles preserve the view.
 - [x] Verify seasonal newsletter visuals from actual frozen picks, readable HTML/text fallback
       and unchanged recipient/send guards. The rendered preview passes browser review; no email sent.
-- [ ] Publish and verify the corrected seasonal release.
+- [x] Publish seasonal correction `1d99c66` as production deployment
+      `dpl_8gwVLiE5qp353Agtnxn2Mi6h1z6J`. Live API union/cluster checks and browser multi-select
+      pass; date choice is preserved. Deployed from the committed snapshot, preserving the
+      separate uncommitted desktop-detail layout work.
 
 ## Austrian holiday discovery (2026-10-16)
 - [x] Fetch and inspect latest main; checkout already contains origin/main plus the existing local
