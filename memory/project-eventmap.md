@@ -2,6 +2,25 @@
 
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 
+## Where things stand (2026-10-17 — special-event crawl)
+- Added 169 published Austrian occurrences for October 17–January 17, including 131 seasonal
+  occurrences across 17 programmes; 151 additions are in Linz. Refreshed 342 existing rows.
+- Four repeatable Stadt Linz searches (Laternen, Nikolaus, Eislaufen, Krippen) are registered and
+  successfully crawled. Library URL and theatre-card repairs recovered 7/53 upserts respectively.
+- Excluded a cancelled workshop, fixed compound-street parsing, corrected four town records and
+  71 seasonal pins using official venue coordinates. New rows: 143 venue / 13 address / 13 town.
+- All 40 focused tests and production search/map/detail checks pass. Data is live; crawler fixes
+  are included in the user-requested main publishing batch, alongside the desktop fix and
+  holiday marketing assets. No deployment or paid model calls.
+  Report: `docs/research/austria-special-events-2026-10-17.md`.
+
+## Where things stand (2026-10-17 — desktop detail scroll fix)
+- Christkindlmarkt am Hauptplatz reproduced a 62 px desktop cutoff: `.detail-side` used the
+  full sidebar height below the brand header. It now flexes into the remaining space with
+  `min-height: 0`. The final venue row is visible and opens at 720 px and 600 px viewport heights.
+- Production build and three existing venue-detail tests pass. Included in the subsequently
+  requested main publishing batch; application deployment remains separate.
+
 ## Where things stand (2026-10-17 — recurring seasonal discovery)
 - George requested a standing seasonal discovery rule, automatic retirement, Easter/Valentine/
   Fasching follow-ons and newsletter visuals in the existing weekly preparation task. He corrected

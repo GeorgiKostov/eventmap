@@ -1,6 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseLinztermineDetail, linztermineOccurrenceHtml } from '../lib/linztermine-events.js';
+import { findDuplicate } from '../lib/dedup.js';
+
+test('Linztermine uses the full visible venue instead of a generic structured room name', () => {
+  const html = `<h1>Weihnacht im Botanischen Garten</h1>
+    <p><span><strong>Datum:</strong></span>21.11.2026 / 09:00 bis 16:00 Uhr</p>
+    <script type="application/ld+json">{"@type":"Event","location":{"name":"Freiland","address":{"streetAddress":"Roseggerstraße 20","addressLocality":"Linz"}}}</script>`;
+  const sourceUrl = 'https://www.linztermine.at/event/710791';
+  const [fallback] = parseLinztermineDetail(html, sourceUrl);
+  assert.equal(fallback.venue, 'Freiland');
+  const [event] = parseLinztermineDetail(html + '<div id="mapoverlay"><div><h2>Dein Weg zum Veranstaltungsort</h2><p>Botanischer Garten, Freiland<br />Roseggerstraße 20<br />4020 Linz</p></div></div>', sourceUrl);
+  assert.equal(event.venue, 'Botanischer Garten, Freiland');
+  assert.equal(event.address, 'Roseggerstraße 20');
+  assert.equal(event.source_url, sourceUrl);
+  const existing = { id: '123', title: event.title, starts_at: '2026-11-21T09:00', town: 'Linz', venue: 'Freiland', geo_precision: 'town' };
+  assert.equal(findDuplicate({ ...existing, venue: event.venue, lat: 48.29591, lng: 14.27707, geo_precision: 'venue' }, [existing])?.id, '123');
+});
+
+test('Linztermine skips explicitly cancelled listings even when their date is still future', () => {
+  const html = '<h1>Abgesagt Modell- und Krippenbauen aus Naturmaterialien</h1><p><span><strong>Datum:</strong></span>27.11.2026 / 14:00 bis 17:00 Uhr</p>';
+  assert.deepEqual(parseLinztermineDetail(html, 'https://www.linztermine.at/event/52025'), []);
+});
 
 test('Linztermine uses each visible occurrence, never the multi-year JSON-LD span', () => {
   const html = `<h1>Weihnachtsmarkt im Linzer Volksgarten</h1>

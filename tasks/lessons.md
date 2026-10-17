@@ -1266,3 +1266,11 @@ days and holiday closing exceptions. **Lesson:** use the actual dated occurrence
 pagination, and repair the repeatable source route before replacing incorrect records. Keep
 superseded rows recoverable and distinguish occurrence counts from unique markets. Title rules
 also need negative examples: “Adventure-Golf” must not match “Advent”.
+
+## 2026-10-17 — Crawl success still needs a location audit
+
+A successful structured crawl introduced a street as a town, an ambiguous Neuhofen pin, and
+an Ottensheim calendar event actually held in Walding. Check new town/venue fields and precision
+after ingestion, not only missing coordinates. Prefer explicit event-location sections over
+organizer contacts; use publisher venue markers rather than map camera centres. Search-engine
+copies can retain last year's dates even when the live publisher has updated the same URL.

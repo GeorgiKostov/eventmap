@@ -27,6 +27,40 @@ test('theatre parser drops invalid dates, conflicting link dates and cancelled p
   assert.equal(parseTheaterDesKindesEvents(performance({ status: 'Ausverkauft' })).length, 1);
 });
 
+function programmeCard(options = {}) {
+  return performance(options).replace(/\/vorstellung\/[^"']+/, '/stueck/oh-wie-schoen-ist-panama/');
+}
+
+test('new programme cards retain visible dates with the fetched listing as their linkback', () => {
+  const url = `${THEATER_DES_KINDES_SOURCE_URL}?pg=2`;
+  const [event] = parseTheaterDesKindesEvents(programmeCard(), { url });
+  assert.equal(event.source_url, url);
+  assert.equal(event.date_start, '2026-09-19');
+  assert.equal(event.time_start, '16:00');
+  assert.equal(event.age_min, 3);
+  assert.equal(event.venue, 'Theater des Kindes');
+  assert.deepEqual(parseTheaterDesKindesEvents(programmeCard().replace('https://theater-des-kindes.at/stueck/', 'https://example.org/stueck/')), []);
+});
+
+test('theatre cards exclude offsite guest performances and closed or private events', () => {
+  for (const status of ['Gastspiel in Kremsmünster', 'Gastspiel in Villach', 'Geschlossene Veranstaltung', 'Private Veranstaltung', 'Privatveranstaltung', 'Nicht öffentlich']) {
+    assert.deepEqual(parseTheaterDesKindesEvents(programmeCard({ status })), []);
+    assert.deepEqual(parseTheaterDesKindesEvents(performance({ status })), []);
+  }
+});
+
+test('new programme pagination preserves multiple performances sharing one page and deduplicates overlaps', async () => {
+  const events = await fetchTheaterDesKindesEvents({ url: THEATER_DES_KINDES_SOURCE_URL }, {
+    initialHtml: programmeCard() + programmeCard({ date: '20.09.2026' })
+      + '<a href="/spielplan/?pg=2" class="pods-pagination-next">Weiter</a>',
+    robotsFn: async () => true,
+    fetchImpl: async () => ({ ok: true, text: async () => programmeCard({ date: '20.09.2026' }) + programmeCard({ date: '21.09.2026' }) }),
+  });
+  assert.deepEqual(events.map((event) => event.date_start), ['2026-09-19', '2026-09-20', '2026-09-21']);
+  assert.equal(events[0].source_url, THEATER_DES_KINDES_SOURCE_URL);
+  assert.equal(events[2].source_url, `${THEATER_DES_KINDES_SOURCE_URL}?pg=2`);
+});
+
 test('theatre crawl follows only observed same-site pagination, with robots checks', async () => {
   const calls = [];
   const src = { url: THEATER_DES_KINDES_SOURCE_URL };

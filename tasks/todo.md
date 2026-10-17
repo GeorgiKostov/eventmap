@@ -2,6 +2,23 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Special-event crawl (2026-10-17)
+- [x] Crawl approved seasonal/family calendars; add 169 dated occurrences (131 seasonal), refresh
+      342 existing rows, and verify representative new events through production search/map APIs.
+- [x] Register Laternen/Nikolaus/Eislaufen/Krippen searches; repair library URL and theatre cards;
+      exclude cancelled listings, correct four towns and 71 seasonal venue pins. Forty tests pass.
+- [x] Include crawler fixes, desktop scrolling and holiday marketing assets in the requested
+      main publishing batch; temporary research dumps remain local.
+- [ ] Resolve remaining source-locality ambiguity (Familienbund's Neuhofen + postcode, offsite
+      GEM2GO listings, sparse Kinderfreunde cards). This run skipped 33 ungeocodable candidates;
+      13 new rows retain honest town precision. See the dated special-event crawl report.
+
+## Desktop detail scrolling (2026-10-17)
+- [x] Fix the detail panel extending below the viewport by the brand header's height.
+      Christkindlmarkt am Hauptplatz reproduces the live cutoff; the local production build
+      reaches and opens the final venue event at 1280×720 and 1280×600. Build and three existing
+      venue-detail tests pass. Included in the requested main publishing batch; not deployed.
+
 ## Recurring seasonal discovery (2026-10-17)
 - [x] Record the standing seasonal rule in AGENTS/CLAUDE and the seasonal editorial runbook.
 - [x] Update the existing Wednesday 16:00 preparation automation with a 90-day seasonal review,
