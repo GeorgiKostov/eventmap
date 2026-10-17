@@ -23,6 +23,14 @@
 > SMTP) rather than reporting a success that never left the building.
 
 ## 1. Goal & Philosophy
+
+**Seasonal review (2026-10-17):** the existing Wednesday 16:00 Europe/Vienna Codex task
+`post-okolo-weekend-carousels` reviews upcoming Austrian seasons, source-backed coverage,
+promotion/retirement and matching newsletter visuals before issue preparation. Follow
+[`seasonal-discovery.md`](seasonal-discovery.md). Its separately authorized social publishing
+is limited to configured city targets; it does not send subscriber email. The Thursday GitHub
+prepare/send cadence and delivery guards below remain unchanged.
+
 The growth strategy relies on a weekly rhythm: every Thursday afternoon, each live city receives its
 best local family and general event picks for the upcoming weekend.
 

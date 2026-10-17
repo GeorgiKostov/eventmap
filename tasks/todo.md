@@ -2,6 +2,19 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## Recurring seasonal discovery (2026-10-17)
+- [x] Record the standing seasonal rule in AGENTS/CLAUDE and the seasonal editorial runbook.
+- [x] Update the existing Wednesday 16:00 preparation automation with a 90-day seasonal review,
+      coverage checks, promotion/retirement and newsletter visuals; preserve its schedule,
+      subscriber-email restriction, configured social targets and source/budget safeguards.
+- [x] Verify multi-select seasonal filters preserve map position, search and dates; verify
+      automatic promotion/retirement plus Easter, Valentine's Day and Fasching support.
+      All 419 tests pass including HTTP checks; production build generates 111 pages. Real API
+      unions match constituent results and cluster totals; desktop/mobile toggles preserve the view.
+- [x] Verify seasonal newsletter visuals from actual frozen picks, readable HTML/text fallback
+      and unchanged recipient/send guards. The rendered preview passes browser review; no email sent.
+- [ ] Publish and verify the corrected seasonal release.
+
 ## Austrian holiday discovery (2026-10-16)
 - [x] Fetch and inspect latest main; checkout already contains origin/main plus the existing local
       reconciliation commit. Preserve the three pre-existing contact/docs edits.

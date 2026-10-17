@@ -1,5 +1,13 @@
 # Lessons
 
+## 2026-10-17 — Seasonal discovery must behave like ordinary filters
+
+George corrected the first seasonal chips: automatic national zoom discarded the area he was
+exploring, and exclusive selection prevented combining holiday types. **Lesson:** seasonal
+filters must preserve map/search/date context and allow multiple selections (OR within seasons,
+AND with other constraints). Treat seasonal promotion as a recurring lifecycle with automatic
+retirement, not a permanent holiday shortcut; include it in the existing weekly editorial pass.
+
 ## 2026-09-18 — A clean main branch can still be behind deployed source
 
 The live privacy widget was absent from both local and remote `main`: production had been uploaded

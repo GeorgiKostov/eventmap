@@ -108,6 +108,18 @@ memory of rapidly changing project state.
 
 ## Code and product conventions
 
+### Seasonal discovery — standing rule
+
+Treat seasonal events as a recurring part of discovery and the weekly editorial workflow.
+Use `docs/ops/seasonal-discovery.md` for the Austrian calendar, promotion windows and checklist.
+Give supported seasons consistent icons/colors across filters, event visuals and newsletters.
+Seasonal filters are additive, multi-select category filters: OR between seasons, AND with other
+constraints. Never move the map or reset the user's location, search or dates on selection.
+Automatically retire promotional filters and decorations after their Vienna-local window ends;
+preserve truthful event records and archives. Newsletter decoration must match actual selected
+events and the issue's dates. Refresh facts only through approved, repeatable sources; never
+invent events or reuse last year's dates to fill a seasonal campaign.
+
 - Next.js 15 App Router, **plain JavaScript**. Do not introduce TypeScript piecemeal.
 - Prefer server components and routes; use client components only where interaction requires them.
 - Keep one concept per file. Roughly 400 lines is a smell, except `app/page.js`, the deliberate

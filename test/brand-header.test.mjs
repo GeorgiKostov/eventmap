@@ -36,8 +36,8 @@ test('map and partner-map families keep the shared brand persistent on desktop a
   const showcase = read('app/partners/partner-showcase.js');
 
   assert.match(home, /import OkoloBrand from '\.\/okolo-brand\.js'/);
-  assert.equal((home.match(/<OkoloBrand channelHandle=\{holidayOverview \? null : weekendChannel\?\.handle\}/g) || []).length, 2);
-  assert.ok(home.indexOf('<OkoloBrand channelHandle={holidayOverview ? null : weekendChannel?.handle}') < home.indexOf('{selected && isDesktop ?'));
+  assert.equal((home.match(/<OkoloBrand channelHandle=\{weekendChannel\?\.handle\}/g) || []).length, 2);
+  assert.ok(home.indexOf('<OkoloBrand channelHandle={weekendChannel?.handle}') < home.indexOf('{selected && isDesktop ?'));
   assert.match(preview, /return <Home partnerSlug="aecfestival" \/>/);
   assert.equal((demo.match(/<OkoloBrand qualifier=\{t\.partnerDemoNotice\} \/>/g) || []).length, 2);
   assert.match(demo, /className=\{styles\.mobileBrandTop\}[\s\S]*?<OkoloBrand qualifier=\{t\.partnerDemoNotice\}/);

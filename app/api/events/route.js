@@ -15,7 +15,7 @@ import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.j
 import { verifyIntakeProof } from '../../../lib/intake-proof.js';
 import { isSameOriginMutation } from '../../../lib/request-security.js';
 import { publicCacheHeaders } from '../../../lib/public-cache.js';
-import { SEASONAL_THEMES } from '../../../lib/seasonal-events.js';
+import { parseSeasonalThemes } from '../../../lib/seasonal-events.js';
 
 export const dynamic = 'force-dynamic';
 const MESSAGES = {
@@ -104,8 +104,8 @@ function parseBbox(raw) {
 // invalid enum value (route responds 400); booleans degrade to false on
 // anything other than '1' rather than erroring (low-risk, no SQL surface).
 function parseFilters(sp) {
-  const theme = sp.get('theme') || null;
-  if (theme && !Object.hasOwn(SEASONAL_THEMES, theme)) return null;
+  const themes = parseSeasonalThemes(sp.get('theme'));
+  if (!themes) return null;
   const kind = sp.get('kind') || null;
   if (kind && !KIND_ENUM.has(kind)) return null;
 
@@ -129,7 +129,7 @@ function parseFilters(sp) {
   if (source && (source.length > 160 || /[\u0000-\u001f\u007f]/.test(source))) return null;
 
   return {
-    kind, cats, inout, tod, source, theme,
+    kind, cats, inout, tod, source, themes,
     free: sp.get('free') === '1',
     kids: sp.get('kids') === '1',
     community: sp.get('community') === '1',

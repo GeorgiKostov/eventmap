@@ -32,6 +32,18 @@ If a file is missing, skip it and continue. Do not stop.
 
 ## Hard rules (always active)
 
+### Seasonal discovery — standing rule
+
+Treat seasonal events as a recurring part of discovery and the weekly editorial workflow.
+Use `docs/ops/seasonal-discovery.md` for the Austrian calendar, promotion windows and checklist.
+Give supported seasons consistent icons/colors across filters, event visuals and newsletters.
+Seasonal filters are additive, multi-select category filters: OR between seasons, AND with other
+constraints. Never move the map or reset the user's location, search or dates on selection.
+Automatically retire promotional filters and decorations after their Vienna-local window ends;
+preserve truthful event records and archives. Newsletter decoration must match actual selected
+events and the issue's dates. Refresh facts only through approved, repeatable sources; never
+invent events or reuse last year's dates to fill a seasonal campaign.
+
 1. **Facts + linkback, never copy.** We index event facts (title/date/place) and write our own
    descriptions. Never copy source prose or images (EU database right / UrhG §76c). Every event
    carries its `source_url`. Municipal + Land OÖ + user-submitted sources only.

@@ -2,6 +2,19 @@
 
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 
+## Where things stand (2026-10-17 — recurring seasonal discovery)
+- George requested a standing seasonal discovery rule, automatic retirement, Easter/Valentine/
+  Fasching follow-ons and newsletter visuals in the existing weekly preparation task. He corrected
+  the first filters: preserve map/search/date context and allow multiple simultaneous seasons.
+- The existing `post-okolo-weekend-carousels` automation is updated and remains active Wednesday
+  16:00 Europe/Vienna. It now checks the next 90 days, seasonal coverage and retirement, and newsletter
+  visuals. Schedule, target thread, publishing guards and no Wednesday subscriber email stay intact.
+- Rules are mirrored in AGENTS/CLAUDE; `docs/ops/seasonal-discovery.md` holds the shared calendar and
+  editorial checklist. All 419 tests pass including HTTP, the build generates 111 pages, and browser
+  checks confirm desktop/mobile multi-select preserves the map and dates. Real SQL/API theme unions
+  match constituent results and cluster totals. Newsletter HTML/text and its rendered preview pass;
+  no subscriber email was sent. Corrective release verification is pending.
+
 ## Where things stand (2026-10-16 — Austrian holiday discovery)
 - Latest remote main is included; the existing local reconciliation commit and live contact
   update were preserved and pushed. Seasonal release `8879e14` is live on `www.okolo.events`

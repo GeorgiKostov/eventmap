@@ -231,11 +231,13 @@ micro-events we simply crawl. Nearest build expression is a **"claim your event"
   calendar range uses a connected accent fill in the picker and a quiet accent rail on matching
   event rows; overlapping events that began before the range are grouped as ongoing and carry the
   same localized ongoing badge in quick preview/detail. Places remain date-neutral.
-- **Seasonal discovery (2026-10-16 implementation):** separate Christmas-market, Advent/Christmas,
-  Halloween and New Year chips use matching icons on event pins, rows and details. Selecting a
-  theme opens Austria and today–January 31 in Vienna time; existing family/free/setting filters
-  remain additive. Conservative title rules run before server map limits and aggregation;
-  original categories remain unchanged. See `docs/decisions/2026-10-16-seasonal-discovery.md`.
+- **Seasonal discovery:** Christmas markets, Advent/Christmas, Halloween, New Year, Easter,
+  Valentine's Day and Fasching use matching icons on filters, pins, rows and details. Filters
+  combine with OR while preserving the map area, search, dates and other constraints. Promotion
+  appears and retires automatically by Vienna-local season; factual event history is preserved.
+  Conservative title rules run before server limits and aggregation. The weekly editorial pass
+  reviews upcoming seasons, and newsletter visuals reflect actual picks and issue dates.
+  See `docs/ops/seasonal-discovery.md` and `docs/decisions/2026-10-17-seasonal-lifecycle.md`.
 - **Map density + marker grammar** (full spec: [`design-system.md`](./design-system.md)): resolve
   locations first; collapse conservative same-title+town occurrences into a series anchored at the
   strongest resolved venue; collapse safe same-venue groups next; then feed the remaining
