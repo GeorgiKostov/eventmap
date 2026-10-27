@@ -3,7 +3,17 @@
 ## Where things stand (2026-10-27 — zero paid AI)
 
 - George requires AI work only in interactive Codex under his subscription while online.
-- Local guards disable API/background CLI extraction, embeddings and copywriting; structured crawling and template digests remain. Production build passed (111 pages); 423 existing/new tests pass across the suite and sandbox-blocked HTTP rerun, with 4 server-dependent skips. The additional real-CLI deferral test passes (17 focused tests total). GitHub publication and isolated production release verification are pending.
+- Local guards disable API/background CLI extraction, embeddings and copywriting; structured crawling and template digests remain. Production build passed (111 pages); 423 existing/new tests pass across the suite and sandbox-blocked HTTP rerun, with 4 server-dependent skips. The additional real-CLI deferral test passes (17 focused tests total). GitHub commit `5f2da35` is published: daily structured crawl only, no AI credentials in crawl/digest workflows.
+- Runtime guard is live on both public hostnames in `dpl_29HFJbevpQecy4TYi89ECoRhK1SE`
+  (`eventmap-8c2en3fv7-georgikostovs-projects.vercel.app`). Deployment used the prior live
+  revision `1d99c661b11354ad9bb7b35876b07db35c825708` plus only `lib/extract.js`, `lib/embed.js`,
+  `app/api/scan/route.js` and `app/api/extract-url/route.js`; newer unrelated main changes remain undeployed.
+- Vercel build passed (111 pages); deployed extraction/embedding source hashes match tested files.
+  Both hostnames and catalog return 200, browser map renders, unauthenticated scan/link requests
+  still return 401. Authenticated 503 handling was code-reviewed; no user account or paid model
+  was used for verification. Template copy stays available; AI-only sources remain due.
+- The shared Gemini credential was not revoked globally. Automatic review rejected disabling
+  the whole crawler as broader than necessary; the narrower AI-only shutdown succeeded.
 
 
 Session continuity. Update "Where things stand" surgically after meaningful changes.

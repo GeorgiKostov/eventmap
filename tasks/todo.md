@@ -4,7 +4,8 @@
 
 - [x] Block automated model calls, remove paid crawl lane/credentials, preserve structured collection and template digests.
 - [x] Verify the build and no-network guard tests, including real crawler deferral.
-- [ ] Verify GitHub publication and the production runtime release.
+- [x] Published `5f2da35` to GitHub; deployed the isolated runtime guard as
+      `dpl_29HFJbevpQecy4TYi89ECoRhK1SE` and checked live aliases, map, catalog and auth gates.
 
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
