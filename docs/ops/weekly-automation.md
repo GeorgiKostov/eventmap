@@ -1,5 +1,13 @@
 # Weekly Automation Pipeline (The Thursday Flow)
 
+**AI policy, 2026-10-27:** George requires no metered AI calls. Summaries, extraction,
+and copywriting happen only interactively in Codex under his existing subscription while
+he is online. Automated refresh uses deterministic parsers and newsletters use templates.
+All API and background CLI entrypoints in `lib/extract.js`, plus embeddings, are blocked.
+Earlier provider/cost descriptions below are historical and do not authorize re-enabling AI.
+See [the decision](../decisions/2026-10-27-no-paid-ai.md).
+
+
 > Status: **SHIPPED 2026-07-14** · Owner: Architect agent
 > This spec defines the automation pipeline for the weekly Okolo growth engine. We automate each
 > live Austrian edition after fail-closed checks; social distribution stays manual.
@@ -9,7 +17,7 @@
 > |---|---|
 > | City/area channel registry (10 cities, DE + BG) | `lib/city-channels.js` |
 > | Top-5 weekend selection query | `lib/db.js` → `weekendPicks()` |
-> | AI copy — subject, intro, one teaser per pick (Sonnet → Gemini → template) | `lib/extract.js` → `writeDigestCopy()` |
+> | Deterministic template copy — AI writer disabled | `lib/extract.js` → `writeDigestCopy()` |
 > | Digest assembly + frozen weekly snapshot + caption + email HTML | `lib/digest.js` |
 > | Carousel cards, 1080×1350, Latin + Cyrillic | `GET /api/social/card?channel=&slide=` |
 > | The desk (review, drop a pick, download cards, copy caption, send) | `/admin/thursday?token=<ADMIN_TOKEN>` |

@@ -59,16 +59,16 @@ const runner = `
       }) + '</script>');
     },
   } });
-  process.argv = [process.execPath, process.cwd() + '/scripts/crawl.mjs', '--country', process.env.CRAWL_TEST_COUNTRY, '--mode', 'structured'];
+  process.argv = [process.execPath, process.cwd() + '/scripts/crawl.mjs', '--country', process.env.CRAWL_TEST_COUNTRY, '--mode', process.env.CRAWL_TEST_MODE];
   await import(pathToFileURL(process.argv[1]));
 `;
 
-function crawl(sources, country = 'AT') {
+function crawl(sources, country = 'AT', mode = 'structured') {
   const result = spawnSync(process.execPath, [
     '--experimental-test-module-mocks', '--input-type=module', '-e', runner,
   ], {
     cwd: root, encoding: 'utf8', timeout: 15000,
-    env: { ...process.env, DATABASE_URL: '', CRAWL_TEST_FIXTURE: JSON.stringify(sources), CRAWL_TEST_COUNTRY: country },
+    env: { ...process.env, DATABASE_URL: '', CRAWL_TEST_FIXTURE: JSON.stringify(sources), CRAWL_TEST_COUNTRY: country, CRAWL_TEST_MODE: mode },
   });
   assert.ifError(result.error);
   const state = result.stdout.match(/^TEST_STATE (.+)$/m);
@@ -162,4 +162,20 @@ test('outside-scope rounds do not dilute missing-geocode pipeline failures', () 
   assert.equal(result.writes, 0);
   assert.deepEqual(result.marked, []);
   assert.deepEqual(result.stats, []);
+});
+
+
+test('disabled AI leaves unstructured sources due while the all-mode crawl saves structured events', () => {
+  const result = crawl([
+    { outcome: 'deferred', feed_kind: 'llm' },
+    { outcome: 'deferred', feed_kind: 'llm' },
+    {},
+  ], 'AT', 'all');
+  assert.equal(result.status, 0, result.log);
+  assert.equal(result.writes, 1);
+  assert.deepEqual(result.marked, ['2']);
+  assert.equal(result.stats.length, 1);
+  assert.equal(result.stats[0].id, '2');
+  assert.match(result.log, /AI disabled: no deterministic extraction route/);
+  assert.doesNotMatch(result.log, /SYSTEMIC|extraction failed/);
 });

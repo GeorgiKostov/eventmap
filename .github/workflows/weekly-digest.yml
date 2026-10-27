@@ -2,7 +2,7 @@ name: Weekly digest (prepare + send)
 
 # Thursday's growth engine: prepare a fresh issue, then send it five hours later.
 #
-# This job freezes each city's weekend picks and writes the AI copy (Sonnet) into
+# This job freezes each city's weekend picks and uses deterministic template copy into
 # the digest snapshot, then emails George that the desk is ready. At 14:00 UTC a
 # separate job asks the deployed app to send each live Austrian edition to its
 # explicitly assigned confirmed audience.
@@ -38,8 +38,6 @@ jobs:
       - name: Prepare weekend digests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # Sonnet writes the copy
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # fallback copywriter
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           NOTIFY_TO: ${{ secrets.NOTIFY_TO }}

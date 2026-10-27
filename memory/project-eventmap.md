@@ -1,5 +1,11 @@
 # Project memory — eventmap (Okolo)
 
+## Where things stand (2026-10-27 — zero paid AI)
+
+- George requires AI work only in interactive Codex under his subscription while online.
+- Local guards disable API/background CLI extraction, embeddings and copywriting; structured crawling and template digests remain. Production build passed (111 pages); 423 existing/new tests pass across the suite and sandbox-blocked HTTP rerun, with 4 server-dependent skips. The additional real-CLI deferral test passes (17 focused tests total). GitHub publication and isolated production release verification are pending.
+
+
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 
 ## Where things stand (2026-10-17 — special-event crawl)

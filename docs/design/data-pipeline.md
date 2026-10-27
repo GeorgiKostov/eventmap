@@ -1,5 +1,13 @@
 # Data pipeline — source of truth
 
+**AI policy, 2026-10-27:** George requires no metered AI calls. Summaries, extraction,
+and copywriting happen only interactively in Codex under his existing subscription while
+he is online. Automated refresh uses deterministic parsers and newsletters use templates.
+All API and background CLI entrypoints in `lib/extract.js`, plus embeddings, are blocked.
+Earlier provider/cost descriptions below are historical and do not authorize re-enabling AI.
+See [the decision](../decisions/2026-10-27-no-paid-ai.md).
+
+
 What actually happens, end to end, from "a Gemeinde publishes an event" to "a pin renders on the
 map" — and every side door into the `events` table. Written from the code as it stands, not from
 intent. Last full pass: **2026-07-14**. Companion docs: [`docs/design/design-doc.md`](design-doc.md) (product bible),
@@ -117,14 +125,12 @@ expensive, artisanal, non-repeatable path the whole architecture exists to avoid
 - A hash-unchanged round bumps `crawl_count` only, never `zero_streak` — "page didn't change" is
   healthy for a slow municipal calendar, not the same signal as "found nothing."
 
-### Current validation schedule (2026-08-16)
+### Current validation schedule (2026-10-27)
 
-Scheduled refreshes are **Austria-only**. The daily lane handles deterministic routes; the Sunday
-lane handles `feed_kind='llm'` plus new/unknown sources through Gemini 2.5 Flash-Lite. Production has
-639 known Austrian LLM sources and 8 unknown-route sources, so `MAX_LLM_CALLS=750` covers the full
-current set with about 16% discovery/retry headroom. The crawl job sets `EXTRACT_FALLBACK=none` and
-receives no Anthropic key. Germany and Bulgaria remain published but paused. Stable pages still
-hash/HTTP-cache skip before any model call. The operational source of truth is
+Austria-only deterministic refresh runs daily at 04:00 UTC. The weekly paid lane and all
+provider secrets in the workflow are removed. Sources with `feed_kind='llm'` or unknown
+routes stay due for interactive Codex review or a deterministic adapter; no model fallback
+runs. Germany and Bulgaria remain published but paused. See
 [`docs/ops/crawl-cron.md`](../ops/crawl-cron.md).
 
 ### Coverage snapshot (read-only query, captured 2026-07-14)

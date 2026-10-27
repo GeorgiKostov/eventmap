@@ -1,5 +1,12 @@
 # TODO
 
+## Zero paid AI (2026-10-27)
+
+- [x] Block automated model calls, remove paid crawl lane/credentials, preserve structured collection and template digests.
+- [x] Verify the build and no-network guard tests, including real crawler deferral.
+- [ ] Verify GitHub publication and the production runtime release.
+
+
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
 ## Special-event crawl (2026-10-17)

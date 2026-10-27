@@ -1,5 +1,12 @@
 # Lessons
 
+## 2026-10-27 — API caps are not permission to spend
+
+George rejected background AI charges, including small Gemini bills. A bounded API budget
+is still paid usage; subscription-based interactive work must never silently fall back to a
+metered key. Enforce the no-API policy in code and keep credentials out of workflows.
+
+
 ## 2026-10-17 — Seasonal discovery must behave like ordinary filters
 
 George corrected the first seasonal chips: automatic national zoom discarded the area he was

@@ -144,6 +144,14 @@ Core: `verification-loop.md` (quality gate), `git-workflow.md`, `model-hierarchy
 - Cheap subagents (Haiku/Sonnet) for parallel mining/search; escalate mid-session if a simple task
   turns complex. See `skills/model-hierarchy.md`.
 
+## AI cost policy (2026-10-27)
+
+George requires zero metered AI usage. Do summaries, extraction, and copywriting only
+interactively in Codex under his existing subscription while he is online. Never invoke
+Gemini, Anthropic, OpenAI, xAI or other paid APIs, or background model CLIs, for this work.
+Automated collection stays deterministic; newsletters use template copy. Do not re-enable
+AI calls, credentials, scheduled AI lanes, or paid trials without George's explicit approval.
+
 ## Coding discipline
 
 - **Think before coding:** state assumptions; if multiple interpretations exist, surface them.

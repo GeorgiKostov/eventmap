@@ -106,6 +106,14 @@ memory of rapidly changing project state.
     assume a writable or persistent project filesystem. Runtime writes belong in Supabase or, for
     genuinely temporary processing, `/tmp`. Treat serverless instances as ephemeral.
 
+## AI cost policy (2026-10-27)
+
+George requires zero metered AI usage. Do summaries, extraction, and copywriting only
+interactively in Codex under his existing subscription while he is online. Never invoke
+Gemini, Anthropic, OpenAI, xAI or other paid APIs, or background model CLIs, for this work.
+Automated collection stays deterministic; newsletters use template copy. Do not re-enable
+AI calls, credentials, scheduled AI lanes, or paid trials without George's explicit approval.
+
 ## Code and product conventions
 
 ### Seasonal discovery — standing rule

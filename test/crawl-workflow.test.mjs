@@ -5,17 +5,18 @@ import { readFileSync } from 'node:fs';
 const workflow = readFileSync(new URL('../.github/workflows/crawl.yml', import.meta.url), 'utf8');
 const refreshScript = readFileSync(new URL('../scripts/refresh-seo.mjs', import.meta.url), 'utf8');
 
-test('scheduled crawl is Austria-only with separate structured and LLM schedules', () => {
+test('scheduled crawl is Austria-only and structured-only', () => {
   assert.match(workflow, /cron: '0 4 \* \* \*'/);
-  assert.match(workflow, /cron: '30 4 \* \* 0'/);
-  assert.match(workflow, /node scripts\/crawl\.mjs --country AT --mode "\$CRAWL_MODE"/);
+  assert.equal((workflow.match(/cron:/g) || []).length, 1);
+  assert.match(workflow, /node scripts\/crawl\.mjs --country AT --mode structured/);
+  assert.doesNotMatch(workflow, /inputs\.mode|CRAWL_MODE|MAX_LLM_CALLS/);
 });
 
-test('scheduled crawl is Gemini-only and fail-closed on cost', () => {
-  assert.match(workflow, /GEMINI_API_KEY:/);
-  assert.match(workflow, /EXTRACT_FALLBACK: none/);
-  assert.match(workflow, /MAX_LLM_CALLS: 750/);
-  assert.doesNotMatch(workflow, /^\s+ANTHROPIC_API_KEY:/m);
+test('automated workflows receive no AI provider credentials', () => {
+  const digest = readFileSync(new URL('../.github/workflows/weekly-digest.yml', import.meta.url), 'utf8');
+  for (const contents of [workflow, digest]) {
+    assert.doesNotMatch(contents, /(?:GEMINI|ANTHROPIC|OPENAI|XAI)_API_KEY:/);
+  }
 });
 
 test('successful crawl invalidates the SEO ISR subtree', () => {

@@ -1,5 +1,13 @@
 # Okolo / eventmap — Design Doc
 
+**AI policy, 2026-10-27:** George requires no metered AI calls. Summaries, extraction,
+and copywriting happen only interactively in Codex under his existing subscription while
+he is online. Automated refresh uses deterministic parsers and newsletters use templates.
+All API and background CLI entrypoints in `lib/extract.js`, plus embeddings, are blocked.
+Earlier provider/cost descriptions below are historical and do not authorize re-enabling AI.
+See [the decision](../decisions/2026-10-27-no-paid-ai.md).
+
+
 > Status: living document · Owner: Architect agent · Last updated: 2026-08-16
 > This is the "what we're building and why" bible. Read it before significant work.
 > Product name: **Okolo** (okolo.events). The working name was *Umkreis* — retired
@@ -89,11 +97,10 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 - **Supabase Postgres** via the `postgres` client (transaction pooler), tables in the `umkreis`
   schema (`lib/db.js`, one file). starts_at/ends_at stay Vienna wall-clock TEXT (timezone rule).
 - Nominatim geocoding (1 req/s, cached in `geocache`, town-centroid fallback).
-- **Gemini Flash-Lite primary → Claude Haiku fallback** for extraction — posters and crawled pages
-  share one schema; provider routing stays in `lib/extract.js` (no provider hardcoding in feature
-  code). The validation-phase scheduled crawl is an explicit exception to the fallback order:
-  Austria only, Gemini only, `EXTRACT_FALLBACK=none`, and at most 750 metered requests each Sunday.
-  Germany and Bulgaria remain published but are not refreshed.
+- **Deterministic extraction only in app/cron.** AI entrypoints in `lib/extract.js` are
+  disabled, regardless of configured keys. Daily Austria refresh uses structured parsers;
+  AI-only sources wait for interactive Codex review. Germany and Bulgaria remain paused.
+
 
 **Key files:**
 - `lib/db.js` — the single Supabase/Postgres data-layer boundary: queries, upsert/dedup, expiry,

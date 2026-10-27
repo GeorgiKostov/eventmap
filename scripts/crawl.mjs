@@ -24,7 +24,7 @@ import { findDuplicate, mergePlan, titleSubstitution } from '../lib/dedup.js';
 import { decodeEntities, stripTags, cleanText } from '../lib/entities.js';
 import { makeStartsAt, makeEndsAt, splitLocalDateTime } from '../lib/event-time.js';
 import {
-  extractFromPage, isExtractionBudgetError, isProviderQuotaExhausted, sanitizeExtractedEvents,
+  extractFromPage, isExtractionBudgetError, isProviderQuotaExhausted, isAutomatedAiDisabled, sanitizeExtractedEvents,
 } from '../lib/extract.js';
 import { parseDvvEvents } from '../lib/dvv-events.js';
 import { parseMicrodataEvents } from '../lib/microdata-events.js';
@@ -1215,6 +1215,14 @@ async function crawlSource(src, {
       });
       events = sanitizeExtractedEvents(events, text);
     } catch (e) {
+      if (isAutomatedAiDisabled(e)) {
+        if (llmCircuit) {
+          llmCircuit.halted = true;
+          llmCircuit.reason = 'automated AI disabled; use interactive Codex';
+        }
+        console.log('  AI disabled: no deterministic extraction route; leaving source due');
+        return { ok: 0, fail: 0, deferred: true };
+      }
       if (llmCircuit && (isExtractionBudgetError(e) || isProviderQuotaExhausted(e))) {
         llmCircuit.halted = true;
         llmCircuit.reason = isExtractionBudgetError(e)

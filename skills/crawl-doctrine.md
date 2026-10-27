@@ -7,11 +7,11 @@ learned on the AT/BG runs; the per-run brief only adds sources + scope, never ov
 
 ## The engine (how a crawl is run)
 
-- **Agentic/manual crawls run through Grok Build on the SuperGrok subscription** (`grok -m grok-build`,
-  OAuth entitlement) — **never** the metered xAI developer API, and **never** via `/hermes` (that's
-  GLM-through-OpenRouter, a paid-API path reserved for second-opinion *review*, not crawling).
-- **Automated crawls** go through `scripts/crawl.mjs` → `lib/extract.js`. No model/provider
-  hardcoding in feature code — route by cost/quality in `lib/extract.js` only.
+- **AI work happens interactively in Codex under George's existing subscription while he is
+  online.** No metered API or background model CLI, including fallback providers.
+- **Automated crawls** use `scripts/crawl.mjs` with deterministic parsers only. The scheduled
+  Austria crawl uses `--mode structured`. Sources needing AI stay due for interactive review;
+  registered sources remain registered, but their AI refresh is deliberately paused.
 
 ## The rules (non-negotiable)
 

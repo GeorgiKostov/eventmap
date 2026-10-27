@@ -1,27 +1,13 @@
 name: Scheduled crawl
 
-# Validation-phase policy: refresh Austria only. Known deterministic routes run
-# daily at $0; known/unknown LLM routes run weekly through Gemini Flash-Lite
-# with no Anthropic fallback and a hard request budget. Germany and Bulgaria
-# stay published but are not refreshed until demand justifies reopening them.
-#
-# Setup + cost details: docs/ops/crawl-cron.md
+# Zero paid AI policy: Austria-only deterministic refresh. AI extraction and
+# summaries happen interactively in Codex under George's subscription.
+# Setup: docs/ops/crawl-cron.md
 
 on:
   schedule:
-    # Daily deterministic refresh; source tiers still gate who is actually due.
     - cron: '0 4 * * *'
-    # Weekly paid lane, offset so Sunday's deterministic run finishes first.
-    - cron: '30 4 * * 0'
   workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Austria crawl lane'
-        type: choice
-        options:
-          - structured
-          - llm
-        default: structured
 
 concurrency:
   group: crawl
@@ -47,15 +33,7 @@ jobs:
       - name: Run crawl
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          # Crawl spend must fail closed. The newsletter workflow keeps its own
-          # Anthropic key for Sonnet copy; this workflow never receives it.
-          EXTRACT_FALLBACK: none
-          # 647 Austrian sources currently use the LLM/unknown lane. 750 lets
-          # one weekly run cover that set plus modest discovery/retry headroom.
-          MAX_LLM_CALLS: 750
-          CRAWL_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || github.event.schedule == '30 4 * * 0' && 'llm' || 'structured' }}
-        run: node scripts/crawl.mjs --country AT --mode "$CRAWL_MODE"
+        run: node scripts/crawl.mjs --country AT --mode structured
 
       - name: Refresh SEO pages
         env:

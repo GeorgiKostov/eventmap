@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { extractFromImage } from '../../../lib/extract.js';
+import { extractFromImage, isAutomatedAiDisabled } from '../../../lib/extract.js';
 import { dedupCandidates } from '../../../lib/db.js';
 import { findDuplicate } from '../../../lib/dedup.js';
 import { makeStartsAt } from '../../../lib/event-time.js';
@@ -122,6 +122,9 @@ export async function POST(req) {
       duplicate,
     });
   } catch (err) {
+    if (isAutomatedAiDisabled(err)) {
+      return NextResponse.json({ error: messages.extraction, code: err.code }, { status: 503 });
+    }
     console.error(`[intake] scan: extraction threw (${err?.message || err})`);
     return NextResponse.json(
       { error: messages.extraction, detail: String(err?.message || err) },

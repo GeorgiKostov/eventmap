@@ -3,7 +3,7 @@ import dns from 'dns';
 import net from 'net';
 import http from 'node:http';
 import https from 'node:https';
-import { extractFromImage, extractSingleFromText } from '../../../lib/extract.js';
+import { extractFromImage, extractSingleFromText, isAutomatedAiDisabled } from '../../../lib/extract.js';
 import { limit, limitSubject } from '../../../lib/ratelimit.js';
 import { currentAccount, authRequiredMessage } from '../../../lib/account-auth.js';
 import { issueIntakeProof } from '../../../lib/intake-proof.js';
@@ -308,6 +308,9 @@ export async function POST(req) {
         intake_proof: issueIntakeProof(account.id, 'link', sourceUrl),
       });
     } catch (err) {
+      if (isAutomatedAiDisabled(err)) {
+        return NextResponse.json({ error: messages.failed, code: err.code }, { status: 503 });
+      }
       console.error(`[intake] extract-url: image path threw (${err?.message}) url=${finalUrl.slice(0, 200)}`);
       return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
     }
@@ -391,6 +394,9 @@ export async function POST(req) {
       intake_proof: issueIntakeProof(account.id, 'link', sourceUrl),
     });
   } catch (err) {
+    if (isAutomatedAiDisabled(err)) {
+      return NextResponse.json({ error: messages.failed, code: err.code }, { status: 503 });
+    }
     console.error(`[intake] extract-url: AI text path threw (${err?.message}) url=${finalUrl.slice(0, 200)}`);
     return NextResponse.json({ error: messages.failed, fallback: true }, { status: 502 });
   }
