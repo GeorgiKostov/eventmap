@@ -22,8 +22,8 @@
 - [x] Shared policy `lib/pick-policy.js` (routine/admin/children/occasion/place/distance/diversity),
       new rank tuple, `scripts/check-picks.mjs` (exit 1 on BLOCK), `docs/ops/editorial-picks.md`,
       standing rule in AGENTS/CLAUDE, Codex Wednesday automation runs the check. Full suite and build pass.
-- [ ] Deploy when convenient so the desk's Replace uses the children-only family strand (the
-      Thursday GitHub prepare already runs `main`, so picks change from Nov 19 without a deploy).
+- [x] Deploy when convenient so the desk's Replace uses the children-only family strand — shipped
+      2026-11-12 in `dpl_ijXCaxTFSPahPMVr48wuiRBUqRQ3` (main `f89988c`).
 - [ ] After two issues, re-run the check on Linz/Wien and tune `pick-policy.js` from real misses
       (e.g. "Pre-Concert für X" + "X" near-duplicates, restaurant promos).
 
@@ -41,7 +41,8 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
 - [x] Patch Next to 15.5.28, MCP SDK to 1.32.2, DOMPurify to 3.4.17 and sharp to 0.35.5.
       Production build (111 pages), 42 focused tests including analytics sanitization, real MCP stdio handshake/tool listing/
       validation and native PNG processing pass. Committed/pushed 2026-11-12 (full suite + build re-run); not deployed.
-- [ ] Release the verified patches separately; audit and resolve the 14 remaining package
+- [x] Verified patches released 2026-11-12 with `dpl_ijXCaxTFSPahPMVr48wuiRBUqRQ3` (main `f89988c`).
+- [ ] Audit and resolve the 14 remaining package
       findings, including MapLibre v6/Nodemailer v10 migrations and Next's pinned PostCSS.
       Scope and evidence: `docs/ops/security-updates-2026-10-23.md`.
 
