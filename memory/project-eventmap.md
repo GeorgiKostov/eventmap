@@ -25,6 +25,15 @@
 
 Session continuity. Update "Where things stand" surgically after meaningful changes.
 
+## Where things stand (2026-10-23 — app security patches)
+- Local dependencies now resolve Next 15.5.28, MCP SDK 1.32.2, DOMPurify 3.4.17 and sharp 0.35.5. Explicit sharp
+  minimum prevents Next's compatible optional range retaining the vulnerable old lock entry.
+- Production build generates all 111 pages; 42 targeted tests including analytics sanitization, native PNG processing and the real
+  stdio MCP initialize/list/invalid-input checks pass. No application behavior/source changes.
+- Committed and pushed 2026-11-12; not deployed. A separate audit still reports 14 package findings, including
+  MapLibre/Nodemailer major upgrades and pinned PostCSS; this is not an all-clear or breach finding.
+  Evidence and next actions: `docs/ops/security-updates-2026-10-23.md`.
+
 ## Where things stand (2026-10-17 — special-event crawl)
 - Added 169 published Austrian occurrences for October 17–January 17, including 131 seasonal
   occurrences across 17 programmes; 151 additions are in Linz. Refreshed 342 existing rows.

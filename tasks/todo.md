@@ -23,6 +23,14 @@
 
 Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — flip/append, don't rewrite.
 
+## App security dependencies (2026-10-23)
+- [x] Patch Next to 15.5.28, MCP SDK to 1.32.2, DOMPurify to 3.4.17 and sharp to 0.35.5.
+      Production build (111 pages), 42 focused tests including analytics sanitization, real MCP stdio handshake/tool listing/
+      validation and native PNG processing pass. Committed/pushed 2026-11-12 (full suite + build re-run); not deployed.
+- [ ] Release the verified patches separately; audit and resolve the 14 remaining package
+      findings, including MapLibre v6/Nodemailer v10 migrations and Next's pinned PostCSS.
+      Scope and evidence: `docs/ops/security-updates-2026-10-23.md`.
+
 ## Special-event crawl (2026-10-17)
 - [x] Crawl approved seasonal/family calendars; add 169 dated occurrences (131 seasonal), refresh
       342 existing rows, and verify representative new events through production search/map APIs.
