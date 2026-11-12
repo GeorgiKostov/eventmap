@@ -1,5 +1,12 @@
 # Project memory — eventmap (Okolo)
 
+## Where things stand (2026-11-12 — weekend pick policy)
+- Weekend picks now follow one tested policy (`lib/pick-policy.js`, `docs/ops/editorial-picks.md`):
+  courses/standing groups and months-long listings rank last, family = children, findable/local
+  first, max 2 per venue and 3 per season, major Linz venues curated. `scripts/check-picks.mjs` is
+  the shared pre-publish gate for any AI; the Codex Wednesday automation calls it.
+- Already-frozen issues are untouched; live editions rebuild under the policy on Thursday Nov 19.
+
 ## Where things stand (2026-10-27 — zero paid AI)
 
 - George requires AI work only in interactive Codex under his subscription while online.

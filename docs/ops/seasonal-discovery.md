@@ -45,7 +45,9 @@ Before preparing the weekend issues:
 3. Review dates, venues, distinct markets versus daily occurrences, cancellations, duplicates,
    and family suitability. Holiday identity alone never establishes a child-friendly event.
    Report shortages honestly; do not create placeholder events or promise complete coverage.
-4. Use seasonal visuals only when matching events actually appear in the frozen issue. Keep
+4. Run `scripts/check-picks.mjs`; a `season_missing` warning with real local seasonal events in
+   the pool means swap one in ([`editorial-picks.md`](editorial-picks.md)).
+   Use seasonal visuals only when matching events actually appear in the frozen issue. Keep
    useful ordinary events in the selection; do not pad a holiday edition at the expense of quality.
 5. Check the map's active filters and expiry against the deployed runtime. Missing support or a
    deployment mismatch is a follow-up item, not permission for the routine publishing task to

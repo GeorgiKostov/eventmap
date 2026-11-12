@@ -128,6 +128,15 @@ preserve truthful event records and archives. Newsletter decoration must match a
 events and the issue's dates. Refresh facts only through approved, repeatable sources; never
 invent events or reuse last year's dates to fill a seasonal campaign.
 
+### Weekend picks — standing rule
+
+Every weekend issue (newsletter, carousel, weekend page) is selected by one deterministic policy,
+`lib/pick-policy.js`, documented in `docs/ops/editorial-picks.md`. Any editor, whether Codex, Claude
+or a person, runs `scripts/check-picks.mjs` before publishing. Swap every BLOCK flag with the
+desk's Replace (vetoes survive Thursday's `--regenerate`; hand edits do not), then apply the doc's
+judgment list. A recurring bad pick gets fixed in the policy code with a test, never only in an
+automation prompt, because the next model will not read that prompt.
+
 - Next.js 15 App Router, **plain JavaScript**. Do not introduce TypeScript piecemeal.
 - Prefer server components and routes; use client components only where interaction requires them.
 - Keep one concept per file. Roughly 400 lines is a smell, except `app/page.js`, the deliberate

@@ -116,8 +116,9 @@ test('rankPick: interest_count breaks ties among otherwise-equal picks', () => {
   const base = { categories: ['family'], src_kind: 'crawl', source_url: 'https://linztermine.at/1', geo_precision: 'venue', is_free: true };
   const more = rankPick({ ...base, interest_count: 5 });
   const less = rankPick({ ...base, interest_count: 1 });
-  assert.deepEqual(more.slice(0, 4), less.slice(0, 4), 'sanity: everything but interest_count is equal');
-  assert.ok(more[4] > less[4], 'higher interest_count ranks higher');
+  const at = 9; // interest_count's slot in the tuple (see rankPick)
+  assert.deepEqual(more.slice(0, at), less.slice(0, at), 'sanity: everything but interest_count is equal');
+  assert.ok(more[at] > less[at], 'higher interest_count ranks higher');
 });
 
 test('rankPick: a reported event is excluded by the caller, not by rankPick itself (gate lives in communityQualityGate/SQL)', () => {

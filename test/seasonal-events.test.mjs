@@ -11,7 +11,7 @@ test('Christmas market titles are distinct from other Christmas events across so
     assert.equal(seasonalTheme(event(title)), 'christmas_market', title);
     assert.equal(matchesSeasonalTheme(event(title), 'christmas'), false, title);
   }
-  for (const title of ['Weihnachtskonzert', 'Adventsingen', 'Krampuslauf', 'Nikolausbesuch', 'Christmas workshop']) {
+  for (const title of ['Weihnachtskonzert', 'Adventsingen', 'Krampuslauf', 'Nikolausbesuch', 'Christmas workshop', 'Krippenausstellung im Stift', 'Christkindlpostamt Steyr', 'Punschstand der Feuerwehr']) {
     assert.equal(seasonalTheme(event(title)), 'christmas', title);
   }
 });
@@ -20,7 +20,7 @@ test('Halloween and New Year match their holiday dates without relabeling ordina
   assert.equal(seasonalTheme(event('Halloween im Schloss', '2026-10-31')), 'halloween');
   assert.equal(seasonalTheme(event('Silvesterlauf', '2026-12-31')), 'new_year');
   assert.equal(seasonalTheme(event('Neujahrskonzert', '2027-01-01')), 'new_year');
-  for (const ev of [event('Wochenmarkt'), event('Winterkonzert'), event('Nikolaus Harnoncourt: Konzert'), event('Halloween', '2026-05-04'), event('Weihnachtsmuseum', undefined, { kind: 'place' }), event('Konzert', undefined, { description: 'Beside the Christmas market', venue: 'Weihnachtsmarkt' }), event('Weihnachtsmarkt', null)]) {
+  for (const ev of [event('Kinderkrippe Tag der offenen Tür'), event('Wochenmarkt'), event('Winterkonzert'), event('Nikolaus Harnoncourt: Konzert'), event('Halloween', '2026-05-04'), event('Weihnachtsmuseum', undefined, { kind: 'place' }), event('Konzert', undefined, { description: 'Beside the Christmas market', venue: 'Weihnachtsmarkt' }), event('Weihnachtsmarkt', null)]) {
     assert.equal(seasonalTheme(ev), null, ev.title);
   }
 });

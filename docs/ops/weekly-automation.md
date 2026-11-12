@@ -32,6 +32,10 @@ See [the decision](../decisions/2026-10-27-no-paid-ai.md).
 
 ## 1. Goal & Philosophy
 
+**Pick policy (2026-11-12):** selection rules, the pre-publish check and the editorial checklist
+for any human or AI editor are in [`editorial-picks.md`](editorial-picks.md). §2A below is the
+original spec. The live rank order is in that doc and `lib/pick-policy.js`.
+
 **Seasonal review (2026-10-17):** the existing Wednesday 16:00 Europe/Vienna Codex task
 `post-okolo-weekend-carousels` reviews upcoming Austrian seasons, source-backed coverage,
 promotion/retirement and matching newsletter visuals before issue preparation. Follow

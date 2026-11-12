@@ -1281,3 +1281,12 @@ an Ottensheim calendar event actually held in Walding. Check new town/venue fiel
 after ingestion, not only missing coordinates. Prefer explicit event-location sections over
 organizer contacts; use publisher venue markers rather than map camera centres. Search-engine
 copies can retain last year's dates even when the live publisher has updated the same URL.
+
+## 2026-11-12 — Editorial rules in a prompt do not bind the pipeline
+
+The Wednesday Codex prompt already said to remove courses and prefer specific weekend events, yet
+the Linz family strand shipped five climbing courses two weeks running. The model kept them, and
+Thursday's `--regenerate` rebuilds from code anyway, so only vetoes survive. The ranking's final
+"earliest start" tiebreak also favoured the oldest long-running series. **Lesson:** encode editorial
+rules as tested code plus a check with an exit code (`lib/pick-policy.js`, `scripts/check-picks.mjs`).
+Prompts should only point at it. Rank by "is this an outing this weekend" before source reputation.

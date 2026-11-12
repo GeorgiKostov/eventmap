@@ -1,5 +1,18 @@
 # TODO
 
+## Weekend pick policy (2026-11-12)
+- [x] Audit Linz/Wien picks. The Linz family strand was five Alpenverein climbing courses two weekends
+      running ("ab 14" and Sept→March series); Theater des Kindes/Kuddelmuddel/Leonding Nutcracker sat
+      at #42–48; Brucknerhaus/Posthof lost to a generic dance night on tier. Thursday `--regenerate`
+      rebuilds from code, so Wednesday AI edits survive only as vetoes.
+- [x] Shared policy `lib/pick-policy.js` (routine/admin/children/occasion/place/distance/diversity),
+      new rank tuple, `scripts/check-picks.mjs` (exit 1 on BLOCK), `docs/ops/editorial-picks.md`,
+      standing rule in AGENTS/CLAUDE, Codex Wednesday automation runs the check. Full suite and build pass.
+- [ ] Deploy when convenient so the desk's Replace uses the children-only family strand (the
+      Thursday GitHub prepare already runs `main`, so picks change from Nov 19 without a deploy).
+- [ ] After two issues, re-run the check on Linz/Wien and tune `pick-policy.js` from real misses
+      (e.g. "Pre-Concert für X" + "X" near-duplicates, restaurant promos).
+
 ## Zero paid AI (2026-10-27)
 
 - [x] Block automated model calls, remove paid crawl lane/credentials, preserve structured collection and template digests.
