@@ -161,6 +161,11 @@ proof. **813 sources still on the LLM route is the standing invitation**: the na
 classified sources from *URLs only, never fetching HTML*, leaving ~1,027 unclassified, so the CMS
 fingerprint sweep (`sources.cms` backfill) is the highest-value pipeline task outstanding.
 
+**GEM2GO 2026 redesign (2026-11-12).** ~40% of active GEM2GO sources (sample 23/59) now render an
+ASP.NET filter form (`fromDate-<id>`) whose default view starts *today* and shows ~10 events; GET
+params are ignored. `lib/gem2go-filter.js` re-POSTs the form with a moving `fromDate` (≤40 rounds,
+60-day horizon, stops on an empty page) — Steyr went from 10 upcoming events (all today) to 96.
+
 `feed_kind` of the 214 working sources' most recent crawl: **158 GEM2GO** (73.8%), **51 LLM**
 (23.8%), 3 JSON-LD, 2 not yet crawled since the field was added. This is the measured payoff of the
 deterministic GEM2GO parser (§3): roughly three in four working sources now resolve for $0 in LLM

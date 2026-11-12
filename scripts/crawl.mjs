@@ -36,6 +36,7 @@ import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfin
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
 import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderfreunde-events.js';
 import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
+import { walkGem2goFilter } from '../lib/gem2go-filter.js';
 import { fetchSalzburgarenaEvents } from '../lib/salzburgarena-events.js';
 import { fetchGrazerSpielstaettenEvents } from '../lib/grazer-spielstaetten-events.js';
 import { fetchBregenzerFestspieleEvents } from '../lib/bregenzer-festspiele-events.js';
@@ -701,7 +702,24 @@ async function tryStructuredExtraction(html, src) {
   }
 
   if (src.cms === 'gem2go') {
-    const gem2goEvents = parseGem2goEvents(html, src);
+    let gem2goEvents = parseGem2goEvents(html, src);
+    // 2026 redesign pages default to today only; walk the filter form forward.
+    if (/name="fromDate-\d+"/.test(html)) {
+      gem2goEvents = await walkGem2goFilter(html, {
+        pageUrl: src.url,
+        today: new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Vienna' }).format(new Date()),
+        events: gem2goEvents,
+        parse: (page) => parseGem2goEvents(page, src),
+        fetchPage: async (url, body) => {
+          if (!await robotsAllowed(url)) return null;
+          const res = await politeFetch(url, {
+            method: 'POST', body,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          });
+          return res.ok ? res.text() : null;
+        },
+      });
+    }
     if (gem2goEvents.length) return { route: 'gem2go', events: gem2goEvents };
   }
 

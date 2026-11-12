@@ -1,5 +1,19 @@
 # TODO
 
+## Steyr coverage + GEM2GO filter-form paging (2026-11-12)
+- [x] steyr.at showed only today's events (10 upcoming of 415 stored): GEM2GO redesign pages default
+      to "today", ~10 per page, GET ignored. `lib/gem2go-filter.js` walks the form by POSTed `fromDate`;
+      Steyr now 96 upcoming (to Dec 22), Ternberg 63. Affects ~40% of active GEM2GO sources.
+- [x] Registered Museum Arbeitswelt Steyr iCal (6 events, pinned to Wehrgrabengasse 7); repointed
+      Dietach (old URL 404 → 45 events). `scripts/register-steyr-sources.mjs`.
+- [ ] Watch the next daily crawl's duration (GitHub cap 180 min) — the pager adds up to 40 POSTs per
+      widget source.
+- [ ] Garsten relaunched off GEM2GO with no public events page — set `works=false`; George to decide.
+- [ ] OÖ Familienkarte + OÖ Tourismus regional feeds are `llm` → frozen since 2026-10-27; need
+      deterministic adapters (Familienkarte date form; oberoesterreich.at event pages). Covers all OÖ.
+- [ ] Steyr gaps without a feed: Röda (JS-rendered), AKKU (no structured data), Stadttheater (site down),
+      Tourismus Steyr (JS shell). No source at all for Weyer, Molln.
+
 ## Weekend pick policy (2026-11-12)
 - [x] Audit Linz/Wien picks. The Linz family strand was five Alpenverein climbing courses two weekends
       running ("ab 14" and Sept→March series); Theater des Kindes/Kuddelmuddel/Leonding Nutcracker sat

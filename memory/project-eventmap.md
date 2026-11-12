@@ -1,5 +1,10 @@
 # Project memory — eventmap (Okolo)
 
+## Where things stand (2026-11-12 — GEM2GO filter paging)
+- GEM2GO redesign sites (~40% of active GEM2GO) show only "today" by default; the crawl now walks
+  their filter form (`lib/gem2go-filter.js`). Steyr 10 → 96 upcoming. Museum Arbeitswelt iCal added,
+  Dietach repointed; Garsten parked (no events page). Watch the next cron's runtime.
+
 ## Where things stand (2026-11-12 — weekend pick policy)
 - Weekend picks now follow one tested policy (`lib/pick-policy.js`, `docs/ops/editorial-picks.md`):
   courses/standing groups and months-long listings rank last, family = children, findable/local
