@@ -3,11 +3,11 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, Camera, ImageSquare, LinkSimple, PencilSimple, CaretRight, BookmarkSimple, Flag, Warning } from '@phosphor-icons/react';
+import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, CaretRight, BookmarkSimple, Flag, Warning } from '@phosphor-icons/react';
 import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { seasonalTheme, matchesSeasonalTheme, seasonalWindow, activeSeasonalThemes, nextViennaMidnight } from '../lib/seasonal-events.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
-import { hasTime, makeStartsAt, inTimeOfDay, isOngoingAt } from '../lib/event-time.js';
+import { hasTime, inTimeOfDay, isOngoingAt } from '../lib/event-time.js';
 import { TOWNS, townCentroid } from '../lib/towns.js';
 import { searchPlaces, normalizePlace } from '../lib/places.js';
 import { groupEventSeries } from '../lib/map-groups.js';
@@ -20,7 +20,6 @@ import { eventSummary } from '../lib/event-summary.js';
 import { partnerEventMatches, partnerProgram } from '../lib/partner-programs.js';
 import { canonicalMapViewport } from '../lib/map-request.js';
 import { NEWSLETTER_EDITIONS, newsletterEditionForPoint } from '../lib/newsletter-market.js';
-import AccountDialog from './account-dialog.js';
 import OkoloBrand from './okolo-brand.js';
 import { PrivacySettingsButton } from './analytics.js';
 
@@ -68,7 +67,6 @@ function initialShowsAllDates() {
 // stays hidden until enough people agree — showing "1 interested" reads as an
 // empty room and is worse than showing nothing at all.
 const SAVED_KEY = 'okolo_saved';
-const SAVED_OWNER_KEY = 'okolo_saved_owner';
 const INTEREST_SHOW_MIN = 3;
 // All-GL pin handoff band: below LOW the clustered overview owns the map, above
 // HIGH the detail sprite pins do; across the band both cross-fade via a single
@@ -183,15 +181,6 @@ function placeStatusLabel(ev, t) {
   if (st.always) return t.alwaysOpen;
   return st.open ? t.openNow : t.closedNow;
 }
-function buildOpeningHours(hours) {
-  const out = {};
-  for (const k of DOW_ORDER) {
-    const r = hours?.[k];
-    if (r && r[0] && r[1]) out[k] = [[r[0], r[1]]];
-  }
-  return out;
-}
-
 /* ---------------- misc helpers ---------------- */
 function distKm(a, b) {
   const R = 6371, dLa = ((b.lat - a.lat) * Math.PI) / 180, dLo = ((b.lng - a.lng) * Math.PI) / 180;
@@ -558,18 +547,6 @@ function makeIcs(ev) {
   a.click();
   URL.revokeObjectURL(url);
 }
-async function downscale(file, maxEdge = 1600) {
-  const bmp = await createImageBitmap(file);
-  const scale = Math.min(1, maxEdge / Math.max(bmp.width, bmp.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(bmp.width * scale);
-  canvas.height = Math.round(bmp.height * scale);
-  canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
-  // Always re-encode (not just when resizing) so uploads stay small even for
-  // already-≤1600px source images (e.g. large uncompressed PNG screenshots).
-  return new Promise((res) => canvas.toBlob((b) => res(b), 'image/jpeg', 0.8));
-}
-
 /* ---------------- date range picker ---------------- */
 function DateRangePicker({ lang, t, from, to, onChange, onDone }) {
   const today = todayStr();
@@ -628,41 +605,6 @@ function DateRangePicker({ lang, t, from, to, onChange, onDone }) {
   );
 }
 
-/* ---------------- pin-drop location picker ---------------- */
-// "Drag the map under a fixed center pin" (Google-Maps drop-pin pattern) —
-// shared by the add-a-place map mode and the event-confirm precision refine step.
-function PinDropPicker({ center, t, onConfirm }) {
-  const ref = useRef(null);
-  const mapR = useRef(null);
-  const [pos, setPos] = useState(center);
-  useEffect(() => {
-    const map = new maplibregl.Map({
-      container: ref.current,
-      style: MAP_STYLE,
-      center: [center.lng, center.lat],
-      zoom: 16,
-      attributionControl: false,
-      locale: mapLibreLocale(t),
-    });
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-    map.on('moveend', () => {
-      const c = map.getCenter();
-      setPos({ lat: c.lat, lng: c.lng });
-    });
-    mapR.current = map;
-    return () => { map.remove(); mapR.current = null; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return (
-    <div className="pinpicker">
-      <div className="pinpicker-map" ref={ref} />
-      <span className="pinpicker-crosshair" aria-hidden>📍</span>
-      <span className="pinpicker-hint">{t.dragMapHint}</span>
-      <button type="button" className="abtn primary pinpicker-confirm" onClick={() => onConfirm(pos)}>{t.confirmPosition}</button>
-    </div>
-  );
-}
-
 /* ==================================================================== */
 export default function Home({ partnerSlug = null } = {}) {
   const partner = partnerProgram(partnerSlug);
@@ -674,8 +616,6 @@ export default function Home({ partnerSlug = null } = {}) {
   // lights its representative). Rebuilt with the pin source data.
   const pinIndexRef = useRef({ itemById: new Map(), memberToRep: new Map() });
   const pinSelRef = useRef(null); // feature id currently carrying feature-state selected
-  const fileInput = useRef(null);
-  const cameraInput = useRef(null);
 
   const { lang, t, chooseLanguage } = useLanguage();
   useEffect(() => {
@@ -721,26 +661,12 @@ export default function Home({ partnerSlug = null } = {}) {
 
   // top-right actions menu + search
   const [menuOpen, setMenuOpen] = useState(false);
-  // Client auth state is presentation-only; every protected API route validates
-  // the signed JWT independently before doing work.
-  const [account, setAccount] = useState(undefined); // undefined=checking, null=signed out
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [resumeAddAfterAuth, setResumeAddAfterAuth] = useState(false);
-  useEffect(() => {
-    let active = true;
-    fetch('/api/account/session', { cache: 'no-store' })
-      .then((res) => res.json())
-      .then((data) => { if (active) setAccount(data.account || null); })
-      .catch(() => { if (active) setAccount(null); });
-    return () => { active = false; };
-  }, []);
   // Map centre, refreshed on every settle — within a supported catchment it
   // drives the matching city calendar and editorial weekend page. Outside all
   // city catchments the map remains the universal discovery surface.
   const [mapCenter, setMapCenter] = useState(HOME);
   const weekendChannel = useMemo(() => channelForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
   const calendarCity = useMemo(() => seoCityForPoint(mapCenter.lat, mapCenter.lng), [mapCenter]);
-  const [manualEntry, setManualEntry] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [orteMatches, setOrteMatches] = useState([]); // instant gazetteer/town matches
@@ -1030,7 +956,6 @@ export default function Home({ partnerSlug = null } = {}) {
     open: false, email: '', edition: 'linz', area: '', areaLat: null, areaLng: null, areaCountry: null,
     categories: [], busy: false, done: false, kind: null, err: '',
   });
-  const [limitNotice, setLimitNotice] = useState(null);
   const [toast, setToast] = useState('');
   // The newsletter prompt. It appears at a MOMENT OF INTENT — the tap that says
   // "I want to remember something that's happening" — never on a timer and never
@@ -1041,83 +966,6 @@ export default function Home({ partnerSlug = null } = {}) {
   const eventOpens = useRef(0);
   const sponsoredSeen = useRef(new Set());
   const toastT = useRef(null);
-
-  // scan flow
-  const [capture, setCapture] = useState(false);
-  const [scanState, setScanState] = useState('pick');
-  const [scanImg, setScanImg] = useState(null);
-  const [scanErr, setScanErr] = useState('');
-  const [draft, setDraft] = useState(null);
-  const [photoPath, setPhotoPath] = useState(null);
-  const [intakeProof, setIntakeProof] = useState(null);
-  const [urlInput, setUrlInput] = useState(''); // intake: paste-a-link field
-  const [mapPick, setMapPick] = useState(false); // location picking happens on the MAIN map
-  const [refine, setRefine] = useState(null); // pending low-precision publish awaiting pin refine
-  const [dupNotice, setDupNotice] = useState(null); // {id,title,starts_at} — scan matched an already-published event
-  const mapPickProgrammatic = useRef(false); // guard: our own flyTo must not trigger a reverse-geocode overwrite
-  const mapPickSnapshot = useRef(null); // draft location before entering map-pick, for cancel
-  const addFlowActiveRef = useRef(false); // map click handler is bound once → read this ref, not state
-  addFlowActiveRef.current = capture || mapPick;
-  const reverseDebounce = useRef(null);
-  const reverseReqId = useRef(0); // latest-wins guard for reverse-geocode responses
-  const urlBusy = useRef(false); // in-flight guard for the link-extraction pipeline
-
-  // address autocomplete (task 4b): debounced GET /api/geocode?suggest=1&q=… while
-  // typing in the address field of either form; a parallel agent owns the endpoint.
-  const [addrSuggestions, setAddrSuggestions] = useState([]);
-  const [addrSuggestOpen, setAddrSuggestOpen] = useState(false);
-  const addrDebounce = useRef(null);
-  const addrReqId = useRef(0);
-
-  useEffect(() => {
-    if (!limitNotice) return;
-    const onKeyDown = (e) => { if (e.key === 'Escape') setLimitNotice(null); };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [limitNotice]);
-
-  async function fetchAddressSuggestions(q) {
-    const reqId = ++addrReqId.current;
-    try {
-      const cacheKeyQuery = q.trim().replace(/\s+/g, ' ').toLowerCase();
-      const res = await fetch(`/api/geocode?suggest=1&q=${encodeURIComponent(cacheKeyQuery)}`);
-      if (!res.ok) { if (reqId === addrReqId.current) setAddrSuggestions([]); return; }
-      const data = await res.json();
-      if (reqId === addrReqId.current) setAddrSuggestions(Array.isArray(data.results) ? data.results : []);
-    } catch {
-      if (reqId === addrReqId.current) setAddrSuggestions([]);
-    }
-  }
-  function onAddressChange(v) {
-    // typing invalidates any previously picked/dropped coordinates — the address
-    // text and lat/lng must stay in sync, publish() prefers lat/lng when present.
-    setDraft((d) => ({ ...d, address: v, lat: null, lng: null }));
-    setAddrSuggestOpen(true);
-    clearTimeout(addrDebounce.current);
-    const q = v.trim();
-    if (q.length < 3) { setAddrSuggestions([]); return; }
-    addrDebounce.current = setTimeout(() => fetchAddressSuggestions(q), 300);
-  }
-  function pickAddressSuggestion(s) {
-    setDraft((d) => ({ ...d, address: s.label, lat: s.lat, lng: s.lng }));
-    setAddrSuggestions([]);
-    setAddrSuggestOpen(false);
-    // Two-way bind: a picked address flies the main map to that point (visible on
-    // desktop and in map-pick mode). Flag the move so its moveend doesn't reverse-
-    // geocode over what we just set.
-    if (mapObj.current && s.lat != null) {
-      flyProgrammatic([s.lng, s.lat], Math.max(mapObj.current.getZoom(), 15));
-    }
-  }
-  // Fly the main map from a geocode result WITHOUT letting the resulting moveend
-  // reverse-geocode over the address we just set. The flag is force-cleared on a
-  // timer so it can never get stuck (a no-op flyTo may emit no moveend).
-  function flyProgrammatic(center, zoom) {
-    mapPickProgrammatic.current = true;
-    mapObj.current?.flyTo({ center, zoom, duration: 700 });
-    clearTimeout(reverseDebounce.current);
-    setTimeout(() => { mapPickProgrammatic.current = false; }, 900);
-  }
 
   async function submitNewsletter(e) {
     e.preventDefault();
@@ -1198,7 +1046,7 @@ export default function Home({ partnerSlug = null } = {}) {
   }
 
   /* ---------------- interested / save + data-quality reports ---------------- */
-  // saved = local offline cache, adopted by an account on first sign-in.
+  // saved = device-local list (localStorage only).
   // interestCounts = optimistic overrides on top of each row's server count.
   const [saved, setSaved] = useState([]);
   const [savedLoaded, setSavedLoaded] = useState(false);
@@ -1249,37 +1097,6 @@ export default function Home({ partnerSlug = null } = {}) {
     finally { setSavedLoaded(true); }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // First sign-in adopts anonymous device saves. Thereafter the account is the
-  // authority and localStorage is only an offline cache. A different account
-  // on the same browser never inherits the previous account's list.
-  useEffect(() => {
-    if (!savedLoaded || account === undefined) return;
-    let owner = null;
-    try { owner = localStorage.getItem(SAVED_OWNER_KEY); } catch { /* private mode */ }
-    if (!account) {
-      if (owner) {
-        persistSaved([]);
-        try { localStorage.removeItem(SAVED_OWNER_KEY); } catch { /* private mode */ }
-      }
-      return;
-    }
-    const mergeIds = !owner || owner === account.id ? saved : [];
-    fetch('/api/account/favorites', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-okolo-lang': lang },
-      body: JSON.stringify({ action: 'merge', ids: mergeIds }),
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || t.requestFailed);
-        const ids = (data.ids || []).map(String);
-        persistSaved(ids);
-        if (ids.length) resolveSavedIds(ids);
-        try { localStorage.setItem(SAVED_OWNER_KEY, account.id); } catch { /* private mode */ }
-      })
-      .catch(() => { /* keep the offline cache and retry on next session */ });
-  }, [account, savedLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Also re-resolve whenever the modal opens, so a save made from a search
   // result / another session's data is fresh and any newly-expired event drops.
   useEffect(() => {
@@ -1326,14 +1143,6 @@ export default function Home({ partnerSlug = null } = {}) {
     // and the newsletter is literally "we'll remind you of these every week" — so
     // this is the one moment the offer answers a need they just expressed.
     if (on) maybePromptNewsletter();
-    if (account) {
-      try { localStorage.setItem(SAVED_OWNER_KEY, account.id); } catch { /* private mode */ }
-      fetch('/api/account/favorites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-okolo-lang': lang },
-        body: JSON.stringify({ id, on }),
-      }).catch(() => { /* local cache stays useful offline; next sign-in merges */ });
-    }
     // The save already happened locally; the counter is best-effort. A failed
     // request must never cost the user their saved event.
     fetch('/api/react', {
@@ -1472,10 +1281,6 @@ export default function Home({ partnerSlug = null } = {}) {
     // order relative to this one, so split routing races (a bubble tap in the
     // crossfade band used to fall through to an arbitrary nearby pin).
     map.on('click', (e) => {
-      // During the add-flow (capture form / map-pick) a pin tap must NOT select +
-      // flyTo — the resulting moveend would silently overwrite the location the
-      // user is placing (review finding, 2026-07-13).
-      if (addFlowActiveRef.current) return;
       const top = (layer) => (map.getLayer(layer) ? map.queryRenderedFeatures(e.point, { layers: [layer] })[0] : null);
       const clusterBubble = () => top('result-cluster-bubbles') || top('result-cell-bubbles');
       const zoomToBubble = (bubble) => map.easeTo({ center: bubble.geometry.coordinates, zoom: Math.min(13, map.getZoom() + 2) });
@@ -1550,15 +1355,11 @@ export default function Home({ partnerSlug = null } = {}) {
       setMenuOpen(false);
     });
     // Viewport-native fetch: refetch on every settle, debounced so a drag/zoom
-    // gesture doesn't fire a request per frame. Skipped during the add-flow
-    // (capture/map-pick), whose own moves aren't "browsing the map".
+    // gesture doesn't fire a request per frame.
     map.on('moveend', () => {
-      // Tracked unconditionally, BEFORE the add-flow guard: this only feeds the
-      // menu's "Wochenende in X" link, and it should follow the map even when the
-      // viewport fetch is deliberately skipped.
+      // Also feeds the menu's "Wochenende in X" link.
       const c = map.getCenter();
       setMapCenter({ lat: c.lat, lng: c.lng });
-      if (addFlowActiveRef.current) return;
       clearTimeout(moveendTimer.current);
       moveendTimer.current = setTimeout(() => fetchViewportRef.current(), 400);
     });
@@ -1592,53 +1393,6 @@ export default function Home({ partnerSlug = null } = {}) {
       searchMarker.current.setLngLat([searchCenter.lng, searchCenter.lat]);
     }
   }, [searchCenter]);
-
-  // Map-pick mode: keep draft coords glued to the map centre, and on settle
-  // reverse-geocode into address+town — unless the move was our own flyTo (loop
-  // guard), which already knows the address it flew to.
-  useEffect(() => {
-    const map = mapObj.current;
-    if (!map || !mapPick) return;
-    const onMove = () => {
-      const c = map.getCenter();
-      setDraft((d) => (d ? { ...d, lat: c.lat, lng: c.lng } : d));
-      if (mapPickProgrammatic.current) { mapPickProgrammatic.current = false; return; }
-      clearTimeout(reverseDebounce.current);
-      reverseDebounce.current = setTimeout(async () => {
-        // Latest-wins: a fast drag can fire several lookups; a slow earlier
-        // one must not overwrite the address for where the pin now sits.
-        const reqId = ++reverseReqId.current;
-        try {
-          const res = await fetch(`/api/geocode?reverse=1&lat=${c.lat.toFixed(5)}&lng=${c.lng.toFixed(5)}`);
-          const data = await res.json();
-          if (reqId !== reverseReqId.current) return;
-          const a = data.address;
-          if (a) setDraft((d) => (d ? { ...d, address: a.address ?? d.address, town: a.town || d.town } : d));
-        } catch { /* keep whatever's there */ }
-      }, 600);
-    };
-    map.on('moveend', onMove);
-    return () => { map.off('moveend', onMove); clearTimeout(reverseDebounce.current); };
-  }, [mapPick]);
-
-  // Intake paste: while the intake screen is open, a pasted image goes to the
-  // scan pipeline and pasted URL text goes to the link pipeline.
-  useEffect(() => {
-    if (!capture || scanState !== 'pick') return;
-    const onPaste = (e) => {
-      const items = e.clipboardData?.items || [];
-      for (const it of items) {
-        if (it.type && it.type.startsWith('image/')) {
-          const file = it.getAsFile();
-          if (file) { e.preventDefault(); handleFile(file); return; }
-        }
-      }
-      const text = e.clipboardData?.getData('text')?.trim();
-      if (text && /^https?:\/\/\S+$/i.test(text)) { e.preventDefault(); setUrlInput(text); handleUrl(text); }
-    };
-    window.addEventListener('paste', onPaste);
-    return () => window.removeEventListener('paste', onPaste);
-  }, [capture, scanState]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function selectEvent(ev, { fly = true, related } = {}) {
     setSelected(ev);
@@ -2363,338 +2117,6 @@ export default function Home({ partnerSlug = null } = {}) {
     setCats([]); setFreeOnly(false); setKidsOnly(false); setCommunityOnly(false); setInOut('any'); setTod([]);
   }
 
-  /* ---------------- scan flow ---------------- */
-  // The intake screen (scanState 'pick'): one drop zone (tap/drag/paste an
-  // image → scan) + a paste-a-link field (→ /api/extract-url) + "type it in
-  // manually". Every input converges on the shared confirm screen.
-  function openCapture() {
-    setCapture(true); setScanState('pick'); setScanImg(null); setScanErr(''); setDraft(null); setPhotoPath(null); setManualEntry(false);
-    setMapPick(false); setUrlInput(''); setRefine(null); setIntakeProof(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
-  }
-  function requestOpenCapture() {
-    if (account) { openCapture(); return; }
-    setResumeAddAfterAuth(true);
-    setAccountOpen(true);
-  }
-  function openAccount(resumeAdd = false) {
-    setResumeAddAfterAuth(resumeAdd);
-    setAccountOpen(true);
-  }
-  useEffect(() => {
-    if (account === undefined) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('auth_error') === '1') {
-      setResumeAddAfterAuth(false);
-      setAccountOpen(true);
-      params.delete('auth_error');
-      history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}${location.hash}`);
-      return;
-    }
-    if (account && params.get('add') === '1') {
-      params.delete('add');
-      history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}${location.hash}`);
-      openCapture();
-    }
-  }, [account]); // eslint-disable-line react-hooks/exhaustive-deps
-  // "Type it in manually" reuses the exact same confirm-screen UI as the scan
-  // flow, just pre-seeded with empty fields and skipping the photo/extraction
-  // steps. Defaults to an event; the Event|Place switch flips draft.kind.
-  function openManualAdd() {
-    setCapture(true); setScanState('confirm'); setScanImg(null); setScanErr(''); setPhotoPath(null); setIntakeProof(null); setManualEntry(true);
-    setMapPick(false); setRefine(null); setAddrSuggestions([]); setAddrSuggestOpen(false); setDupNotice(null);
-    setDraft({
-      kind: 'event', title: '', date_start: todayStr(), time_start: '', date_end: '', time_end: '', venue: '', address: '', town: 'Linz', lat: null, lng: null,
-      categories: [], is_free: false, description: '', confidence: {},
-      always_open: false, hours: {}, seasonal: '',
-    });
-  }
-  // The Event|Place segmented switch on the confirm screen. Fills in whichever
-  // kind's extra fields are missing so either direction is lossless.
-  function setDraftKind(kind) {
-    setDraft((d) => {
-      if (!d || d.kind === kind) return d;
-      if (kind === 'place') return { ...d, kind: 'place', always_open: d.always_open ?? false, hours: d.hours || {}, seasonal: d.seasonal || '' };
-      return { ...d, kind: 'event', date_start: d.date_start || todayStr(), time_start: d.time_start || '' };
-    });
-  }
-  function handleContributionLimit(res, data, action, restoreState) {
-    if (res.status !== 429) return false;
-    const defaults = action === 'ai_intake'
-      ? { action, scope: 'network', window: 'hour', max: 4, perHour: 4, perDay: 10 }
-      : { action, scope: 'network', window: 'hour', max: 5, perHour: 5, perDay: 15 };
-    const notice = { ...defaults, ...(data?.rateLimit || {}) };
-    setLimitNotice(notice);
-    setScanErr('');
-    setScanState(restoreState);
-    track('contribution_rate_limited', { action: notice.action, scope: notice.scope, window: notice.window });
-    return true;
-  }
-  async function handleFile(file) {
-    if (!file) return;
-    setScanErr('');
-    let blob;
-    try {
-      blob = await downscale(file);
-    } catch {
-      setScanErr(t.imgFormatErr);
-      return;
-    }
-    setScanImg(URL.createObjectURL(blob));
-    setScanState('scanning');
-    const fd = new FormData();
-    fd.append('image', blob, 'scan.jpg');
-    fd.append('lat', String(me.lat));
-    fd.append('lng', String(me.lng));
-    try {
-      const res = await fetch('/api/scan', { method: 'POST', headers: { 'X-Okolo-Lang': lang }, body: fd });
-      const data = await res.json();
-      if (handleContributionLimit(res, data, 'ai_intake', 'pick')) return;
-      // A failed read (unparseable model output, provider down, garbled poster)
-      // must never dead-end: keep the photo, drop into the same confirm form
-      // pre-seeded empty, and tell the user to fill it in by hand. The scan is a
-      // shortcut, not a gate — the only hard requirements land at publish time.
-      if (!res.ok || !data.extraction) {
-        setScanErr(t.scanFallbackManual);
-        setPhotoPath(data.photo_path || null);
-        setIntakeProof(null);
-        setDupNotice(null);
-        setManualEntry(true);
-        setDraft({
-          kind: 'event', title: '', date_start: '', time_start: '', date_end: '', time_end: '',
-          venue: '', address: '', town: '', lat: null, lng: null,
-          categories: [], is_free: false, description: '', confidence: {},
-          always_open: false, hours: {}, seasonal: '',
-        });
-        setScanState('confirm');
-        return;
-      }
-      const x = data.extraction;
-      // Partial or non-event reads are expected, not errors — surface a soft
-      // nudge and let the user complete whatever the AI couldn't read.
-      if (!x.is_event) setScanErr(t.noEventDetected);
-      setPhotoPath(data.photo_path);
-      setIntakeProof(data.intake_proof || null);
-      setDupNotice(data.duplicate || null);
-      setDraft({
-        kind: 'event',
-        title: x.title || '',
-        date_start: x.date_start || '',
-        time_start: x.time_start || '',
-        date_end: x.date_end || '',
-        time_end: x.time_end || '',
-        venue: x.venue || '',
-        address: x.address || '',
-        town: x.town || '', // never default a town — fabricated locations break trust (hard rule 5)
-        lat: null, lng: null,
-        categories: (x.categories || []).filter((c) => CATS[c]),
-        is_free: x.is_free === true,
-        description: x.description || '',
-        confidence: x.confidence || { title: 0, datetime: 0, location: 0 },
-      });
-      setScanState('confirm');
-    } catch (e) {
-      // Network/JSON failure before we even got a response — same principle:
-      // fall through to the manual form rather than bouncing back to the start.
-      setScanErr(t.scanFallbackManual);
-      setPhotoPath(null);
-      setIntakeProof(null);
-      setManualEntry(true);
-      setDraft({
-        kind: 'event', title: '', date_start: '', time_start: '', date_end: '', time_end: '',
-        venue: '', address: '', town: '', lat: null, lng: null,
-        categories: [], is_free: false, description: '', confidence: {},
-        always_open: false, hours: {}, seasonal: '',
-      });
-      setScanState('confirm');
-    }
-  }
-  // Link pipeline: server-side fetch + JSON-LD/OG/AI cascade (/api/extract-url),
-  // then the same confirm screen as a poster scan. A blocked/login-walled/
-  // event-less page comes back with fallback:true — we surface the nudge and
-  // stay on the intake screen where the camera drop zone is one tap away.
-  async function handleUrl(rawUrl) {
-    const url = (rawUrl || '').trim();
-    if (!url || urlBusy.current) return; // guard against double-submit (button + paste + Enter)
-    urlBusy.current = true;
-    setScanErr(''); setScanImg(null); setScanState('scanning');
-    try {
-      const res = await fetch('/api/extract-url', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify({ url }),
-      });
-      const data = await res.json();
-      if (handleContributionLimit(res, data, 'ai_intake', 'pick')) return;
-      if (!res.ok) { setScanErr(data.error || t.extractionFailed); setScanState('pick'); return; }
-      const x = data.extraction;
-      const place = x.kind === 'place';
-      setPhotoPath(null); setIntakeProof(data.intake_proof || null); setDupNotice(null);
-      setDraft({
-        kind: place ? 'place' : 'event',
-        title: x.title || '',
-        date_start: x.date_start || '',
-        time_start: x.time_start || '',
-        date_end: x.date_end || '',
-        time_end: x.time_end || '',
-        venue: x.venue || '',
-        address: x.address || '',
-        town: x.town || '', // never default a town — fabricated locations break trust (hard rule 5)
-        lat: null, lng: null,
-        categories: (x.categories || []).filter((c) => CATS[c]),
-        is_free: x.is_free === true,
-        description: x.description || '',
-        confidence: x.confidence || { title: 0, datetime: 0, location: 0 },
-        source_url: data.source_url || url,
-        always_open: false, hours: {}, seasonal: '',
-      });
-      setScanState('confirm');
-    } catch (e) {
-      setScanErr(String(e.message || e));
-      setScanState('pick');
-    } finally {
-      urlBusy.current = false;
-    }
-  }
-  // Location picking on the MAIN map. Enter → collapse the form to a slim bar
-  // (mobile) / keep it live (desktop) and drop a fixed centre crosshair; the
-  // moveend effect reverse-geocodes the settled centre into address+town.
-  function enterMapPick() {
-    mapPickSnapshot.current = { lat: draft.lat, lng: draft.lng, address: draft.address, town: draft.town };
-    const start = draft.lat != null ? { lat: draft.lat, lng: draft.lng } : (searchCenter || me);
-    setDraft((d) => ({ ...d, lat: start.lat, lng: start.lng }));
-    setMapPick(true);
-    flyProgrammatic([start.lng, start.lat], Math.max(mapObj.current?.getZoom() || 0, 15));
-  }
-  async function confirmMapPick() {
-    const c = mapObj.current?.getCenter();
-    clearTimeout(reverseDebounce.current);
-    const reqId = ++reverseReqId.current; // invalidates any in-flight drag lookup
-    if (c) setDraft((d) => ({ ...d, lat: c.lat, lng: c.lng }));
-    // Restore the form immediately; Nominatim may take a few seconds. The
-    // resolved label fills in behind it without making Confirm feel stuck.
-    setMapPick(false);
-    if (!c) return;
-    try {
-      const res = await fetch(`/api/geocode?reverse=1&lat=${c.lat.toFixed(5)}&lng=${c.lng.toFixed(5)}`);
-      const data = await res.json();
-      if (reqId !== reverseReqId.current) return;
-      const address = data.address;
-      if (address) setDraft((d) => ({ ...d, address: address.address ?? d.address, town: address.town || d.town }));
-    } catch { /* coordinates remain valid even if the label lookup fails */ }
-  }
-  function cancelMapPick() {
-    const s = mapPickSnapshot.current;
-    if (s) setDraft((d) => ({ ...d, lat: s.lat, lng: s.lng, address: s.address, town: s.town }));
-    setMapPick(false);
-  }
-  async function finishPublish() {
-    track('contribution_published', { kind: draft.kind === 'place' ? 'place' : 'event', via: photoPath ? 'scan' : draft.source_url ? 'link' : 'form' });
-    setCapture(false);
-    setManualEntry(false);
-    setRefine(null);
-    await fetchViewport();
-    showToast(t.toastLive);
-    setWhenMode('all');
-  }
-  async function publish() {
-    const isPlace = draft.kind === 'place';
-    // Town is required, never defaulted — a fabricated location is worse than a
-    // missing event (hard rule 5), and the server geocodes town → coords.
-    if (!draft.title || !draft.town?.trim() || (!isPlace && !draft.date_start)) {
-      setScanErr(isPlace ? t.requiredErrPlace : t.requiredErr);
-      return;
-    }
-    setScanState('publishing');
-    // Known coordinates (from the map pin-drop or a picked address suggestion) are
-    // trusted over server-side geocoding whenever we have them, for either kind.
-    const coordsPatch = draft.lat != null ? { lat: draft.lat, lng: draft.lng, geo_precision: 'address' } : {};
-    const placeHours = buildOpeningHours(draft.hours);
-    // Preserve a multi-day / explicit end so date-range filtering and the ICS
-    // export don't collapse it to a single day. Timed end only when timed start.
-    const timed = /^\d{2}:\d{2}$/.test(draft.time_start);
-    const endsAt = draft.date_end && draft.date_end >= draft.date_start
-      ? `${draft.date_end}T${timed && /^\d{2}:\d{2}$/.test(draft.time_end) ? draft.time_end : (timed ? draft.time_start : '23:59')}`
-      : null;
-    const body = isPlace
-      ? {
-          kind: 'place',
-          title: draft.title,
-          description: draft.description || null,
-          venue: draft.venue || null,
-          address: draft.address || null,
-          town: draft.town.trim(),
-          categories: draft.categories,
-          is_free: draft.is_free,
-          opening_hours: draft.always_open ? { always: true } : Object.keys(placeHours).length ? placeHours : null,
-          seasonal: draft.seasonal || null,
-          ...coordsPatch,
-        }
-      : {
-          kind: 'event',
-          title: draft.title,
-          description: draft.description || null,
-          starts_at: makeStartsAt(draft.date_start, timed ? draft.time_start : null),
-          ...(endsAt ? { ends_at: endsAt } : {}),
-          // Leaving the time field empty means "I don't know the time", not "it
-          // runs all day" — don't turn the user's silence into a claim either.
-          all_day: false,
-          venue: draft.venue || null,
-          address: draft.address || null,
-          town: draft.town.trim(),
-          categories: draft.categories,
-          is_free: draft.is_free,
-          photo_path: photoPath,
-          ...coordsPatch,
-        };
-    if (draft.source_url) body.source_url = draft.source_url; // link-pipeline linkback
-    if (intakeProof) body.intake_proof = intakeProof;
-    body.website = draft.website || ''; // honeypot — server rejects if filled
-    try {
-      const res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang }, body: JSON.stringify(body) });
-      const data = await res.json();
-      if (handleContributionLimit(res, data, 'publish', 'confirm')) return;
-      if (!res.ok) throw new Error(data.error || t.saveFailed);
-      if (data.merged) {
-        // This event was already on the map (crawled elsewhere, or scanned
-        // once before). Refresh the viewport and hydrate the canonical row by
-        // ID: React state updates are asynchronous, so a freshly-set events
-        // array is not available synchronously here.
-        await finishPublish();
-        const detailRes = await fetch(`/api/events?id=${encodeURIComponent(data.id)}`);
-        const detail = detailRes.ok ? await detailRes.json() : null;
-        selectRef.current(detail?.event || { id: data.id, lat: data.lat, lng: data.lng });
-        return;
-      }
-      if (data.geo_precision === 'town' && data.lat != null) {
-        // Low-precision geocode — offer the same pin-drop picker to refine it.
-        // A re-POST with explicit lat/lng + the same content (same title/day/
-        // town → same content_hash) updates this row's position in place.
-        setRefine({ body, lat: data.lat, lng: data.lng });
-        setScanState('refine');
-        return;
-      }
-      await finishPublish();
-    } catch (e) {
-      setScanErr(String(e.message || e));
-      setScanState('confirm');
-    }
-  }
-  async function confirmRefine(pos) {
-    setScanState('publishing');
-    try {
-      const res = await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Okolo-Lang': lang },
-        body: JSON.stringify({ ...refine.body, lat: pos.lat, lng: pos.lng, geo_precision: 'address' }),
-      });
-      const data = await res.json();
-      if (handleContributionLimit(res, data, 'publish', 'refine')) return;
-      if (!res.ok) throw new Error(data.error || t.saveFailed);
-      await finishPublish();
-    } catch (e) {
-      setScanErr(String(e.message || e));
-      setScanState('refine');
-    }
-  }
-
   /* ---------------- shared subviews ---------------- */
   // Top-left locality label + expanding search. `compact` = floating pill over
   // the map (mobile); non-compact = a normal row inside the desktop sidebar.
@@ -2738,18 +2160,6 @@ export default function Home({ partnerSlug = null } = {}) {
             <>
               <div className="menu-scrim" onClick={() => setMenuOpen(false)} />
               <div className="menudrop">
-                <button
-                  className={`menuitem account-menuitem ${account ? 'signed-in' : 'signed-out'}`}
-                  onClick={() => { setMenuOpen(false); openAccount(false); }}
-                >
-                  <span className="ic" aria-hidden="true">👤</span>
-                  <span className="account-menu-copy">
-                    <strong>{account ? t.account : t.signIn}</strong>
-                    {account?.email && <small>{account.email}</small>}
-                  </span>
-                  <CaretRight className="account-menu-arrow" size={15} weight="bold" aria-hidden="true" />
-                </button>
-                <div className="menu-divider" aria-hidden="true" />
                 <button className="menuitem" onClick={() => { setMenuOpen(false); setSavedOpen(true); }}>
                   <span className="ic">🔖</span>{t.savedMenu}
                   {saved.length > 0 && <span className="menucount">{saved.length}</span>}
@@ -3387,276 +2797,6 @@ export default function Home({ partnerSlug = null } = {}) {
     );
   }
 
-  const conf = draft?.confidence;
-  const confChip = (v) => (v == null ? null : <span className={`conf ${v >= 0.6 ? 'hi' : 'lo'}`}>{Math.round(v * 100)} %</span>);
-
-  const isPlaceDraft = draft?.kind === 'place';
-  const captureView = (
-    <section className={`capture ${capture ? 'show' : ''} ${scanState === 'pick' ? 'intake-sheet' : ''} ${mapPick ? 'mappick' : ''}`}>
-      <div className="caphead">
-        <h3>
-          {scanState === 'pick' && t.addToMap}
-          {scanState === 'scanning' && (scanImg ? t.scanReading : t.urlReading)}
-          {scanState === 'confirm' && (isPlaceDraft ? t.addPlaceTitle : manualEntry ? t.addManual : t.scanConfirm)}
-          {scanState === 'refine' && t.adjustPosition}
-          {scanState === 'publishing' && t.scanPublishing}
-        </h3>
-        <button onClick={() => setCapture(false)}>{t.cancel}</button>
-      </div>
-      <div className="capbody">
-        {scanErr && <div className="errbox">⚠️ {scanErr}</div>}
-        {scanState === 'pick' && (
-          <>
-            {/* Gallery/file picker (all devices) + a camera-only input (mobile).
-                capture="environment" makes the phone open the rear camera
-                straight away instead of the file browser. */}
-            <input ref={fileInput} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
-            <input ref={cameraInput} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handleFile(e.target.files?.[0])} />
-            <div className="intake-card">
-              {/* Order (George's call): link first, then photo, then manual. */}
-              <div className="intake-url">
-                <LinkSimple className="intake-url-icon" size={20} weight="bold" />
-                <input
-                  type="url"
-                  inputMode="url"
-                  autoComplete="off"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleUrl(urlInput); } }}
-                  placeholder={t.intakeUrlPlaceholder}
-                />
-                <button type="button" className="intake-url-go" disabled={!urlInput.trim()} onClick={() => handleUrl(urlInput)}>
-                  {t.intakeReadLink}
-                </button>
-              </div>
-
-              {isDesktop ? (
-                <button
-                  type="button"
-                  className="droparea"
-                  onClick={() => fileInput.current?.click()}
-                  onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('dragover'); }}
-                  onDragLeave={(e) => e.currentTarget.classList.remove('dragover')}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.remove('dragover');
-                    const file = e.dataTransfer?.files?.[0];
-                    if (file) handleFile(file);
-                  }}
-                >
-                  <span className="intake-icon primary"><ImageSquare size={23} weight="bold" /></span>
-                  <span className="intake-copy"><b>{t.scanUploadImage}</b><small>{t.scanPromptSub}</small></span>
-                  <CaretRight className="intake-chevron" size={18} weight="bold" />
-                </button>
-              ) : (
-                <>
-                  <button type="button" className="intake-photo" onClick={() => cameraInput.current?.click()}>
-                    <span className="intake-icon primary"><Camera size={21} weight="bold" /></span>
-                    <span className="intake-copy"><b>{t.scanTakePhoto}</b><small>{t.scanPromptSub}</small></span>
-                    <CaretRight className="intake-chevron" size={18} weight="bold" />
-                  </button>
-                  <button type="button" className="intake-photo" onClick={() => fileInput.current?.click()}>
-                    <span className="intake-icon"><ImageSquare size={21} weight="bold" /></span>
-                    <span>{t.scanUploadImage}</span>
-                    <CaretRight className="intake-chevron" size={18} weight="bold" />
-                  </button>
-                </>
-              )}
-
-              <button type="button" className="intake-manual" onClick={openManualAdd}>
-                <span className="intake-icon"><PencilSimple size={21} weight="bold" /></span>
-                <span>{t.intakeManualLink}</span>
-                <CaretRight className="intake-chevron" size={18} weight="bold" />
-              </button>
-            </div>
-          </>
-        )}
-        {scanState === 'scanning' && (
-          scanImg ? (
-            <>
-              <div className="preview">
-                <img src={scanImg} alt="" />
-                <div className="scanline-wrap"><div className="scanline" /></div>
-              </div>
-              <div className="scanstatus">{t.scanExtracting}</div>
-            </>
-          ) : (
-            <div className="url-reading">
-              <span className="big">🔗</span>
-              <div className="scanstatus">{t.urlReading}</div>
-            </div>
-          )
-        )}
-        {scanState === 'refine' && refine && (
-          <>
-            <p className="refinehint">📍 {t.posApprox}</p>
-            <PinDropPicker center={{ lat: refine.lat, lng: refine.lng }} t={t} onConfirm={confirmRefine} />
-            <button className="pubbtn" style={{ background: 'var(--panel2)', color: 'var(--muted)', boxShadow: 'none' }} onClick={finishPublish}>
-              {t.cancel}
-            </button>
-          </>
-        )}
-        {(scanState === 'confirm' || scanState === 'publishing') && draft && (
-          <>
-            {scanImg && <div className="preview" style={{ maxHeight: 120 }}><img src={scanImg} alt="" style={{ maxHeight: 120 }} /></div>}
-            {dupNotice && <div className="dupnotice">ℹ️ {t.dupNotice}</div>}
-            {/* honeypot — invisible to humans, form-filling bots populate it */}
-            <input
-              type="text"
-              name="website"
-              value={draft.website || ''}
-              onChange={(e) => setDraft({ ...draft, website: e.target.value })}
-              className="hp-field"
-              tabIndex={-1}
-              autoComplete="off"
-              aria-hidden="true"
-            />
-            <div className="seg kindswitch">
-              <button className={!isPlaceDraft ? 'on' : ''} onClick={() => setDraftKind('event')}>{t.switchEvent}</button>
-              <button className={isPlaceDraft ? 'on' : ''} onClick={() => setDraftKind('place')}>{t.switchPlace}</button>
-            </div>
-            <div className="xfield">
-              <div className="lab">{t.fTitle} {confChip(conf?.title)}</div>
-              <input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
-            </div>
-            {!isPlaceDraft && (
-              <>
-                <div className="xrow">
-                  <div className={`xfield ${conf?.datetime < 0.6 ? 'check' : ''}`}>
-                    <div className="lab">{t.fDate} {confChip(conf?.datetime)}</div>
-                    <input type="date" value={draft.date_start} onChange={(e) => setDraft({ ...draft, date_start: e.target.value })} />
-                  </div>
-                  <div className="xfield">
-                    <div className="lab">{t.fTime}</div>
-                    <input type="time" value={draft.time_start} onChange={(e) => setDraft({ ...draft, time_start: e.target.value })} />
-                  </div>
-                </div>
-                {/* End date/time — optional; only kept when it's on/after the start. */}
-                <div className="xrow">
-                  <div className="xfield">
-                    <div className="lab">{t.fEndDate}</div>
-                    <input type="date" value={draft.date_end || ''} min={draft.date_start || undefined} onChange={(e) => setDraft({ ...draft, date_end: e.target.value })} />
-                  </div>
-                  <div className="xfield">
-                    <div className="lab">{t.fEndTime}</div>
-                    <input type="time" value={draft.time_end || ''} onChange={(e) => setDraft({ ...draft, time_end: e.target.value })} />
-                  </div>
-                </div>
-              </>
-            )}
-            <div className={`xfield ${conf?.location < 0.6 ? 'check' : ''}`}>
-              <div className="lab">{t.fVenue} {confChip(conf?.location)}</div>
-              <input value={draft.venue} onChange={(e) => setDraft({ ...draft, venue: e.target.value })} />
-            </div>
-            {/* Location: two-way-bound address field + main-map picker. Typing/
-                picking an address flies the big map; "Adjust on map" collapses
-                this form and reverse-geocodes the settled map centre back here. */}
-            <div className="xrow">
-              <div className="xfield addr-field">
-                <div className="lab">{t.fAddress}</div>
-                <input
-                  value={draft.address}
-                  onChange={(e) => onAddressChange(e.target.value)}
-                  onFocus={() => setAddrSuggestOpen(true)}
-                  onBlur={() => setTimeout(() => setAddrSuggestOpen(false), 150)}
-                  autoComplete="off"
-                />
-                {/* address autocomplete — GET /api/geocode?suggest=1&q=…, debounced
-                    300ms / ≥3 chars; picking a row also flies the main map. */}
-                {addrSuggestOpen && addrSuggestions.length > 0 && (
-                  <div className="addr-suggest" role="listbox" aria-label={t.fAddressSuggest}>
-                    {addrSuggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        className="addr-suggest-row"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => pickAddressSuggestion(s)}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="xfield">
-                <div className="lab">{t.fTown}</div>
-                <input value={draft.town} onChange={(e) => setDraft({ ...draft, town: e.target.value })} />
-              </div>
-            </div>
-            <button type="button" className="mapadjust-btn" onClick={enterMapPick}>
-              🗺️ {t.adjustOnMap}{draft.lat != null ? ` · ${t.positionSet}` : ''}
-            </button>
-            <div className="xfield">
-              <div className="lab">{t.categories}</div>
-              <div className="catgrid">
-                {(isPlaceDraft ? PLACE_CATS : EVENT_CATS).map((key) => (
-                  <button
-                    key={key}
-                    className={`cat ${draft.categories.includes(key) ? 'on' : ''}`}
-                    style={{ '--cc': CATS[key].color }}
-                    onClick={() =>
-                      setDraft({
-                        ...draft,
-                        categories: draft.categories.includes(key) ? draft.categories.filter((x) => x !== key) : [...draft.categories, key],
-                      })
-                    }
-                  >
-                    <CatIcon cat={key} size={13} /> {t.cats[key]}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="xfield">
-              <div className="lab">{t.fDesc}</div>
-              <textarea value={draft.description} onChange={(e) => setDraft({ ...draft, description: e.target.value })} rows={2} />
-            </div>
-            {isPlaceDraft && (
-              <div className="xfield">
-                <div className="lab">{t.openingHours}</div>
-                <button type="button" className={`chip ${draft.always_open ? 'on' : ''}`} onClick={() => setDraft({ ...draft, always_open: !draft.always_open })}>
-                  {t.alwaysOpen}
-                </button>
-                {!draft.always_open && (
-                  <div className="hoursform">
-                    {DOW_ORDER.map((k, i) => (
-                      <div key={k} className="hoursformrow">
-                        <span>{t.weekdaysLong[i].slice(0, 2)}</span>
-                        <input
-                          type="time"
-                          value={draft.hours[k]?.[0] || ''}
-                          onChange={(e) => setDraft((d) => ({ ...d, hours: { ...d.hours, [k]: [e.target.value, d.hours[k]?.[1] || ''] } }))}
-                        />
-                        <span>–</span>
-                        <input
-                          type="time"
-                          value={draft.hours[k]?.[1] || ''}
-                          onChange={(e) => setDraft((d) => ({ ...d, hours: { ...d.hours, [k]: [d.hours[k]?.[0] || '', e.target.value] } }))}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <input
-                  className="seasonalinput"
-                  value={draft.seasonal}
-                  placeholder={t.fSeasonalPlaceholder}
-                  onChange={(e) => setDraft({ ...draft, seasonal: e.target.value })}
-                />
-              </div>
-            )}
-            <button type="button" className={`chip ${draft.is_free ? 'on' : ''}`} onClick={() => setDraft({ ...draft, is_free: !draft.is_free })} style={{ alignSelf: 'flex-start' }}>
-              {t.freeEntry}
-            </button>
-            <button className="pubbtn" disabled={scanState === 'publishing'} onClick={publish}>
-              {scanState === 'publishing' ? t.publishing : t.publish}
-            </button>
-          </>
-        )}
-      </div>
-    </section>
-  );
-
   /* ---------------- render ---------------- */
   // Counts line: pins mode shows the filtered loaded rows (as before); cells
   // mode has no per-row data client-side, so it falls back to the server's
@@ -3668,19 +2808,6 @@ export default function Home({ partnerSlug = null } = {}) {
   const truncatedNote = mode !== 'cells' && viewTruncated
     ? t.truncatedHint.replace('{n}', events?.length ?? 0).replace('{total}', viewTotal)
     : null;
-
-  const limitCopy = limitNotice ? (() => {
-    const action = limitNotice.action === 'ai_intake' ? t.limitAiAction : t.limitPublishAction;
-    const reached = limitNotice.scope === 'service'
-      ? t.limitUnavailable
-      : limitNotice.window === 'day' ? t.limitReachedDay : t.limitReachedHour;
-    return {
-      action,
-      reached: limitNotice.max == null ? reached : reached.replace('{count}', limitNotice.max),
-      retry: limitNotice.window === 'hour' ? t.limitRetryHour : t.limitRetryDay,
-      why: limitNotice.action === 'ai_intake' ? t.limitWhyAi : t.limitWhyPublish,
-    };
-  })() : null;
 
   return (
     <div className="shell">
@@ -3854,23 +2981,9 @@ export default function Home({ partnerSlug = null } = {}) {
           <div className="detail-full">{eventDetail(selected, { onBack: () => setDetailFull(false), onClose: () => selectEvent(null, { fly: false }) })}</div>
         )}
 
-        {/* map-pick: fixed centre crosshair + slim confirm bar over the live map */}
-        {mapPick && <div className="map-crosshair" aria-hidden="true">📍</div>}
-        {mapPick && (
-          <div className="mappick-bar">
-            <button className="mappick-cancel" onClick={cancelMapPick} aria-label={t.cancel}><X size={16} weight="bold" /></button>
-            <span className="mappick-hint">{t.mapPickHint}</span>
-            <button className="mappick-confirm" onClick={confirmMapPick}>✓ {t.confirmPosition}</button>
-          </div>
-        )}
-
-        {/* floating controls — one reflowing column above the filter bar: Add FAB
-            at the bottom (primary, DOM-first → column-reverse), locate above it.
+        {/* floating controls — locate button above the filter bar.
             The whole stack hides where it would overlap a sheet / full detail. */}
-        <div className={`floatstack ${capture || (!isDesktop && (sheet !== 'closed' || detailFull)) ? 'hidden' : ''}`}>
-          <button className="fab" onClick={requestOpenCapture} aria-label={t.addToMap}>
-            +
-          </button>
+        <div className={`floatstack ${(!isDesktop && (sheet !== 'closed' || detailFull)) ? 'hidden' : ''}`}>
           <div ref={geolocateMount} className="locate-native" />
         </div>
       </div>
@@ -3977,15 +3090,6 @@ export default function Home({ partnerSlug = null } = {}) {
         </div>
       )}
 
-      <AccountDialog
-        open={accountOpen}
-        onClose={() => { setAccountOpen(false); setResumeAddAfterAuth(false); }}
-        onSignedOut={() => setAccount(null)}
-        account={account || null}
-        resumeAdd={resumeAddAfterAuth}
-        t={t}
-      />
-
       {savedOpen && (
         <div className="nl-scrim" onClick={() => setSavedOpen(false)}>
           <div className="nl-modal saved-modal" role="dialog" aria-modal="true" aria-labelledby="saved-title" onClick={(e) => e.stopPropagation()}>
@@ -4019,43 +3123,11 @@ export default function Home({ partnerSlug = null } = {}) {
                 })}
               </div>
             )}
-            <p className="nl-fine">{account ? t.savedSynced : t.savedFine}</p>
-            {!account && (
-              <button className="saved-signin" onClick={() => { setSavedOpen(false); openAccount(false); }}>{t.savedSignIn}</button>
-            )}
+            <p className="nl-fine">{t.savedFine}</p>
           </div>
         </div>
       )}
 
-      {limitNotice && limitCopy && (
-        <div className="limit-scrim" onClick={() => setLimitNotice(null)}>
-          <div className="limit-modal" role="dialog" aria-modal="true" aria-labelledby="limit-title" onClick={(e) => e.stopPropagation()}>
-            <button className="limit-close" onClick={() => setLimitNotice(null)} aria-label={t.close}><X size={17} weight="bold" /></button>
-            <div className="limit-icon" aria-hidden="true">⏳</div>
-            <h3 id="limit-title">{t.limitTitle}</h3>
-            <p className="limit-lead">{limitCopy.reached} {limitCopy.retry}</p>
-
-            <section className="limit-section">
-              <h4>{t.limitWhyTitle}</h4>
-              <p>{limitCopy.why}</p>
-            </section>
-
-            <section className="limit-section">
-              <h4>{t.limitAllowanceTitle.replace('{action}', limitCopy.action)}</h4>
-              <ul className="limit-list">
-                <li>{t.limitHourly.replace('{count}', limitNotice.perHour)}</li>
-                <li>{t.limitDaily.replace('{count}', limitNotice.perDay)}</li>
-              </ul>
-            </section>
-
-            <p className="limit-privacy">{t.limitPrivacy}</p>
-            <p className="limit-contact">{t.limitContact} <a href="mailto:hello@okolo.events?subject=Okolo%20contribution%20limit">{t.limitEmail}: hello@okolo.events</a></p>
-            <button className="limit-dismiss" autoFocus onClick={() => setLimitNotice(null)}>{t.limitDismiss}</button>
-          </div>
-        </div>
-      )}
-
-      {captureView}
       {/* Newsletter prompt — a card, not a modal: it never covers the map, it can
           be ignored, and one dismissal silences it for good. */}
       {nlPrompt && (

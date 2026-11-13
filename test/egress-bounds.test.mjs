@@ -7,7 +7,6 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), '
 test('request-time event surfaces never call the maintenance full-catalog helper', () => {
   const requestPaths = [
     'app/api/events/route.js',
-    'app/api/scan/route.js',
     'app/sitemap.js',
     'scripts/mcp-server.mjs',
   ];

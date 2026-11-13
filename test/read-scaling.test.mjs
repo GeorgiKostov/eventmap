@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { canonicalMapViewport } from '../lib/map-request.js';
 import { publicCacheHeaders } from '../lib/public-cache.js';
-import { shouldRefreshSession } from '../lib/session-refresh.js';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
@@ -31,13 +30,9 @@ test('public cache headers distinguish browser and edge lifetimes', () => {
   assert.match(headers['Vercel-CDN-Cache-Control'], /stale-while-revalidate=300/);
 });
 
-test('public map, geocoder and sales reads bypass account refresh but mutations do not', () => {
-  const req = (pathname, method = 'GET') => ({ method, nextUrl: { pathname } });
-  assert.equal(shouldRefreshSession(req('/api/events')), false);
-  assert.equal(shouldRefreshSession(req('/api/geocode')), false);
-  assert.equal(shouldRefreshSession(req('/partners')), false);
-  assert.equal(shouldRefreshSession(req('/api/events', 'POST')), true);
-  assert.equal(shouldRefreshSession(req('/api/account/session')), true);
+test('middleware never does remote auth work, so public reads stay CDN-cacheable', () => {
+  const middleware = read('middleware.js');
+  assert.doesNotMatch(middleware, /supabase|cookies\.set|Set-Cookie/i);
 });
 
 test('map reads are CDN-cacheable and avoid count/reaction full-table round trips', () => {
