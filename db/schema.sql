@@ -1,4 +1,11 @@
 create schema if not exists umkreis;
+create schema if not exists extensions;
+-- Neon (2026-11): the pooled PgBouncer endpoint ignores the client's search_path
+-- startup parameter, so the database default must carry it. Run once per
+-- database (then recycle pooled backends; existing ones keep the old default):
+--   ALTER DATABASE neondb SET search_path = umkreis, extensions, public;
+-- events.embedding uses pgvector, which lives in this schema:
+create extension if not exists vector with schema umkreis;
 set search_path = umkreis;
 
 create table if not exists sources (
