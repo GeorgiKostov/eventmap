@@ -7,15 +7,22 @@
 - [x] Local backup in `C:\Users\Georgi\Backups\okolo-supabase-2026-11-13\` (pg_dump 17.12):
       `umkreis.dump` (11 tables, 66 MB), schema SQL, `auth-users.sql`, README with row counts and
       restore prerequisites. Postgres 17 client tools installed via winget (no local server).
-- [ ] George creates free Neon (Vercel Marketplace, EU region). Pre-create `umkreis` + `vector`
-      (lives in `umkreis` on Supabase), `extensions` schema with postgis/unaccent/pg_trgm; restore;
-      `node scripts/compare-db-copy.mjs` must report all tables equal.
-- [ ] Test whether Neon's pooled endpoint accepts the `search_path` startup parameter; else set it
-      with `ALTER DATABASE … SET search_path`.
-- [ ] Drop `user_favorites` + `event_contributions` (dead account data) via schema.sql + migrate
-      script once the copy is verified.
-- [ ] Check cron frequency against Neon's 100 CU-hour free quota; Vercel preview smoke test; George
-      approves promotion; remove NEXT_PUBLIC_SUPABASE_* / SUPABASE_SECRET_KEY env vars.
+- [x] Neon "okolo" provisioned via `vercel integration add neon` (Free `free_v3`, fra1, Neon Auth
+      off), connected to `eventmap` with prefix `NEON` (NEON_DATABASE_URL[_UNPOOLED] in all envs;
+      DATABASE_URL untouched). Postgres 18.7, PostGIS 3.6.4, pgvector 0.8.7. Restored; all 11 tables
+      match Supabase row-for-row (`scripts/compare-db-copy.mjs`).
+- [x] Neon's pooler ignores the `search_path` startup parameter → `ALTER DATABASE neondb SET
+      search_path = umkreis, extensions, public` (+ recycle pooled backends). Documented in
+      `db/schema.sql` and `lib/db.js`.
+- [x] Local dev and Vercel preview `dpl_GPVU9dG5UMPrRUBSz2UUqvSNFqei` on Neon (per-deployment env
+      override, no stored env change): map API, search, event/city/month/weekend/partner/privacy
+      pages, sitemap 200; removed routes 404; MCP server tools work; no runtime errors.
+- [ ] **Cutover (George approves):** pause crawl workflow → fresh dump → re-restore umkreis on Neon
+      → set DATABASE_URL to Neon pooled in Vercel prod+preview, GitHub Actions secret and local
+      `.env.local` → merge `dev/neon` to main → prod deploy → verify live.
+- [ ] After cutover: drop `user_favorites` + `event_contributions` (dead account data) via
+      schema.sql + migrate script; remove NEXT_PUBLIC_SUPABASE_* env vars.
+- [ ] Watch Neon CU-hours: daily GitHub crawl runs 40–105 min; free quota is 100 CU-h/month.
 - [ ] Supabase project stays one week as rollback; George deletes it and downgrades the org.
 
 ## Steyr coverage + GEM2GO filter-form paging (2026-11-12)
