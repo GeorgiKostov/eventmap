@@ -63,8 +63,9 @@ automation prompt, because the next model will not read that prompt.
    Never compute "now"/"today"/expiry against the host timezone or UTC — use the Vienna-pinned
    helpers (`viennaNow()` in `lib/db.js`, `Intl` with `timeZone:'Europe/Vienna'` client-side).
    This class of bug bit us once (see `tasks/lessons.md`).
-4. **Postgres via Supabase is the datastore.** `lib/db.js` is the single data layer (postgres.js over
-   the transaction pooler, `umkreis` schema). Schema changes go in `db/schema.sql` **plus** an
+4. **Postgres on Neon (free, via Vercel Marketplace; Supabase until 2026-11-13) is the datastore.**
+   `lib/db.js` is the single data layer (postgres.js over Neon's pooled endpoint, `umkreis` schema;
+   the pooler needs the database-level `search_path` default — see `db/schema.sql`). Schema changes go in `db/schema.sql` **plus** an
    idempotent `scripts/migrate-*.mjs`. NB: `id` is `bigint`, which arrives in JS as a **string** —
    never type-guard ids as numbers (this silently ate the saved-events list once).
 5. **Never fabricate event data.** Extraction/mining must use `null` for unknown fields and skip
@@ -137,7 +138,7 @@ Keep updates surgical (one Edit per file, only changed lines). Don't re-summariz
 | File | Role |
 |------|------|
 | `agents/architect.md` | You — routing, sequencing, constraints, docs sync, review |
-| `agents/developer.md` | Next.js + MapLibre + SQLite/Supabase, extraction, crawl, tests |
+| `agents/developer.md` | Next.js + MapLibre + Postgres (Neon), extraction, crawl, tests |
 | `agents/designer.md` | Map UX, mobile/desktop parity, visual system, icons, i18n copy |
 | `agents/researcher.md` | Sources, competitor/market intel, data-partnership + legal groundwork |
 

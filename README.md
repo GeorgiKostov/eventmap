@@ -5,7 +5,7 @@ municipal, family and cultural sources, browsable on a map with filters, plus an
 flow for events that are not properly online. Product name **Okolo**
 ([okolo.events](https://www.okolo.events)); the working name was *Umkreis*.
 
-Production is live on Vercel with Supabase Postgres. There are no consumer accounts. Analytics is
+Production is live on Vercel with Neon Postgres (free tier; moved off Supabase 2026-11-13). There are no consumer accounts. Analytics is
 privacy-first and anonymous: no autocapture or session recording, no email addresses or precise
 user locations, and local/preview/automated/internal traffic is excluded. See
 [`docs/ops/advertiser-proof.md`](docs/ops/advertiser-proof.md) for exact definitions.
@@ -18,8 +18,8 @@ cp .env.example .env.local   # then fill DATABASE_URL (+ GEMINI_API_KEY for scan
 npm run dev                  # → http://localhost:3311
 ```
 
-The database is **Supabase Postgres** (our tables live in the `umkreis` schema). Set
-`DATABASE_URL` to the project's **transaction-pooler** connection string. First-time
+The database is **Neon Postgres** (our tables live in the `umkreis` schema). Set
+`DATABASE_URL` to Neon's **pooled** connection string. First-time
 setup: `npm run seed:sql -- db/schema.sql` creates the tables; then seed events with
 `npm run seed` (re-imports `data/mined/*.json` → geocode → upsert).
 
@@ -44,7 +44,7 @@ to the local `claude` CLI if installed).
 
 ```
 data/mined/*.json  (agent mining runs)   ─┐
-sources table      (npm run crawl)       ─┼─→ Supabase Postgres (umkreis schema: events, sources, geocache)
+sources table      (npm run crawl)       ─┼─→ Neon Postgres (umkreis schema: events, sources, geocache)
 poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or start+6h) < now (Vienna)
                                                    ▼
                                     Next.js app — MapLibre + OSM map,
@@ -72,9 +72,9 @@ poster scan        (/api/scan → confirm) ─┘        │ expiry: ends_at (or
 needs a Node server (API routes, SSR event pages, sitemap). Use **Vercel** (it runs
 Next.js natively).
 
-### Backend: Supabase Postgres (live)
+### Backend: Neon Postgres (live)
 
-`lib/db.js` talks to Supabase over the **transaction pooler** (serverless-safe) via the
+`lib/db.js` talks to Neon over its **pooled endpoint** (serverless-safe) via the
 `postgres` client. Our tables live in a dedicated `umkreis` schema, pinned by `search_path`
 — so the whole thing dumps/restores into a standalone project cleanly. `starts_at`/`ends_at`
 stay TEXT Vienna wall-clock strings (never `timestamptz` — see the timezone rule). Writes
@@ -87,7 +87,9 @@ First-time DB setup: `npm run seed:sql -- db/schema.sql`, then `npm run seed`.
 The project is linked and live at [www.okolo.events](https://www.okolo.events). Git-triggered Vercel
 deployment is intentionally disabled in `vercel.json`; after a verified release, deploy explicitly
 with `vercel deploy --prod --yes`. Required production environment variables:
-- `DATABASE_URL` — Supabase transaction-pooler connection string (**required**).
+- `DATABASE_URL` — Neon pooled connection string (**required**). The Neon database needs
+  `ALTER DATABASE neondb SET search_path = umkreis, extensions, public` (the pooler ignores the
+  client's search_path).
 - `GEMINI_API_KEY` — poster-scan extraction (primary). `ANTHROPIC_API_KEY` optional fallback.
 - `NEXT_PUBLIC_BASE_URL` — the canonical live origin (`https://www.okolo.events`), so
   sitemap/share links are absolute.

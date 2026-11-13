@@ -66,8 +66,9 @@ memory of rapidly changing project state.
    `viennaNow()` in `lib/db.js` server-side and `Intl` with `timeZone: 'Europe/Vienna'`
    client-side.
 
-4. **Supabase Postgres is the datastore.** `lib/db.js` is the single data layer, using postgres.js
-   over the transaction pooler and the `umkreis` schema. Put schema changes in `db/schema.sql` and
+4. **Neon Postgres is the datastore** (free, via Vercel Marketplace; Supabase until 2026-11-13).
+   `lib/db.js` is the single data layer, using postgres.js over Neon's pooled endpoint and the
+   `umkreis` schema; the pooler needs the database-level `search_path` default (`db/schema.sql`). Put schema changes in `db/schema.sql` and
    an idempotent `scripts/migrate-*.mjs`. Postgres `bigint` IDs arrive in JavaScript as strings;
    never require IDs to be numbers.
 
@@ -103,7 +104,7 @@ memory of rapidly changing project state.
    prohibited, stop and ask George. Never mine first and legalize the result afterward.
 
 10. **Serverless runtime constraints still apply.** Route handlers and server components must not
-    assume a writable or persistent project filesystem. Runtime writes belong in Supabase or, for
+    assume a writable or persistent project filesystem. Runtime writes belong in Postgres or, for
     genuinely temporary processing, `/tmp`. Treat serverless instances as ephemeral.
 
 ## AI cost policy (2026-10-27)
@@ -251,7 +252,7 @@ For obvious, reversible work inside the current phase, make a reasonable assumpt
 | File | Role |
 |---|---|
 | `agents/architect.md` | routing, sequencing, constraints, docs sync, and review |
-| `agents/developer.md` | Next.js, MapLibre, Supabase, extraction, crawl, and tests |
+| `agents/developer.md` | Next.js, MapLibre, Postgres (Neon), extraction, crawl, and tests |
 | `agents/designer.md` | map UX, mobile/desktop parity, visual system, icons, and i18n copy |
 | `agents/researcher.md` | sources, market research, and legal/data-partnership groundwork |
 

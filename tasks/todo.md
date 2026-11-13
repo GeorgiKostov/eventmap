@@ -17,13 +17,16 @@
 - [x] Local dev and Vercel preview `dpl_GPVU9dG5UMPrRUBSz2UUqvSNFqei` on Neon (per-deployment env
       override, no stored env change): map API, search, event/city/month/weekend/partner/privacy
       pages, sitemap 200; removed routes 404; MCP server tools work; no runtime errors.
-- [ ] **Cutover (George approves):** pause crawl workflow → fresh dump → re-restore umkreis on Neon
-      → set DATABASE_URL to Neon pooled in Vercel prod+preview, GitHub Actions secret and local
-      `.env.local` → merge `dev/neon` to main → prod deploy → verify live.
-- [ ] After cutover: drop `user_favorites` + `event_contributions` (dead account data) via
-      schema.sql + migrate script; remove NEXT_PUBLIC_SUPABASE_* env vars.
-- [ ] Watch Neon CU-hours: daily GitHub crawl runs 40–105 min; free quota is 100 CU-h/month.
-- [ ] Supabase project stays one week as rollback; George deletes it and downgrades the org.
+- [x] **Cutover done (George approved):** crawl paused → fresh dump re-restored (counts match) →
+      DATABASE_URL → Neon pooled in Vercel prod+preview, GitHub secret, `.env.local` (old value kept
+      as SUPABASE_DATABASE_URL) → `dev/neon` merged to main → prod `dpl_DxDfqRftGYaPu8FCv3UcWMo8H7m2`.
+      Live pages/API OK, Neon traffic confirmed, write crawl (Steyr, 96 upserts) OK, crawl re-enabled.
+- [x] Dropped `user_favorites` + `event_contributions` (`scripts/migrate-drop-accounts.mjs`);
+      removed NEXT_PUBLIC_SUPABASE_* Vercel vars. Decision: `docs/decisions/2026-11-13-neon-no-accounts.md`.
+- [ ] ~2026-11-20: check Neon CU-hours (daily crawl 40–105 min; quota 100 CU-h/month).
+- [ ] ~2026-11-20: George deletes Supabase project lcpamsdenhqqcifcvzbq, downgrades the org, revokes
+      the Supabase key/Google OAuth client `okolo-events-auth`; drop SUPABASE_DATABASE_URL locally.
+- [ ] README still describes the poster scan / AI keys — trim in a docs pass.
 
 ## Steyr coverage + GEM2GO filter-form paging (2026-11-12)
 - [x] steyr.at showed only today's events (10 upcoming of 415 stored): GEM2GO redesign pages default
