@@ -1,5 +1,22 @@
 # TODO
 
+## Supabase → Neon move, accounts removed (2026-11-13)
+- [x] Remove accounts, poster scan / link import / manual add, POST /api/events and all Supabase
+      client code (branch `dev/neon`, commit `f792fc9`). 427 tests and `next build` pass; local
+      map, menu and device-only saved list verified in the browser.
+- [ ] Local backup: `pg_dump --schema=umkreis` (data + schema) + `auth.users` dump, stored outside
+      git. Needs a Postgres 17 `pg_dump` (Supabase runs 17.6).
+- [ ] George creates free Neon (Vercel Marketplace, EU region). Pre-create `umkreis` + `vector`
+      (lives in `umkreis` on Supabase), `extensions` schema with postgis/unaccent/pg_trgm; restore;
+      `node scripts/compare-db-copy.mjs` must report all tables equal.
+- [ ] Test whether Neon's pooled endpoint accepts the `search_path` startup parameter; else set it
+      with `ALTER DATABASE … SET search_path`.
+- [ ] Drop `user_favorites` + `event_contributions` (dead account data) via schema.sql + migrate
+      script once the copy is verified.
+- [ ] Check cron frequency against Neon's 100 CU-hour free quota; Vercel preview smoke test; George
+      approves promotion; remove NEXT_PUBLIC_SUPABASE_* / SUPABASE_SECRET_KEY env vars.
+- [ ] Supabase project stays one week as rollback; George deletes it and downgrades the org.
+
 ## Steyr coverage + GEM2GO filter-form paging (2026-11-12)
 - [x] steyr.at showed only today's events (10 upcoming of 415 stored): GEM2GO redesign pages default
       to "today", ~10 per page, GET ignored. `lib/gem2go-filter.js` walks the form by POSTed `fromDate`;

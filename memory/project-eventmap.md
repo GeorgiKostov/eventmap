@@ -1,5 +1,11 @@
 # Project memory — eventmap (Okolo)
 
+## Where things stand (2026-11-13 — leaving Supabase for free Neon)
+- George chose to remove accounts and the whole add/scan flow (3 users, 2 contributions). Done on
+  branch `dev/neon` (`f792fc9`), not merged or deployed. Production still runs on Supabase.
+- Next: local pg_dump backup, Neon created by George via Vercel Marketplace, restore + row-count
+  check (`scripts/compare-db-copy.mjs`), preview deploy, George approves cutover. Supabase kept 1 week.
+
 ## Where things stand (2026-11-12 — GEM2GO filter paging)
 - GEM2GO redesign sites (~40% of active GEM2GO) show only "today" by default; the crawl now walks
   their filter form (`lib/gem2go-filter.js`). Steyr 10 → 96 upcoming. Museum Arbeitswelt iCal added,
