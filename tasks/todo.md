@@ -4,8 +4,9 @@
 - [x] Remove accounts, poster scan / link import / manual add, POST /api/events and all Supabase
       client code (branch `dev/neon`, commit `f792fc9`). 427 tests and `next build` pass; local
       map, menu and device-only saved list verified in the browser.
-- [ ] Local backup: `pg_dump --schema=umkreis` (data + schema) + `auth.users` dump, stored outside
-      git. Needs a Postgres 17 `pg_dump` (Supabase runs 17.6).
+- [x] Local backup in `C:\Users\Georgi\Backups\okolo-supabase-2026-11-13\` (pg_dump 17.12):
+      `umkreis.dump` (11 tables, 66 MB), schema SQL, `auth-users.sql`, README with row counts and
+      restore prerequisites. Postgres 17 client tools installed via winget (no local server).
 - [ ] George creates free Neon (Vercel Marketplace, EU region). Pre-create `umkreis` + `vector`
       (lives in `umkreis` on Supabase), `extensions` schema with postgis/unaccent/pg_trgm; restore;
       `node scripts/compare-db-copy.mjs` must report all tables equal.
