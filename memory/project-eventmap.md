@@ -11,7 +11,8 @@
   12 GEM2GO `va_list` sources are back on the structured route. Round 2 added Familienkarte,
   Contao, TYPO3 and GEM2GO-filter routes, fixed Wien erleben, collapsed multi-site GEM2GO copies
   by object id, retired 24 dead sources and repointed 14. About 560 AT sources stay frozen on `llm`
-  (bespoke/JS lists). Crons now run off the hour; NOTIFY_TO is still unset (George).
+  (bespoke/JS lists). Crons now run off the hour. Thursday 09:11 UTC prepare now also mails
+  George a `[Vorschau]` copy of each issue via the live app (Vercel NOTIFY_TO); 14:11 UTC send unchanged.
 
 ## Where things stand (2026-11-13 — leaving Supabase for free Neon)
 - George chose to remove accounts and the whole add/scan flow (3 users, 2 contributions). Done on

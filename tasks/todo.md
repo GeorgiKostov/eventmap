@@ -1471,7 +1471,7 @@ Work queue. `[x]` done, `[ ]` open. Newest context at top. Keep surgical — fli
       Verified from the frozen 2026-07-17 snapshots (Linz de + Sofia Cyrillic covers, slide, page).
 - [x] Review find: on Resend-only prod without NOTIFY_TO, `notifyOperator` silently dropped every
       signup/submission ping (to=undefined). Now warns loudly in logs.
-- [ ] **George: set `NOTIFY_TO` on Vercel** (e.g. your gmail) — without it you get NO new-subscriber /
+- [x] **George: set `NOTIFY_TO` on Vercel** (present on Production+Preview, checked 2026-11-15) (e.g. your gmail) — without it you get NO new-subscriber /
       new-submission pings and the desk's "send test to me" has no recipient. Then redeploy.
 - [ ] Per-SUBSCRIBER newsletter language (a bg-lang subscriber in Linz gets the German Linz digest) =
       deliberately not built: needs per-language digest copy per city; channel language IS the local
