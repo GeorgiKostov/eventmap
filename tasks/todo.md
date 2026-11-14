@@ -14,7 +14,8 @@
       earlier unmarked row is unpublished too. `scripts/migrate-cancelled-events.mjs` removed 8.
 - [x] GEM2GO neighbour listings pinned events on the LISTING town (~4,600 upcoming rows). The crawl
       now uses the address's postcode town when it geocodes precisely (`lib/address-town.js`), so
-      neighbour copies share a hash and collapse; `scripts/migrate-address-towns.mjs` fixed stored rows.
+      neighbour copies share a hash and collapse. `scripts/migrate-address-towns.mjs`: 630 moved,
+      1,199 neighbour copies unpublished, 2,774 kept (address not precise); dup groups 866 → 485.
 - [x] GEM2GO `va_list` table layout parsed (long-form date spans): 12 frozen `llm` sources back on
       the structured route (Alkoven, Großraming, Stockerau, …; ~320 events).
 - [ ] Frozen `llm` sources (≈630 AT, probe 2026-11-14: none recover through existing routes). Next
