@@ -52,6 +52,14 @@ jobs:
         # Scheduled runs always replace future/SEO snapshots with a fresh issue.
         run: node scripts/weekly-digest.mjs --live --notify --regenerate
 
+      # The real rendered issue, mailed by the live app to Vercel's NOTIFY_TO only
+      # ("[Vorschau]" subject). Review/Replace on the desk before the 14:11 send.
+      - name: Email George a preview of each issue
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          NEXT_PUBLIC_BASE_URL: https://www.okolo.events
+        run: node scripts/trigger-weekly-newsletter.mjs --preview
+
   send:
     if: github.event_name == 'schedule' && github.event.schedule == '11 14 * * 4'
     runs-on: ubuntu-latest

@@ -75,8 +75,11 @@ We will reuse Next.js's built-in ImageResponse (`next/og`) to generate beautiful
 A script that takes the same "Top 5" array and injects it into a clean, branded HTML email template.
 - **Integration:** Connects to an email provider (Resend, Mailgun, or Nodemailer).
 - **Delivery:** The system rebuilds the issue Thursday morning and automatically sends it five hours
-  later if every unattended-send guard passes. The desk still supports preview, edits, test mail and
-  a manual retry.
+  later if every unattended-send guard passes. Right after the prepare, the live app mails each
+  issue to the operator only (Vercel `NOTIFY_TO`, subject `[Vorschau] …`;
+  `trigger-weekly-newsletter.mjs --preview`), so George reviews the real email and fixes picks on
+  the desk before the 14:11 UTC send. The desk still supports preview, edits, test mail and a
+  manual retry.
 
 ### D. The Admin Dashboard (`/admin/thursday`)
 A hidden, password-protected route in the Next.js app where you manage this workflow.

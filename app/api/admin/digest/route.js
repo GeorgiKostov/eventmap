@@ -156,7 +156,9 @@ export async function POST(req) {
     // A live edition may not have a subscriber yet. That is a clean scheduled
     // no-op; once an audience exists, every freshness/content guard below is
     // mandatory before the first message can leave.
-    if (automatic && audience.length === 0) {
+    // A preview (`test`) still goes to the operator: that is how the first
+    // issue of a new edition gets reviewed before anyone subscribes.
+    if (automatic && !body.test && audience.length === 0) {
       return NextResponse.json({ sent: 0, skipped: 0, failed: 0, audience: 0, noAudience: true });
     }
     const digest = automatic ? await loadDigest(channel) : await loadOrBuildDigest(channel);
@@ -208,7 +210,7 @@ export async function POST(req) {
       const to = process.env.NOTIFY_TO || process.env.SMTP_USER || process.env.MAIL_FROM;
       const url = `${BASE}/api/subscribe/unsubscribe?token=TEST`;
       const mail = renderNewsletter(digest, { unsubscribeUrl: url, preferencesUrl: `${BASE}/newsletter/preferences?token=TEST` });
-      const ok = await sendNewsletter({ to, ...mail, unsubscribeUrl: url });
+      const ok = await sendNewsletter({ to, ...mail, subject: `[Vorschau] ${mail.subject}`, unsubscribeUrl: url });
       return NextResponse.json({ test: true, to, sent: ok ? 1 : 0, audience: audience.length });
     }
 

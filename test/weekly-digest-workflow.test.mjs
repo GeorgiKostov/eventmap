@@ -19,3 +19,12 @@ test('scheduled trigger uses a bearer token and cannot request a forced resend',
   assert.match(trigger, /action: 'send', channel: channel\.slug, automatic: true/);
   assert.doesNotMatch(trigger, /force:\s*true/);
 });
+
+test('morning prepare mails the operator a preview before the afternoon send', () => {
+  const prepare = workflow.slice(workflow.indexOf('  prepare:'), workflow.indexOf('  send:'));
+  assert.match(prepare, /trigger-weekly-newsletter\.mjs --preview/);
+  assert.match(prepare, /ADMIN_TOKEN: \$\{\{ secrets\.ADMIN_TOKEN \}\}/);
+  const send = workflow.slice(workflow.indexOf('  send:'));
+  assert.doesNotMatch(send, /--preview/);
+  assert.match(trigger, /preview \? \{ test: true \}/);
+});
