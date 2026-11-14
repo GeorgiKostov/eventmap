@@ -1,5 +1,20 @@
 # TODO
 
+## Editor-written descriptions → sitemap (2026-11-14)
+- [x] Recrawls keep an existing description (`COALESCE` in `upsertEvent`); before this every
+      structured crawl reset it to null.
+- [x] `scripts/descriptions.mjs` stats/export/import + `lib/editor-descriptions.js` (series key,
+      no-copy/no-date validation, excerpt). Procedure: `docs/ops/editor-descriptions.md`.
+- [x] First Linz batch written in-session (80 seasonal series); daily desktop task
+      `okolo-event-descriptions` (10:12, George's subscription, no API) continues it.
+- [ ] Gap on 2026-11-14: ~5,950 series / 8,900 events in 2–45 days across the SEO cities
+      (Linz 1,833). Watch the daily reports; raise `--limit` if the gap does not shrink.
+- [ ] Cancelled events stay published with an "abgesagt:" title prefix (e.g. Adventmarkt FF
+      Finklham, Scharten). Unpublish or mark them in the crawl instead of showing them.
+- [ ] GEM2GO "Kiosk" listings repeat neighbouring towns' events under the listing town
+      (ZBP St. Dionysen Adventmarkt shown in Pasching and Traun; Alkolympics Aschach/Donau under
+      Aschach an der Steyr). Pins land in the wrong town; dedupe or geocode from the venue.
+
 ## Supabase → Neon move, accounts removed (2026-11-13)
 - [x] Remove accounts, poster scan / link import / manual add, POST /api/events and all Supabase
       client code (branch `dev/neon`, commit `f792fc9`). 427 tests and `next build` pass; local

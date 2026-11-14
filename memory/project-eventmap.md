@@ -1,5 +1,12 @@
 # Project memory — eventmap (Okolo)
 
+## Where things stand (2026-11-14 — editor descriptions refill the sitemap)
+- The sitemap needs a ≥30-char description; since the AI shutdown no crawler writes one, so
+  0/2,043 November Linz additions were listed. George chose descriptions written by Claude Code /
+  Codex on his subscription (no API): `scripts/descriptions.mjs` + `docs/ops/editor-descriptions.md`,
+  daily desktop task `okolo-event-descriptions`. Recrawls no longer null an existing description.
+- Autumn search decline checked: sitemap inventory was steady Sep–Oct, so it was seasonal.
+
 ## Where things stand (2026-11-13 — leaving Supabase for free Neon)
 - George chose to remove accounts and the whole add/scan flow (3 users, 2 contributions). Done on
   branch `dev/neon` (`f792fc9`), not merged or deployed. Production still runs on Supabase.

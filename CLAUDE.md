@@ -161,6 +161,9 @@ interactively in Codex under his existing subscription while he is online. Never
 Gemini, Anthropic, OpenAI, xAI or other paid APIs, or background model CLIs, for this work.
 Automated collection stays deterministic; newsletters use template copy. Do not re-enable
 AI calls, credentials, scheduled AI lanes, or paid trials without George's explicit approval.
+Exception (George, 2026-11-14): event descriptions are written by Claude Code or Codex on
+his subscription, interactively or as the scheduled desktop task `okolo-event-descriptions`,
+following `docs/ops/editor-descriptions.md`. Still no API calls, no Gemini.
 
 ## Coding discipline
 
