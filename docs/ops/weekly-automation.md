@@ -22,7 +22,7 @@ See [the decision](../decisions/2026-10-27-no-paid-ai.md).
 > | Carousel cards, 1080×1350, Latin + Cyrillic | `GET /api/social/card?channel=&slide=` |
 > | The desk (review, drop a pick, download cards, copy caption, send) | `/admin/thursday?token=<ADMIN_TOKEN>` |
 > | CLI (`npm run digest -- --all --cards ./out --send`) | `scripts/weekly-digest.mjs` |
-> | Thursday cron — fresh live-edition prepare at 09:00 UTC, guarded sends at 14:00 UTC | `.github/workflows/weekly-digest.yml` |
+> | Thursday cron — fresh live-edition prepare at 09:11 UTC, guarded sends at 14:11 UTC (off the hour; on-the-hour slots ran ~7h late) | `.github/workflows/weekly-digest.yml` |
 >
 > Deviations from the plan below, and why: the "Top 5" is a **frozen snapshot** per city per weekend
 > (so the cards, the caption and the email can never disagree, and a card request can't re-trigger a

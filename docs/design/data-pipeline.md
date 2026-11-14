@@ -436,6 +436,11 @@ unreachable by the only tool a user has to get there.
 
 ## 6. Dedup & merge
 
+**GEM2GO listing copies** (2026-11-14): GEM2GO sites share one event database, and a re-listed
+event keeps its object id (`detailonr=…`) on every host. Same object id + same start + same title is
+one event: after an insert the crawl keeps the best row (`lib/listing-twins.js`: the publisher's own
+copy, then the most precise pin, then the oldest) and sets the other copies to `removed`.
+
 **Cancelled occurrences** (2026-11-14) are decided once, in `upsertEvent`, by `lib/cancellation.js`:
 a title marker ("abgesagt", "entfällt", "verschoben", a trailing "fällt aus") or a source flag
 (schema.org `EventCancelled`/`EventPostponed`, set by `lib/jsonld-events.js`). The row is stored as

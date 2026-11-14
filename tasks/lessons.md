@@ -1301,3 +1301,12 @@ only knows its own town, trust the postcode town in the event's address, and acc
 geocodes precisely ("4560 Kirchdorf" alone is ambiguous, so it stays where it was). Also: `.env.local`
 points `NOMINATIM_URL` at the local box. When that box is off, every new lookup fails silently and is
 not cached. Run one-off geocoding scripts with `NOMINATIM_URL=https://nominatim.openstreetmap.org`.
+
+## 2026-11-14 — A swallowed error looks exactly like an empty source
+
+The Wien erleben route called two helpers that were never imported. Each detail page threw a
+ReferenceError inside `try { … } catch { /* one bad page */ }`, so the route returned 0 for months
+and looked like a quiet source. GEM2GO's raster parser likewise stored "bis 4. Dezember" (a series
+end) as the start date. **Lesson:** a per-item catch must still count failures and say so when every
+item failed, and every parser needs a fixture taken from the live markup, not from memory.
+Also: GitHub runs top-of-hour crons hours late under load; schedule at odd minutes.

@@ -6,7 +6,7 @@ const workflow = readFileSync(new URL('../.github/workflows/crawl.yml', import.m
 const refreshScript = readFileSync(new URL('../scripts/refresh-seo.mjs', import.meta.url), 'utf8');
 
 test('scheduled crawl is Austria-only and structured-only', () => {
-  assert.match(workflow, /cron: '0 4 \* \* \*'/);
+  assert.match(workflow, /cron: '17 3 \* \* \*'/);
   assert.equal((workflow.match(/cron:/g) || []).length, 1);
   assert.match(workflow, /node scripts\/crawl\.mjs --country AT --mode structured/);
   assert.doesNotMatch(workflow, /inputs\.mode|CRAWL_MODE|MAX_LLM_CALLS/);

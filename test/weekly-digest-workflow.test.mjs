@@ -6,8 +6,8 @@ const workflow = readFileSync(new URL('../.github/workflows/weekly-digest.yml', 
 const trigger = readFileSync(new URL('../scripts/trigger-weekly-newsletter.mjs', import.meta.url), 'utf8');
 
 test('Thursday workflow prepares and sends every live edition', () => {
-  assert.match(workflow, /cron: '0 9 \* \* 4'/);
-  assert.match(workflow, /cron: '0 14 \* \* 4'/);
+  assert.match(workflow, /cron: '11 9 \* \* 4'/);
+  assert.match(workflow, /cron: '11 14 \* \* 4'/);
   assert.match(workflow, /weekly-digest\.mjs --live --notify --regenerate/);
   assert.match(workflow, /trigger-weekly-newsletter\.mjs/);
   assert.match(workflow, /ADMIN_TOKEN: \$\{\{ secrets\.ADMIN_TOKEN \}\}/);

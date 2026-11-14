@@ -8,9 +8,10 @@
 - Autumn search decline checked: sitemap inventory was steady Sep–Oct, so it was seasonal.
 - Pipeline audit, same day: cancelled events are unpublished at the write boundary; events
   now take the town their address names, not the listing town (~4,600 rows were mis-pinned); and
-  12 GEM2GO `va_list` sources are back on the structured route. About 630 AT sources stay frozen on
-  `llm` until new adapters land (ranked in `tasks/todo.md`). GitHub crons start 7–8h late, and
-  NOTIFY_TO is unset, so the Thursday notify mail is never sent.
+  12 GEM2GO `va_list` sources are back on the structured route. Round 2 added Familienkarte,
+  Contao, TYPO3 and GEM2GO-filter routes, fixed Wien erleben, collapsed multi-site GEM2GO copies
+  by object id, retired 24 dead sources and repointed 14. About 560 AT sources stay frozen on `llm`
+  (bespoke/JS lists). Crons now run off the hour; NOTIFY_TO is still unset (George).
 
 ## Where things stand (2026-11-13 — leaving Supabase for free Neon)
 - George chose to remove accounts and the whole add/scan flow (3 users, 2 contributions). Done on

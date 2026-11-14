@@ -1,7 +1,7 @@
 # Scheduled crawl — no paid AI
 
 As of 2026-10-27, `.github/workflows/crawl.yml` refreshes **Austria only**, using
-`node scripts/crawl.mjs --country AT --mode structured` at **04:00 UTC daily**
+`node scripts/crawl.mjs --country AT --mode structured` at **03:17 UTC daily** (off the hour: GitHub delayed the old 04:00 slot by 7–8h)
 (05:00 Vienna in winter, 06:00 in summer). Manual dispatch uses the same fixed mode.
 The weekly paid lane, model budget and model credentials are removed.
 

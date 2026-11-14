@@ -6,7 +6,9 @@ name: Scheduled crawl
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    # Off the hour: GitHub delays top-of-hour schedules under load. '0 4'
+    # started at 11:20-12:30 UTC throughout November 2026.
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
 concurrency:

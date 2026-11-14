@@ -17,14 +17,16 @@ import { createHash } from 'node:crypto';
 import {
   upsertEvent, upsertCrawledPlace, expireFinished, getSourceByUrl, getSourcesForCrawl, getZeroYieldSources,
   markSourceCrawled, updateSourceMeta, updateSourceStats, setSourceBlockedReason,
-  dedupCandidates, updateEventFields, deleteEventsByIds, closeDb,
+  dedupCandidates, updateEventFields, deleteEventsByIds, listingTwins, unpublishEvents, closeDb,
 } from '../lib/db.js';
+import { gem2goObjectId, sameListingTitle, pickKeeper } from '../lib/listing-twins.js';
 import { geocodeEvent } from '../lib/geocode.js';
 import { addressTown, sameTown } from '../lib/address-town.js';
 import { isCancelledTitle } from '../lib/cancellation.js';
 import { findDuplicate, mergePlan, titleSubstitution } from '../lib/dedup.js';
 import { decodeEntities, stripTags, cleanText } from '../lib/entities.js';
 import { makeStartsAt, makeEndsAt, splitLocalDateTime } from '../lib/event-time.js';
+import { extractWienDetailLinks, parseWienErlebenDetailHtml } from '../lib/wien-erleben-events.js';
 import {
   extractFromPage, isExtractionBudgetError, isProviderQuotaExhausted, isAutomatedAiDisabled, sanitizeExtractedEvents,
 } from '../lib/extract.js';
@@ -38,7 +40,7 @@ import { parseSindelfingenEvents, sindelfingenPageCount } from '../lib/sindelfin
 import { decodeWpTitle, parseKreativregionIcs } from '../lib/kreativregion-events.js';
 import { parseKinderfreundeEvents, kinderfreundePageCount } from '../lib/kinderfreunde-events.js';
 import { parseNaturfreundeItem } from '../lib/naturfreunde-events.js';
-import { walkGem2goFilter } from '../lib/gem2go-filter.js';
+import { walkGem2goFilter, hasGem2goFilterForm } from '../lib/gem2go-filter.js';
 import { fetchSalzburgarenaEvents } from '../lib/salzburgarena-events.js';
 import { fetchGrazerSpielstaettenEvents } from '../lib/grazer-spielstaetten-events.js';
 import { fetchBregenzerFestspieleEvents } from '../lib/bregenzer-festspiele-events.js';
@@ -60,10 +62,13 @@ import {
   isPflasterFixedSourceUrl, parsePflasterEvents, PFLASTER_HOME_URL,
 } from '../lib/pflaster-events.js';
 import { parseSiteswiftEvents } from '../lib/siteswift-events.js';
+import { parseContaoEvents } from '../lib/contao-events.js';
+import { parseTypo3Events } from '../lib/typo3-events.js';
 import { kalkalpenDetailUrls, parseKalkalpenDetail } from '../lib/kalkalpen-events.js';
 import { fetchJeventsEvents } from '../lib/jevents-events.js';
 import { ENNS_SOURCE_URL, fetchEnnsEvents } from '../lib/enns-events.js';
 import { fetchLinztermineEvents } from '../lib/linztermine-events.js';
+import { fetchFamilienkarteEvents } from '../lib/familienkarte-events.js';
 import {
   CRAWL_SCOPES, crawlScope, isWithinCrawlScope, scopeForSource,
 } from '../lib/crawl-scopes.js';
@@ -346,16 +351,17 @@ function parseGem2goTable(html, src) {
 // a literal "<div class=\"clear\"></div></div>". German long-form dates
 // ("27. Juli 2026") — needs the month-name table above.
 function parseGem2goRaster(html, src) {
-  const entries = [...html.matchAll(/<div class="(?:odd|even) rasterListEntry">([\s\S]*?)<div class="clear"><\/div><\/div>/gi)];
+  const entries = [...html.matchAll(/<div class="(?:odd|even) rasterListEntry(?:\s[^"]*)?">([\s\S]*?)<div class="clear"><\/div><\/div>/gi)];
   const events = [];
   for (const [, entry] of entries) {
-    const linkMatch = entry.match(/rasterListInfoContainerTitel"><a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+    const linkMatch = entry.match(/rasterListInfoContainerTitel(?:\s[^"]*)?"><a[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
     if (!linkMatch) continue;
     const title = stripTags(linkMatch[2]);
     if (!title) continue;
 
     const dateMatch = entry.match(/rasterListDateContainerDateTime">([^<]+)</i);
-    const dm = dateMatch && dateMatch[1].match(/(\d{1,2})\.\s*([A-Za-zÄÖÜäöüß]+)\s*(\d{4})/);
+    // "bis 4. Dezember 2026" is the END of a running series, never its start.
+    const dm = dateMatch && !/^\s*bis/i.test(dateMatch[1]) && dateMatch[1].match(/(\d{1,2})\.\s*([A-Za-zÄÖÜäöüß]+)\s*(\d{4})/);
     if (!dm) continue; // never fabricate: no date → skip
     const month = DE_MONTHS[dm[2].toLowerCase()];
     if (!month) continue;
@@ -374,7 +380,7 @@ function parseGem2goRaster(html, src) {
       address: addrMatch ? stripTags(addrMatch[1].replace(/<br\s*\/?>/gi, ', ')) : null,
       town: src.town || null,
       categories: categorizeGem2go(title), is_free: freeFromText(title), age_min: null, age_max: null, indoor: null,
-      description: null, source_url: absUrl(linkMatch[1], src.url),
+      description: null, source_url: absUrl(decodeEntities(linkMatch[1]), src.url),
     });
   }
   return events;
@@ -447,8 +453,33 @@ function parseGem2goCollapsible(html, src) {
   return events;
 }
 
+// Variant 5: plain <ul class="veranstaltung_liste"> (Kirchham, Lasberg): date,
+// title and link only. Ranges over a month are running series whose shown start
+// is clamped to the filter date, so they are skipped rather than mis-dated.
+function parseGem2goVeranstaltungListe(html, src) {
+  const ul = /<ul class="veranstaltung_liste">([\s\S]*?)<\/ul>/i.exec(html)?.[1];
+  if (!ul) return [];
+  const events = [];
+  for (const [, li] of ul.matchAll(/<li>([\s\S]*?)<\/li>/gi)) {
+    const m = li.match(/<span>\s*(\d{2})\.(\d{2})\.(\d{4})(?:\s*-\s*(\d{2})\.(\d{2})\.(\d{4}))?\s*<\/span>\s*<a\s[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
+    if (!m) continue;
+    const title = stripTags(m[8]);
+    if (!title) continue;
+    const date_start = `${m[3]}-${m[2]}-${m[1]}`;
+    const date_end = m[4] ? `${m[6]}-${m[5]}-${m[4]}` : null;
+    if (date_end && (Date.parse(date_end) - Date.parse(date_start)) / 864e5 > 31) continue;
+    events.push({
+      title, date_start, time_start: null, date_end, time_end: null,
+      venue: null, address: null, town: src.town || null,
+      categories: categorizeGem2go(title), is_free: freeFromText(title), age_min: null, age_max: null, indoor: null,
+      description: null, source_url: absUrl(decodeEntities(m[7]), src.url),
+    });
+  }
+  return events;
+}
+
 export function parseGem2goEvents(html, src) {
-  for (const parser of [parseGem2goTable, parseGem2goBem, parseGem2goRaster, parseGem2goCollapsible]) {
+  for (const parser of [parseGem2goTable, parseGem2goBem, parseGem2goRaster, parseGem2goCollapsible, parseGem2goVeranstaltungListe]) {
     const events = parser(html, src);
     if (events.length) return events;
   }
@@ -464,60 +495,16 @@ export function parseGem2goEvents(html, src) {
 // genuine two-hop structured route: collect detail links from the given page,
 // politeFetch each (same host, same politeness queue as everything else),
 // pull the Event node(s) out. Capped so one source's crawl can't run away.
-const WIEN_DETAIL_CAP = 40;
-function wienJsonLdAddress(n) {
-  const a = Array.isArray(n.addresses) ? n.addresses[0] : null;
-  if (!a) return { address: null };
-  return { address: a.street ? a.street.trim() : null };
-}
-function parseWienErlebenEventNode(n, pageUrl, src) {
-  // Never trust addressLocality for the town field — this dialect's own data
-  // renders it in English ("Vienna"), inconsistent with our German-name
-  // convention elsewhere ("Wien"). Every event on this source is Vienna
-  // anyway (src.town is fixed at registration), so always use that instead.
-  const { address } = wienJsonLdAddress(n);
-  const props = Array.isArray(n.additionalProperty) ? n.additionalProperty : [];
-  const kidTag = props.some((p) => p && p.value === true && /kind/i.test(String(p.name || '')));
-  const base = {
-    title: n.name || null,
-    venue: null, address, town: src.town || null,
-    categories: kidTag ? ['family'] : [],
-    is_free: typeof n.isAccessibleForFree === 'boolean' ? n.isAccessibleForFree : null,
-    age_min: null, age_max: null, indoor: null,
-    description: null,
-    source_url: pageUrl,
-  };
-  const occurrences = Array.isArray(n.subEvent) && n.subEvent.length ? n.subEvent : [n];
-  const out = [];
-  for (const occ of occurrences) {
-    const { date: date_start, time: time_start } = splitLocalDateTime(occ.startDate);
-    if (!base.title || !date_start) continue; // never fabricate: no date → skip
-    const { date: date_end, time: time_end } = splitLocalDateTime(occ.endDate);
-    out.push({ ...base, date_start, time_start, date_end: date_end || null, time_end: time_end || null });
-  }
-  return out;
-}
+const WIEN_DETAIL_CAP = 100; // listings carry ~80-85 teaser links; 40 truncated them
 async function parseWienErlebenEvents(html, src) {
-  const hrefs = [...html.matchAll(/href="(https:\/\/www\.wien\.gv\.at\/veranstaltungen\/[a-z0-9-]+)"/gi)].map((m) => m[1]);
-  const uniq = [...new Set(hrefs)].slice(0, WIEN_DETAIL_CAP);
+  const uniq = extractWienDetailLinks(html, src.url).slice(0, WIEN_DETAIL_CAP);
   const events = [];
   for (const url of uniq) {
     try {
       if (!(await robotsAllowed(url))) continue;
       const res = await politeFetch(url);
       if (!res.ok) continue;
-      const detailHtml = await res.text();
-      const blocks = [...detailHtml.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
-      for (const b of blocks) {
-        let data;
-        try { data = JSON.parse(b[1].trim()); } catch { continue; }
-        const nodes = [];
-        collectJsonLdNodes(data, nodes);
-        for (const n of nodes) {
-          if (!isEventType(n['@type'])) continue;
-          events.push(...parseWienErlebenEventNode(n, url, src));
-        }
-      }
+      events.push(...parseWienErlebenDetailHtml(await res.text(), url, src));
     } catch { /* one bad detail page must not break the rest */ }
   }
   return events;
@@ -670,6 +657,9 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'linztermine') {
     return { route: 'linztermine', events: await fetchLinztermineEvents(html, src), exclusive: true };
   }
+  if (src.cms === 'familienkarte') {
+    return { route: 'familienkarte', events: await fetchFamilienkarteEvents(src, { shellHtml: html }), exclusive: true };
+  }
   // Direct feed: when the registered `url` IS an iCal/RSS endpoint (rather than
   // an HTML page that LINKS to one), the fetched body is the feed itself, so no
   // href/`<link rel=alternate>` discovery can find it and htmlToText would just
@@ -720,7 +710,7 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'gem2go') {
     let gem2goEvents = parseGem2goEvents(html, src);
     // 2026 redesign pages default to today only; walk the filter form forward.
-    if (/name="fromDate-\d+"/.test(html)) {
+    if (hasGem2goFilterForm(html)) {
       gem2goEvents = await walkGem2goFilter(html, {
         pageUrl: src.url,
         today: new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Vienna' }).format(new Date()),
@@ -742,6 +732,18 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'siteswift') {
     const siteswiftEvents = parseSiteswiftEvents(html, src);
     if (siteswiftEvents.length) return { route: 'siteswift', events: siteswiftEvents };
+  }
+
+  // Server-rendered Contao event lists and TYPO3 event/news lists. Cms-gated
+  // only: their markup is loose enough that an ungated run would misread
+  // unrelated pages (lib/contao-events.js, lib/typo3-events.js).
+  if (src.cms === 'contao-events') {
+    const contaoEvents = parseContaoEvents(html, src);
+    if (contaoEvents.length) return { route: 'contao-events', events: contaoEvents };
+  }
+  if (src.cms === 'typo3-events') {
+    const typo3Events = parseTypo3Events(html, src);
+    if (typo3Events.length) return { route: 'typo3-events', events: typo3Events };
   }
 
   if (src.cms === 'kalkalpen') {
@@ -1054,6 +1056,19 @@ async function tryFuzzyMerge(ev) {
   return true;
 }
 
+// One GEM2GO object listed by several municipal sites is one event: keep the
+// best row, unpublish the other copies (lib/listing-twins.js).
+async function collapseListingTwins(ev) {
+  const objectId = gem2goObjectId(ev.source_url);
+  if (!objectId || !ev.starts_at) return false;
+  const title = cleanText(ev.title);
+  const twins = (await listingTwins(objectId, ev.starts_at)).filter((r) => sameListingTitle(r.title, title));
+  if (twins.length < 2) return false;
+  const keeper = pickKeeper(twins);
+  await unpublishEvents(twins.filter((r) => r.id !== keeper.id).map((r) => r.id));
+  return true;
+}
+
 async function crawlNaturfreundeSource(src, { force } = {}) {
   console.log(`\n→ ${src.name} (${src.url})`);
 
@@ -1277,7 +1292,7 @@ async function crawlSource(src, {
     }
   }
 
-  let ok = 0, outsideScope = 0, fuzzyMerged = 0, preservedPlaces = 0;
+  let ok = 0, outsideScope = 0, fuzzyMerged = 0, preservedPlaces = 0, listingTwinsCollapsed = 0;
   let missingFacts = 0, missingGeo = 0;
   for (const raw of events) {
     try {
@@ -1386,6 +1401,8 @@ async function crawlSource(src, {
       // brand-new row was just inserted) — see tryFuzzyMerge.
       if (!upsertRes.updated && await tryFuzzyMerge({ ...upserted, id: upsertRes.id })) {
         fuzzyMerged++;
+      } else if (!upsertRes.updated && await collapseListingTwins(upserted)) {
+        listingTwinsCollapsed++;
       }
     } catch (e) {
       // One malformed event (bad types, unexpected DB constraint, etc.) must
@@ -1397,6 +1414,7 @@ async function crawlSource(src, {
     + (missingFacts ? `, ${missingFacts} missing title/date` : '')
     + (missingGeo ? `, ${missingGeo} missing geocode` : '')
     + (preservedPlaces ? `, ${preservedPlaces} existing places preserved` : '')
+    + (listingTwinsCollapsed ? `, ${listingTwinsCollapsed} GEM2GO listing copies collapsed` : '')
     + (outsideScope ? `, ${outsideScope} outside ${scope.id} skipped` : '')
     + (fuzzyMerged ? `, ${fuzzyMerged} fuzzy-merged` : ''));
   if (events.length > 0 && ok === 0 && preservedPlaces === 0) {

@@ -18,13 +18,23 @@
       1,199 neighbour copies unpublished, 2,774 kept (address not precise); dup groups 866 → 485.
 - [x] GEM2GO `va_list` table layout parsed (long-form date spans): 12 frozen `llm` sources back on
       the structured route (Alkoven, Großraming, Stockerau, …; ~320 events).
-- [ ] Frozen `llm` sources (≈630 AT, probe 2026-11-14: none recover through existing routes). Next
-      adapters by yield: OÖ Familienkarte (id 18, ~150 events, `eventEntry` + `limitstart` paging);
-      Contao `event-list-item` + TYPO3 `tx_news` list parsers (~117 sources); Wien erleben route
-      returns 0 although detail JSON-LD exists (ids 1067/1068/1229, 148 events); GEM2GO pages with an
-      empty list and a "Datum ab" filter (~33). Probe: `tmp/probe-frozen-sources.mjs`.
-- [ ] Source hygiene: Linz-Termine id 1 (cms NULL, stale August URL; 3085–3095 cover it) → retire;
-      deactivate the 34 frozen sources that return 404; Baden (1692) and Ferlach (302) parse 0.
+- [x] Frozen `llm` sources, round 2: new structured routes for OÖ Familienkarte (id 18, 122 events),
+      Contao event lists (4 sources) and TYPO3 event/news lists (11 sources), Wien erleben fixed
+      (two helpers were never imported, so every detail page threw and the route returned 0),
+      GEM2GO "Datum ab" / `type=date` filter forms walked and three list-parser bugs fixed
+      (raster entry class, "bis <date>" stored as a start date, `veranstaltung_liste` layout).
+- [x] GEM2GO object id (`detailonr`) + start + title = one event: copies listed by several sites
+      collapse at crawl time (`lib/listing-twins.js`); `scripts/migrate-listing-twins.mjs` removed 890.
+- [x] Source hygiene: 24 frozen sources whose listing 404s and whose site links no events page set
+      `works=false` with a note; 13 repointed to the site's current events page (Ertl, Strengberg,
+      Wolfsbach now crawl via iCal); Linz-Termine id 1 repointed to the Kinder search; one removed
+      Linz-Termine event page no longer sinks the whole source.
+- [x] Crons moved off the hour (crawl 03:17 UTC, Thursday 09:11/14:11 UTC): on-the-hour slots ran
+      7–8h late, so the 14:00 newsletter send went out at ~21:00.
+- [ ] Still frozen: ≈560 AT `llm` sources with bespoke or JS-rendered lists; 10 repointed sources
+      (Murau, Hartl, Wagna, …) need a parser. Retired rows to review: `works=false` notes dated 2026-11-14.
+- [ ] GEM2GO rows written before the "bis" fix may carry a series END date as their start; they
+      expire on that date. Not identifiable in the DB, so left to age out.
 
 ## Supabase → Neon move, accounts removed (2026-11-13)
 - [x] Remove accounts, poster scan / link import / manual add, POST /api/events and all Supabase

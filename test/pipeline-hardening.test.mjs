@@ -75,3 +75,45 @@ test('GEM2GO va_list rows: long-form date spans and the venue in the title cell'
   assert.equal(ev.venue, 'Kultursaal');
   assert.equal(ev.source_url, 'https://www.alkoven.at/Martinsfest');
 });
+
+test('GEM2GO object id: one event however many municipal sites list it', async () => {
+  const { gem2goObjectId, sameListingTitle, pickKeeper } = await import('../lib/listing-twins.js');
+  assert.equal(gem2goObjectId('https://www.eugendorf.at/system/web/veranstaltung.aspx?detailonr=225285055-2361&menuonr=1'), '225285055-2361');
+  assert.equal(gem2goObjectId('https://www.x.at/Veranstaltung?detailonr=225285055-2361'), '225285055-2361');
+  assert.equal(gem2goObjectId('https://www.x.at/Martinsfest'), null);
+  assert.ok(sameListingTitle('Blutspende-Aktion', '  blutspende-aktion '));
+  assert.ok(!sameListingTitle('Blutspende-Aktion', 'Blutspendeaktion Mattsee'));
+  // The publisher's own copy (address town = row town) wins over a more precise neighbour copy.
+  const keeper = pickKeeper([
+    { id: '182094', town: 'Eugendorf', address: 'Florianstraße 5, 5323 Ebenau', geo_precision: 'venue' },
+    { id: '190000', town: 'Ebenau', address: 'Florianstraße 5, 5323 Ebenau', geo_precision: 'town' },
+  ]);
+  assert.equal(keeper.id, '190000');
+  // Otherwise the most precise pin, then the oldest row (ids are bigint strings).
+  assert.equal(pickKeeper([
+    { id: '99', town: 'A', address: null, geo_precision: 'town' },
+    { id: '100', town: 'B', address: null, geo_precision: 'address' },
+  ]).id, '100');
+  assert.equal(pickKeeper([
+    { id: '1000', town: 'A', address: null, geo_precision: 'town' },
+    { id: '999', town: 'B', address: null, geo_precision: 'town' },
+  ]).id, '999');
+});
+
+test('Linz-Termine: a removed event page does not sink the whole source', async () => {
+  const { fetchLinztermineEvents } = await import('../lib/linztermine-events.js');
+  const html = '<a href="/event/1">a</a><a href="/event/2">b</a>';
+  const fetchImpl = async (url) => (url.endsWith('/event/1')
+    ? { ok: false, status: 404, text: async () => '' }
+    : { ok: false, status: 503, text: async () => '' });
+  await assert.rejects(
+    fetchLinztermineEvents(html, { url: 'https://www.linztermine.at/suche?query=Kinder' }, { fetchImpl, robotsFn: async () => true }),
+    /HTTP 503/,
+  );
+  // Every linked page gone still reads as a broken source, not as an HTTP crash.
+  const only404 = async () => ({ ok: false, status: 404, text: async () => '' });
+  await assert.rejects(
+    fetchLinztermineEvents(html, { url: 'https://www.linztermine.at/' }, { fetchImpl: only404, robotsFn: async () => true }),
+    /no dated occurrences/,
+  );
+});
