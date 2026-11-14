@@ -24,8 +24,10 @@
 - [x] Dropped `user_favorites` + `event_contributions` (`scripts/migrate-drop-accounts.mjs`);
       removed NEXT_PUBLIC_SUPABASE_* Vercel vars. Decision: `docs/decisions/2026-11-13-neon-no-accounts.md`.
 - [ ] ~2026-11-20: check Neon CU-hours (daily crawl 40–105 min; quota 100 CU-h/month).
-- [ ] ~2026-11-20: George deletes Supabase project lcpamsdenhqqcifcvzbq, downgrades the org, revokes
-      the Supabase key/Google OAuth client `okolo-events-auth`; drop SUPABASE_DATABASE_URL locally.
+- [x] 2026-11-14 (George approved): Supabase project okolo deleted; empty/test orgs "testing" and
+      "Living Pages" deleted; GeorgiKostov's Org downgraded Pro → Free (storykept + living-pages keep
+      custom SMTP and templates, verified). SUPABASE_DATABASE_URL removed from `.env.local`.
+- [ ] George: delete/disable the Google OAuth client in Cloud project `okolo-events-auth`.
 - [ ] README still describes the poster scan / AI keys — trim in a docs pass.
 
 ## Steyr coverage + GEM2GO filter-form paging (2026-11-12)

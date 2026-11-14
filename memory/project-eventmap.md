@@ -5,8 +5,9 @@
   branch `dev/neon` (`f792fc9`), not merged or deployed. Production still runs on Supabase.
 - **Production runs on free Neon (fra1) since 2026-11-13** (`dpl_DxDfqRftGYaPu8FCv3UcWMo8H7m2`); no
   runtime Supabase dependency. DATABASE_URL = Neon pooled in Vercel, GitHub Actions and
-  `.env.local`. Neon pooled needs the DB-level search_path default. Supabase kept as rollback until
-  ~2026-11-20, then George deletes it. Decision: `docs/decisions/2026-11-13-neon-no-accounts.md`.
+  `.env.local`. Neon pooled needs the DB-level search_path default. The Supabase okolo project was
+  deleted 2026-11-14 (no rollback; local dumps remain). Decision:
+  `docs/decisions/2026-11-13-neon-no-accounts.md`.
 
 ## Where things stand (2026-11-12 — GEM2GO filter paging)
 - GEM2GO redesign sites (~40% of active GEM2GO) show only "today" by default; the crawl now walks
