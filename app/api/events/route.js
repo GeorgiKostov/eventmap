@@ -169,7 +169,7 @@ export async function GET(req) {
 
   // Public machine-readable catalog: bounded keyset pagination. The old
   // no-param response dumped every event (including internal embeddings)
-  // into one request and was the primary Supabase egress multiplier.
+  // into one request and was the primary database egress multiplier.
   const cursor = sp.get('cursor');
   if (cursor !== null && !/^\d+$/.test(cursor)) return bad('cursor must be an event id');
   const limitRaw = sp.get('limit');

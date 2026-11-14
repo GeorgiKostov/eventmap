@@ -351,6 +351,15 @@ names that repeat). Deleted, not "corrected": when a venue and its town disagree
 know which is wrong, so let the pipeline re-derive it. Same family as the negative-geocache lesson —
 **re-validate any cache/registry against the CURRENT rules whenever the rules change.**
 
+**Address town beats listing town** (2026-11-14). Municipal CMSs (GEM2GO "Kiosk" pages above all)
+re-list neighbouring towns' events, and the parsers fill `town` with the listing town. The address
+query then carried two towns ("…, 5323 Ebenau, Eugendorf"), Nominatim missed, and the event fell
+back to the wrong centroid. When the parser only had the source's own town, `scripts/crawl.mjs` now
+geocodes with the postcode town from the address (`lib/address-town.js`). It keeps that town only
+if the result is better than town precision; an ambiguous "4560 Kirchdorf" stays put. Neighbour
+copies then hash identically and collapse in the exact layer (§6).
+`scripts/migrate-address-towns.mjs` applied the rule to the stored upcoming rows.
+
 **No jitter, ever** (2026-07-14). Town-level results used to get a random ±300m offset so pins
 wouldn't stack — which *invented a coordinate* for ~11k events (170 scattered across a few Wiener
 Neustadt blocks, indistinguishable from real venues at street zoom). That is fabrication in service
@@ -426,6 +435,12 @@ cities must be searchable by prefix on day one, or the events we just crawled ar
 unreachable by the only tool a user has to get there.
 
 ## 6. Dedup & merge
+
+**Cancelled occurrences** (2026-11-14) are decided once, in `upsertEvent`, by `lib/cancellation.js`:
+a title marker ("abgesagt", "entfällt", "verschoben", a trailing "fällt aus") or a source flag
+(schema.org `EventCancelled`/`EventPostponed`, set by `lib/jsonld-events.js`). The row is stored as
+`removed`, so the next crawl matches it rather than re-inserting it. The earlier row with the
+unmarked title is unpublished too.
 
 **Two independent layers, deliberately not merged into one:**
 

@@ -20,6 +20,8 @@ import {
   dedupCandidates, updateEventFields, deleteEventsByIds, closeDb,
 } from '../lib/db.js';
 import { geocodeEvent } from '../lib/geocode.js';
+import { addressTown, sameTown } from '../lib/address-town.js';
+import { isCancelledTitle } from '../lib/cancellation.js';
 import { findDuplicate, mergePlan, titleSubstitution } from '../lib/dedup.js';
 import { decodeEntities, stripTags, cleanText } from '../lib/entities.js';
 import { makeStartsAt, makeEndsAt, splitLocalDateTime } from '../lib/event-time.js';
@@ -298,11 +300,22 @@ function parseGem2goTable(html, src) {
     if (cells.length < 2) continue;
     const [dateCell, titleCell, venueCell] = cells;
     const dates = [...dateCell.matchAll(/(\d{2})\.(\d{2})\.(\d{4})/g)];
-    if (!dates.length) continue; // never fabricate: no date → skip
-    const [, d1, m1, y1] = dates[0];
-    const date_start = `${y1}-${m1}-${d1}`;
+    let date_start = null;
     let date_end = null;
-    if (dates.length > 1) { const [, d2, m2, y2] = dates[1]; date_end = `${y2}-${m2}-${d2}`; }
+    if (dates.length) {
+      const [, d1, m1, y1] = dates[0];
+      date_start = `${y1}-${m1}-${d1}`;
+      if (dates.length > 1) { const [, d2, m2, y2] = dates[1]; date_end = `${y2}-${m2}-${d2}`; }
+    } else {
+      // "va_list" variant of the same table: the date is long-form spans,
+      // <span class="va_list_day">14</span>. <span class="va_list_month">November</span> …
+      const day = dateCell.match(/va_list_day"\s*>\s*(\d{1,2})\s*</i);
+      const month = dateCell.match(/va_list_month"\s*>\s*([A-Za-zÄÖÜäöüß]+)/i);
+      const year = dateCell.match(/va_list_year"\s*>\s*(\d{4})/i);
+      const mm = month && DE_MONTHS[month[1].toLowerCase()];
+      if (day && mm && year) date_start = `${year[1]}-${mm}-${day[1].padStart(2, '0')}`;
+    }
+    if (!date_start) continue; // never fabricate: no date → skip
     const { time_start, time_end } = timeRangeFrom(dateCell);
 
     const linkMatch = titleCell && titleCell.match(/<a\s+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
@@ -311,7 +324,10 @@ function parseGem2goTable(html, src) {
     if (!title) continue;
 
     let venue = null;
-    if (venueCell) {
+    const listVenue = titleCell.match(/va_list_veranstaltungsort"[^>]*>([\s\S]*?)<\/span>/i);
+    if (listVenue) {
+      venue = stripTags(listVenue[1].replace(/^\s*Veranstaltungsort\s*(?:<br\s*\/?>)?/i, '')) || null;
+    } else if (venueCell) {
       const venueLink = venueCell.match(/<a[^>]*>([\s\S]*?)<\/a>/i);
       venue = stripTags(venueLink ? venueLink[1] : venueCell) || null;
     }
@@ -431,7 +447,7 @@ function parseGem2goCollapsible(html, src) {
   return events;
 }
 
-function parseGem2goEvents(html, src) {
+export function parseGem2goEvents(html, src) {
   for (const parser of [parseGem2goTable, parseGem2goBem, parseGem2goRaster, parseGem2goCollapsible]) {
     const events = parser(html, src);
     if (events.length) return events;
@@ -1007,6 +1023,9 @@ async function clearBlockedIfSet(src) {
 // app/api/events/route.js and app/api/scan/route.js already use findDuplicate)
 // instead of loading every published event per candidate.
 async function tryFuzzyMerge(ev) {
+  // A cancelled row is stored as removed on purpose; merging it into its live
+  // twin would delete the cancellation and leave the twin on the map.
+  if (ev.cancelled === true || isCancelledTitle(ev.title)) return false;
   const day = (ev.starts_at || '').slice(0, 10);
   // cleanText mirrors the write boundary (lib/db.js upsertEvent) — the row we
   // are comparing against was stored post-cleanText, so an un-decoded "&#8211;"
@@ -1306,6 +1325,7 @@ async function crawlSource(src, {
         // countrycodes/suffix (BG addresses must not be geocoded as AT) and the
         // event is tagged for its country. Sources default to 'AT'.
         country: src.country || 'AT',
+        ...(raw.cancelled === true ? { cancelled: true } : {}),
       };
       // Town-pin jitter is useful on the map but not while enforcing an exact
       // crawl boundary: use the real geocoder/centroid point for the decision.
@@ -1314,9 +1334,24 @@ async function crawlSource(src, {
       const hasEnnsPoint = src.url === ENNS_SOURCE_URL
         && Number.isFinite(raw.lat) && Number.isFinite(raw.lng)
         && raw.lat >= 46 && raw.lat <= 49.1 && raw.lng >= 9 && raw.lng <= 17.2;
-      let geo = isPlace || hasEnnsPoint
-        ? { lat: raw.lat, lng: raw.lng, geo_precision: 'venue' }
-        : await geocodeEvent(ev, { jitterTown: !scope });
+      let geo = null;
+      // Neighbour listings carry the LISTING town while their address names the
+      // real one ("…, 5323 Ebenau" on Eugendorf's site). Use the address town
+      // when the parser only had the source's town, but only if it places the
+      // event precisely; otherwise keep the source town (lib/address-town.js).
+      const placeTown = !isPlace && !hasEnnsPoint && addressTown(ev.address);
+      if (placeTown && !sameTown(placeTown, ev.town) && (!raw.town || sameTown(raw.town, src.town))) {
+        const moved = await geocodeEvent({ ...ev, town: placeTown }, { jitterTown: !scope });
+        if (moved && moved.geo_precision !== 'town') {
+          ev.town = placeTown;
+          geo = moved;
+        }
+      }
+      if (!geo) {
+        geo = isPlace || hasEnnsPoint
+          ? { lat: raw.lat, lng: raw.lng, geo_precision: 'venue' }
+          : await geocodeEvent(ev, { jitterTown: !scope });
+      }
       // Single-venue publishers (a theatre, a museum) name the ROOM, not the
       // house: Dschungel Wien's kids-theatre listings say "Bühne 1"/"Bühne 2",
       // which no geocoder can place — 175 events sat on the Vienna centroid.

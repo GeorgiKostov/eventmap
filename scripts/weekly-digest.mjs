@@ -120,11 +120,12 @@ for (const c of channels) results.push(await run(c));
 // this script still never posts socially or sends as a side effect of notify.
 if (flag('notify')) {
   const lines = results.map((r) => `${r.channel.label}: ${r.digest.items.length} picks — ${r.digest.label}`);
-  await notifyOperator(
+  const notified = await notifyOperator(
     `Okolo Thursday: ${results.reduce((n, r) => n + r.digest.items.length, 0)} picks ready`,
     `${lines.join('\n')}\n\nDesk: ${BASE}/admin/thursday (log in with your admin password)\n\nThe picks and the AI copy are prepared. Review or edit them before the automatic 14:00 UTC send, then post the social assets manually.`,
   );
-  console.log('\nnotified operator.');
+  // notifyOperator already logged why when it could not send.
+  console.log(notified ? '\nnotified operator.' : '\noperator NOT notified (see the [mail] line above).');
 }
 
 process.exit(0);

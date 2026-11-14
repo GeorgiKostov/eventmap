@@ -9,11 +9,21 @@
       `okolo-event-descriptions` (10:12, George's subscription, no API) continues it.
 - [ ] Gap on 2026-11-14: ~5,950 series / 8,900 events in 2–45 days across the SEO cities
       (Linz 1,833). Watch the daily reports; raise `--limit` if the gap does not shrink.
-- [ ] Cancelled events stay published with an "abgesagt:" title prefix (e.g. Adventmarkt FF
-      Finklham, Scharten). Unpublish or mark them in the crawl instead of showing them.
-- [ ] GEM2GO "Kiosk" listings repeat neighbouring towns' events under the listing town
-      (ZBP St. Dionysen Adventmarkt shown in Pasching and Traun; Alkolympics Aschach/Donau under
-      Aschach an der Steyr). Pins land in the wrong town; dedupe or geocode from the venue.
+- [x] Cancelled events: one rule at the write boundary (`lib/cancellation.js` via `upsertEvent`,
+      plus schema.org `EventCancelled` from JSON-LD). Cancelled rows are stored as `removed`; the
+      earlier unmarked row is unpublished too. `scripts/migrate-cancelled-events.mjs` removed 8.
+- [x] GEM2GO neighbour listings pinned events on the LISTING town (~4,600 upcoming rows). The crawl
+      now uses the address's postcode town when it geocodes precisely (`lib/address-town.js`), so
+      neighbour copies share a hash and collapse; `scripts/migrate-address-towns.mjs` fixed stored rows.
+- [x] GEM2GO `va_list` table layout parsed (long-form date spans): 12 frozen `llm` sources back on
+      the structured route (Alkoven, Großraming, Stockerau, …; ~320 events).
+- [ ] Frozen `llm` sources (≈630 AT, probe 2026-11-14: none recover through existing routes). Next
+      adapters by yield: OÖ Familienkarte (id 18, ~150 events, `eventEntry` + `limitstart` paging);
+      Contao `event-list-item` + TYPO3 `tx_news` list parsers (~117 sources); Wien erleben route
+      returns 0 although detail JSON-LD exists (ids 1067/1068/1229, 148 events); GEM2GO pages with an
+      empty list and a "Datum ab" filter (~33). Probe: `tmp/probe-frozen-sources.mjs`.
+- [ ] Source hygiene: Linz-Termine id 1 (cms NULL, stale August URL; 3085–3095 cover it) → retire;
+      deactivate the 34 frozen sources that return 404; Baden (1692) and Ferlach (302) parse 0.
 
 ## Supabase → Neon move, accounts removed (2026-11-13)
 - [x] Remove accounts, poster scan / link import / manual add, POST /api/events and all Supabase

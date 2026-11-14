@@ -13,7 +13,7 @@ const sql = postgres(process.env.DATABASE_URL || '', {
   connection: { search_path: 'umkreis, extensions' },
 });
 
-// Supabase convention: extensions live in the `extensions` schema, not public.
+// Extensions live in the `extensions` schema, not public (kept from the Supabase era).
 await sql`create extension if not exists unaccent with schema extensions`;
 
 // Smoke-test that it resolves on our search_path exactly as searchEvents calls it.

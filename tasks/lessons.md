@@ -1290,3 +1290,14 @@ Thursday's `--regenerate` rebuilds from code anyway, so only vetoes survive. The
 "earliest start" tiebreak also favoured the oldest long-running series. **Lesson:** encode editorial
 rules as tested code plus a check with an exit code (`lib/pick-policy.js`, `scripts/check-picks.mjs`).
 Prompts should only point at it. Rank by "is this an outing this weekend" before source reputation.
+
+## 2026-11-14 — A listing's town is not the event's town
+
+GEM2GO "Kiosk" pages re-list neighbouring towns' events, and every parser filled `town` with the
+listing town. The address said "5323 Ebenau", the geocoder was asked for "…, 5323 Ebenau, Eugendorf",
+found nothing it could match to Eugendorf, and fell back to Eugendorf's centroid. About 4,600 upcoming
+events sat in the wrong town, and each neighbour copy was a separate row. **Lesson:** when the source
+only knows its own town, trust the postcode town in the event's address, and accept it only if it
+geocodes precisely ("4560 Kirchdorf" alone is ambiguous, so it stays where it was). Also: `.env.local`
+points `NOMINATIM_URL` at the local box. When that box is off, every new lookup fails silently and is
+not cached. Run one-off geocoding scripts with `NOMINATIM_URL=https://nominatim.openstreetmap.org`.
