@@ -39,6 +39,10 @@ jobs:
       - name: Prepare weekend digests
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # The "picks ready" mail needs NOTIFY_TO plus one transport: RESEND_API_KEY
+          # (same key as on Vercel) or SMTP_USER/SMTP_PASS. Without them the log
+          # says "operator NOT notified" and the prepare still succeeds.
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
           NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
