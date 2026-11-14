@@ -32,5 +32,6 @@ rule 6).
 keeps the compute awake 40–105 min; check usage after the first week. Over-quota on Free means
 an outage, not a bill.
 
-**Rollback window:** Supabase stays untouched until ~2026-11-20 (`SUPABASE_DATABASE_URL` in
-`.env.local`). George then deletes the project and downgrades the org.
+**Supabase closed early (2026-11-14, George):** the okolo project was deleted and the org
+downgraded to Free (the Spomen and Living Pages projects stay there). There is no live rollback any
+more; the local dumps above are the only copy of the Supabase-era data.
