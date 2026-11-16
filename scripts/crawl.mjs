@@ -48,6 +48,10 @@ import { fetchPosthofEvents } from '../lib/posthof-events.js';
 import { fetchRockhouseEvents } from '../lib/rockhouse-events.js';
 import { fetchBrucknerhausEvents } from '../lib/brucknerhaus-events.js';
 import { fetchKapuEvents } from '../lib/kapu-events.js';
+import { fetchLandestheaterEvents } from '../lib/landestheater-linz-events.js';
+import { fetchZooLinzEvents } from '../lib/zoo-linz-events.js';
+import { fetchLandesbibliothekEvents } from '../lib/landesbibliothek-events.js';
+import { fetchAlpenvereinLinzEvents } from '../lib/alpenverein-linz-events.js';
 import { fetchTabakfabrikEvents } from '../lib/tabakfabrik-events.js';
 import { fetchLastSpaceEvents } from '../lib/last-space-events.js';
 import { parseFlorentineEvents } from '../lib/florentine-events.js';
@@ -109,6 +113,7 @@ const DYNAMIC_CALENDAR_CMS = new Set([
   'niedermair', 'theater-des-kindes', 'familienverband',
   'enns',
   'linztermine',
+  'landestheater-linz', 'zoo-linz', 'landesbibliothek', 'alpenverein-linz',
 ]);
 
 // Cheap HTML → text: strip tags/scripts, collapse whitespace. Feeds both the
@@ -658,7 +663,7 @@ async function tryStructuredExtraction(html, src) {
     return { route: 'linztermine', events: await fetchLinztermineEvents(html, src), exclusive: true };
   }
   if (src.cms === 'familienkarte') {
-    return { route: 'familienkarte', events: await fetchFamilienkarteEvents(src, { shellHtml: html }), exclusive: true };
+    return { route: 'familienkarte', events: await fetchFamilienkarteEvents(src), exclusive: true };
   }
   // Direct feed: when the registered `url` IS an iCal/RSS endpoint (rather than
   // an HTML page that LINKS to one), the fetched body is the feed itself, so no
@@ -799,6 +804,19 @@ async function tryStructuredExtraction(html, src) {
   if (src.cms === 'kapu') {
     const events = await fetchKapuEvents(src, { shellHtml: html });
     if (events.length) return { route: 'kapu', events };
+  }
+
+  if (src.cms === 'landestheater-linz') {
+    return { route: 'landestheater-linz', events: await fetchLandestheaterEvents(src, { shellHtml: html }), exclusive: true };
+  }
+  if (src.cms === 'zoo-linz') {
+    return { route: 'zoo-linz', events: await fetchZooLinzEvents(src, { shellHtml: html }), exclusive: true };
+  }
+  if (src.cms === 'landesbibliothek') {
+    return { route: 'landesbibliothek', events: await fetchLandesbibliothekEvents(src, { shellHtml: html }), exclusive: true };
+  }
+  if (src.cms === 'alpenverein-linz') {
+    return { route: 'alpenverein-linz', events: await fetchAlpenvereinLinzEvents(src, { shellHtml: html }), exclusive: true };
   }
 
   if (src.cms === 'tabakfabrik') {

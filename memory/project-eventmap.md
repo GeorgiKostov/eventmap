@@ -1,5 +1,12 @@
 # Project memory — eventmap (Okolo)
 
+## Where things stand (2026-11-16 — upcoming-events health audit)
+- Familienkarte had been storing only "today" (0 upcoming); now 3,213. New Linz routes: Landestheater,
+  Zoo, Landesbibliothek, Alpenverein Jugend, Ars Electronica (JSON-LD, title time wins), KAPU → kapu.at.
+  628 non-events and 1,102 exact duplicates unpublished; "an der Traun" mis-pins fixed. Linz ≤30 km
+  upcoming 5,510 → 7,365. Still open: Jan–Feb thin (needs Linztermine eventExport), categories missing on
+  62%, Lentos/Nordico need permission. Local Nominatim box was off during the run.
+
 ## Where things stand (2026-11-14 — editor descriptions refill the sitemap)
 - The sitemap needs a ≥30-char description; since the AI shutdown no crawler writes one, so
   0/2,043 November Linz additions were listed. George chose descriptions written by Claude Code /

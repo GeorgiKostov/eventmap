@@ -1310,3 +1310,15 @@ and looked like a quiet source. GEM2GO's raster parser likewise stored "bis 4. D
 end) as the start date. **Lesson:** a per-item catch must still count failures and say so when every
 item failed, and every parser needs a fixture taken from the live markup, not from memory.
 Also: GitHub runs top-of-hour crons hours late under load; schedule at odd minutes.
+
+## 2026-11-16 — A listing's default filter is part of its URL
+
+The Familienkarte route (added 2026-11-14) fetched the calendar page as registered. The site's
+date filter defaults to **today**, so every crawl stored one day of events, and all 554 rows had expired
+by the next morning: the main OÖ family source showed 0 upcoming events while the crawl log reported
+"122 events". The route now sends an explicit `date_from`/`date_to` window, and its fixture test asserts
+the window is in every URL. **Lesson:** when a new route reports N events, also check the date spread
+of what it wrote (`min/max(starts_at)`, `status`). If every row is dated on the crawl day, the source is
+showing a default filter, not its calendar. Same audit: `townCentroid()` matched "Steinerkirchen
+an der Traun" to the town Traun. Words after "an der/bei/im" name a river or a neighbouring town, not
+the place itself.

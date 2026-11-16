@@ -26,7 +26,7 @@ const SOURCES = [
   },
   {
     name: 'KAPU Linz — Events',
-    url: 'https://www.kapu.or.at/events',
+    url: 'https://kapu.at/events',
     cms: 'kapu',
     town: 'Linz', region: 'Oberösterreich',
     notes: 'Official KAPU programme. Stable server-rendered Drupal event list with dated event cards.',
