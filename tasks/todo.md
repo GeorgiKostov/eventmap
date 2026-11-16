@@ -10,6 +10,28 @@
 - [ ] George decides: koiraboti.com (Burgas), sdeteto + sofia.plays.bg (written consent),
       ruseonthedanube, Citiesapps TDM licence, AEC RSS, OÖ Tourdata stack.
 
+## Upcoming-events health audit (2026-11-16)
+- [x] Familienkarte route sent no date range → stored only "today", all 554 rows expired overnight.
+      Now an explicit 6-week Vienna window, full titles from the detail link: 0 → 3,213 upcoming.
+- [x] `townCentroid()` matched "… an der Traun" to Traun (15 events re-pinned); Kirchschlag (Waldviertel)
+      rows under bare "Kirchschlag" sat at Kirchschlag bei Linz; "Fish Guiding Plus" (2026→2030 offer) removed.
+- [x] Non-events (waste collection, Sprechtage, notary/council) never published: `lib/non-events.js` in
+      `upsertEvent`; `scripts/unpublish-non-events.mjs` removed 628.
+- [x] Exact duplicates (same title + start + town spelling variant): `scripts/unpublish-exact-dups.mjs`
+      removed 1,102. Re-run after big crawls; Sankt Michael i.O. keeps producing two town spellings.
+- [x] New Linz routes: Landestheater, Zoo Linz, OÖ Landesbibliothek, Alpenverein Linz Jugend
+      (`scripts/register-linz-venues.mjs`), Ars Electronica Center via JSON-LD, KAPU repointed to kapu.at.
+- [x] Ars Electronica JSON-LD `startDate` is 1 h late; a single HH:MM in the title now wins (`lib/jsonld-events.js`).
+- [ ] Linz Jan–Feb still thin (≈20–50 events/week in Linz city, ~1 family event/week in the Semesterferien).
+      Main fix is the Linztermine `eventExport` feed — George sends the access mail (partnerships row 1).
+- [ ] Lentos / Nordico: client-rendered calendar behind an undocumented GraphQL API — ask the museums
+      (LIVA) for a feed; do not call the API without permission.
+- [ ] 62% of upcoming events have no categories (Nov-created rows 76%) — nothing assigns them since the
+      AI shutdown, so the family filter misses them. Needs a deterministic categoriser (keywords + source defaults).
+- [ ] Descriptions backlog 7,367 series (Linz 2,410) vs ~150/day from `okolo-event-descriptions` — falling behind.
+- [ ] Presentation: 829 rows show 00:00 for "all day" (Enns, Wien erleben…), 669 ALL-CAPS titles.
+- [ ] Landestheater morning shows tagged "Buchungsanfragen Schulen" may be school-only; check before picks use them.
+
 ## Editor-written descriptions → sitemap (2026-11-14)
 - [x] Recrawls keep an existing description (`COALESCE` in `upsertEvent`); before this every
       structured crawl reset it to null.
