@@ -1,5 +1,15 @@
 # TODO
 
+## Source scout AT + BG (2026-11-16) — `docs/research/source-scout-2026-11-16.md`
+- [x] Audit: BG 148/178 working sources stuck on `llm` → ~50 upcoming BG events; AT 553 stuck.
+- [ ] BG big cities: `subEvent`/`mainEntity` JSON-LD support → clubcheta (2501), aroundyou (2739);
+      Sofia Puppet cp1251 parser (2503); Philharmonic (2354); Varna ICS + FCC; Burgas gotoburgas.
+- [ ] AT: Gemeinde24 `/llms.txt` adapter (46+ frozen sources); WP Tribe REST adapter (Lilarum,
+      Palace of Varna); register ooekultur, Perg, TMW, MAK, Schönbrunn, steiermark.com,
+      burgenland.info; repoint 5 `off` OÖ rows; set cms on ~16 matching ST/K/B rows.
+- [ ] George decides: koiraboti.com (Burgas), sdeteto + sofia.plays.bg (written consent),
+      ruseonthedanube, Citiesapps TDM licence, AEC RSS, OÖ Tourdata stack.
+
 ## Editor-written descriptions → sitemap (2026-11-14)
 - [x] Recrawls keep an existing description (`COALESCE` in `upsertEvent`); before this every
       structured crawl reset it to null.
