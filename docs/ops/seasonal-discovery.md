@@ -29,8 +29,8 @@ event expiry still follows the database's existing Vienna-local rules.
 
 ## Weekly preparation — existing Wednesday run
 
-Extend `post-okolo-weekend-carousels` (Wednesday 16:00 Europe/Vienna), rather than create another
-schedule. The Sunday crawl and Thursday newsletter prepare/send schedules keep their existing
+Extend the Wednesday 16:00 Europe/Vienna routine `okolo-weekend-issue` ([`weekly-issue-routine.md`](weekly-issue-routine.md)),
+rather than create another schedule. The Sunday crawl and Thursday newsletter prepare/send schedules keep their existing
 cadence, source authorization, spend limits, recipient checks and duplicate ledgers.
 
 Before preparing the weekend issues:

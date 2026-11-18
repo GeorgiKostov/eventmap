@@ -349,3 +349,18 @@ test('itemsAlreadyPosted: lists only the events with their own per-item ledger',
   const ids = await itemsAlreadyPosted({ channel: multiItemDigest.channel, digest: multiItemDigest, target: 'facebook', metaGet: m.metaGet });
   assert.deepEqual(ids.sort(), ['1', '3']);
 });
+
+test('reel ledger key is separate from the carousel ledger', async () => {
+  const { reelPostedKey, postedKey } = await import('../lib/social-publish.js');
+  assert.equal(reelPostedKey('instagram', 'linz', '2026-11-20'), 'reel:ig:linz:2026-11-20');
+  assert.notEqual(reelPostedKey('facebook', 'linz', '2026-11-20'), postedKey('facebook', 'linz', '2026-11-20'));
+});
+
+test('a reel rendered from other picks than the frozen digest is stale', async () => {
+  const { reelMatchesDigest } = await import('../lib/social-publish.js');
+  const digest = { items: [{ id: '1' }, { id: '2' }, { id: '3' }] };
+  assert.equal(reelMatchesDigest(digest, ['1', '2', '3']), true);
+  assert.equal(reelMatchesDigest(digest, [1, 2, 3]), true); // bigint ids arrive as strings or numbers
+  assert.equal(reelMatchesDigest(digest, ['1', '3', '2']), false); // reorder changes the reel
+  assert.equal(reelMatchesDigest(digest, ['1', '2']), false); // a dropped pick
+});

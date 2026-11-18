@@ -2,7 +2,8 @@
 
 ## Where things stand (2026-11-18 — weekly reel prototype)
 - `video/` (Remotion, own package) renders a 9:16 weekend reel from the frozen digest via
-  `npm run reel:props`; not wired to publishing yet. Test it 2–3 weekends next to the carousel.
+  `npm run reel:props`; `npm run reel:publish` posts it as IG/FB Reel. Wednesday issue is now the Claude
+  scheduled task `okolo-weekend-issue` (Codex automation removed 2026-11-18); see weekly-issue-routine.md.
 
 ## Where things stand (2026-11-16 — upcoming-events health audit)
 - Familienkarte had been storing only "today" (0 upcoming); now 3,213. New Linz routes: Landestheater,

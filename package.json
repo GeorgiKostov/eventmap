@@ -18,7 +18,8 @@
     "social": "node --env-file=.env.local scripts/publish-social.mjs",
     "eclipse": "node --env-file=.env.local scripts/publish-eclipse-2026.mjs",
     "mcp": "node --env-file=.env.local scripts/mcp-server.mjs",
-    "reel:props": "node --env-file=.env.local scripts/reel-props.mjs"
+    "reel:props": "node --env-file=.env.local scripts/reel-props.mjs",
+    "reel:publish": "node --env-file=.env.local scripts/publish-reel.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

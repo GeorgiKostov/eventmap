@@ -36,8 +36,8 @@ See [the decision](../decisions/2026-10-27-no-paid-ai.md).
 for any human or AI editor are in [`editorial-picks.md`](editorial-picks.md). §2A below is the
 original spec. The live rank order is in that doc and `lib/pick-policy.js`.
 
-**Seasonal review (2026-10-17):** the existing Wednesday 16:00 Europe/Vienna Codex task
-`post-okolo-weekend-carousels` reviews upcoming Austrian seasons, source-backed coverage,
+**Wednesday routine (Claude Code since 2026-11-18, procedure in [`weekly-issue-routine.md`](weekly-issue-routine.md)):**
+the Wednesday 16:00 Europe/Vienna task `okolo-weekend-issue` prepares the issues, publishes carousel + reel, and reviews upcoming Austrian seasons, source-backed coverage,
 promotion/retirement and matching newsletter visuals before issue preparation. Follow
 [`seasonal-discovery.md`](seasonal-discovery.md). Its separately authorized social publishing
 is limited to configured city targets; it does not send subscriber email. The Thursday GitHub

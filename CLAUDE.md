@@ -164,6 +164,9 @@ AI calls, credentials, scheduled AI lanes, or paid trials without George's expli
 Exception (George, 2026-11-14): event descriptions are written by Claude Code or Codex on
 his subscription, interactively or as the scheduled desktop task `okolo-event-descriptions`,
 following `docs/ops/editor-descriptions.md`. Still no API calls, no Gemini.
+Exception (George, 2026-11-18): the Wednesday weekend issue (picks, copy, carousel, reel) is run by
+the Claude Code desktop scheduled task `okolo-weekend-issue` on his subscription, following
+`docs/ops/weekly-issue-routine.md` (replaces the removed Codex `post-okolo-weekend-carousels`).
 
 ## Coding discipline
 

@@ -6,9 +6,13 @@
       to `video/out/linz-2026-11-20.mp4` (local, not committed).
 - [x] Each card shows WHERE: street-level map + pin for venue/address geocodes, zoomed-out area circle
       for town-only ones (`precise` in reel props) so the reel never fakes an exact spot.
-- [ ] George: post it as a Reel next to the carousel for 2–3 weekends; compare reach/saves/shares/link taps.
-- [ ] If it wins: Graph API `REELS` + story publish in `lib/social-publish.js` (MP4 needs a public URL),
-      „Anzeige" treatment for gold picks (export refuses them today), royalty-free audio, pin overlap offset.
+- [x] Reel publishing: `npm run reel:publish` (resumable upload from disk, IG + FB Reels, `reel:` ledger,
+      refuses a reel whose picks differ from the frozen digest).
+- [x] Codex `post-okolo-weekend-carousels` removed by George → Claude scheduled task `okolo-weekend-issue`
+      (Wed 16:00), procedure `docs/ops/weekly-issue-routine.md`, now also posts the reel.
+- [ ] Compare reel vs carousel reach/saves/shares/link taps after 2–3 weekends.
+- [ ] Later: stories, „Anzeige" treatment for gold picks (export refuses them today), royalty-free audio,
+      pin overlap offset.
 
 ## Source scout AT + BG (2026-11-16) — `docs/research/source-scout-2026-11-16.md`
 - [x] Audit: BG 148/178 working sources stuck on `llm` → ~50 upcoming BG events; AT 553 stuck.
