@@ -159,6 +159,14 @@ a { color: inherit; }
   display: inline-grid; place-items: center; padding: 0 4px;
 }
 
+/* Tool buttons (Filters, List) open a panel — they are not toggles, so they wear
+   solid ink instead of the chip's white/pink on-off states. */
+.chip.tool { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip.tool:hover { background: #33403c; border-color: #33403c; }
+.chip.tool.open { background: var(--panel); color: var(--ink); border-color: var(--ink); }
+.chip.tool .badge { background: var(--accent); }
+.chipdivider { flex: 0 0 1px; align-self: stretch; margin: 5px 2px; background: var(--line); }
+
 /* ================= filter panel ================= */
 .filters { padding: 4px 10px 14px; }
 .fgroup { margin-top: 14px; }

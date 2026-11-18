@@ -3,7 +3,7 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, CaretRight, BookmarkSimple, Flag, Warning } from '@phosphor-icons/react';
+import { ArrowLeft, X, List, MagnifyingGlass, NavigationArrow, CalendarPlus, ShareNetwork, CaretRight, BookmarkSimple, Flag, Warning, SlidersHorizontal, CalendarBlank } from '@phosphor-icons/react';
 import { CATS, CatIcon, EVENT_CATS, PLACE_CATS, P as ICON_PATHS } from '../lib/icons.js';
 import { seasonalTheme, matchesSeasonalTheme, seasonalWindow, activeSeasonalThemes, nextViennaMidnight } from '../lib/seasonal-events.js';
 import { LANGS, LANGUAGE_NAMES } from '../lib/i18n.js';
@@ -898,7 +898,7 @@ export default function Home({ partnerSlug = null } = {}) {
   }
 
   // filters
-  const [kindFilter, setKindFilter] = useState(partner ? 'event' : 'all'); // all | event | place
+  const [kindFilter, setKindFilter] = useState('event'); // all | event | place — events by default; places crowd the map
   const [whenMode, setWhenMode] = useState(partner ? 'range' : 'today'); // all | today | tomorrow | weekend | next7 | range
   const [range, setRange] = useState(partner
     ? { from: partner.dateFrom, to: partner.dateTo }
@@ -2290,7 +2290,7 @@ export default function Home({ partnerSlug = null } = {}) {
         className={`chip ${whenMode === 'range' ? 'on' : ''}`}
         onClick={() => { setDpDraft(range); setDpOpen(true); }}
       >
-        📅 {whenMode === 'range' && range.from ? fmtRangeChip(range.from, range.to, lang) : t.pickDate}
+        <CalendarBlank size={15} weight="bold" aria-hidden="true" /> {whenMode === 'range' && range.from ? fmtRangeChip(range.from, range.to, lang) : t.pickDate}
       </button>
     </>
   );
@@ -2828,9 +2828,10 @@ export default function Home({ partnerSlug = null } = {}) {
             {activeThemes.length > 0 && <div className="chiprow seasonal-row">{seasonalFilters}</div>}
             <div className="chiprow" style={{ padding: '0 18px 10px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>{dateChips}</div>
             <div className="chiprow" style={{ padding: '0 18px 12px', flexWrap: 'wrap', overflowX: 'visible', rowGap: 7 }}>
-              <button className={`chip ${showFilters || advancedFilterCount > 0 ? 'on' : ''}`} onClick={() => setShowFilters(!showFilters)}>
-                ⚙︎ {t.filters} {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
+              <button className={`chip tool ${showFilters ? 'open' : ''}`} aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)}>
+                <SlidersHorizontal size={15} weight="bold" aria-hidden="true" /> {t.filters} {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
               </button>
+              <span className="chipdivider" aria-hidden="true" />
               {quickFilters}
             </div>
             <div className="locstats">
@@ -2927,13 +2928,14 @@ export default function Home({ partnerSlug = null } = {}) {
             {activeThemes.length > 0 && <div className="chiprow seasonal-row">{seasonalFilters}</div>}
             <div className="chiprow" style={{ paddingBottom: 4 }}>{dateChips}</div>
             <div className="chiprow">
+              <button className="chip tool" onClick={() => { setSheetContent('filters'); setSheet('half'); }}>
+                <SlidersHorizontal size={15} weight="bold" aria-hidden="true" /> {t.filters} {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
+              </button>
+              <button className="chip tool" aria-label={t.list} onClick={() => { setSheetContent('list'); setSheet('full'); }}>
+                <List size={15} weight="bold" aria-hidden="true" /> {mode === 'cells' ? viewTotal : filtered.length}
+              </button>
+              <span className="chipdivider" aria-hidden="true" />
               {quickFilters}
-              <button className={`chip ${advancedFilterCount > 0 ? 'on' : ''}`} aria-label={t.filters} onClick={() => { setSheetContent('filters'); setSheet('half'); }}>
-                ⚙︎ {advancedFilterCount > 0 && <span className="badge">{advancedFilterCount}</span>}
-              </button>
-              <button className="chip" onClick={() => { setSheetContent('list'); setSheet('full'); }}>
-                ☰ {mode === 'cells' ? viewTotal : filtered.length}
-              </button>
             </div>
           </div>
         )}
