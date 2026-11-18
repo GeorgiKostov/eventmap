@@ -1,5 +1,13 @@
 # TODO
 
+## Weekly reel prototype (2026-11-18) — `video/README.md`
+- [x] Remotion project `video/` + `npm run reel:props` (frozen digest → props with pin coords): 9:16 ~20 s
+      reel = intro → map pins (OpenFreeMap, attributed) → one card per pick → outro. Linz 20.–22.11. rendered
+      to `video/out/linz-2026-11-20.mp4` (local, not committed).
+- [ ] George: post it as a Reel next to the carousel for 2–3 weekends; compare reach/saves/shares/link taps.
+- [ ] If it wins: Graph API `REELS` + story publish in `lib/social-publish.js` (MP4 needs a public URL),
+      „Anzeige" treatment for gold picks (export refuses them today), royalty-free audio, pin overlap offset.
+
 ## Source scout AT + BG (2026-11-16) — `docs/research/source-scout-2026-11-16.md`
 - [x] Audit: BG 148/178 working sources stuck on `llm` → ~50 upcoming BG events; AT 553 stuck.
 - [ ] BG big cities: `subEvent`/`mainEntity` JSON-LD support → clubcheta (2501), aroundyou (2739);

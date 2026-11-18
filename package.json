@@ -17,7 +17,8 @@
     "newsletter:launch": "node --env-file=.env.local scripts/trigger-newsletter-launch.mjs",
     "social": "node --env-file=.env.local scripts/publish-social.mjs",
     "eclipse": "node --env-file=.env.local scripts/publish-eclipse-2026.mjs",
-    "mcp": "node --env-file=.env.local scripts/mcp-server.mjs"
+    "mcp": "node --env-file=.env.local scripts/mcp-server.mjs",
+    "reel:props": "node --env-file=.env.local scripts/reel-props.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.110.0",

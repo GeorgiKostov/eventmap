@@ -4,22 +4,50 @@
     {
       "name": "okolo-win",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "-p", "3311"],
+      "runtimeArgs": [
+        "node_modules/next/dist/bin/next",
+        "dev",
+        "-p",
+        "3311"
+      ],
       "port": 3311
     },
     {
       "name": "umkreis",
       "runtimeExecutable": "/opt/homebrew/bin/node",
-      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "-p", "3311"],
+      "runtimeArgs": [
+        "node_modules/next/dist/bin/next",
+        "dev",
+        "-p",
+        "3311"
+      ],
       "cwd": "/Users/georgikostov/Repositories/eventmap",
       "port": 3311
     },
     {
       "name": "umkreis-bigcity",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["next", "dev", "-p", "3457"],
+      "runtimeArgs": [
+        "next",
+        "dev",
+        "-p",
+        "3457"
+      ],
       "cwd": "/Users/georgikostov/Repositories/eventmap/.claude/worktrees/bigcity-pins",
       "port": 3457
+    },
+    {
+      "name": "okolo-reel",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "node_modules/@remotion/cli/remotion-cli.js",
+        "studio",
+        "--no-open",
+        "--port",
+        "3312"
+      ],
+      "cwd": "Z:/Projects/Repositories/eventmap/video",
+      "port": 3312
     }
   ]
 }

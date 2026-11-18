@@ -1,0 +1,6 @@
+node_modules
+dist
+out
+.env
+# per-weekend props written by scripts/reel-props.mjs
+data/
