@@ -4,6 +4,8 @@
 - [x] Remotion project `video/` + `npm run reel:props` (frozen digest → props with pin coords): 9:16 ~20 s
       reel = intro → map pins (OpenFreeMap, attributed) → one card per pick → outro. Linz 20.–22.11. rendered
       to `video/out/linz-2026-11-20.mp4` (local, not committed).
+- [x] Each card shows WHERE: street-level map + pin for venue/address geocodes, zoomed-out area circle
+      for town-only ones (`precise` in reel props) so the reel never fakes an exact spot.
 - [ ] George: post it as a Reel next to the carousel for 2–3 weekends; compare reach/saves/shares/link taps.
 - [ ] If it wins: Graph API `REELS` + story publish in `lib/social-publish.js` (MP4 needs a public URL),
       „Anzeige" treatment for gold picks (export refuses them today), royalty-free audio, pin overlap offset.

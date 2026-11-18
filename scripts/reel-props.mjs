@@ -81,6 +81,13 @@ const props = {
       highlight: it.highlight || null,
       lat: g?.lat ?? null,
       lng: g?.lng ?? null,
+      // A pin shown at street zoom claims an exact spot. Only venue/address
+      // geocodes earn that; a town centroid (or a "venue" that is just the town
+      // name) is drawn as an area instead (hard rule 5: never fake precision).
+      precise: Boolean(
+        g && g.geo_precision && g.geo_precision !== 'town' &&
+          (it.venue || '').trim().toLowerCase() !== (it.town || '').trim().toLowerCase(),
+      ),
     };
   }),
 };

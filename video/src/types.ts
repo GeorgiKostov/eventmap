@@ -12,6 +12,7 @@ export type ReelItem = {
   highlight: string | null;
   lat: number | null;
   lng: number | null;
+  precise?: boolean;
 };
 
 export type ReelProps = {
