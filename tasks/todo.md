@@ -10,6 +10,12 @@
       refuses a reel whose picks differ from the frozen digest).
 - [x] Codex `post-okolo-weekend-carousels` removed by George → Claude scheduled task `okolo-weekend-issue`
       (Wed 16:00), procedure `docs/ops/weekly-issue-routine.md`, now also posts the reel.
+- [x] 2026-11-18 first run: carousels IG+FB and IG reels live for Linz + Wien; IG stories posted by hand.
+      Stories now `--story` on `reel:publish`, Friday 09:00 task `okolo-weekend-story`.
+- [ ] George: Meta token lacks `pages_show_list` (FB Reels fail) and FB Stories' granular permission —
+      grant in Business Manager, regenerate META_ACCESS_TOKEN, re-run the FB `reel:publish` commands.
+- [ ] Run follow-ups: Music Hall Innsbruck marks paid concerts `is_free`; innsbrucktermine.at serves English
+      titles (use German feed); weekday-morning school-show rule in pick-policy (with test).
 - [ ] Compare reel vs carousel reach/saves/shares/link taps after 2–3 weekends.
 - [ ] Later: stories, „Anzeige" treatment for gold picks (export refuses them today), royalty-free audio,
       pin overlap offset.

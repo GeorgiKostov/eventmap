@@ -67,6 +67,14 @@ pass `--force`.
    `npm run reel:publish -- --channel <slug> --target instagram` and `--target facebook`.
    The export refuses paid (gold) picks; report that instead of working around it.
 3. If one target fails, continue with the independent ones and report the exact error.
+4. Story: **not on Wednesday** (a Story lasts 24 h). The separate task `okolo-weekend-story`, Friday
+   09:00, posts the same MP4 with `npm run reel:publish -- --channel <slug> --target instagram --story`
+   (own `story:` ledger).
+
+Known token gap (2026-11-18): Facebook Reels fail with `(#200) pages_show_list` and Facebook Stories
+with `(#3) granular permission`. Instagram Reels/Stories and both carousels work. Fix in Meta Business
+Manager (grant the missing Page permissions to the app/system user, regenerate `META_ACCESS_TOKEN`),
+then re-run the failed `reel:publish` commands; until then report it, don't retry.
 
 ## 5. Report
 

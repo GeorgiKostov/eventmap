@@ -11,6 +11,7 @@
 //   npm run reel:publish -- --channel linz --target instagram --dry-run
 //   npm run reel:publish -- --channel linz --target instagram
 //
+// --story posts the same MP4 as a 24 h Story instead (own `story:` ledger).
 // --render does step 2 for you. The script refuses a reel whose picks differ
 // from the frozen digest (e.g. the desk swapped a pick after rendering).
 
@@ -90,19 +91,20 @@ if (!reelMatchesDigest(digest, reelIds)) {
   process.exit(1);
 }
 
+const format = flag('story') ? 'story' : 'reel';
 const missing = missingSocialConfig(target, channel);
 const dryRun = flag('dry-run') || missing.length > 0;
 const caption = target === 'instagram' ? renderCaption(digest) : facebookMessage(digest);
-console.log(`\n=== reel ${channel.handle} → ${target} · ${digest.label} ===`);
+console.log(`\n=== ${format} ${channel.handle} → ${target} · ${digest.label} ===`);
 console.log(`video: ${path.relative(process.cwd(), mp4)} (${(mp4Stat.size / 1e6).toFixed(1)} MB), ${reelIds.length} picks match the digest`);
 if (missing.length) console.log(`not configured: ${missing.join(', ')}`);
 
-const already = await metaGet(reelPostedKey(target, channel.slug, friday));
+const already = await metaGet(reelPostedKey(target, channel.slug, friday, format));
 if (already && !flag('force')) {
   console.log(`ALREADY POSTED: ${already}`);
   process.exit(0);
 }
-console.log(`\ncaption:\n${caption}\n`);
+if (format === 'reel') console.log(`\ncaption:\n${caption}\n`);
 if (dryRun) {
   console.log(missing.length ? '(dry run — credentials not configured)' : '(dry run — --dry-run passed)');
   process.exit(0);
@@ -111,7 +113,7 @@ if (dryRun) {
 try {
   const video = await fs.readFile(mp4);
   const record = await publishReelAndLedger({
-    channel, digest, video, reelIds, target, force: flag('force'),
+    channel, digest, video, reelIds, target, format, force: flag('force'),
     metaGet, metaSet, metaClaim, metaDelete,
   });
   console.log(`posted: id=${record.id} permalink=${record.permalink || '(none)'}`);
